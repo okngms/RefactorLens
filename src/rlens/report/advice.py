@@ -88,7 +88,12 @@ def render_advice(document: AdviceDocument, console: Console) -> None:
             console.print(f"  [yellow]![/] {_safe(warning)}")
 
     console.print()
-    summary = f"{document.suggestion_count} suggestions across {len(document.advices)} targets"
+    suggestions = document.suggestion_count
+    targets = len(document.advices)
+    summary = (
+        f"{suggestions} {'suggestion' if suggestions == 1 else 'suggestions'} "
+        f"across {targets} {'target' if targets == 1 else 'targets'}"
+    )
     if document.unlinked_count:
         summary += f", {document.unlinked_count} not linked to any metric"
     console.print(summary)
@@ -117,11 +122,14 @@ def _advice_markdown(advice: Advice) -> list[str]:
         lines.append(f"### {index}. {suggestion.title}{flag}")
         lines.append("")
         if suggestion.rationale_metric_link:
-            lines.append(f"**Evidence:** {', '.join(suggestion.rationale_metric_link)}")
+            # Liste öğesi olarak yazılır: markdown ardışık satırları tek paragrafta
+            # birleştirir, düz satır olsalardı render edildiğinde "Evidence: ...
+            # Predicted effect: ..." tek satır halinde yapışırdı.
+            lines.append(f"- **Evidence:** {', '.join(suggestion.rationale_metric_link)}")
         predictions = ", ".join(
             f"{effect.metric} {effect.direction}" for effect in suggestion.expected_effect
         )
-        lines.append(f"**Predicted effect:** {predictions or 'none stated'}")
+        lines.append(f"- **Predicted effect:** {predictions or 'none stated'}")
         lines.append("")
         if suggestion.sketch:
             lines += [suggestion.sketch, ""]
@@ -136,7 +144,10 @@ def _advice_markdown(advice: Advice) -> list[str]:
         notes.append("The reply needed a repair round.")
     notes.extend(advice.warnings)
     if notes:
+        # Başlık ile liste arasında boş satır: katı ayrıştırıcılar boş satır
+        # olmadan listeyi paragrafın devamı sayar.
         lines.append("_Notes:_")
+        lines.append("")
         lines += [f"- {note}" for note in notes]
         lines.append("")
 

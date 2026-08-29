@@ -1,6 +1,9 @@
 # messy_project kendi config'iyle gelir: hem demo hem "config gerçekten okunuyor mu" testi.
 scan:
-  exclude: ["tests/"]      # davranış testleri ölçüme dahil edilmez
+  exclude: ["tests/"]
   output_dir: reports/
+provider:
+  name: groq
+  model: openai/gpt-oss-120b
 advise:
   top_n: 3

@@ -270,8 +270,16 @@ def parse_advice(raw_reply: str, target: str) -> tuple[Advice, list[str]]:
             )
         )
 
+    # Hedef adı **modelden alınmaz**. Model şemadaki `"module:Name"` yer
+    # tutucusunu olduğu gibi kopyalayabilir (gözlemlendi) ve o ad hiçbir sınıfa
+    # karşılık gelmez. `verify --advice` öneriyi sınıfla bu adla eşleştireceği
+    # için, doğrulanamayan bir dizgeye güvenmek Faz 4'ü sessizce kırar.
+    echoed = str(payload.get("target") or "").strip()
+    if echoed and echoed != target:
+        warnings.append(f"model reported target {echoed!r}; using {target!r} instead")
+
     advice = Advice(
-        target=str(payload.get("target") or target),
+        target=target,
         diagnosis=str(payload.get("diagnosis", "")).strip(),
         suggestions=suggestions,
         risk_notes=str(payload.get("risk_notes", "")).strip(),

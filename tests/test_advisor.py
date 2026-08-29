@@ -171,6 +171,24 @@ class TestParseAdvice:
         advice, _ = parse_advice('{"suggestions": []}', "god:OrderManager")
         assert advice.target == "god:OrderManager"
 
+    def test_model_echoing_the_schema_placeholder_is_overridden(self):
+        """Gerçekte gözlemlendi: model `"module:Name"` yer tutucusunu kopyaladı.
+
+        O ad hiçbir sınıfa karşılık gelmez ve `verify --advice` eşleştirmesini
+        sessizce kırardı.
+        """
+        advice, warnings = parse_advice(
+            '{"target": "module:Name", "suggestions": []}', "god:OrderManager"
+        )
+        assert advice.target == "god:OrderManager"
+        assert any("module:Name" in w for w in warnings)
+
+    def test_matching_target_produces_no_warning(self):
+        _, warnings = parse_advice(
+            '{"target": "god:OrderManager", "suggestions": []}', "god:OrderManager"
+        )
+        assert warnings == []
+
     def test_serialisation_round_trip(self):
         advice, _ = parse_advice(json.dumps(VALID_REPLY), "t")
         payload = advice.to_dict()

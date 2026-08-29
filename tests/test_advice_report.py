@@ -123,8 +123,28 @@ class TestMarkdown:
     def test_suggestion_sections(self):
         markdown = advice_markdown(make_document(linked_advice()))
         assert "### 1. Extract AuditLog" in markdown
-        assert "**Evidence:** LCOM4" in markdown
-        assert "**Predicted effect:** LCOM4 down, DCC up" in markdown
+        assert "- **Evidence:** LCOM4" in markdown
+        assert "- **Predicted effect:** LCOM4 down, DCC up" in markdown
+
+    def test_evidence_and_prediction_do_not_merge_when_rendered(self):
+        """Markdown ardışık satırları tek paragrafta birleştirir.
+
+        Düz satır olarak yazılsalardı render edildiğinde "Evidence: ...
+        Predicted effect: ..." tek satır halinde yapışırdı.
+        """
+        lines = advice_markdown(make_document(linked_advice())).splitlines()
+        evidence = next(line for line in lines if "**Evidence:**" in line)
+        prediction = next(line for line in lines if "**Predicted effect:**" in line)
+        assert evidence.startswith("- ")
+        assert prediction.startswith("- ")
+
+    def test_notes_list_is_separated_from_its_heading(self):
+        advice = linked_advice()
+        advice.warnings = ["something to know"]
+        lines = advice_markdown(make_document(advice)).splitlines()
+        heading = lines.index("_Notes:_")
+        assert lines[heading + 1] == ""
+        assert lines[heading + 2].startswith("- ")
 
     def test_risks_are_included(self):
         assert "**Risks:**" in advice_markdown(make_document(linked_advice()))
@@ -186,6 +206,16 @@ class TestFiles:
 
     def test_missing_directory_is_not_an_error(self, tmp_path):
         assert latest_advice(tmp_path / "nope") is None
+
+
+class TestSummaryPluralisation:
+    def test_single_suggestion_and_target(self):
+        text = render_to_text(make_document(linked_advice()))
+        assert "1 suggestion across 1 target" in text
+
+    def test_multiple(self):
+        document = make_document(linked_advice(), linked_advice())
+        assert "2 suggestions across 2 targets" in render_to_text(document)
 
 
 class TestCounts:
