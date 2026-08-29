@@ -1,0 +1,634 @@
+{
+  "root": "/path/to/examples/messy_project",
+  "generated_at": "2026-08-29T09:30:07+00:00",
+  "rlens_version": "0.1.0",
+  "schema_version": 1,
+  "modules": [
+    {
+      "path": "god.py",
+      "module": "god",
+      "classes": [
+        {
+          "name": "OrderManager",
+          "module": "god",
+          "lineno": 25,
+          "nom": 25,
+          "wmc": 49,
+          "lcom4": 4,
+          "dam": 1.0,
+          "dam_strict": 0.0,
+          "dcc": 8,
+          "cam": null,
+          "cam_skipped_reason": "no_annotated_parameters",
+          "methods": [
+            {
+              "name": "place_order",
+              "lineno": 41,
+              "cyclomatic_complexity": 6,
+              "loc": 14,
+              "param_count": 2,
+              "max_nesting": 2
+            },
+            {
+              "name": "get_order",
+              "lineno": 56,
+              "cyclomatic_complexity": 2,
+              "loc": 4,
+              "param_count": 1,
+              "max_nesting": 1
+            },
+            {
+              "name": "cancel_order",
+              "lineno": 61,
+              "cyclomatic_complexity": 3,
+              "loc": 8,
+              "param_count": 1,
+              "max_nesting": 1
+            },
+            {
+              "name": "order_count",
+              "lineno": 70,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "orders_for",
+              "lineno": 73,
+              "cyclomatic_complexity": 3,
+              "loc": 6,
+              "param_count": 1,
+              "max_nesting": 2
+            },
+            {
+              "name": "line_count",
+              "lineno": 80,
+              "cyclomatic_complexity": 3,
+              "loc": 7,
+              "param_count": 1,
+              "max_nesting": 2
+            },
+            {
+              "name": "mark_paid",
+              "lineno": 88,
+              "cyclomatic_complexity": 2,
+              "loc": 6,
+              "param_count": 1,
+              "max_nesting": 1
+            },
+            {
+              "name": "unpaid_orders",
+              "lineno": 95,
+              "cyclomatic_complexity": 3,
+              "loc": 7,
+              "param_count": 0,
+              "max_nesting": 2
+            },
+            {
+              "name": "set_discount",
+              "lineno": 105,
+              "cyclomatic_complexity": 3,
+              "loc": 4,
+              "param_count": 2,
+              "max_nesting": 1
+            },
+            {
+              "name": "discount_for",
+              "lineno": 110,
+              "cyclomatic_complexity": 2,
+              "loc": 4,
+              "param_count": 1,
+              "max_nesting": 1
+            },
+            {
+              "name": "bulk_discount",
+              "lineno": 115,
+              "cyclomatic_complexity": 3,
+              "loc": 6,
+              "param_count": 1,
+              "max_nesting": 1
+            },
+            {
+              "name": "set_tax_rate",
+              "lineno": 122,
+              "cyclomatic_complexity": 2,
+              "loc": 4,
+              "param_count": 1,
+              "max_nesting": 1
+            },
+            {
+              "name": "apply_tax",
+              "lineno": 127,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 1,
+              "max_nesting": 0
+            },
+            {
+              "name": "total_with_tax",
+              "lineno": 130,
+              "cyclomatic_complexity": 1,
+              "loc": 4,
+              "param_count": 2,
+              "max_nesting": 0
+            },
+            {
+              "name": "shipping_for",
+              "lineno": 135,
+              "cyclomatic_complexity": 1,
+              "loc": 4,
+              "param_count": 2,
+              "max_nesting": 0
+            },
+            {
+              "name": "log_event",
+              "lineno": 142,
+              "cyclomatic_complexity": 1,
+              "loc": 4,
+              "param_count": 2,
+              "max_nesting": 0
+            },
+            {
+              "name": "history",
+              "lineno": 147,
+              "cyclomatic_complexity": 2,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "last_event",
+              "lineno": 150,
+              "cyclomatic_complexity": 2,
+              "loc": 4,
+              "param_count": 0,
+              "max_nesting": 1
+            },
+            {
+              "name": "log_size",
+              "lineno": 155,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "clear_log",
+              "lineno": 158,
+              "cyclomatic_complexity": 1,
+              "loc": 4,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "configure_smtp",
+              "lineno": 165,
+              "cyclomatic_complexity": 2,
+              "loc": 4,
+              "param_count": 1,
+              "max_nesting": 1
+            },
+            {
+              "name": "notify",
+              "lineno": 170,
+              "cyclomatic_complexity": 1,
+              "loc": 5,
+              "param_count": 2,
+              "max_nesting": 0
+            },
+            {
+              "name": "sent_count",
+              "lineno": 176,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "outbox",
+              "lineno": 179,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "reset_outbox",
+              "lineno": 182,
+              "cyclomatic_complexity": 1,
+              "loc": 4,
+              "param_count": 0,
+              "max_nesting": 0
+            }
+          ]
+        }
+      ],
+      "functions": []
+    },
+    {
+      "path": "models.py",
+      "module": "models",
+      "classes": [
+        {
+          "name": "Customer",
+          "module": "models",
+          "lineno": 12,
+          "nom": 6,
+          "wmc": 6,
+          "lcom4": 3,
+          "dam": 0.2,
+          "dam_strict": 0.0,
+          "dcc": 0,
+          "cam": 1.0,
+          "cam_skipped_reason": null,
+          "methods": [
+            {
+              "name": "rename",
+              "lineno": 22,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 1,
+              "max_nesting": 0
+            },
+            {
+              "name": "promote",
+              "lineno": 25,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 1,
+              "max_nesting": 0
+            },
+            {
+              "name": "is_premium",
+              "lineno": 28,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "add_note",
+              "lineno": 31,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 1,
+              "max_nesting": 0
+            },
+            {
+              "name": "notes",
+              "lineno": 34,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "label",
+              "lineno": 37,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            }
+          ]
+        },
+        {
+          "name": "Product",
+          "module": "models",
+          "lineno": 41,
+          "nom": 4,
+          "wmc": 5,
+          "lcom4": 2,
+          "dam": 0.0,
+          "dam_strict": 0.0,
+          "dcc": 0,
+          "cam": 1.0,
+          "cam_skipped_reason": null,
+          "methods": [
+            {
+              "name": "in_stock",
+              "lineno": 48,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 1,
+              "max_nesting": 0
+            },
+            {
+              "name": "reserve",
+              "lineno": 51,
+              "cyclomatic_complexity": 2,
+              "loc": 4,
+              "param_count": 1,
+              "max_nesting": 1
+            },
+            {
+              "name": "restock",
+              "lineno": 56,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 1,
+              "max_nesting": 0
+            },
+            {
+              "name": "price_for",
+              "lineno": 59,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 1,
+              "max_nesting": 0
+            }
+          ]
+        },
+        {
+          "name": "OrderLine",
+          "module": "models",
+          "lineno": 63,
+          "nom": 3,
+          "wmc": 3,
+          "lcom4": 1,
+          "dam": 0.0,
+          "dam_strict": 0.0,
+          "dcc": 1,
+          "cam": 1.0,
+          "cam_skipped_reason": null,
+          "methods": [
+            {
+              "name": "subtotal",
+              "lineno": 70,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "bump",
+              "lineno": 73,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 1,
+              "max_nesting": 0
+            },
+            {
+              "name": "describe",
+              "lineno": 76,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            }
+          ]
+        }
+      ],
+      "functions": []
+    },
+    {
+      "path": "reporting.py",
+      "module": "reporting",
+      "classes": [
+        {
+          "name": "ReportBuilder",
+          "module": "reporting",
+          "lineno": 13,
+          "nom": 6,
+          "wmc": 7,
+          "lcom4": 2,
+          "dam": 1.0,
+          "dam_strict": 0.0,
+          "dcc": 0,
+          "cam": null,
+          "cam_skipped_reason": "insufficient_annotations",
+          "methods": [
+            {
+              "name": "add_line",
+              "lineno": 20,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 1,
+              "max_nesting": 0
+            },
+            {
+              "name": "render",
+              "lineno": 23,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "reset",
+              "lineno": 26,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "set_title",
+              "lineno": 30,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 1,
+              "max_nesting": 0
+            },
+            {
+              "name": "set_width",
+              "lineno": 33,
+              "cyclomatic_complexity": 2,
+              "loc": 4,
+              "param_count": 1,
+              "max_nesting": 1
+            },
+            {
+              "name": "header",
+              "lineno": 38,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            }
+          ]
+        }
+      ],
+      "functions": []
+    },
+    {
+      "path": "services.py",
+      "module": "services",
+      "classes": [
+        {
+          "name": "Order",
+          "module": "services",
+          "lineno": 13,
+          "nom": 4,
+          "wmc": 6,
+          "lcom4": 2,
+          "dam": 0.0,
+          "dam_strict": 0.0,
+          "dcc": 2,
+          "cam": null,
+          "cam_skipped_reason": "no_annotated_parameters",
+          "methods": [
+            {
+              "name": "subtotal",
+              "lineno": 20,
+              "cyclomatic_complexity": 2,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "item_count",
+              "lineno": 23,
+              "cyclomatic_complexity": 2,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "close",
+              "lineno": 26,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "is_open",
+              "lineno": 29,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            }
+          ]
+        },
+        {
+          "name": "Invoice",
+          "module": "services",
+          "lineno": 33,
+          "nom": 1,
+          "wmc": 1,
+          "lcom4": 1,
+          "dam": 0.0,
+          "dam_strict": 0.0,
+          "dcc": 0,
+          "cam": null,
+          "cam_skipped_reason": "no_annotated_parameters",
+          "methods": [
+            {
+              "name": "as_text",
+              "lineno": 38,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            }
+          ]
+        },
+        {
+          "name": "AuditEntry",
+          "module": "services",
+          "lineno": 42,
+          "nom": 1,
+          "wmc": 1,
+          "lcom4": 1,
+          "dam": 0.0,
+          "dam_strict": 0.0,
+          "dcc": 0,
+          "cam": null,
+          "cam_skipped_reason": "no_annotated_parameters",
+          "methods": [
+            {
+              "name": "format",
+              "lineno": 47,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            }
+          ]
+        },
+        {
+          "name": "EmailNotifier",
+          "module": "services",
+          "lineno": 51,
+          "nom": 1,
+          "wmc": 1,
+          "lcom4": 1,
+          "dam": 0.0,
+          "dam_strict": 0.0,
+          "dcc": 0,
+          "cam": 1.0,
+          "cam_skipped_reason": null,
+          "methods": [
+            {
+              "name": "send",
+              "lineno": 55,
+              "cyclomatic_complexity": 1,
+              "loc": 3,
+              "param_count": 2,
+              "max_nesting": 0
+            }
+          ]
+        },
+        {
+          "name": "ShippingCalculator",
+          "module": "services",
+          "lineno": 60,
+          "nom": 1,
+          "wmc": 2,
+          "lcom4": 1,
+          "dam": 0.0,
+          "dam_strict": 0.0,
+          "dcc": 0,
+          "cam": 1.0,
+          "cam_skipped_reason": null,
+          "methods": [
+            {
+              "name": "cost_for",
+              "lineno": 63,
+              "cyclomatic_complexity": 2,
+              "loc": 5,
+              "param_count": 2,
+              "max_nesting": 1
+            }
+          ]
+        }
+      ],
+      "functions": []
+    },
+    {
+      "path": "utils.py",
+      "module": "utils",
+      "classes": [],
+      "functions": [
+        {
+          "name": "deep_transform",
+          "lineno": 4,
+          "cyclomatic_complexity": 8,
+          "loc": 15,
+          "param_count": 1,
+          "max_nesting": 7
+        },
+        {
+          "name": "build_shipping_label",
+          "lineno": 21,
+          "cyclomatic_complexity": 2,
+          "loc": 4,
+          "param_count": 7,
+          "max_nesting": 0
+        },
+        {
+          "name": "classify_order",
+          "lineno": 27,
+          "cyclomatic_complexity": 15,
+          "loc": 25,
+          "param_count": 7,
+          "max_nesting": 1
+        }
+      ]
+    }
+  ],
+  "skipped_files": []
+}

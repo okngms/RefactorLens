@@ -107,13 +107,13 @@ class TestReadReport:
         assert read_report(written)["root"] == "/tmp/demo"
 
     def test_missing_file(self, tmp_path):
-        with pytest.raises(ReportError, match="okunamadı"):
+        with pytest.raises(ReportError, match="Could not read report"):
             read_report(tmp_path / "yok.json")
 
     def test_invalid_json(self, tmp_path):
         broken = tmp_path / "broken.json"
         broken.write_text("{not json", encoding="utf-8")
-        with pytest.raises(ReportError, match="okunamadı"):
+        with pytest.raises(ReportError, match="Could not read report"):
             read_report(broken)
 
     def test_missing_schema_version_is_rejected(self, tmp_path):
@@ -126,13 +126,13 @@ class TestReadReport:
     def test_future_schema_version_is_rejected(self, tmp_path):
         path = tmp_path / "future.json"
         path.write_text(f'{{"schema_version": {SCHEMA_VERSION + 1}}}', encoding="utf-8")
-        with pytest.raises(ReportError, match="şema sürümü"):
+        with pytest.raises(ReportError, match="schema version"):
             read_report(path)
 
     def test_non_object_payload_is_rejected(self, tmp_path):
         path = tmp_path / "list.json"
         path.write_text("[1, 2, 3]", encoding="utf-8")
-        with pytest.raises(ReportError, match="JSON nesnesi"):
+        with pytest.raises(ReportError, match="not a JSON object"):
             read_report(path)
 
 
@@ -209,7 +209,7 @@ class TestTerminalOutput:
     def test_cam_footnote_explains_the_reason(self, messy):
         report, cfg = messy
         text = render_to_text(report, cfg)
-        assert "CAM hesaplanamadı" in text
+        assert "CAM not computed" in text
 
     def test_violating_functions_are_listed(self, messy):
         report, cfg = messy
@@ -224,12 +224,12 @@ class TestTerminalOutput:
 
     def test_violation_count_is_reported(self, messy):
         report, cfg = messy
-        assert "eşik aşıyor" in render_to_text(report, cfg)
+        assert "over threshold" in render_to_text(report, cfg)
 
     def test_empty_project_gives_guidance(self, tmp_path, config):
         report = scan_project(tmp_path, config)
         text = render_to_text(report, config)
-        assert "Hiç Python dosyası bulunamadı" in text
+        assert "No Python files found" in text
 
     def test_skipped_files_are_surfaced(self, tmp_path):
         (tmp_path / "bad.py").write_text("def f(\n", encoding="utf-8")
@@ -237,7 +237,7 @@ class TestTerminalOutput:
         cfg = load_config(search_from=tmp_path)
         report = scan_project(tmp_path, cfg)
         text = render_to_text(report, cfg)
-        assert "atlandı" in text
+        assert "skipped" in text
         assert "bad.py" in text
 
     def test_partially_skipped_project_shows_both(self, tmp_path):
@@ -254,4 +254,25 @@ class TestTerminalOutput:
         (tmp_path / "rlens.yaml").write_text("scan:\n  include: ['.']\n", encoding="utf-8")
         cfg = load_config(search_from=tmp_path)
         report = scan_project(tmp_path, cfg)
-        assert "Eşik aşan öğe yok" in render_to_text(report, cfg)
+        assert "Nothing over threshold" in render_to_text(report, cfg)
+
+
+class TestPluralisation:
+    """Yayınlanan bir araçta çoğul eki göze batar."""
+
+    def test_singular_counts(self, tmp_path, config):
+        (tmp_path / "one.py").write_text("x = 1\n", encoding="utf-8")
+        text = render_to_text(scan_project(tmp_path, config), config)
+        assert "1 module," in text
+        assert "1 modules" not in text
+
+    def test_plural_counts(self, tmp_path, config):
+        for name in ("a.py", "b.py"):
+            (tmp_path / name).write_text("x = 1\n", encoding="utf-8")
+        assert "2 modules," in render_to_text(scan_project(tmp_path, config), config)
+
+    def test_class_plural_is_not_classs(self, tmp_path, config):
+        (tmp_path / "m.py").write_text("class A:\n    pass\n", encoding="utf-8")
+        text = render_to_text(scan_project(tmp_path, config), config)
+        assert "1 class," in text
+        assert "classs" not in text

@@ -126,14 +126,14 @@ class TestParseFile:
         broken.write_text("def f(\n", encoding="utf-8")
         result = parse_file(broken, tmp_path)
         assert isinstance(result, SkippedFile)
-        assert "sözdizimi" in result.reason
+        assert "syntax error" in result.reason
 
     def test_skip_reason_includes_line_number(self, tmp_path):
         broken = tmp_path / "broken.py"
         broken.write_text("x = 1\ny = (\n", encoding="utf-8")
         result = parse_file(broken, tmp_path)
         assert isinstance(result, SkippedFile)
-        assert "satır" in result.reason
+        assert "line" in result.reason
 
     def test_non_utf8_file_is_skipped(self, tmp_path):
         broken = tmp_path / "latin.py"

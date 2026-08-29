@@ -166,18 +166,18 @@ def parse_file(path: Path, root: Path) -> ParsedModule | SkippedFile:
     try:
         source = path.read_text(encoding="utf-8")
     except UnicodeDecodeError:
-        return SkippedFile(relative, "utf-8 olarak okunamadı")
+        return SkippedFile(relative, "not readable as utf-8")
     except OSError as exc:
-        return SkippedFile(relative, f"okunamadı: {exc.strerror or exc}")
+        return SkippedFile(relative, f"unreadable: {exc.strerror or exc}")
 
     try:
         tree = ast.parse(source, filename=str(path))
     except SyntaxError as exc:
         line = exc.lineno or "?"
-        return SkippedFile(relative, f"sözdizimi hatası (satır {line}): {exc.msg}")
+        return SkippedFile(relative, f"syntax error (line {line}): {exc.msg}")
     except (ValueError, RecursionError) as exc:
         # Çok derin iç içelik veya null bayt gibi uç durumlar.
-        return SkippedFile(relative, f"ayrıştırılamadı: {type(exc).__name__}")
+        return SkippedFile(relative, f"could not parse: {type(exc).__name__}")
 
     return ParsedModule(
         path=path,

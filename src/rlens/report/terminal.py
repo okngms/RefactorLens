@@ -1,5 +1,9 @@
 """Terminal çıktısı: `rich` tabloları.
 
+Kullanıcıya görünen tüm metinler İngilizcedir; paket açık kaynak olarak
+yayınlanır ve arayüz dili geliştiricinin diline bağlı olmamalıdır. Docstring'ler
+Türkçe kalır — onlar projeyi geliştiren kişiye bakar.
+
 Tasarım ilkeleri:
 
 * **`None` asla sayı gibi gösterilmez.** Hesaplanamayan metrik `—` olarak
@@ -9,8 +13,7 @@ Tasarım ilkeleri:
   ihlaller ayrıca özet satırında sayılır (renksiz terminaller ve günlük
   dosyaları için).
 * **Fonksiyon tablosunda yalnızca ihlaller listelenir.** Binlerce fonksiyonun
-  tamamını basmak terminali kullanılamaz hale getirir; ilgi çeken şey sınırı
-  aşanlardır.
+  tamamını basmak terminali kullanılamaz hale getirir.
 """
 
 from __future__ import annotations
@@ -36,12 +39,23 @@ _CLASS_THRESHOLD_KEYS = {
     "dcc": "dcc",
 }
 
-#: Fonksiyon metriği adı → (config anahtarı, sütun başlığı).
-_FUNCTION_THRESHOLDS = {
-    "cyclomatic_complexity": ("cyclomatic_complexity", "CC"),
-    "param_count": ("max_params", "Param"),
-    "max_nesting": ("max_nesting", "Nesting"),
+#: Fonksiyon metriği adı → config anahtarı.
+_FUNCTION_THRESHOLD_KEYS = {
+    "cyclomatic_complexity": "cyclomatic_complexity",
+    "param_count": "max_params",
+    "max_nesting": "max_nesting",
 }
+
+#: CAM'in atlanma nedenlerinin kullanıcıya gösterilen karşılıkları.
+_CAM_REASON_LABELS = {
+    "insufficient_annotations": "annotation coverage below threshold",
+    "no_annotated_parameters": "no annotated parameters",
+}
+
+
+def _plural(count: int, singular: str, plural: str | None = None) -> str:
+    """ "1 class" / "2 classes" — yayınlanan bir araçta çoğul eki göze batar."""
+    return f"{count} {singular if count == 1 else (plural or singular + 'es')}"
 
 
 def _format(value: float | int | None, *, decimals: int = 0) -> str:
@@ -74,7 +88,7 @@ def class_violations(report: ClassReport, config: Config) -> dict[str, str]:
 def function_violations(report: FunctionReport, config: Config) -> dict[str, str]:
     """Fonksiyonun hangi metriklerinin eşiği aştığı."""
     levels: dict[str, str] = {}
-    for metric, (key, _) in _FUNCTION_THRESHOLDS.items():
+    for metric, key in _FUNCTION_THRESHOLD_KEYS.items():
         threshold = config.thresholds.get(key)
         if threshold is None:
             continue
@@ -94,12 +108,10 @@ def _worst(levels: dict[str, str]) -> str | None:
 
 def build_class_table(report: ProjectReport, config: Config) -> Table:
     """Sınıf metrikleri tablosu; en sorunlu sınıflar üstte."""
-    table = Table(title="Sınıf metrikleri", title_justify="left", header_style="bold")
-    table.add_column("Sınıf", overflow="fold")
-    for column in ("NOM", "WMC", "LCOM4", "DCC"):
+    table = Table(title="Class metrics", title_justify="left", header_style="bold")
+    table.add_column("Class", overflow="fold")
+    for column in ("NOM", "WMC", "LCOM4", "DCC", "DAM", "CAM"):
         table.add_column(column, justify="right")
-    table.add_column("DAM", justify="right")
-    table.add_column("CAM", justify="right")
 
     rows: list[tuple[int, int, ClassReport, dict[str, str]]] = []
     for module in report.modules:
@@ -127,15 +139,13 @@ def build_class_table(report: ProjectReport, config: Config) -> Table:
 def build_function_table(report: ProjectReport, config: Config) -> Table | None:
     """Yalnızca eşik aşan fonksiyonlar. İhlal yoksa None."""
     table = Table(
-        title="Eşik aşan fonksiyonlar",
+        title="Functions over threshold",
         title_justify="left",
         header_style="bold",
     )
-    table.add_column("Fonksiyon", overflow="fold")
-    table.add_column("CC", justify="right")
-    table.add_column("Param", justify="right")
-    table.add_column("Nesting", justify="right")
-    table.add_column("LOC", justify="right")
+    table.add_column("Function", overflow="fold")
+    for column in ("CC", "Params", "Nesting", "LOC"):
+        table.add_column(column, justify="right")
 
     rows: list[tuple[int, FunctionReport, str, dict[str, str]]] = []
     for module in report.modules:
@@ -170,12 +180,8 @@ def _cam_notes(report: ProjectReport) -> list[str]:
         if cls.cam is None and cls.cam_skipped_reason:
             reasons[cls.cam_skipped_reason] = reasons.get(cls.cam_skipped_reason, 0) + 1
 
-    labels = {
-        "insufficient_annotations": "annotation kapsamı eşiğin altında",
-        "no_annotated_parameters": "hiç annotate parametre yok",
-    }
     return [
-        f"{count} sınıfta CAM hesaplanamadı ({labels.get(reason, reason)})"
+        f"CAM not computed for {_plural(count, 'class')} ({_CAM_REASON_LABELS.get(reason, reason)})"
         for reason, count in sorted(reasons.items())
     ]
 
@@ -184,32 +190,33 @@ def _render_skipped(report: ProjectReport, console: Console) -> None:
     """Atlanan dosyaları listeler. Kullanıcı neyin ölçülmediğini bilmelidir."""
     if not report.skipped_files:
         return
-    console.print(f"[yellow]{len(report.skipped_files)} dosya atlandı:[/]")
+    count = len(report.skipped_files)
+    console.print(f"[yellow]{_plural(count, 'file', 'files')} skipped:[/]")
     for item in report.skipped_files[:5]:
         console.print(f"  [dim]{item['path']} — {item['reason']}[/dim]")
-    if len(report.skipped_files) > 5:
-        console.print(f"  [dim]… ve {len(report.skipped_files) - 5} dosya daha[/dim]")
+    if count > 5:
+        console.print(f"  [dim]… and {count - 5} more[/dim]")
 
 
 def render_report(report: ProjectReport, config: Config, console: Console) -> int:
     """Raporu terminale basar ve toplam ihlal sayısını döndürür."""
     console.print(
         f"[bold]{report.root}[/bold] — "
-        f"{len(report.modules)} modül, "
-        f"{count_classes(report)} sınıf, "
-        f"{count_functions(report)} fonksiyon"
+        f"{_plural(len(report.modules), 'module', 'modules')}, "
+        f"{_plural(count_classes(report), 'class')}, "
+        f"{_plural(count_functions(report), 'function', 'functions')}"
     )
 
     if not report.modules:
         # Dosya bulunup ayrıştırılamadıysa sorun config'te değil kodda olabilir;
-        # bu iki durumu birbirinden ayırmak kullanıcıyı doğru yere yönlendirir.
+        # bu iki durumu ayırmak kullanıcıyı doğru yere yönlendirir.
         if report.skipped_files:
-            console.print("[yellow]Bulunan dosyaların hiçbiri ayrıştırılamadı.[/]")
+            console.print("[yellow]None of the files found could be parsed.[/]")
             _render_skipped(report, console)
         else:
             console.print(
-                "[yellow]Hiç Python dosyası bulunamadı.[/] "
-                "`scan.include` ve `scan.exclude` ayarlarını kontrol edin."
+                "[yellow]No Python files found.[/] "
+                "Check the `scan.include` and `scan.exclude` settings."
             )
         return 0
 
@@ -235,8 +242,10 @@ def render_report(report: ProjectReport, config: Config, console: Console) -> in
     )
 
     if violations:
-        console.print(f"[yellow]{violations} öğe eşik aşıyor.[/]")
+        console.print(
+            f"[yellow]{violations} {'item' if violations == 1 else 'items'} over threshold.[/]"
+        )
     else:
-        console.print("[green]Eşik aşan öğe yok.[/]")
+        console.print("[green]Nothing over threshold.[/]")
 
     return violations

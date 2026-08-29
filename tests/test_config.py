@@ -66,12 +66,12 @@ class TestValidation:
 
     def test_unknown_section_rejected(self, tmp_path):
         write_config(tmp_path, "provierd:\n  name: groq\n")
-        with pytest.raises(ConfigError, match="Bilinmeyen config"):
+        with pytest.raises(ConfigError, match="Unknown config section"):
             load_config(search_from=tmp_path)
 
     def test_unknown_key_rejected(self, tmp_path):
         write_config(tmp_path, "advise:\n  top_nn: 3\n")
-        with pytest.raises(ConfigError, match="bilinmeyen anahtar"):
+        with pytest.raises(ConfigError, match="Unknown key under"):
             load_config(search_from=tmp_path)
 
     def test_unknown_threshold_key_rejected(self, tmp_path):
@@ -81,7 +81,7 @@ class TestValidation:
 
     def test_unknown_provider_rejected(self, tmp_path):
         write_config(tmp_path, "provider:\n  name: openai\n")
-        with pytest.raises(ConfigError, match="Bilinmeyen sağlayıcı"):
+        with pytest.raises(ConfigError, match="Unknown provider"):
             load_config(search_from=tmp_path)
 
     def test_critical_must_exceed_warn(self, tmp_path):
@@ -91,7 +91,7 @@ class TestValidation:
 
     def test_cam_coverage_out_of_range(self, tmp_path):
         write_config(tmp_path, "metrics:\n  cam_min_annotation_coverage: 1.4\n")
-        with pytest.raises(ConfigError, match="0.0–1.0"):
+        with pytest.raises(ConfigError, match="must be between"):
             load_config(search_from=tmp_path)
 
     def test_top_n_must_be_positive(self, tmp_path):
@@ -101,12 +101,12 @@ class TestValidation:
 
     def test_include_must_be_list_of_strings(self, tmp_path):
         write_config(tmp_path, "scan:\n  include: 'src/'\n")
-        with pytest.raises(ConfigError, match="liste"):
+        with pytest.raises(ConfigError, match="must be a list"):
             load_config(search_from=tmp_path)
 
     def test_invalid_yaml_reports_path(self, tmp_path):
         write_config(tmp_path, "advise: [unclosed\n")
-        with pytest.raises(ConfigError, match="YAML"):
+        with pytest.raises(ConfigError, match="not valid YAML"):
             load_config(search_from=tmp_path)
 
 

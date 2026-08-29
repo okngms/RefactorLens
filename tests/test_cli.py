@@ -95,7 +95,7 @@ class TestScanRun:
     def test_empty_project_still_succeeds(self, tmp_path):
         result = runner.invoke(app, ["scan", str(tmp_path), "--no-report"])
         assert result.exit_code == 0
-        assert "bulunamadı" in result.output
+        assert "No Python files found" in result.output
 
     def test_broken_file_does_not_crash_the_command(self, tmp_path):
         (tmp_path / "rlens.yaml").write_text("scan:\n  include: ['.']\n", encoding="utf-8")

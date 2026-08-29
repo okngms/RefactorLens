@@ -42,7 +42,7 @@ def write_report(report: ProjectReport, output_dir: Path) -> Path:
     try:
         output_dir.mkdir(parents=True, exist_ok=True)
     except OSError as exc:
-        raise ReportError(f"Rapor dizini oluşturulamadı: {output_dir} ({exc})") from exc
+        raise ReportError(f"Could not create report directory: {output_dir} ({exc})") from exc
 
     target = output_dir / report_filename()
     payload = report.to_dict()
@@ -53,7 +53,7 @@ def write_report(report: ProjectReport, output_dir: Path) -> Path:
             encoding="utf-8",
         )
     except OSError as exc:
-        raise ReportError(f"Rapor yazılamadı: {target} ({exc})") from exc
+        raise ReportError(f"Could not write report: {target} ({exc})") from exc
 
     return target
 
@@ -85,20 +85,20 @@ def read_report(path: Path) -> dict:
     try:
         payload = json.loads(Path(path).read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
-        raise ReportError(f"Rapor okunamadı: {path} ({exc})") from exc
+        raise ReportError(f"Could not read report: {path} ({exc})") from exc
 
     if not isinstance(payload, dict):
-        raise ReportError(f"Rapor bir JSON nesnesi değil: {path}")
+        raise ReportError(f"Report is not a JSON object: {path}")
 
     version = payload.get("schema_version")
     if version is None:
-        raise ReportError(f"Raporda `schema_version` yok: {path}")
+        raise ReportError(f"Report has no `schema_version`: {path}")
     if not isinstance(version, int):
-        raise ReportError(f"`schema_version` tam sayı olmalı: {path}")
+        raise ReportError(f"`schema_version` must be an integer: {path}")
     if version > SCHEMA_VERSION:
         raise ReportError(
-            f"Rapor şema sürümü {version}, bu rlens sürümü en fazla "
-            f"{SCHEMA_VERSION} okuyabiliyor: {path}"
+            f"Report schema version is {version}; this rlens build reads at most "
+            f"{SCHEMA_VERSION}: {path}"
         )
 
     return payload

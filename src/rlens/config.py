@@ -172,7 +172,7 @@ def load_config(path: Path | None = None, *, search_from: Path | None = None) ->
     if path is not None:
         config_path = Path(path)
         if not config_path.is_file():
-            raise ConfigError(f"Config dosyası bulunamadı: {config_path}")
+            raise ConfigError(f"Config file not found: {config_path}")
     else:
         config_path = find_config_file(search_from or Path.cwd())
 
@@ -181,15 +181,15 @@ def load_config(path: Path | None = None, *, search_from: Path | None = None) ->
         try:
             text = config_path.read_text(encoding="utf-8")
         except OSError as exc:  # pragma: no cover - dosya sistemi hatası
-            raise ConfigError(f"Config okunamadı: {config_path} ({exc})") from exc
+            raise ConfigError(f"Cannot read config: {config_path} ({exc})") from exc
         try:
             parsed = yaml.safe_load(text)
         except yaml.YAMLError as exc:
-            raise ConfigError(f"Config geçerli YAML değil: {config_path}\n{exc}") from exc
+            raise ConfigError(f"Config is not valid YAML: {config_path}\n{exc}") from exc
         if parsed is None:
             parsed = {}
         if not isinstance(parsed, dict):
-            raise ConfigError(f"Config'in kökü bir eşleme (mapping) olmalı: {config_path}")
+            raise ConfigError(f"Config root must be a mapping: {config_path}")
         raw = parsed
 
     merged = _deep_merge(copy.deepcopy(DEFAULTS), raw)
@@ -211,27 +211,24 @@ def _reject_unknown_keys(raw: dict[str, Any]) -> None:
     unknown_top = set(raw) - set(DEFAULTS)
     if unknown_top:
         raise ConfigError(
-            f"Bilinmeyen config bölümü: {', '.join(sorted(unknown_top))}. "
-            f"Beklenenler: {', '.join(sorted(DEFAULTS))}"
+            f"Unknown config section: {', '.join(sorted(unknown_top))}. "
+            f"Expected one of: {', '.join(sorted(DEFAULTS))}"
         )
     for section in ("provider", "scan", "advise", "metrics"):
         value = raw.get(section)
         if isinstance(value, dict):
             unknown = set(value) - set(DEFAULTS[section])
             if unknown:
-                raise ConfigError(
-                    f"`{section}` altında bilinmeyen anahtar: {', '.join(sorted(unknown))}"
-                )
+                raise ConfigError(f"Unknown key under `{section}`: {', '.join(sorted(unknown))}")
     thresholds = raw.get("thresholds")
     if isinstance(thresholds, dict):
         for metric, spec in thresholds.items():
             if not isinstance(spec, dict):
-                raise ConfigError(f"`thresholds.{metric}` bir eşleme olmalı (örn. {{warn: 10}})")
+                raise ConfigError(f"`thresholds.{metric}` must be a mapping (e.g. {{warn: 10}})")
             unknown = set(spec) - set(_THRESHOLD_KEYS)
             if unknown:
                 raise ConfigError(
-                    f"`thresholds.{metric}` altında bilinmeyen anahtar: "
-                    f"{', '.join(sorted(unknown))}"
+                    f"Unknown key under `thresholds.{metric}`: {', '.join(sorted(unknown))}"
                 )
 
 
@@ -246,23 +243,25 @@ def _require(condition: bool, message: str) -> None:
 
 
 def _as_int(value: Any, label: str, *, minimum: int = 1) -> int:
-    _require(isinstance(value, int) and not isinstance(value, bool), f"`{label}` tam sayı olmalı")
-    _require(value >= minimum, f"`{label}` en az {minimum} olmalı (verilen: {value})")
+    _require(
+        isinstance(value, int) and not isinstance(value, bool), f"`{label}` must be an integer"
+    )
+    _require(value >= minimum, f"`{label}` must be at least {minimum} (got: {value})")
     return int(value)
 
 
 def _as_float(value: Any, label: str, *, low: float, high: float) -> float:
     _require(
         isinstance(value, (int, float)) and not isinstance(value, bool),
-        f"`{label}` sayı olmalı",
+        f"`{label}` must be a number",
     )
-    _require(low <= value <= high, f"`{label}` {low}–{high} aralığında olmalı (verilen: {value})")
+    _require(low <= value <= high, f"`{label}` must be between {low} and {high} (got: {value})")
     return float(value)
 
 
 def _as_str_list(value: Any, label: str) -> tuple[str, ...]:
-    _require(isinstance(value, list), f"`{label}` bir liste olmalı")
-    _require(all(isinstance(item, str) for item in value), f"`{label}` yalnızca metin içermeli")
+    _require(isinstance(value, list), f"`{label}` must be a list")
+    _require(all(isinstance(item, str) for item in value), f"`{label}` must contain only strings")
     return tuple(value)
 
 
@@ -271,14 +270,14 @@ def _build(data: dict[str, Any], source: Path | None) -> Config:
     name = provider_raw["name"]
     _require(
         name in KNOWN_PROVIDERS,
-        f"Bilinmeyen sağlayıcı: {name}. Bilinenler: {', '.join(KNOWN_PROVIDERS)}",
+        f"Unknown provider: {name}. Known providers: {', '.join(KNOWN_PROVIDERS)}",
     )
     model = provider_raw["model"]
-    _require(model is None or isinstance(model, str), "`provider.model` metin ya da boş olmalı")
+    _require(model is None or isinstance(model, str), "`provider.model` must be a string or empty")
     base_url = provider_raw["base_url"]
     _require(
         base_url is None or isinstance(base_url, str),
-        "`provider.base_url` metin ya da boş olmalı",
+        "`provider.base_url` must be a string or empty",
     )
     provider = ProviderConfig(
         name=name,
@@ -289,7 +288,7 @@ def _build(data: dict[str, Any], source: Path | None) -> Config:
     )
 
     scan_raw = data["scan"]
-    _require(isinstance(scan_raw["output_dir"], str), "`scan.output_dir` metin olmalı")
+    _require(isinstance(scan_raw["output_dir"], str), "`scan.output_dir` must be a string")
     scan = ScanConfig(
         include=_as_str_list(scan_raw["include"], "scan.include"),
         exclude=_as_str_list(scan_raw["exclude"], "scan.exclude"),
@@ -317,8 +316,8 @@ def _build(data: dict[str, Any], source: Path | None) -> Config:
 
     thresholds: dict[str, Threshold] = {}
     for metric, spec in data["thresholds"].items():
-        _require(isinstance(spec, dict), f"`thresholds.{metric}` bir eşleme olmalı")
-        _require("warn" in spec, f"`thresholds.{metric}` için `warn` zorunlu")
+        _require(isinstance(spec, dict), f"`thresholds.{metric}` must be a mapping")
+        _require("warn" in spec, f"`thresholds.{metric}` requires `warn`")
         warn = _as_float(spec["warn"], f"thresholds.{metric}.warn", low=0.0, high=1e9)
         critical: float | None = None
         if spec.get("critical") is not None:
@@ -327,7 +326,7 @@ def _build(data: dict[str, Any], source: Path | None) -> Config:
             )
             _require(
                 critical > warn,
-                f"`thresholds.{metric}`: critical ({critical}) > warn ({warn}) olmalı",
+                f"`thresholds.{metric}`: critical ({critical}) must be greater than warn ({warn})",
             )
         thresholds[metric] = Threshold(warn=warn, critical=critical)
 

@@ -63,15 +63,15 @@ def main_callback(
             "-V",
             callback=_version_callback,
             is_eager=True,
-            help="Paket sürümünü ve rapor şema sürümünü yazdırıp çıkar.",
+            help="Print the package version and report schema version, then exit.",
         ),
     ] = False,
 ) -> None:
-    """RefactorLens: ölçüm temelli AI kod incelemesi."""
+    """RefactorLens: metric-grounded AI code review."""
 
 
 def _fail(message: str) -> typer.Exit:
-    err_console.print(f"[bold red]Hata:[/] {message}")
+    err_console.print(f"[bold red]Error:[/] {message}")
     return typer.Exit(code=1)
 
 
@@ -84,7 +84,7 @@ def scan(
             file_okay=False,
             dir_okay=True,
             readable=True,
-            help="Analiz edilecek proje dizini.",
+            help="Project directory to analyse.",
         ),
     ],
     config: Annotated[
@@ -94,26 +94,26 @@ def scan(
             "-c",
             exists=True,
             dir_okay=False,
-            help="rlens.yaml yolu. Verilmezse hedef dizinden köke doğru aranır.",
+            help="Path to rlens.yaml. If omitted, searched upward from the target directory.",
         ),
     ] = None,
     output_dir: Annotated[
         Path | None,
-        typer.Option("--output-dir", "-o", help="Rapor dizini (config'i geçersiz kılar)."),
+        typer.Option("--output-dir", "-o", help="Report directory (overrides the config)."),
     ] = None,
     no_report: Annotated[
         bool,
-        typer.Option("--no-report", help="JSON raporu yazma, yalnızca tabloyu bas."),
+        typer.Option("--no-report", help="Skip the JSON report and only print the tables."),
     ] = False,
     fail_on_violation: Annotated[
         bool,
         typer.Option(
             "--fail-on-violation",
-            help="Eşik aşan öğe varsa çıkış kodu 1 döndür (CI için).",
+            help="Exit with code 1 if anything is over threshold (useful in CI).",
         ),
     ] = False,
 ) -> None:
-    """Projeyi tara, metrik tablosunu bas, JSON raporu yaz."""
+    """Scan a project, print the metric tables and write a JSON report."""
     try:
         cfg = load_config(config, search_from=path)
     except ConfigError as exc:
@@ -128,7 +128,7 @@ def scan(
             written = write_report(report, target)
         except ReportError as exc:
             raise _fail(str(exc)) from exc
-        console.print(f"[dim]Rapor: {written}[/dim]")
+        console.print(f"[dim]Report: {written}[/dim]")
 
     if fail_on_violation and violations:
         raise typer.Exit(code=1)
