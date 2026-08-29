@@ -12,6 +12,7 @@ CLI'dan bağımsız test edilebilir.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -23,22 +24,41 @@ from rlens.analysis.class_metrics import (
 )
 from rlens.analysis.func_metrics import iter_module_functions, measure_function
 from rlens.analysis.model import ModuleReport, ProjectReport
-from rlens.analysis.parser import parse_project
+from rlens.analysis.parser import ParsedModule, parse_project
 from rlens.config import Config
 
 
+@dataclass(frozen=True)
+class ScanResult:
+    """Rapor + kaynak metinler.
+
+    `scan` yalnızca rapora ihtiyaç duyar, ama `advise` prompt'a gerçek kodu
+    koymak zorundadır ve `ProjectReport` kaynak metni taşımaz (taşısaydı JSON
+    raporlar devasa olurdu). Bu yüzden iki tüketici için iki farklı giriş
+    noktası vardır; ikisi de aynı hesabı yapar.
+    """
+
+    report: ProjectReport
+    modules: list[ParsedModule]
+    project_classes: frozenset[str]
+
+
 def scan_project(root: Path, config: Config) -> ProjectReport:
-    """Bir projeyi tarar ve tam metrik raporunu üretir.
+    """Bir projeyi tarar ve metrik raporunu döndürür.
 
-    Args:
-        root: Taranacak dizin.
-        config: Yüklenmiş yapılandırma; `scan.include`, `scan.exclude` ve
-            `metrics.cam_min_annotation_coverage` buradan okunur.
+    `scan` komutunun kullandığı giriş noktası. Kaynak metinlere ihtiyaç duyan
+    `advise` için `scan_project_with_sources` vardır.
+    """
+    return scan_project_with_sources(root, config).report
 
-    Returns:
-        Ayrıştırılan her modül için metrikleri ve atlanan dosyaların listesini
-        içeren rapor. Atlanan dosyalar gizlenmez — kullanıcı neyin ölçülmediğini
-        bilmelidir.
+
+def scan_project_with_sources(root: Path, config: Config) -> ScanResult:
+    """Raporu ve ayrıştırılmış kaynakları birlikte döndürür.
+
+    **Neden iki geçiş?** DCC "proje-içi sınıf" sayar. Bir sınıfın projeye ait
+    olup olmadığını bilmek için önce projedeki tüm sınıf adlarının toplanması
+    gerekir. Tek geçişte ilerlenirse, henüz görülmemiş bir modüldeki sınıfa
+    yapılan referans kaçırılır ve DCC sistematik olarak düşük çıkar.
     """
     root = root.resolve()
 
@@ -70,13 +90,14 @@ def scan_project(root: Path, config: Config) -> ProjectReport:
             )
         )
 
-    return ProjectReport(
+    report = ProjectReport(
         root=str(root),
         generated_at=datetime.now(UTC).isoformat(timespec="seconds"),
         rlens_version=__version__,
         modules=module_reports,
         skipped_files=[item.to_dict() for item in skipped],
     )
+    return ScanResult(report=report, modules=modules, project_classes=project_classes)
 
 
 def count_classes(report: ProjectReport) -> int:
