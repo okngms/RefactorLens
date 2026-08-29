@@ -20,6 +20,7 @@ from rlens.analysis.model import SCHEMA_VERSION, ProjectReport
 
 REPORT_PREFIX = "scan-"
 REPORT_SUFFIX = ".json"
+ADVICE_PREFIX = "advice-"
 TIMESTAMP_FORMAT = "%Y%m%d-%H%M%S"
 
 
@@ -102,3 +103,47 @@ def read_report(path: Path) -> dict:
         )
 
     return payload
+
+
+def write_advice(document, output_dir: Path) -> tuple[Path, Path]:
+    """Öneri belgesini JSON ve Markdown olarak yazar.
+
+    İkisi birden yazılır çünkü iki farklı okuyucusu vardır: markdown insanın
+    okuyup uygulayacağı, JSON ise `verify --advice`ın tahmin denetimi için
+    okuyacağı formattır. Yalnızca markdown yazılsaydı öngörü doğrulaması
+    metin ayrıştırmaya kalırdı.
+
+    Returns:
+        (json_path, markdown_path)
+    """
+    from rlens.report.advice import advice_markdown
+
+    output_dir = Path(output_dir)
+    try:
+        output_dir.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise ReportError(f"Could not create report directory: {output_dir} ({exc})") from exc
+
+    stamp = datetime.now(UTC).strftime(TIMESTAMP_FORMAT)
+    json_path = output_dir / f"{ADVICE_PREFIX}{stamp}.json"
+    markdown_path = output_dir / f"{ADVICE_PREFIX}{stamp}.md"
+
+    try:
+        json_path.write_text(
+            json.dumps(document.to_dict(), indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        markdown_path.write_text(advice_markdown(document), encoding="utf-8")
+    except OSError as exc:
+        raise ReportError(f"Could not write advice report: {exc}") from exc
+
+    return json_path, markdown_path
+
+
+def latest_advice(output_dir: Path) -> Path | None:
+    """En son yazılmış öneri JSON'u, yoksa None."""
+    output_dir = Path(output_dir)
+    if not output_dir.is_dir():
+        return None
+    found = sorted(output_dir.glob(f"{ADVICE_PREFIX}*{REPORT_SUFFIX}"))
+    return found[-1] if found else None

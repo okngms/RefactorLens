@@ -34,6 +34,7 @@ from rlens.advise.prompts import (
     build_repair_prompt,
     build_user_prompt,
 )
+from rlens.analysis.model import ADVICE_SCHEMA_VERSION
 from rlens.config import Config
 from rlens.providers.base import Provider, ProviderError
 
@@ -100,6 +101,9 @@ class Advice:
     repaired: bool = False
     """Onarım denemesi gerekmiş miydi? Faz 5'te modelleri karşılaştırırken sayılır."""
 
+    warnings: list[str] = field(default_factory=list)
+    """Atılan alanlar ve şema ihlalleri. Ölümcül değildir ama gizlenmez."""
+
     @property
     def is_structured(self) -> bool:
         return UNSTRUCTURED not in self.tags
@@ -108,6 +112,50 @@ class Advice:
         payload = asdict(self)
         payload["suggestions"] = [s.to_dict() for s in self.suggestions]
         return payload
+
+
+@dataclass
+class AdviceDocument:
+    """Tek bir `advise` çalıştırmasının tam çıktısı.
+
+    Sağlayıcı, model ve sıcaklık kaydedilir: Faz 5 deneyi "hangi model, hangi
+    ayarla" sorusuna cevap veremezse karşılaştırma yapılamaz.
+    """
+
+    root: str
+    generated_at: str
+    rlens_version: str
+    provider: str
+    model: str | None
+    temperature: float
+    schema_version: int = ADVICE_SCHEMA_VERSION
+    advices: list[Advice] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "schema_version": self.schema_version,
+            "rlens_version": self.rlens_version,
+            "generated_at": self.generated_at,
+            "root": self.root,
+            "provider": self.provider,
+            "model": self.model,
+            "temperature": self.temperature,
+            "advices": [advice.to_dict() for advice in self.advices],
+        }
+
+    @property
+    def suggestion_count(self) -> int:
+        return sum(len(advice.suggestions) for advice in self.advices)
+
+    @property
+    def unlinked_count(self) -> int:
+        """Hiçbir metriğe bağlanmayan öneri sayısı — projenin tezine uymayanlar."""
+        return sum(
+            1
+            for advice in self.advices
+            for suggestion in advice.suggestions
+            if not suggestion.is_linked
+        )
 
 
 def strip_code_fences(text: str) -> str:

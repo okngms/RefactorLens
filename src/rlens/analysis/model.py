@@ -16,8 +16,13 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
-#: Rapor formatı sürümü. Paket sürümünden (`rlens.__version__`) bağımsızdır.
+#: Tarama raporu formatı sürümü. Paket sürümünden bağımsızdır.
 SCHEMA_VERSION = 1
+
+#: Öneri raporu formatı sürümü. Taramadan **ayrıdır**: metrik kuralları
+#: değişmeden öneri formatı değişebilir, ya da tersi. Tek bir sayı kullanılsaydı
+#: birinin değişmesi diğerinin geçmiş raporlarını gereksiz yere geçersiz kılardı.
+ADVICE_SCHEMA_VERSION = 1
 
 
 @dataclass

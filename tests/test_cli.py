@@ -5,6 +5,7 @@ kapsar. Çıkış kodları sözleşmeye göre ayrılmıştır (bkz. cli.py).
 """
 
 import json
+from pathlib import Path
 
 import pytest
 from typer.testing import CliRunner
@@ -127,3 +128,76 @@ class TestFailOnViolation:
         )
         result = runner.invoke(app, ["scan", str(tmp_path), "--no-report"])
         assert result.exit_code == 0
+
+
+class TestAdviseCommand:
+    """`advise` komut yüzeyi.
+
+    Gerçek sağlayıcıya çıkılmaz: `--dry-run` ağ gerektirmez, diğer testler
+    sağlayıcıyı sahtesiyle değiştirir.
+    """
+
+    @pytest.fixture
+    def messy(self):
+        return str(Path(__file__).resolve().parent.parent / "examples" / "messy_project")
+
+    def test_advise_appears_in_help(self):
+        assert "advise" in runner.invoke(app, ["--help"]).output
+
+    def test_dry_run_needs_no_api_key(self, messy, monkeypatch):
+        monkeypatch.delenv("GROQ_API_KEY", raising=False)
+        result = runner.invoke(app, ["advise", messy, "--dry-run", "--top-n", "1"])
+        assert result.exit_code == 0
+        assert "OrderManager" in result.output
+
+    def test_dry_run_shows_the_evidence_block(self, messy):
+        result = runner.invoke(app, ["advise", messy, "--dry-run", "--top-n", "1"])
+        assert "LCOM4 = 4" in result.output
+        assert "[CRITICAL]" in result.output
+
+    def test_dry_run_hides_threshold_numbers(self, messy):
+        """Goodhart azaltması komut düzeyinde de korunmalı."""
+        result = runner.invoke(app, ["advise", messy, "--dry-run", "--top-n", "1"])
+        assert "deliberately not shown" in result.output
+
+    def test_unknown_provider_is_rejected(self, messy):
+        result = runner.invoke(app, ["advise", messy, "--provider", "openai", "--dry-run"])
+        assert result.exit_code == 1
+        assert "Unknown provider" in result.output
+
+    def test_clean_project_asks_nothing(self, tmp_path):
+        (tmp_path / "rlens.yaml").write_text("scan:\n  include: ['.']\n", encoding="utf-8")
+        (tmp_path / "ok.py").write_text("def add(a, b):\n    return a + b\n", encoding="utf-8")
+        result = runner.invoke(app, ["advise", str(tmp_path)])
+        assert result.exit_code == 0
+        assert "Nothing over threshold" in result.output
+
+    def test_missing_model_gives_actionable_error(self, messy, monkeypatch, tmp_path):
+        """Model adı koda gömülmez; hata bunu söylemeli."""
+        monkeypatch.setenv("GROQ_API_KEY", "key")
+        config = tmp_path / "rlens.yaml"
+        config.write_text(
+            "scan:\n  exclude: ['tests/']\nprovider:\n  name: groq\n", encoding="utf-8"
+        )
+        result = runner.invoke(
+            app, ["advise", messy, "--config", str(config), "--top-n", "1", "--no-report"]
+        )
+        assert result.exit_code == 1
+        assert "provider.model" in result.output
+
+    def test_dry_run_preserves_subscripts_in_code(self, messy):
+        """rich markup kodu bozmamalı: --dry-run gönderilenle birebir aynı olmalı."""
+        result = runner.invoke(app, ["advise", messy, "--dry-run", "--top-n", "1"])
+        assert "self._orders[self._next_id] = order" in result.output
+        assert "self._orders = order" not in result.output
+
+    def test_dry_run_preserves_generic_annotations(self, messy):
+        result = runner.invoke(app, ["advise", messy, "--dry-run", "--top-n", "1"])
+        assert "tuple[str, ...]" in result.output
+
+    def test_top_n_limits_the_targets(self, messy):
+        result = runner.invoke(app, ["advise", messy, "--dry-run", "--top-n", "1"])
+        assert result.output.count("--- system ---") == 1
+
+    def test_missing_path_is_a_usage_error(self):
+        assert runner.invoke(app, ["advise", "/yok/boyle"]).exit_code == USAGE_ERROR
