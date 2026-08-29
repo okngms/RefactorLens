@@ -1,0 +1,57 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "refactorlens"
+description = "Metric-grounded AI code review CLI for Python codebases."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.11"
+dynamic = ["version"]
+keywords = ["static-analysis", "code-quality", "refactoring", "llm", "metrics"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = [
+    "typer>=0.12",
+    "rich>=13.7",
+    "PyYAML>=6.0",
+    "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[project.scripts]
+rlens = "rlens.cli:main"
+
+[tool.hatch.version]
+# Tek kaynak: src/rlens/__init__.py içindeki __version__
+path = "src/rlens/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rlens"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+# messy_project BİLEREK kötü koddur; lint'ten muaf tutulur.
+extend-exclude = ["examples/messy_project"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
