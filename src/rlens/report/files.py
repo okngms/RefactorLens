@@ -21,6 +21,7 @@ from rlens.analysis.model import SCHEMA_VERSION, ProjectReport
 REPORT_PREFIX = "scan-"
 REPORT_SUFFIX = ".json"
 ADVICE_PREFIX = "advice-"
+VERIFY_PREFIX = "verify-"
 TIMESTAMP_FORMAT = "%Y%m%d-%H%M%S"
 
 
@@ -147,3 +148,41 @@ def latest_advice(output_dir: Path) -> Path | None:
         return None
     found = sorted(output_dir.glob(f"{ADVICE_PREFIX}*{REPORT_SUFFIX}"))
     return found[-1] if found else None
+
+
+def write_verify(delta, predictions, output_dir: Path) -> tuple[Path, Path]:
+    """Doğrulama sonucunu JSON ve Markdown olarak yazar.
+
+    JSON, Faz 5 deneyinde birden fazla çalıştırmayı toplamak için gerekir;
+    markdown ise insanın okuyacağı hâldir.
+
+    Returns:
+        (json_path, markdown_path)
+    """
+    from rlens.report.verify import verify_markdown
+
+    output_dir = Path(output_dir)
+    try:
+        output_dir.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise ReportError(f"Could not create report directory: {output_dir} ({exc})") from exc
+
+    stamp = datetime.now(UTC).strftime(TIMESTAMP_FORMAT)
+    json_path = output_dir / f"{VERIFY_PREFIX}{stamp}.json"
+    markdown_path = output_dir / f"{VERIFY_PREFIX}{stamp}.md"
+
+    payload = {
+        "schema_version": SCHEMA_VERSION,
+        "delta": delta.to_dict(),
+        "predictions": None if predictions is None else predictions.to_dict(),
+    }
+
+    try:
+        json_path.write_text(
+            json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        )
+        markdown_path.write_text(verify_markdown(delta, predictions), encoding="utf-8")
+    except OSError as exc:
+        raise ReportError(f"Could not write verification report: {exc}") from exc
+
+    return json_path, markdown_path

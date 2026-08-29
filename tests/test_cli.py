@@ -201,3 +201,154 @@ class TestAdviseCommand:
 
     def test_missing_path_is_a_usage_error(self):
         assert runner.invoke(app, ["advise", "/yok/boyle"]).exit_code == USAGE_ERROR
+
+
+class TestVerifyCommand:
+    """`verify` komut yüzeyi ve uçtan uca döngü."""
+
+    @pytest.fixture
+    def project(self, tmp_path):
+        (tmp_path / "rlens.yaml").write_text("scan:\n  include: ['.']\n", encoding="utf-8")
+        (tmp_path / "m.py").write_text(
+            "class C:\n"
+            "    def __init__(self):\n        self.a = 1\n        self.b = 2\n"
+            "    def touch_a(self):\n        return self.a\n"
+            "    def touch_b(self):\n        return self.b\n",
+            encoding="utf-8",
+        )
+        return tmp_path
+
+    def improve(self, project):
+        """LCOM4'ü 2'den 1'e indiren bir değişiklik."""
+        (project / "m.py").write_text(
+            "class C:\n"
+            "    def __init__(self):\n        self.a = 1\n        self.b = 2\n"
+            "    def touch_a(self):\n        return self.a\n"
+            "    def touch_both(self):\n        return self.a + self.b\n",
+            encoding="utf-8",
+        )
+
+    def test_verify_appears_in_help(self):
+        assert "verify" in runner.invoke(app, ["--help"]).output
+
+    def test_without_a_baseline_it_says_what_to_do(self, project):
+        result = runner.invoke(app, ["verify", str(project)])
+        assert result.exit_code == 1
+        assert "rlens scan" in result.output
+
+    def test_baseline_is_picked_automatically(self, project):
+        runner.invoke(app, ["scan", str(project)])
+        result = runner.invoke(app, ["verify", str(project), "--no-report"])
+        assert result.exit_code == 0
+        assert "baseline:" in result.output
+
+    def test_full_loop_detects_the_improvement(self, project):
+        runner.invoke(app, ["scan", str(project)])
+        self.improve(project)
+        result = runner.invoke(app, ["verify", str(project), "--no-report"])
+        assert result.exit_code == 0
+        assert "improved" in result.output
+
+    def test_no_change_is_reported(self, project):
+        runner.invoke(app, ["scan", str(project)])
+        result = runner.invoke(app, ["verify", str(project), "--no-report"])
+        assert "No metric changed" in result.output
+
+    def test_prediction_check_runs_with_advice(self, project, tmp_path):
+        runner.invoke(app, ["scan", str(project)])
+        self.improve(project)
+        advice_file = tmp_path / "advice.json"
+        advice_file.write_text(
+            json.dumps(
+                {
+                    "advices": [
+                        {
+                            "target": "m:C",
+                            "suggestions": [
+                                {
+                                    "title": "Share state",
+                                    "expected_effect": [{"metric": "LCOM4", "direction": "down"}],
+                                }
+                            ],
+                        }
+                    ]
+                }
+            ),
+            encoding="utf-8",
+        )
+        result = runner.invoke(
+            app, ["verify", str(project), "--advice", str(advice_file), "--no-report"]
+        )
+        assert result.exit_code == 0
+        assert "prediction accuracy: 1/1" in result.output
+
+    def test_applied_filter_is_parsed(self, project, tmp_path):
+        runner.invoke(app, ["scan", str(project)])
+        advice_file = tmp_path / "advice.json"
+        advice_file.write_text('{"advices": []}', encoding="utf-8")
+        result = runner.invoke(
+            app,
+            [
+                "verify",
+                str(project),
+                "--advice",
+                str(advice_file),
+                "--applied",
+                "m:C=1",
+                "--no-report",
+            ],
+        )
+        assert result.exit_code == 0
+
+    def test_malformed_applied_is_rejected(self, project, tmp_path):
+        runner.invoke(app, ["scan", str(project)])
+        advice_file = tmp_path / "advice.json"
+        advice_file.write_text('{"advices": []}', encoding="utf-8")
+        result = runner.invoke(
+            app,
+            [
+                "verify",
+                str(project),
+                "--advice",
+                str(advice_file),
+                "--applied",
+                "nonsense",
+                "--no-report",
+            ],
+        )
+        assert result.exit_code == 1
+        assert "TARGET=INDEX" in result.output
+
+    def test_reports_are_written(self, project):
+        runner.invoke(app, ["scan", str(project)])
+        runner.invoke(app, ["verify", str(project)])
+        assert list((project / "reports").glob("verify-*.md"))
+        assert list((project / "reports").glob("verify-*.json"))
+
+    def test_fail_on_regression(self, project):
+        runner.invoke(app, ["scan", str(project)])
+        (project / "m.py").write_text(
+            "class C:\n"
+            "    def __init__(self):\n        self.a = 1\n        self.b = 2\n"
+            "        self.c = 3\n"
+            "    def touch_a(self):\n        return self.a\n"
+            "    def touch_b(self):\n        return self.b\n"
+            "    def touch_c(self):\n        return self.c\n",
+            encoding="utf-8",
+        )
+        result = runner.invoke(app, ["verify", str(project), "--no-report", "--fail-on-regression"])
+        assert result.exit_code == 1
+
+    def test_fail_on_regression_passes_when_clean(self, project):
+        runner.invoke(app, ["scan", str(project)])
+        self.improve(project)
+        result = runner.invoke(app, ["verify", str(project), "--no-report", "--fail-on-regression"])
+        assert result.exit_code == 0
+
+    def test_report_without_schema_version_is_rejected(self, project):
+        reports = project / "reports"
+        reports.mkdir()
+        (reports / "scan-20260101-000000.json").write_text('{"modules": []}', encoding="utf-8")
+        result = runner.invoke(app, ["verify", str(project), "--no-report"])
+        assert result.exit_code == 1
+        assert "schema_version" in result.output

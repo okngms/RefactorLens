@@ -5,12 +5,13 @@ mantığını çağırır ve sonucu sunar. Tarama akışı `analysis.scanner`, �
 biçimlendirme `report` paketi içindedir. Sınır böyle çizildiği için metrikler
 CLI'dan bağımsız test edilebilir.
 
-`verify` (Faz 4) komutu henüz eklenmemiştir; kullanıcıya var olup çalışmayan
-komut göstermek yerine, komut kendi fazında eklenir.
+Komut kümesi tamamdır: `scan` ölçer, `advise` önerir, `verify` önerinin
+etkisini ve modelin tahmininin isabetini denetler.
 """
 
 from __future__ import annotations
 
+import json
 from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -29,8 +30,18 @@ from rlens.analysis.scanner import scan_project, scan_project_with_sources
 from rlens.config import ConfigError, load_config
 from rlens.providers import PROVIDERS, ProviderError, get_provider, load_env_file
 from rlens.report.advice import render_advice
-from rlens.report.files import ReportError, write_advice, write_report
+from rlens.report.files import (
+    ReportError,
+    latest_report,
+    read_report,
+    write_advice,
+    write_report,
+    write_verify,
+)
 from rlens.report.terminal import render_report
+from rlens.report.verify import render_verify
+from rlens.verify.diff import REGRESSED, diff_reports
+from rlens.verify.prediction import check_predictions, parse_applied
 
 app = typer.Typer(
     name="rlens",
@@ -282,6 +293,121 @@ def advise(
             raise _fail(str(exc)) from exc
         console.print(f"[dim]Report: {markdown_path}[/dim]")
         console.print(f"[dim]Machine-readable: {json_path}[/dim]")
+
+
+@app.command()
+def verify(
+    path: Annotated[
+        Path,
+        typer.Argument(
+            exists=True,
+            file_okay=False,
+            dir_okay=True,
+            readable=True,
+            help="Project directory to re-measure.",
+        ),
+    ],
+    before: Annotated[
+        Path | None,
+        typer.Option(
+            "--before",
+            "-b",
+            exists=True,
+            dir_okay=False,
+            help="Baseline scan report. Defaults to the most recent one.",
+        ),
+    ] = None,
+    advice: Annotated[
+        Path | None,
+        typer.Option(
+            "--advice",
+            "-a",
+            exists=True,
+            dir_okay=False,
+            help="Advice JSON. If given, the model's predictions are checked.",
+        ),
+    ] = None,
+    applied: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--applied",
+            help='Which suggestions you applied, e.g. "god:OrderManager=1". '
+            "Repeatable. Without it, every suggestion is scored.",
+        ),
+    ] = None,
+    config: Annotated[
+        Path | None,
+        typer.Option("--config", "-c", exists=True, dir_okay=False, help="Path to rlens.yaml."),
+    ] = None,
+    output_dir: Annotated[
+        Path | None,
+        typer.Option("--output-dir", "-o", help="Report directory (overrides the config)."),
+    ] = None,
+    no_report: Annotated[
+        bool,
+        typer.Option("--no-report", help="Skip the report files and only print to the terminal."),
+    ] = False,
+    fail_on_regression: Annotated[
+        bool,
+        typer.Option(
+            "--fail-on-regression",
+            help="Exit with code 1 if anything regressed (useful in CI).",
+        ),
+    ] = False,
+) -> None:
+    """Re-measure after a change and check whether the model's predictions held."""
+    try:
+        cfg = load_config(config, search_from=path)
+    except ConfigError as exc:
+        raise _fail(str(exc)) from exc
+
+    report_dir = Path(output_dir) if output_dir else path / cfg.scan.output_dir
+
+    baseline_path = before
+    if baseline_path is None:
+        baseline_path = latest_report(report_dir)
+        if baseline_path is None:
+            raise _fail(
+                f"No baseline report found in {report_dir}. "
+                f"Run `rlens scan {path}` before making changes, or pass --before."
+            )
+        console.print(f"[dim]baseline: {baseline_path}[/dim]")
+
+    try:
+        baseline = read_report(baseline_path)
+    except ReportError as exc:
+        raise _fail(str(exc)) from exc
+
+    current = scan_project(path, cfg).to_dict()
+    delta = diff_reports(baseline, current)
+
+    predictions = None
+    if advice is not None:
+        try:
+            advice_document = json.loads(Path(advice).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise _fail(f"Could not read the advice file: {exc}") from exc
+        try:
+            applied_map = parse_applied(applied) if applied else None
+        except ValueError as exc:
+            raise _fail(str(exc)) from exc
+        predictions = check_predictions(advice_document, delta, applied_map)
+
+    render_verify(delta, console, predictions)
+
+    if not no_report:
+        try:
+            json_path, markdown_path = write_verify(delta, predictions, report_dir)
+        except ReportError as exc:
+            raise _fail(str(exc)) from exc
+        console.print(f"[dim]Report: {markdown_path}[/dim]")
+        console.print(f"[dim]Machine-readable: {json_path}[/dim]")
+
+    # Karşılaştırma geçersizse regresyon kontrolü yapılmaz: anlamsız sayılara
+    # dayanarak derlemeyi kırmak, sessizce yanlış delta üretmek kadar zararlı.
+    regressed = any(entity.summarise() == REGRESSED for entity in delta.entities)
+    if fail_on_regression and delta.comparable and regressed:
+        raise typer.Exit(code=1)
 
 
 def main() -> None:
