@@ -211,7 +211,7 @@ Ideas deliberately out of scope live in [FUTURE.md](FUTURE.md).
 ## Development
 
 ```bash
-git clone https://github.com/<user>/refactorlens
+git clone https://github.com/okngms/refactorlens
 cd refactorlens
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
