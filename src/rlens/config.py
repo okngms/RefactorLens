@@ -40,8 +40,12 @@ DEFAULTS: dict[str, Any] = {
         "max_retries": 3,
     },
     "scan": {
-        "include": ["src/"],
-        "exclude": ["tests/", "venv/", ".venv/", "migrations/"],
+        # Varsayılan "her şey"dir, "src/" değil. Kullanıcı taranacak yolu zaten
+        # argümanla seçer; config'in onu ikinci kez daraltması sürpriz üretir:
+        # `rlens scan src/rlens` komutu "src/" filtresiyle hiçbir şey bulamazdı.
+        # Daraltma isteyen `include` yazar; varsayılan davranış öngörülebilir olmalı.
+        "include": ["."],
+        "exclude": ["tests/", "venv/", ".venv/", "migrations/", "build/", "dist/"],
         "output_dir": "reports/",
     },
     "advise": {

@@ -1,7 +1,6 @@
 # messy_project kendi config'iyle gelir: hem demo hem "config gerçekten okunuyor mu" testi.
 scan:
-  include: ["."]
-  exclude: ["tests/"]
+  exclude: ["tests/"]      # davranış testleri ölçüme dahil edilmez
   output_dir: reports/
 advise:
   top_n: 3

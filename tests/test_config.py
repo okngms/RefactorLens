@@ -135,3 +135,14 @@ class TestProviderConfig:
 
     def test_groq_is_not_local(self, tmp_path):
         assert load_config(search_from=tmp_path).provider.is_local is False
+
+
+class TestScanDefaults:
+    """Varsayılan include'un davranışı — dogfooding sırasında bulunan tuzak."""
+
+    def test_include_defaults_to_everything(self, tmp_path):
+        """`src/` varsayılanı `rlens scan src/pkg` komutunu sessizce boş bırakırdı."""
+        assert load_config(search_from=tmp_path).scan.include == (".",)
+
+    def test_tests_are_excluded_by_default(self, tmp_path):
+        assert "tests/" in load_config(search_from=tmp_path).scan.exclude
