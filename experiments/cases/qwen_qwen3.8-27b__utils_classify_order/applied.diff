@@ -1,0 +1,52 @@
+--- a/utils.py
++++ b/utils.py
+@@ -24,28 +24,26 @@
+     return f"{name}|{street}|{city} {postcode}|{country}|{weight:.1f}kg|{speed}"
+ 
+ 
++# Yüklem-eylem çiftleri. Sıra orijinal öncelikle aynıdır: 'vip-large',
++# 'vip'ten önce kontrol edilmelidir.
++_STRATEGIES = [
++    (lambda total, item_count, tier, is_gift, country, coupon, weight: total <= 0, 'invalid'),
++    (lambda total, item_count, tier, is_gift, country, coupon, weight: item_count <= 0, 'invalid'),
++    (lambda total, item_count, tier, is_gift, country, coupon, weight: tier == 'premium' and total > 1000, 'vip-large'),
++    (lambda total, item_count, tier, is_gift, country, coupon, weight: tier == 'premium', 'vip'),
++    (lambda total, item_count, tier, is_gift, country, coupon, weight: is_gift and country != 'TR', 'gift-international'),
++    (lambda total, item_count, tier, is_gift, country, coupon, weight: is_gift, 'gift-domestic'),
++    (lambda total, item_count, tier, is_gift, country, coupon, weight: coupon and total > 500, 'discounted-large'),
++    (lambda total, item_count, tier, is_gift, country, coupon, weight: coupon, 'discounted'),
++    (lambda total, item_count, tier, is_gift, country, coupon, weight: weight > 30, 'freight'),
++    (lambda total, item_count, tier, is_gift, country, coupon, weight: total > 1000, 'large'),
++    (lambda total, item_count, tier, is_gift, country, coupon, weight: item_count > 20, 'bulk'),
++]
++
++
+ def classify_order(total, item_count, tier, is_gift, country, coupon, weight):
+     """Kasıtlı yüksek cyclomatic complexity."""
+-    if total <= 0:
+-        return "invalid"
+-    if item_count <= 0:
+-        return "invalid"
+-    if tier == "premium" and total > 1000:
+-        return "vip-large"
+-    if tier == "premium":
+-        return "vip"
+-    if is_gift and country != "TR":
+-        return "gift-international"
+-    if is_gift:
+-        return "gift-domestic"
+-    if coupon and total > 500:
+-        return "discounted-large"
+-    if coupon:
+-        return "discounted"
+-    if weight > 30:
+-        return "freight"
+-    if total > 1000:
+-        return "large"
+-    if item_count > 20:
+-        return "bulk"
+-    return "standard"
++    for predicate, label in _STRATEGIES:
++        if predicate(total, item_count, tier, is_gift, country, coupon, weight):
++            return label
++    return 'standard'

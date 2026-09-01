@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "rlens_version": "0.2.0",
+  "generated_at": "2026-08-31T18:14:54+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\messy_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "advices": [
+    {
+      "target": "god:OrderManager",
+      "diagnosis": "The class exhibits a classic 'God Class' anti-pattern, evidenced by a high Number of Methods (NOM=25) and a critical Lack of Cohesion (LCOM4=4). The code explicitly groups methods into four distinct functional clusters: order management, pricing, audit logging, and notification. This results in high coupling (DCC=8) as the class references many external classes (Customer, Order, Product, ShippingCalculator, EmailNotifier, etc.) to support these unrelated responsibilities. The high Weighted Methods per Class (WMC=49) further indicates that the class is doing too much work, making it difficult to test and maintain.",
+      "suggestions": [
+        {
+          "title": "Extract Pricing Logic into PricingService",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down"
+            },
+            {
+              "metric": "NOM",
+              "direction": "down"
+            },
+            {
+              "metric": "WMC",
+              "direction": "down"
+            }
+          ],
+          "sketch": "Create a new class `PricingService` that encapsulates `_tax_rate`, `_discount_rules`, and the methods `set_discount`, `discount_for`, `bulk_discount`, `set_tax_rate`, `apply_tax`, `total_with_tax`, and `shipping_for`. `OrderManager` should hold an instance of `PricingService` and delegate pricing calculations to it. This removes ~7 methods and 2 attributes from `OrderManager`, significantly reducing its NOM and WMC while improving cohesion by isolating pricing concerns.",
+          "tags": []
+        },
+        {
+          "title": "Extract Audit Logging into AuditLogger",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down"
+            },
+            {
+              "metric": "NOM",
+              "direction": "down"
+            },
+            {
+              "metric": "DCC",
+              "direction": "down"
+            }
+          ],
+          "sketch": "Create a new class `AuditLogger` that encapsulates `_log` and the methods `log_event`, `history`, `last_event`, `log_size`, and `clear_log`. `OrderManager` should hold an instance of `AuditLogger`. This reduces `OrderManager`'s NOM by 5 and removes the dependency on `AuditEntry` from `OrderManager`'s direct references (though `AuditLogger` will now reference it), potentially lowering DCC if `AuditEntry` was only used for logging. It also improves LCOM4 by separating the logging component.",
+          "tags": []
+        },
+        {
+          "title": "Extract Notification Logic into NotificationService",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down"
+            },
+            {
+              "metric": "NOM",
+              "direction": "down"
+            },
+            {
+              "metric": "DCC",
+              "direction": "down"
+            }
+          ],
+          "sketch": "Create a new class `NotificationService` that encapsulates `_smtp_host`, `_sent`, and the methods `configure_smtp`, `notify`, `sent_count`, `outbox`, and `reset_outbox`. `OrderManager` should hold an instance of `NotificationService`. This reduces `OrderManager`'s NOM by 5 and removes the dependency on `EmailNotifier` from `OrderManager`'s direct references, lowering DCC. It also improves LCOM4 by separating the notification component.",
+          "tags": []
+        }
+      ],
+      "risk_notes": "Refactoring a God Class into multiple services requires careful management of dependencies. `OrderManager` will now depend on `PricingService`, `AuditLogger`, and `NotificationService`, which may increase its DCC if these new classes are not already referenced. However, the overall system cohesion should improve. Testing will need to be updated to mock these new services. The `OrderManager`'s public API might need to be adjusted if it currently exposes methods that are now delegated to the new services, or it can maintain a facade pattern to keep the external interface stable.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"god:OrderManager\",\n  \"diagnosis\": \"The class exhibits a classic 'God Class' anti-pattern, evidenced by a high Number of Methods (NOM=25) and a critical Lack of Cohesion (LCOM4=4). The code explicitly groups methods into four distinct functional clusters: order management, pricing, audit logging, and notification. This results in high coupling (DCC=8) as the class references many external classes (Customer, Order, Product, ShippingCalculator, EmailNotifier, etc.) to support these unrelated responsibilities. The high Weighted Methods per Class (WMC=49) further indicates that the class is doing too much work, making it difficult to test and maintain.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract Pricing Logic into PricingService\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\"\n        }\n      ],\n      \"sketch\": \"Create a new class `PricingService` that encapsulates `_tax_rate`, `_discount_rules`, and the methods `set_discount`, `discount_for`, `bulk_discount`, `set_tax_rate`, `apply_tax`, `total_with_tax`, and `shipping_for`. `OrderManager` should hold an instance of `PricingService` and delegate pricing calculations to it. This removes ~7 methods and 2 attributes from `OrderManager`, significantly reducing its NOM and WMC while improving cohesion by isolating pricing concerns.\"\n    },\n    {\n      \"title\": \"Extract Audit Logging into AuditLogger\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\"\n        }\n      ],\n      \"sketch\": \"Create a new class `AuditLogger` that encapsulates `_log` and the methods `log_event`, `history`, `last_event`, `log_size`, and `clear_log`. `OrderManager` should hold an instance of `AuditLogger`. This reduces `OrderManager`'s NOM by 5 and removes the dependency on `AuditEntry` from `OrderManager`'s direct references (though `AuditLogger` will now reference it), potentially lowering DCC if `AuditEntry` was only used for logging. It also improves LCOM4 by separating the logging component.\"\n    },\n    {\n      \"title\": \"Extract Notification Logic into NotificationService\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\"\n        }\n      ],\n      \"sketch\": \"Create a new class `NotificationService` that encapsulates `_smtp_host`, `_sent`, and the methods `configure_smtp`, `notify`, `sent_count`, `outbox`, and `reset_outbox`. `OrderManager` should hold an instance of `NotificationService`. This reduces `OrderManager`'s NOM by 5 and removes the dependency on `EmailNotifier` from `OrderManager`'s direct references, lowering DCC. It also improves LCOM4 by separating the notification component.\"\n    }\n  ],\n  \"risk_notes\": \"Refactoring a God Class into multiple services requires careful management of dependencies. `OrderManager` will now depend on `PricingService`, `AuditLogger`, and `NotificationService`, which may increase its DCC if these new classes are not already referenced. However, the overall system cohesion should improve. Testing will need to be updated to mock these new services. The `OrderManager`'s public API might need to be adjusted if it currently exposes methods that are now delegated to the new services, or it can maintain a facade pattern to keep the external interface stable.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": []
+    }
+  ]
+}

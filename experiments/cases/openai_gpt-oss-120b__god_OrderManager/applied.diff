@@ -1,0 +1,158 @@
+--- a/god.py
++++ b/god.py
+@@ -1,4 +1,6 @@
+-"""Fikstürün kalbi: dört sorumluluğu tek sınıfta toplayan god class.
++"""Faz 5 vaka kopyası — öneri uygulanmış hali.
++
++Orijinal docstring: fikstürün kalbi: dört sorumluluğu tek sınıfta toplayan god class.
+ 
+ Kasıtlı kokular (kesin değerler Faz 1'de elle doğrulanır, bkz. SMELLS.md):
+ 
+@@ -22,21 +24,10 @@
+ from services import AuditEntry, EmailNotifier, Invoice, Order, ShippingCalculator
+ 
+ 
+-class OrderManager:
++class OrderRepository:
+     def __init__(self):
+-        # Bileşen 1 — siparişler
+         self._orders = {}
+         self._next_id = 1
+-        # Bileşen 2 — fiyatlandırma
+-        self._tax_rate = 0.18
+-        self._discount_rules = {}
+-        # Bileşen 3 — denetim günlüğü
+-        self._log = []
+-        # Bileşen 4 — bildirim
+-        self._smtp_host = "localhost"
+-        self._sent = []
+-
+-    # -- Bileşen 1: siparişler ------------------------------------------------
+ 
+     def place_order(self, customer, lines):
+         if not isinstance(customer, Customer):
+@@ -100,7 +91,11 @@
+                 result.append(order_id)
+         return result
+ 
+-    # -- Bileşen 2: fiyatlandırma ---------------------------------------------
++
++class PricingEngine:
++    def __init__(self, tax_rate=0.18, discount_rules=None):
++        self._tax_rate = tax_rate
++        self._discount_rules = discount_rules or {}
+ 
+     def set_discount(self, tier, rate):
+         if rate < 0 or rate > 1:
+@@ -137,7 +132,10 @@
+         base = calculator.cost_for(weight, express)
+         return round(base * (1 + self._tax_rate), 2)
+ 
+-    # -- Bileşen 3: denetim günlüğü -------------------------------------------
++
++class AuditLog:
++    def __init__(self):
++        self._log = []
+ 
+     def log_event(self, message, level="info"):
+         entry = AuditEntry(message, level)
+@@ -160,7 +158,11 @@
+         self._log = []
+         return removed
+ 
+-    # -- Bileşen 4: bildirim --------------------------------------------------
++
++class NotificationService:
++    def __init__(self, smtp_host="localhost"):
++        self._smtp_host = smtp_host
++        self._sent = []
+ 
+     def configure_smtp(self, host):
+         if not host:
+@@ -183,3 +185,86 @@
+         count = len(self._sent)
+         self._sent = []
+         return count
++
++
++class OrderManager:
++    def __init__(self):
++        self.repo = OrderRepository()
++        self.pricing = PricingEngine()
++        self.audit = AuditLog()
++        self.notifier = NotificationService()
++
++    def place_order(self, customer, lines):
++        return self.repo.place_order(customer, lines)
++
++    def get_order(self, order_id):
++        return self.repo.get_order(order_id)
++
++    def cancel_order(self, order_id):
++        return self.repo.cancel_order(order_id)
++
++    def order_count(self):
++        return self.repo.order_count()
++
++    def orders_for(self, customer_id):
++        return self.repo.orders_for(customer_id)
++
++    def line_count(self, order_id):
++        return self.repo.line_count(order_id)
++
++    def mark_paid(self, order_id):
++        return self.repo.mark_paid(order_id)
++
++    def unpaid_orders(self):
++        return self.repo.unpaid_orders()
++
++    def set_discount(self, tier, rate):
++        return self.pricing.set_discount(tier, rate)
++
++    def discount_for(self, tier):
++        return self.pricing.discount_for(tier)
++
++    def bulk_discount(self, quantity):
++        return self.pricing.bulk_discount(quantity)
++
++    def set_tax_rate(self, rate):
++        return self.pricing.set_tax_rate(rate)
++
++    def apply_tax(self, amount):
++        return self.pricing.apply_tax(amount)
++
++    def total_with_tax(self, subtotal, tier):
++        return self.pricing.total_with_tax(subtotal, tier)
++
++    def shipping_for(self, weight, express=False):
++        return self.pricing.shipping_for(weight, express)
++
++    def log_event(self, message, level='info'):
++        return self.audit.log_event(message, level)
++
++    def history(self):
++        return self.audit.history()
++
++    def last_event(self):
++        return self.audit.last_event()
++
++    def log_size(self):
++        return self.audit.log_size()
++
++    def clear_log(self):
++        return self.audit.clear_log()
++
++    def configure_smtp(self, host):
++        return self.notifier.configure_smtp(host)
++
++    def notify(self, customer, subject):
++        return self.notifier.notify(customer, subject)
++
++    def sent_count(self):
++        return self.notifier.sent_count()
++
++    def outbox(self):
++        return self.notifier.outbox()
++
++    def reset_outbox(self):
++        return self.notifier.reset_outbox()

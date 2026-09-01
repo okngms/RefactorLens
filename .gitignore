@@ -9,3 +9,7 @@ dist/
 .ruff_cache/
 .env
 reports/
+
+# Deney vakalarının proje kopyaları: hacimli ve tekrarlı.
+# Uygulanan değişikliğin kanıtı applied.diff olarak saklanır.
+experiments/cases/*/project/

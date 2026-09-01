@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "rlens_version": "0.2.0",
+  "generated_at": "2026-08-31T18:10:26+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\messy_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "advices": [
+    {
+      "target": "god:OrderManager",
+      "diagnosis": "The OrderManager class aggregates four unrelated responsibilities (order storage, pricing, audit logging, and notification). This is reflected by a critical LCOM4 of 4, a high NOM (25) and WMC (49), indicating low cohesion and complex methods. The DCC of 8 shows it already depends on many internal types, and extracting responsibilities will likely increase that count while improving cohesion.",
+      "suggestions": [
+        {
+          "title": "Extract the four components into dedicated classes",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down"
+            },
+            {
+              "metric": "NOM",
+              "direction": "down"
+            },
+            {
+              "metric": "WMC",
+              "direction": "down"
+            },
+            {
+              "metric": "DCC",
+              "direction": "up"
+            }
+          ],
+          "sketch": "Create four new classes:\n\n```python\nclass OrderRepository:\n    def __init__(self):\n        self._orders = {}\n        self._next_id = 1\n    # move place_order, get_order, cancel_order, order_count, orders_for, line_count, mark_paid, unpaid_orders here\n```\n\n```python\nclass PricingEngine:\n    def __init__(self, tax_rate=0.18, discount_rules=None):\n        self._tax_rate = tax_rate\n        self._discount_rules = discount_rules or {}\n    # move set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_with_tax, shipping_for here\n```\n\n```python\nclass AuditLog:\n    def __init__(self):\n        self._log = []\n    # move log_event, history, last_event, log_size, clear_log here\n```\n\n```python\nclass NotificationService:\n    def __init__(self, smtp_host=\"localhost\"):\n        self._smtp_host = smtp_host\n        self._sent = []\n    # move configure_smtp, notify, sent_count, outbox, reset_outbox here\n```\n\nThen refactor OrderManager to become a thin façade that composes these services:\n\n```python\nclass OrderManager:\n    def __init__(self):\n        self.repo = OrderRepository()\n        self.pricing = PricingEngine()\n        self.audit = AuditLog()\n        self.notifier = NotificationService()\n    # each original method delegates to the appropriate component, e.g.\n    def place_order(self, customer, lines):\n        return self.repo.place_order(customer, lines)\n    # similarly for the other methods\n```\n\nUpdate imports and adjust any external code that instantiated OrderManager directly to use the same public API (the façade preserves method signatures).",
+          "tags": []
+        }
+      ],
+      "risk_notes": "Refactoring may require extensive test updates and careful coordination with any code that directly accesses OrderManager's private attributes. The added indirection could have a minor performance impact, but the gain in cohesion and maintainability usually outweighs it.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:OrderManager\",\n  \"diagnosis\": \"The OrderManager class aggregates four unrelated responsibilities (order storage, pricing, audit logging, and notification). This is reflected by a critical LCOM4 of 4, a high NOM (25) and WMC (49), indicating low cohesion and complex methods. The DCC of 8 shows it already depends on many internal types, and extracting responsibilities will likely increase that count while improving cohesion.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract the four components into dedicated classes\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\"\n        }\n      ],\n      \"sketch\": \"Create four new classes:\\n\\n```python\\nclass OrderRepository:\\n    def __init__(self):\\n        self._orders = {}\\n        self._next_id = 1\\n    # move place_order, get_order, cancel_order, order_count, orders_for, line_count, mark_paid, unpaid_orders here\\n```\\n\\n```python\\nclass PricingEngine:\\n    def __init__(self, tax_rate=0.18, discount_rules=None):\\n        self._tax_rate = tax_rate\\n        self._discount_rules = discount_rules or {}\\n    # move set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_with_tax, shipping_for here\\n```\\n\\n```python\\nclass AuditLog:\\n    def __init__(self):\\n        self._log = []\\n    # move log_event, history, last_event, log_size, clear_log here\\n```\\n\\n```python\\nclass NotificationService:\\n    def __init__(self, smtp_host=\\\"localhost\\\"):\\n        self._smtp_host = smtp_host\\n        self._sent = []\\n    # move configure_smtp, notify, sent_count, outbox, reset_outbox here\\n```\\n\\nThen refactor OrderManager to become a thin façade that composes these services:\\n\\n```python\\nclass OrderManager:\\n    def __init__(self):\\n        self.repo = OrderRepository()\\n        self.pricing = PricingEngine()\\n        self.audit = AuditLog()\\n        self.notifier = NotificationService()\\n    # each original method delegates to the appropriate component, e.g.\\n    def place_order(self, customer, lines):\\n        return self.repo.place_order(customer, lines)\\n    # similarly for the other methods\\n```\\n\\nUpdate imports and adjust any external code that instantiated OrderManager directly to use the same public API (the façade preserves method signatures).\",\n      \"risk_notes\": \"Callers that relied on OrderManager's internal state (e.g., direct access to _orders or _log) will break; the façade must keep the original public API to avoid widespread changes. Introducing additional classes raises the DCC, which may affect module dependency graphs. Transactional consistency between repository and pricing actions must be preserved, so tests should be added to verify that behavior remains identical after delegation.\"\n    }\n  ],\n  \"risk_notes\": \"Refactoring may require extensive test updates and careful coordination with any code that directly accesses OrderManager's private attributes. The added indirection could have a minor performance impact, but the gain in cohesion and maintainability usually outweighs it.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:OrderManager'; using 'god:OrderManager' instead"
+      ]
+    }
+  ]
+}

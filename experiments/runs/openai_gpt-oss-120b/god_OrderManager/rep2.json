@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "rlens_version": "0.2.0",
+  "generated_at": "2026-08-31T18:10:58+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\messy_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "advices": [
+    {
+      "target": "god:OrderManager",
+      "diagnosis": "The OrderManager class aggregates four distinct responsibilities (order storage, pricing, audit logging, and notification) resulting in a high method count (NOM=25) and cyclomatic complexity (WMC=49). The LCOM4 value of 4 indicates the class is split into four weakly connected sub‑graphs, i.e., low cohesion. DCC=8 shows it already depends on many internal types, and extracting responsibilities will increase that count further. All attributes are private (DAM=1.0), which is fine, but the overall design is a classic God object.",
+      "suggestions": [
+        {
+          "title": "Extract each component into its own class",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC",
+            "NOM",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down"
+            },
+            {
+              "metric": "DCC",
+              "direction": "up"
+            },
+            {
+              "metric": "NOM",
+              "direction": "down"
+            },
+            {
+              "metric": "WMC",
+              "direction": "down"
+            }
+          ],
+          "sketch": "Create four new classes—OrderRepository (handles _orders, _next_id, place/get/cancel/etc.), PricingEngine (holds _tax_rate, _discount_rules and methods set_discount, apply_tax, total_with_tax, shipping_for, bulk_discount), AuditLog (manages _log and related methods), and Notifier (stores _smtp_host, _sent and notification methods). The original OrderManager becomes a thin façade that composes these services:\n\nclass OrderManager:\n    def __init__(self):\n        self.repo = OrderRepository()\n        self.pricing = PricingEngine()\n        self.audit = AuditLog()\n        self.notifier = Notifier()\n    # delegate calls, e.g.\n    def place_order(self, customer, lines):\n        return self.repo.place_order(customer, lines)\n    # similarly forward other methods.\n\nEach new class encapsulates its own private attributes, reducing the method‑attribute graph to a single component per class, thus lowering LCOM4. The overall DCC rises because OrderManager now references four additional classes, but the trade‑off is improved modularity and testability.",
+          "tags": []
+        }
+      ],
+      "risk_notes": "Refactoring will require updating all call sites that previously used OrderManager's methods directly; missing delegations could cause runtime errors. The increased number of classes may complicate dependency injection and require adjustments in unit tests. If the system relies on the current monolithic state (e.g., serialization of OrderManager), those mechanisms must be revised.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:OrderManager\",\n  \"diagnosis\": \"The OrderManager class aggregates four distinct responsibilities (order storage, pricing, audit logging, and notification) resulting in a high method count (NOM=25) and cyclomatic complexity (WMC=49). The LCOM4 value of 4 indicates the class is split into four weakly connected sub‑graphs, i.e., low cohesion. DCC=8 shows it already depends on many internal types, and extracting responsibilities will increase that count further. All attributes are private (DAM=1.0), which is fine, but the overall design is a classic God object.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract each component into its own class\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\",\n        \"NOM\",\n        \"WMC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\"\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\"\n        }\n      ],\n      \"sketch\": \"Create four new classes—OrderRepository (handles _orders, _next_id, place/get/cancel/etc.), PricingEngine (holds _tax_rate, _discount_rules and methods set_discount, apply_tax, total_with_tax, shipping_for, bulk_discount), AuditLog (manages _log and related methods), and Notifier (stores _smtp_host, _sent and notification methods). The original OrderManager becomes a thin façade that composes these services:\\n\\nclass OrderManager:\\n    def __init__(self):\\n        self.repo = OrderRepository()\\n        self.pricing = PricingEngine()\\n        self.audit = AuditLog()\\n        self.notifier = Notifier()\\n    # delegate calls, e.g.\\n    def place_order(self, customer, lines):\\n        return self.repo.place_order(customer, lines)\\n    # similarly forward other methods.\\n\\nEach new class encapsulates its own private attributes, reducing the method‑attribute graph to a single component per class, thus lowering LCOM4. The overall DCC rises because OrderManager now references four additional classes, but the trade‑off is improved modularity and testability.\"\n    }\n  ],\n  \"risk_notes\": \"Refactoring will require updating all call sites that previously used OrderManager's methods directly; missing delegations could cause runtime errors. The increased number of classes may complicate dependency injection and require adjustments in unit tests. If the system relies on the current monolithic state (e.g., serialization of OrderManager), those mechanisms must be revised.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:OrderManager'; using 'god:OrderManager' instead"
+      ]
+    }
+  ]
+}

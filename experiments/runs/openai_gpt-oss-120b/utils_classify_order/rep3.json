@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "rlens_version": "0.2.0",
+  "generated_at": "2026-08-31T18:11:41+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\messy_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "advices": [
+    {
+      "target": "utils:classify_order",
+      "diagnosis": "The function has a very high cyclomatic complexity (CC=15) relative to its modest size (LOC=25) and a large number of parameters (PARAMS=7). The many independent conditional branches indicate that the decision logic is tangled, making the function hard to test, understand, and extend. The parameter count also hurts readability and encourages callers to manage many arguments manually.",
+      "suggestions": [
+        {
+          "title": "Introduce an OrderInfo data class to collapse parameters",
+          "rationale_metric_link": [
+            "PARAMS",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "PARAMS",
+              "direction": "down"
+            },
+            {
+              "metric": "DCC",
+              "direction": "up"
+            }
+          ],
+          "sketch": "Create a small @dataclass OrderInfo(total: float, item_count: int, tier: str, is_gift: bool, country: str, coupon: bool, weight: float). Change the signature to classify_order(info: OrderInfo). All attribute accesses inside the function become info.total, info.item_count, etc.",
+          "tags": []
+        },
+        {
+          "title": "Extract each business rule into its own helper function to lower CC",
+          "rationale_metric_link": [
+            "CC",
+            "LCOM4"
+          ],
+          "expected_effect": [
+            {
+              "metric": "CC",
+              "direction": "down"
+            },
+            {
+              "metric": "LCOM4",
+              "direction": "down"
+            }
+          ],
+          "sketch": "Define a series of small functions like _is_invalid(info), _is_vip_large(info), _is_gift_international(info), etc., each returning either a classification string or None. In classify_order, iterate through the ordered list of rule functions and return the first non‑None result. This moves the branching into separate units, reducing the CC of the main function and improving cohesion (lower LCOM4) if the helpers are grouped in a dedicated class or module.",
+          "tags": []
+        }
+      ],
+      "risk_notes": "Changing the signature to accept a data class will require updates to every call site; missing attributes or mismatched types could cause runtime errors. Adding many tiny helper functions increases the number of callables, which may slightly impact performance and raise the DCC metric due to the new OrderInfo dependency. If the helpers are placed in a class, LCOM4 may behave differently depending on how cohesion is measured.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"utils:classify_order\",\n  \"diagnosis\": \"The function has a very high cyclomatic complexity (CC=15) relative to its modest size (LOC=25) and a large number of parameters (PARAMS=7). The many independent conditional branches indicate that the decision logic is tangled, making the function hard to test, understand, and extend. The parameter count also hurts readability and encourages callers to manage many arguments manually.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Introduce an OrderInfo data class to collapse parameters\",\n      \"rationale_metric_link\": [\n        \"PARAMS\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"PARAMS\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\"\n        }\n      ],\n      \"sketch\": \"Create a small @dataclass OrderInfo(total: float, item_count: int, tier: str, is_gift: bool, country: str, coupon: bool, weight: float). Change the signature to classify_order(info: OrderInfo). All attribute accesses inside the function become info.total, info.item_count, etc.\"\n    },\n    {\n      \"title\": \"Extract each business rule into its own helper function to lower CC\",\n      \"rationale_metric_link\": [\n        \"CC\",\n        \"LCOM4\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"CC\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\"\n        }\n      ],\n      \"sketch\": \"Define a series of small functions like _is_invalid(info), _is_vip_large(info), _is_gift_international(info), etc., each returning either a classification string or None. In classify_order, iterate through the ordered list of rule functions and return the first non‑None result. This moves the branching into separate units, reducing the CC of the main function and improving cohesion (lower LCOM4) if the helpers are grouped in a dedicated class or module.\"\n    }\n  ],\n  \"risk_notes\": \"Changing the signature to accept a data class will require updates to every call site; missing attributes or mismatched types could cause runtime errors. Adding many tiny helper functions increases the number of callables, which may slightly impact performance and raise the DCC metric due to the new OrderInfo dependency. If the helpers are placed in a class, LCOM4 may behave differently depending on how cohesion is measured.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": []
+    }
+  ]
+}

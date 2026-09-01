@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "rlens_version": "0.2.0",
+  "generated_at": "2026-08-31T18:11:19+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\messy_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "advices": [
+    {
+      "target": "utils:deep_transform",
+      "diagnosis": "The function exhibits high cyclomatic complexity (CC=8) and excessive nesting depth (NESTING=7) relative to its modest size (LOC=15). The deep nesting of loops and conditionals inflates the decision paths, making the code harder to read, test, and maintain. Reducing nesting and simplifying conditional branches will directly address the flagged metrics.",
+      "suggestions": [
+        {
+          "title": "Extract inner loops and flatten conditionals",
+          "rationale_metric_link": [
+            "CC",
+            "NESTING"
+          ],
+          "expected_effect": [
+            {
+              "metric": "CC",
+              "direction": "down"
+            },
+            {
+              "metric": "NESTING",
+              "direction": "down"
+            },
+            {
+              "metric": "LOC",
+              "direction": "same"
+            }
+          ],
+          "sketch": "Create a helper that processes a single dict item and returns a list of (key, value) pairs. Then rewrite deep_transform using list comprehensions or generator expressions:\n\n```python\ndef _process_item(item):\n    result = []\n    for key in sorted(item):\n        value = item[key]\n        if isinstance(value, (int, float)):\n            result.append((key, value if value > 0 else 0))\n    return result\n\ndef deep_transform(data):\n    return [pair for group in data if isinstance(group, list)\n            for item in group if isinstance(item, dict)\n            for pair in _process_item(item)]\n```\nThis removes three levels of nesting and consolidates the branching logic, lowering CC and NESTING while keeping line count roughly unchanged.",
+          "tags": []
+        }
+      ],
+      "risk_notes": "The primary risk is a regression in behavior if the helper mishandles non‑numeric values or the sorting of keys. Comprehensive tests are required to confirm that the transformed output matches the original implementation for all input shapes.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"utils:deep_transform\",\n  \"diagnosis\": \"The function exhibits high cyclomatic complexity (CC=8) and excessive nesting depth (NESTING=7) relative to its modest size (LOC=15). The deep nesting of loops and conditionals inflates the decision paths, making the code harder to read, test, and maintain. Reducing nesting and simplifying conditional branches will directly address the flagged metrics.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract inner loops and flatten conditionals\",\n      \"rationale_metric_link\": [\n        \"CC\",\n        \"NESTING\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"CC\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"NESTING\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"LOC\",\n          \"direction\": \"same\"\n        }\n      ],\n      \"sketch\": \"Create a helper that processes a single dict item and returns a list of (key, value) pairs. Then rewrite deep_transform using list comprehensions or generator expressions:\\n\\n```python\\ndef _process_item(item):\\n    result = []\\n    for key in sorted(item):\\n        value = item[key]\\n        if isinstance(value, (int, float)):\\n            result.append((key, value if value > 0 else 0))\\n    return result\\n\\ndef deep_transform(data):\\n    return [pair for group in data if isinstance(group, list)\\n            for item in group if isinstance(item, dict)\\n            for pair in _process_item(item)]\\n```\\nThis removes three levels of nesting and consolidates the branching logic, lowering CC and NESTING while keeping line count roughly unchanged.\",\n      \"risk_notes\": \"The refactor introduces a new private helper; callers of deep_transform are unaffected, but any code that relied on the exact ordering of result items must be verified, as list comprehensions preserve order but subtle differences could arise if the original loops were altered. Ensure unit tests cover edge cases (non‑numeric values, negative numbers, empty structures) before merging.\"\n    }\n  ],\n  \"risk_notes\": \"The primary risk is a regression in behavior if the helper mishandles non‑numeric values or the sorting of keys. Comprehensive tests are required to confirm that the transformed output matches the original implementation for all input shapes.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": []
+    }
+  ]
+}

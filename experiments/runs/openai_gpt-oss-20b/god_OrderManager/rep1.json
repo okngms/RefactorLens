@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "rlens_version": "0.2.0",
+  "generated_at": "2026-08-31T18:12:06+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\messy_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "advices": [
+    {
+      "target": "god:OrderManager",
+      "diagnosis": "The class has a high number of methods (NOM=25) and a very high cyclomatic complexity (WMC=49), indicating that it is doing too much. The cohesion metric LCOM4=4 is critical, meaning the methods are largely unrelated to the attributes they use. The class also depends on eight other internal classes (DCC=8), showing a high coupling. These measurements point to a classic God‑object that should be decomposed into smaller, more focused components.",
+      "suggestions": [
+        {
+          "title": "Split OrderManager into dedicated services",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC",
+            "NOM",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down"
+            },
+            {
+              "metric": "DCC",
+              "direction": "down"
+            },
+            {
+              "metric": "NOM",
+              "direction": "down"
+            },
+            {
+              "metric": "WMC",
+              "direction": "down"
+            }
+          ],
+          "sketch": "Create four new classes:\n\n```python\nclass OrderService:\n    def __init__(self, repo: OrderRepository, pricing: PricingEngine, notifier: NotificationService, logger: AuditLogger):\n        self.repo = repo\n        self.pricing = pricing\n        self.notifier = notifier\n        self.logger = logger\n\n    # move place_order, get_order, cancel_order, order_count, orders_for, line_count, mark_paid, unpaid_orders here\n\nclass PricingEngine:\n    def __init__(self, tax_rate: float, discount_rules: dict):\n        self.tax_rate = tax_rate\n        self.discount_rules = discount_rules\n\n    # move set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_with_tax, shipping_for\n\nclass AuditLogger:\n    def __init__(self):\n        self._log = []\n\n    # move log_event, history, last_event, log_size, clear_log\n\nclass NotificationService:\n    def __init__(self, smtp_host: str):\n        self.smtp_host = smtp_host\n        self._sent = []\n\n    # move configure_smtp, notify, sent_count, outbox, reset_outbox\n```\n\nOrderRepository can be a simple in‑memory store for orders. Each new class now only references the classes it actually needs, dramatically lowering LCOM4 and DCC for OrderManager and spreading responsibilities across the system.",
+          "tags": []
+        }
+      ],
+      "risk_notes": "Splitting the class will increase the number of modules and may introduce subtle bugs if dependencies are not wired correctly. Careful integration testing is required to ensure that order placement, pricing, logging, and notification still work together as before.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:OrderManager\",\n  \"diagnosis\": \"The class has a high number of methods (NOM=25) and a very high cyclomatic complexity (WMC=49), indicating that it is doing too much. The cohesion metric LCOM4=4 is critical, meaning the methods are largely unrelated to the attributes they use. The class also depends on eight other internal classes (DCC=8), showing a high coupling. These measurements point to a classic God‑object that should be decomposed into smaller, more focused components.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Split OrderManager into dedicated services\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\",\n        \"NOM\",\n        \"WMC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\"\n        }\n      ],\n      \"sketch\": \"Create four new classes:\\n\\n```python\\nclass OrderService:\\n    def __init__(self, repo: OrderRepository, pricing: PricingEngine, notifier: NotificationService, logger: AuditLogger):\\n        self.repo = repo\\n        self.pricing = pricing\\n        self.notifier = notifier\\n        self.logger = logger\\n\\n    # move place_order, get_order, cancel_order, order_count, orders_for, line_count, mark_paid, unpaid_orders here\\n\\nclass PricingEngine:\\n    def __init__(self, tax_rate: float, discount_rules: dict):\\n        self.tax_rate = tax_rate\\n        self.discount_rules = discount_rules\\n\\n    # move set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_with_tax, shipping_for\\n\\nclass AuditLogger:\\n    def __init__(self):\\n        self._log = []\\n\\n    # move log_event, history, last_event, log_size, clear_log\\n\\nclass NotificationService:\\n    def __init__(self, smtp_host: str):\\n        self.smtp_host = smtp_host\\n        self._sent = []\\n\\n    # move configure_smtp, notify, sent_count, outbox, reset_outbox\\n```\\n\\nOrderRepository can be a simple in‑memory store for orders. Each new class now only references the classes it actually needs, dramatically lowering LCOM4 and DCC for OrderManager and spreading responsibilities across the system.\",\n      \"risk_notes\": \"This refactor changes the public API of OrderManager; callers must be updated to use the new services. Unit tests will need to be rewritten to instantiate the new classes. If the system relies on OrderManager being a single entry point, additional façade code may be required to preserve backward compatibility.\"\n    }\n  ],\n  \"risk_notes\": \"Splitting the class will increase the number of modules and may introduce subtle bugs if dependencies are not wired correctly. Careful integration testing is required to ensure that order placement, pricing, logging, and notification still work together as before.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:OrderManager'; using 'god:OrderManager' instead"
+      ]
+    }
+  ]
+}

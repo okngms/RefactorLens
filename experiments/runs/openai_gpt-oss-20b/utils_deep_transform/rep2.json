@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "rlens_version": "0.2.0",
+  "generated_at": "2026-08-31T18:13:04+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\messy_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "advices": [
+    {
+      "target": "utils:deep_transform",
+      "diagnosis": "The function has a cyclomatic complexity of 8 and a nesting depth of 7, which are both flagged as warnings. With 15 physical lines and only one parameter, the code is relatively short but the deep nested loops make it hard to read and maintain. The high nesting level also inflates the cyclomatic complexity, increasing the risk of bugs and making unit testing more difficult.",
+      "suggestions": [
+        {
+          "title": "Flatten nested loops into helper functions",
+          "rationale_metric_link": [
+            "CC",
+            "NESTING"
+          ],
+          "expected_effect": [
+            {
+              "metric": "CC",
+              "direction": "down"
+            },
+            {
+              "metric": "NESTING",
+              "direction": "down"
+            },
+            {
+              "metric": "LOC",
+              "direction": "same"
+            }
+          ],
+          "sketch": "Create a small helper that processes a single dictionary and returns a list of tuples, then use a list comprehension or a flat map to apply it to all items. For example:\n\n```python\ndef process_item(item):\n    result = []\n    for key in sorted(item):\n        value = item[key]\n        if isinstance(value, (int, float)):\n            result.append((key, value if value > 0 else 0))\n    return result\n\ndef deep_transform(data):\n    return [t for group in data if isinstance(group, list)\n            for item in group if isinstance(item, dict)\n            for t in process_item(item)]\n```\nThis removes the four nested loops from the main function, reducing both nesting depth and cyclomatic complexity while keeping the overall line count roughly the same.",
+          "tags": []
+        }
+      ],
+      "risk_notes": "Splitting the logic into helper functions must preserve the original ordering and filtering semantics; a mistake in the comprehension or helper could change the output. The refactor also introduces a new function call, which may have a negligible performance impact in tight loops. Ensure comprehensive tests cover all edge cases before and after the change.",
+      "tags": [],
+      "raw_reply": "{\"target\":\"utils:deep_transform\",\"diagnosis\":\"The function has a cyclomatic complexity of 8 and a nesting depth of 7, which are both flagged as warnings. With 15 physical lines and only one parameter, the code is relatively short but the deep nested loops make it hard to read and maintain. The high nesting level also inflates the cyclomatic complexity, increasing the risk of bugs and making unit testing more difficult.\",\"suggestions\":[{\"title\":\"Flatten nested loops into helper functions\",\"rationale_metric_link\":[\"CC\",\"NESTING\"],\"expected_effect\":[{\"metric\":\"CC\",\"direction\":\"down\"},{\"metric\":\"NESTING\",\"direction\":\"down\"},{\"metric\":\"LOC\",\"direction\":\"same\"}],\"sketch\":\"Create a small helper that processes a single dictionary and returns a list of tuples, then use a list comprehension or a flat map to apply it to all items. For example:\\n\\n```python\\ndef process_item(item):\\n    result = []\\n    for key in sorted(item):\\n        value = item[key]\\n        if isinstance(value, (int, float)):\\n            result.append((key, value if value > 0 else 0))\\n    return result\\n\\ndef deep_transform(data):\\n    return [t for group in data if isinstance(group, list)\\n            for item in group if isinstance(item, dict)\\n            for t in process_item(item)]\\n```\\nThis removes the four nested loops from the main function, reducing both nesting depth and cyclomatic complexity while keeping the overall line count roughly the same.\"}],\"risk_notes\":\"Splitting the logic into helper functions must preserve the original ordering and filtering semantics; a mistake in the comprehension or helper could change the output. The refactor also introduces a new function call, which may have a negligible performance impact in tight loops. Ensure comprehensive tests cover all edge cases before and after the change.\"}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": []
+    }
+  ]
+}

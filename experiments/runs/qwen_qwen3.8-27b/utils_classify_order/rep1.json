@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "rlens_version": "0.2.0",
+  "generated_at": "2026-08-31T18:14:03+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\messy_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "advices": [
+    {
+      "target": "utils:classify_order",
+      "diagnosis": "The function exhibits a high Cyclomatic Complexity (CC=15) and a high Parameter Count (PARAMS=7), indicating that it handles a large number of distinct decision paths and input variables within a single scope. While the nesting depth is low (NESTING=1), the linear accumulation of conditional branches suggests a lack of structural decomposition, making the logic difficult to maintain and test in isolation for specific order types.",
+      "suggestions": [
+        {
+          "title": "Decompose classification logic into strategy functions",
+          "rationale_metric_link": [
+            "CC",
+            "LOC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "CC",
+              "direction": "down"
+            },
+            {
+              "metric": "LOC",
+              "direction": "same"
+            }
+          ],
+          "sketch": "Refactor the function by extracting each distinct classification branch (e.g., 'vip-large', 'gift-international', 'freight') into separate private helper functions or a list of predicate-action pairs. The main function would then iterate through these strategies, returning the first match. This reduces the CC of the main entry point to a low value (e.g., < 5) while distributing the complexity across smaller, focused units.",
+          "tags": []
+        },
+        {
+          "title": "Encapsulate order attributes into a data object",
+          "rationale_metric_link": [
+            "PARAMS"
+          ],
+          "expected_effect": [
+            {
+              "metric": "PARAMS",
+              "direction": "down"
+            }
+          ],
+          "sketch": "Create a simple dataclass or namedtuple (e.g., OrderDetails) to hold total, item_count, tier, is_gift, country, coupon, and weight. Change the function signature to accept this single object. This reduces the parameter count from 7 to 1, improving readability and reducing the cognitive load associated with managing multiple scalar arguments.",
+          "tags": []
+        }
+      ],
+      "risk_notes": "Refactoring into strategies requires careful ordering of conditions to preserve the original precedence (e.g., 'vip-large' must be checked before 'vip'). Introducing a data object changes the public API, requiring updates to all call sites. If the classification rules are expected to change frequently, a strategy pattern might introduce unnecessary indirection compared to a simple list of lambdas.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"utils:classify_order\",\n  \"diagnosis\": \"The function exhibits a high Cyclomatic Complexity (CC=15) and a high Parameter Count (PARAMS=7), indicating that it handles a large number of distinct decision paths and input variables within a single scope. While the nesting depth is low (NESTING=1), the linear accumulation of conditional branches suggests a lack of structural decomposition, making the logic difficult to maintain and test in isolation for specific order types.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Decompose classification logic into strategy functions\",\n      \"rationale_metric_link\": [\n        \"CC\",\n        \"LOC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"CC\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"LOC\",\n          \"direction\": \"same\"\n        }\n      ],\n      \"sketch\": \"Refactor the function by extracting each distinct classification branch (e.g., 'vip-large', 'gift-international', 'freight') into separate private helper functions or a list of predicate-action pairs. The main function would then iterate through these strategies, returning the first match. This reduces the CC of the main entry point to a low value (e.g., < 5) while distributing the complexity across smaller, focused units.\"\n    },\n    {\n      \"title\": \"Encapsulate order attributes into a data object\",\n      \"rationale_metric_link\": [\n        \"PARAMS\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"PARAMS\",\n          \"direction\": \"down\"\n        }\n      ],\n      \"sketch\": \"Create a simple dataclass or namedtuple (e.g., OrderDetails) to hold total, item_count, tier, is_gift, country, coupon, and weight. Change the function signature to accept this single object. This reduces the parameter count from 7 to 1, improving readability and reducing the cognitive load associated with managing multiple scalar arguments.\"\n    }\n  ],\n  \"risk_notes\": \"Refactoring into strategies requires careful ordering of conditions to preserve the original precedence (e.g., 'vip-large' must be checked before 'vip'). Introducing a data object changes the public API, requiring updates to all call sites. If the classification rules are expected to change frequently, a strategy pattern might introduce unnecessary indirection compared to a simple list of lambdas.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": []
+    }
+  ]
+}

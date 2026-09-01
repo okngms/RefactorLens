@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "rlens_version": "0.2.0",
+  "generated_at": "2026-08-31T18:11:08+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\messy_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "advices": [
+    {
+      "target": "utils:classify_order",
+      "diagnosis": "The function shows a cyclomatic complexity of 15, far above typical thresholds, driven by a long chain of independent if statements. It also accepts seven parameters, which hurts readability and testability. LOC is modest (25 lines) and nesting is shallow, so the main design concerns are the high CC and parameter count rather than deep nesting or size.",
+      "suggestions": [
+        {
+          "title": "Extract decision predicates into separate functions",
+          "rationale_metric_link": [
+            "CC",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "CC",
+              "direction": "down"
+            },
+            {
+              "metric": "DCC",
+              "direction": "up"
+            }
+          ],
+          "sketch": "Create small helper functions like `is_invalid(total, item_count)`, `is_vip(tier, total)`, `is_gift_international(is_gift, country)`, etc., each returning a boolean. Then rewrite `classify_order` to call these helpers in sequence. This reduces the number of decision points in the main function, lowering its cyclomatic complexity while adding a few new functions (increasing DCC).",
+          "tags": []
+        },
+        {
+          "title": "Bundle input arguments into a data class",
+          "rationale_metric_link": [
+            "PARAMS",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "PARAMS",
+              "direction": "down"
+            },
+            {
+              "metric": "DCC",
+              "direction": "up"
+            }
+          ],
+          "sketch": "Define a `@dataclass` called `OrderContext` with fields `total`, `item_count`, `tier`, `is_gift`, `country`, `coupon`, `weight`. Change the signature to `def classify_order(ctx: OrderContext):` and adjust the body to use `ctx.total`, etc. This collapses seven parameters into one, improving readability; the new class adds to DCC.",
+          "tags": []
+        }
+      ],
+      "risk_notes": "Extracting predicates changes the call graph; any external code that relied on the exact ordering of returns may need to be retested. Introducing a data class requires callers to construct the object, which could break existing simple calls if not backward‑compatible. Both changes increase the number of symbols (higher DCC), so the overall module size grows slightly.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"utils:classify_order\",\n  \"diagnosis\": \"The function shows a cyclomatic complexity of 15, far above typical thresholds, driven by a long chain of independent if statements. It also accepts seven parameters, which hurts readability and testability. LOC is modest (25 lines) and nesting is shallow, so the main design concerns are the high CC and parameter count rather than deep nesting or size.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract decision predicates into separate functions\",\n      \"rationale_metric_link\": [\n        \"CC\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"CC\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\"\n        }\n      ],\n      \"sketch\": \"Create small helper functions like `is_invalid(total, item_count)`, `is_vip(tier, total)`, `is_gift_international(is_gift, country)`, etc., each returning a boolean. Then rewrite `classify_order` to call these helpers in sequence. This reduces the number of decision points in the main function, lowering its cyclomatic complexity while adding a few new functions (increasing DCC).\"\n    },\n    {\n      \"title\": \"Bundle input arguments into a data class\",\n      \"rationale_metric_link\": [\n        \"PARAMS\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"PARAMS\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\"\n        }\n      ],\n      \"sketch\": \"Define a `@dataclass` called `OrderContext` with fields `total`, `item_count`, `tier`, `is_gift`, `country`, `coupon`, `weight`. Change the signature to `def classify_order(ctx: OrderContext):` and adjust the body to use `ctx.total`, etc. This collapses seven parameters into one, improving readability; the new class adds to DCC.\"\n    }\n  ],\n  \"risk_notes\": \"Extracting predicates changes the call graph; any external code that relied on the exact ordering of returns may need to be retested. Introducing a data class requires callers to construct the object, which could break existing simple calls if not backward‑compatible. Both changes increase the number of symbols (higher DCC), so the overall module size grows slightly.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": []
+    }
+  ]
+}

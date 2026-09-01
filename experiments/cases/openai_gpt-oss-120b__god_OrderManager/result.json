@@ -1,0 +1,1115 @@
+{
+  "model": "openai/gpt-oss-120b",
+  "target": "god:OrderManager",
+  "applied": [
+    1
+  ],
+  "measured_at": "2026-09-01T18:24:44+00:00",
+  "behaviour_tests_passed": true,
+  "behaviour_tests_summary": "91 passed in 0.15s",
+  "status": "ok",
+  "delta": {
+    "before_generated_at": "2026-09-01T18:10:45+00:00",
+    "after_generated_at": "2026-09-01T18:24:44+00:00",
+    "comparable": true,
+    "incompatibility": null,
+    "entities": [
+      {
+        "kind": "class",
+        "module": "god",
+        "name": "AuditLog",
+        "qualified_name": "god:AuditLog",
+        "status": "added",
+        "verdict": "added",
+        "metrics": {
+          "NOM": {
+            "metric": "NOM",
+            "before": null,
+            "after": 5,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          },
+          "WMC": {
+            "metric": "WMC",
+            "before": null,
+            "after": 7,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          },
+          "LCOM4": {
+            "metric": "LCOM4",
+            "before": null,
+            "after": 1,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          },
+          "DAM": {
+            "metric": "DAM",
+            "before": null,
+            "after": 1.0,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          },
+          "DCC": {
+            "metric": "DCC",
+            "before": null,
+            "after": 1,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          },
+          "CAM": {
+            "metric": "CAM",
+            "before": null,
+            "after": null,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          }
+        }
+      },
+      {
+        "kind": "class",
+        "module": "god",
+        "name": "NotificationService",
+        "qualified_name": "god:NotificationService",
+        "status": "added",
+        "verdict": "added",
+        "metrics": {
+          "NOM": {
+            "metric": "NOM",
+            "before": null,
+            "after": 5,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          },
+          "WMC": {
+            "metric": "WMC",
+            "before": null,
+            "after": 6,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          },
+          "LCOM4": {
+            "metric": "LCOM4",
+            "before": null,
+            "after": 1,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          },
+          "DAM": {
+            "metric": "DAM",
+            "before": null,
+            "after": 1.0,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          },
+          "DCC": {
+            "metric": "DCC",
+            "before": null,
+            "after": 1,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          },
+          "CAM": {
+            "metric": "CAM",
+            "before": null,
+            "after": null,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          }
+        }
+      },
+      {
+        "kind": "class",
+        "module": "god",
+        "name": "OrderManager",
+        "qualified_name": "god:OrderManager",
+        "status": "unchanged",
+        "verdict": "mixed",
+        "metrics": {
+          "NOM": {
+            "metric": "NOM",
+            "before": 25,
+            "after": 25,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "WMC": {
+            "metric": "WMC",
+            "before": 49,
+            "after": 25,
+            "change": -24,
+            "direction": "down",
+            "improved": true,
+            "comparable": true
+          },
+          "LCOM4": {
+            "metric": "LCOM4",
+            "before": 4,
+            "after": 4,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "DAM": {
+            "metric": "DAM",
+            "before": 1.0,
+            "after": 0.0,
+            "change": -1.0,
+            "direction": "down",
+            "improved": false,
+            "comparable": true
+          },
+          "DCC": {
+            "metric": "DCC",
+            "before": 8,
+            "after": 4,
+            "change": -4,
+            "direction": "down",
+            "improved": true,
+            "comparable": true
+          },
+          "CAM": {
+            "metric": "CAM",
+            "before": null,
+            "after": null,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          }
+        }
+      },
+      {
+        "kind": "class",
+        "module": "god",
+        "name": "OrderRepository",
+        "qualified_name": "god:OrderRepository",
+        "status": "added",
+        "verdict": "added",
+        "metrics": {
+          "NOM": {
+            "metric": "NOM",
+            "before": null,
+            "after": 8,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          },
+          "WMC": {
+            "metric": "WMC",
+            "before": null,
+            "after": 23,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          },
+          "LCOM4": {
+            "metric": "LCOM4",
+            "before": null,
+            "after": 1,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          },
+          "DAM": {
+            "metric": "DAM",
+            "before": null,
+            "after": 1.0,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          },
+          "DCC": {
+            "metric": "DCC",
+            "before": null,
+            "after": 5,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          },
+          "CAM": {
+            "metric": "CAM",
+            "before": null,
+            "after": null,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          }
+        }
+      },
+      {
+        "kind": "class",
+        "module": "god",
+        "name": "PricingEngine",
+        "qualified_name": "god:PricingEngine",
+        "status": "added",
+        "verdict": "added",
+        "metrics": {
+          "NOM": {
+            "metric": "NOM",
+            "before": null,
+            "after": 7,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          },
+          "WMC": {
+            "metric": "WMC",
+            "before": null,
+            "after": 13,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          },
+          "LCOM4": {
+            "metric": "LCOM4",
+            "before": null,
+            "after": 1,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          },
+          "DAM": {
+            "metric": "DAM",
+            "before": null,
+            "after": 1.0,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          },
+          "DCC": {
+            "metric": "DCC",
+            "before": null,
+            "after": 1,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          },
+          "CAM": {
+            "metric": "CAM",
+            "before": null,
+            "after": null,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          }
+        }
+      },
+      {
+        "kind": "class",
+        "module": "models",
+        "name": "Customer",
+        "qualified_name": "models:Customer",
+        "status": "unchanged",
+        "verdict": "unchanged",
+        "metrics": {
+          "NOM": {
+            "metric": "NOM",
+            "before": 6,
+            "after": 6,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "WMC": {
+            "metric": "WMC",
+            "before": 6,
+            "after": 6,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "LCOM4": {
+            "metric": "LCOM4",
+            "before": 3,
+            "after": 3,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "DAM": {
+            "metric": "DAM",
+            "before": 0.2,
+            "after": 0.2,
+            "change": 0.0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "DCC": {
+            "metric": "DCC",
+            "before": 0,
+            "after": 0,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "CAM": {
+            "metric": "CAM",
+            "before": 1.0,
+            "after": 1.0,
+            "change": 0.0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          }
+        }
+      },
+      {
+        "kind": "class",
+        "module": "models",
+        "name": "OrderLine",
+        "qualified_name": "models:OrderLine",
+        "status": "unchanged",
+        "verdict": "unchanged",
+        "metrics": {
+          "NOM": {
+            "metric": "NOM",
+            "before": 3,
+            "after": 3,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "WMC": {
+            "metric": "WMC",
+            "before": 3,
+            "after": 3,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "LCOM4": {
+            "metric": "LCOM4",
+            "before": 1,
+            "after": 1,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "DAM": {
+            "metric": "DAM",
+            "before": 0.0,
+            "after": 0.0,
+            "change": 0.0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "DCC": {
+            "metric": "DCC",
+            "before": 1,
+            "after": 1,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "CAM": {
+            "metric": "CAM",
+            "before": 1.0,
+            "after": 1.0,
+            "change": 0.0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          }
+        }
+      },
+      {
+        "kind": "class",
+        "module": "models",
+        "name": "Product",
+        "qualified_name": "models:Product",
+        "status": "unchanged",
+        "verdict": "unchanged",
+        "metrics": {
+          "NOM": {
+            "metric": "NOM",
+            "before": 4,
+            "after": 4,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "WMC": {
+            "metric": "WMC",
+            "before": 5,
+            "after": 5,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "LCOM4": {
+            "metric": "LCOM4",
+            "before": 2,
+            "after": 2,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "DAM": {
+            "metric": "DAM",
+            "before": 0.0,
+            "after": 0.0,
+            "change": 0.0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "DCC": {
+            "metric": "DCC",
+            "before": 0,
+            "after": 0,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "CAM": {
+            "metric": "CAM",
+            "before": 1.0,
+            "after": 1.0,
+            "change": 0.0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          }
+        }
+      },
+      {
+        "kind": "class",
+        "module": "reporting",
+        "name": "ReportBuilder",
+        "qualified_name": "reporting:ReportBuilder",
+        "status": "unchanged",
+        "verdict": "unchanged",
+        "metrics": {
+          "NOM": {
+            "metric": "NOM",
+            "before": 6,
+            "after": 6,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "WMC": {
+            "metric": "WMC",
+            "before": 7,
+            "after": 7,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "LCOM4": {
+            "metric": "LCOM4",
+            "before": 2,
+            "after": 2,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "DAM": {
+            "metric": "DAM",
+            "before": 1.0,
+            "after": 1.0,
+            "change": 0.0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "DCC": {
+            "metric": "DCC",
+            "before": 0,
+            "after": 0,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "CAM": {
+            "metric": "CAM",
+            "before": null,
+            "after": null,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          }
+        }
+      },
+      {
+        "kind": "class",
+        "module": "services",
+        "name": "AuditEntry",
+        "qualified_name": "services:AuditEntry",
+        "status": "unchanged",
+        "verdict": "unchanged",
+        "metrics": {
+          "NOM": {
+            "metric": "NOM",
+            "before": 1,
+            "after": 1,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "WMC": {
+            "metric": "WMC",
+            "before": 1,
+            "after": 1,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "LCOM4": {
+            "metric": "LCOM4",
+            "before": 1,
+            "after": 1,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "DAM": {
+            "metric": "DAM",
+            "before": 0.0,
+            "after": 0.0,
+            "change": 0.0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "DCC": {
+            "metric": "DCC",
+            "before": 0,
+            "after": 0,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "CAM": {
+            "metric": "CAM",
+            "before": null,
+            "after": null,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          }
+        }
+      },
+      {
+        "kind": "class",
+        "module": "services",
+        "name": "EmailNotifier",
+        "qualified_name": "services:EmailNotifier",
+        "status": "unchanged",
+        "verdict": "unchanged",
+        "metrics": {
+          "NOM": {
+            "metric": "NOM",
+            "before": 1,
+            "after": 1,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "WMC": {
+            "metric": "WMC",
+            "before": 1,
+            "after": 1,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "LCOM4": {
+            "metric": "LCOM4",
+            "before": 1,
+            "after": 1,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "DAM": {
+            "metric": "DAM",
+            "before": 0.0,
+            "after": 0.0,
+            "change": 0.0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "DCC": {
+            "metric": "DCC",
+            "before": 0,
+            "after": 0,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "CAM": {
+            "metric": "CAM",
+            "before": 1.0,
+            "after": 1.0,
+            "change": 0.0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          }
+        }
+      },
+      {
+        "kind": "class",
+        "module": "services",
+        "name": "Invoice",
+        "qualified_name": "services:Invoice",
+        "status": "unchanged",
+        "verdict": "unchanged",
+        "metrics": {
+          "NOM": {
+            "metric": "NOM",
+            "before": 1,
+            "after": 1,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "WMC": {
+            "metric": "WMC",
+            "before": 1,
+            "after": 1,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "LCOM4": {
+            "metric": "LCOM4",
+            "before": 1,
+            "after": 1,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "DAM": {
+            "metric": "DAM",
+            "before": 0.0,
+            "after": 0.0,
+            "change": 0.0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "DCC": {
+            "metric": "DCC",
+            "before": 0,
+            "after": 0,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "CAM": {
+            "metric": "CAM",
+            "before": null,
+            "after": null,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          }
+        }
+      },
+      {
+        "kind": "class",
+        "module": "services",
+        "name": "Order",
+        "qualified_name": "services:Order",
+        "status": "unchanged",
+        "verdict": "unchanged",
+        "metrics": {
+          "NOM": {
+            "metric": "NOM",
+            "before": 4,
+            "after": 4,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "WMC": {
+            "metric": "WMC",
+            "before": 6,
+            "after": 6,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "LCOM4": {
+            "metric": "LCOM4",
+            "before": 2,
+            "after": 2,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "DAM": {
+            "metric": "DAM",
+            "before": 0.0,
+            "after": 0.0,
+            "change": 0.0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "DCC": {
+            "metric": "DCC",
+            "before": 2,
+            "after": 2,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "CAM": {
+            "metric": "CAM",
+            "before": null,
+            "after": null,
+            "change": null,
+            "direction": null,
+            "improved": null,
+            "comparable": false
+          }
+        }
+      },
+      {
+        "kind": "class",
+        "module": "services",
+        "name": "ShippingCalculator",
+        "qualified_name": "services:ShippingCalculator",
+        "status": "unchanged",
+        "verdict": "unchanged",
+        "metrics": {
+          "NOM": {
+            "metric": "NOM",
+            "before": 1,
+            "after": 1,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "WMC": {
+            "metric": "WMC",
+            "before": 2,
+            "after": 2,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "LCOM4": {
+            "metric": "LCOM4",
+            "before": 1,
+            "after": 1,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "DAM": {
+            "metric": "DAM",
+            "before": 0.0,
+            "after": 0.0,
+            "change": 0.0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "DCC": {
+            "metric": "DCC",
+            "before": 0,
+            "after": 0,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "CAM": {
+            "metric": "CAM",
+            "before": 1.0,
+            "after": 1.0,
+            "change": 0.0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          }
+        }
+      },
+      {
+        "kind": "function",
+        "module": "utils",
+        "name": "build_shipping_label",
+        "qualified_name": "utils:build_shipping_label",
+        "status": "unchanged",
+        "verdict": "unchanged",
+        "metrics": {
+          "CC": {
+            "metric": "CC",
+            "before": 2,
+            "after": 2,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "LOC": {
+            "metric": "LOC",
+            "before": 4,
+            "after": 4,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "PARAMS": {
+            "metric": "PARAMS",
+            "before": 7,
+            "after": 7,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "NESTING": {
+            "metric": "NESTING",
+            "before": 0,
+            "after": 0,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          }
+        }
+      },
+      {
+        "kind": "function",
+        "module": "utils",
+        "name": "classify_order",
+        "qualified_name": "utils:classify_order",
+        "status": "unchanged",
+        "verdict": "unchanged",
+        "metrics": {
+          "CC": {
+            "metric": "CC",
+            "before": 15,
+            "after": 15,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "LOC": {
+            "metric": "LOC",
+            "before": 25,
+            "after": 25,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "PARAMS": {
+            "metric": "PARAMS",
+            "before": 7,
+            "after": 7,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "NESTING": {
+            "metric": "NESTING",
+            "before": 1,
+            "after": 1,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          }
+        }
+      },
+      {
+        "kind": "function",
+        "module": "utils",
+        "name": "deep_transform",
+        "qualified_name": "utils:deep_transform",
+        "status": "unchanged",
+        "verdict": "unchanged",
+        "metrics": {
+          "CC": {
+            "metric": "CC",
+            "before": 8,
+            "after": 8,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "LOC": {
+            "metric": "LOC",
+            "before": 15,
+            "after": 15,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "PARAMS": {
+            "metric": "PARAMS",
+            "before": 1,
+            "after": 1,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          },
+          "NESTING": {
+            "metric": "NESTING",
+            "before": 7,
+            "after": 7,
+            "change": 0,
+            "direction": "same",
+            "improved": null,
+            "comparable": true
+          }
+        }
+      }
+    ]
+  },
+  "predictions": {
+    "comparable": true,
+    "incompatibility": null,
+    "filtered_to_applied": true,
+    "hits": 1,
+    "misses": 3,
+    "unverifiable": 0,
+    "accuracy": 0.25,
+    "suggestions": [
+      {
+        "target": "god:OrderManager",
+        "suggestion_index": 1,
+        "title": "Extract the four components into dedicated classes",
+        "hits": 1,
+        "misses": 3,
+        "unverifiable": 0,
+        "accuracy": 0.25,
+        "checks": [
+          {
+            "target": "god:OrderManager",
+            "suggestion_index": 1,
+            "suggestion_title": "Extract the four components into dedicated classes",
+            "metric": "LCOM4",
+            "predicted": "down",
+            "actual": "same",
+            "outcome": "miss",
+            "reason": null
+          },
+          {
+            "target": "god:OrderManager",
+            "suggestion_index": 1,
+            "suggestion_title": "Extract the four components into dedicated classes",
+            "metric": "NOM",
+            "predicted": "down",
+            "actual": "same",
+            "outcome": "miss",
+            "reason": null
+          },
+          {
+            "target": "god:OrderManager",
+            "suggestion_index": 1,
+            "suggestion_title": "Extract the four components into dedicated classes",
+            "metric": "WMC",
+            "predicted": "down",
+            "actual": "down",
+            "outcome": "hit",
+            "reason": null
+          },
+          {
+            "target": "god:OrderManager",
+            "suggestion_index": 1,
+            "suggestion_title": "Extract the four components into dedicated classes",
+            "metric": "DCC",
+            "predicted": "up",
+            "actual": "down",
+            "outcome": "miss",
+            "reason": null
+          }
+        ]
+      }
+    ]
+  }
+}

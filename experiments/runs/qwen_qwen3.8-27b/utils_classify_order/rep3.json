@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "rlens_version": "0.2.0",
+  "generated_at": "2026-08-31T18:15:03+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\messy_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "advices": [
+    {
+      "target": "utils:classify_order",
+      "diagnosis": "The function exhibits a high Cyclomatic Complexity (CC=15) and a high parameter count (PARAMS=7), indicating that it handles multiple distinct classification rules within a single procedural block. While the nesting depth is low (NESTING=1), the linear accumulation of conditional branches suggests a lack of separation of concerns, making the logic difficult to maintain or extend without further increasing complexity.",
+      "suggestions": [
+        {
+          "title": "Extract classification rules into a strategy pattern or lookup table",
+          "rationale_metric_link": [
+            "CC",
+            "PARAMS"
+          ],
+          "expected_effect": [
+            {
+              "metric": "CC",
+              "direction": "down"
+            },
+            {
+              "metric": "PARAMS",
+              "direction": "down"
+            }
+          ],
+          "sketch": "Refactor the function to accept a single data object (e.g., an Order class or a dictionary) instead of 7 individual parameters. Replace the chain of if-statements with a list of rule objects or a dictionary mapping conditions to labels. The main function would then iterate over these rules and return the first match, reducing the function's own CC to a low value (e.g., 2-3) and encapsulating the logic in separate, testable rule definitions.",
+          "tags": []
+        }
+      ],
+      "risk_notes": "Refactoring to a strategy pattern or rule engine may introduce overhead in terms of code volume and indirection. If the classification logic is highly performance-critical and the current linear scan is optimal, the abstraction might not be worth the complexity. Additionally, ensuring that the new rule objects correctly capture the precedence of the original if-chain is critical to avoid behavioral changes.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"utils:classify_order\",\n  \"diagnosis\": \"The function exhibits a high Cyclomatic Complexity (CC=15) and a high parameter count (PARAMS=7), indicating that it handles multiple distinct classification rules within a single procedural block. While the nesting depth is low (NESTING=1), the linear accumulation of conditional branches suggests a lack of separation of concerns, making the logic difficult to maintain or extend without further increasing complexity.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract classification rules into a strategy pattern or lookup table\",\n      \"rationale_metric_link\": [\n        \"CC\",\n        \"PARAMS\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"CC\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"PARAMS\",\n          \"direction\": \"down\"\n        }\n      ],\n      \"sketch\": \"Refactor the function to accept a single data object (e.g., an Order class or a dictionary) instead of 7 individual parameters. Replace the chain of if-statements with a list of rule objects or a dictionary mapping conditions to labels. The main function would then iterate over these rules and return the first match, reducing the function's own CC to a low value (e.g., 2-3) and encapsulating the logic in separate, testable rule definitions.\"\n    }\n  ],\n  \"risk_notes\": \"Refactoring to a strategy pattern or rule engine may introduce overhead in terms of code volume and indirection. If the classification logic is highly performance-critical and the current linear scan is optimal, the abstraction might not be worth the complexity. Additionally, ensuring that the new rule objects correctly capture the precedence of the original if-chain is critical to avoid behavioral changes.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": []
+    }
+  ]
+}

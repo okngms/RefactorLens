@@ -1,6 +1,6 @@
 {
-  "root": "/path/to/examples/messy_project",
-  "generated_at": "2026-08-29T09:30:07+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\experiments\\cases\\qwen_qwen3.8-27b__utils_classify_order\\project",
+  "generated_at": "2026-09-01T19:00:39+00:00",
   "rlens_version": "0.2.0",
   "schema_version": 1,
   "modules": [

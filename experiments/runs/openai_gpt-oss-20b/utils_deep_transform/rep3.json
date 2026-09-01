@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "rlens_version": "0.2.0",
+  "generated_at": "2026-08-31T18:13:42+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\messy_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "advices": [
+    {
+      "target": "utils:deep_transform",
+      "diagnosis": "The function exhibits high cyclomatic complexity (8) and deep nesting (7), indicating that the control flow is difficult to follow and maintain. The physical lines of code (15) are modest, but the nested loops and conditionals inflate the complexity metrics, suggesting that the logic could be simplified or decomposed.",
+      "suggestions": [
+        {
+          "title": "Refactor into helper functions and a generator",
+          "rationale_metric_link": [
+            "NESTING",
+            "CC",
+            "LOC",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "NESTING",
+              "direction": "down"
+            },
+            {
+              "metric": "CC",
+              "direction": "down"
+            },
+            {
+              "metric": "LOC",
+              "direction": "same"
+            },
+            {
+              "metric": "DCC",
+              "direction": "up"
+            }
+          ],
+          "sketch": "Create a small helper that processes a single dict value, another that processes a list of dicts, and use a generator expression to build the result. For example:\n\n```python\nfrom typing import Iterable, Tuple\n\ndef _process_value(key: str, value: int | float) -> Tuple[str, int]:\n    return (key, value if value > 0 else 0)\n\n\ndef _process_group(group: Iterable) -> Iterable[Tuple[str, int]]:\n    for item in group:\n        if isinstance(item, dict):\n            for key in sorted(item):\n                yield _process_value(key, item[key])\n\n\ndef deep_transform(data: Iterable) -> list:\n    return [pair for group in data if isinstance(group, list) for pair in _process_group(group)]\n```\nThis removes the nested `for`/`if` blocks, lowering NESTING and CC while keeping LOC roughly the same. The new helper functions increase the number of dependencies (DCC).",
+          "tags": []
+        }
+      ],
+      "risk_notes": "Splitting the logic into multiple functions may alter the execution order or performance characteristics, especially if the original function relied on side‑effects or order of evaluation. Ensure that unit tests cover the new generator path and that the function still returns a list of tuples in the expected order.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"utils:deep_transform\",\n  \"diagnosis\": \"The function exhibits high cyclomatic complexity (8) and deep nesting (7), indicating that the control flow is difficult to follow and maintain. The physical lines of code (15) are modest, but the nested loops and conditionals inflate the complexity metrics, suggesting that the logic could be simplified or decomposed.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Refactor into helper functions and a generator\",\n      \"rationale_metric_link\": [\n        \"NESTING\",\n        \"CC\",\n        \"LOC\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"NESTING\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"CC\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"LOC\",\n          \"direction\": \"same\"\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\"\n        }\n      ],\n      \"sketch\": \"Create a small helper that processes a single dict value, another that processes a list of dicts, and use a generator expression to build the result. For example:\\n\\n```python\\nfrom typing import Iterable, Tuple\\n\\ndef _process_value(key: str, value: int | float) -> Tuple[str, int]:\\n    return (key, value if value > 0 else 0)\\n\\n\\ndef _process_group(group: Iterable) -> Iterable[Tuple[str, int]]:\\n    for item in group:\\n        if isinstance(item, dict):\\n            for key in sorted(item):\\n                yield _process_value(key, item[key])\\n\\n\\ndef deep_transform(data: Iterable) -> list:\\n    return [pair for group in data if isinstance(group, list) for pair in _process_group(group)]\\n```\\nThis removes the nested `for`/`if` blocks, lowering NESTING and CC while keeping LOC roughly the same. The new helper functions increase the number of dependencies (DCC).\"\n    }\n  ],\n  \"risk_notes\": \"Splitting the logic into multiple functions may alter the execution order or performance characteristics, especially if the original function relied on side‑effects or order of evaluation. Ensure that unit tests cover the new generator path and that the function still returns a list of tuples in the expected order.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": []
+    }
+  ]
+}

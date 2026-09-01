@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "rlens_version": "0.2.0",
+  "generated_at": "2026-08-31T18:12:16+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\messy_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "advices": [
+    {
+      "target": "utils:classify_order",
+      "diagnosis": "The function `classify_order` has a cyclomatic complexity of 15 and accepts seven parameters, both exceeding typical thresholds. This indicates a highly branching, hard‑to‑maintain routine that is prone to bugs and difficult to test. The linear sequence of guard clauses and nested conditions also makes future extensions cumbersome.",
+      "suggestions": [
+        {
+          "title": "Encapsulate parameters and split logic into helper functions",
+          "rationale_metric_link": [
+            "CC",
+            "PARAMS"
+          ],
+          "expected_effect": [
+            {
+              "metric": "CC",
+              "direction": "down"
+            },
+            {
+              "metric": "PARAMS",
+              "direction": "down"
+            }
+          ],
+          "sketch": "```python\nfrom dataclasses import dataclass\n\n@dataclass\nclass Order:\n    total: float\n    item_count: int\n    tier: str\n    is_gift: bool\n    country: str\n    coupon: bool\n    weight: float\n\n\ndef _is_invalid(order: Order) -> bool:\n    return order.total <= 0 or order.item_count <= 0\n\n\ndef _vip_large(order: Order) -> bool:\n    return order.tier == \"premium\" and order.total > 1000\n\n# ... similar small predicate functions for each rule ...\n\ndef classify_order(order: Order) -> str:\n    if _is_invalid(order):\n        return \"invalid\"\n    if _vip_large(order):\n        return \"vip-large\"\n    if order.tier == \"premium\":\n        return \"vip\"\n    if order.is_gift and order.country != \"TR\":\n        return \"gift-international\"\n    if order.is_gift:\n        return \"gift-domestic\"\n    if order.coupon and order.total > 500:\n        return \"discounted-large\"\n    if order.coupon:\n        return \"discounted\"\n    if order.weight > 30:\n        return \"freight\"\n    if order.total > 1000:\n        return \"large\"\n    if order.item_count > 20:\n        return \"bulk\"\n    return \"standard\"\n```",
+          "tags": []
+        }
+      ],
+      "risk_notes": "Changing the public signature from seven positional arguments to a single Order object will break existing callers; all call sites must be updated. The helper functions add a small runtime overhead and increase the number of functions in the module, which could affect metrics like DCC if a class is introduced. Careful unit‑test migration is required to preserve behavior.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:utils\",\n  \"diagnosis\": \"The function `classify_order` has a cyclomatic complexity of 15 and accepts seven parameters, both exceeding typical thresholds. This indicates a highly branching, hard‑to‑maintain routine that is prone to bugs and difficult to test. The linear sequence of guard clauses and nested conditions also makes future extensions cumbersome.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Encapsulate parameters and split logic into helper functions\",\n      \"rationale_metric_link\": [\n        \"CC\",\n        \"PARAMS\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"CC\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"PARAMS\",\n          \"direction\": \"down\"\n        }\n      ],\n      \"sketch\": \"```python\\nfrom dataclasses import dataclass\\n\\n@dataclass\\nclass Order:\\n    total: float\\n    item_count: int\\n    tier: str\\n    is_gift: bool\\n    country: str\\n    coupon: bool\\n    weight: float\\n\\n\\ndef _is_invalid(order: Order) -> bool:\\n    return order.total <= 0 or order.item_count <= 0\\n\\n\\ndef _vip_large(order: Order) -> bool:\\n    return order.tier == \\\"premium\\\" and order.total > 1000\\n\\n# ... similar small predicate functions for each rule ...\\n\\ndef classify_order(order: Order) -> str:\\n    if _is_invalid(order):\\n        return \\\"invalid\\\"\\n    if _vip_large(order):\\n        return \\\"vip-large\\\"\\n    if order.tier == \\\"premium\\\":\\n        return \\\"vip\\\"\\n    if order.is_gift and order.country != \\\"TR\\\":\\n        return \\\"gift-international\\\"\\n    if order.is_gift:\\n        return \\\"gift-domestic\\\"\\n    if order.coupon and order.total > 500:\\n        return \\\"discounted-large\\\"\\n    if order.coupon:\\n        return \\\"discounted\\\"\\n    if order.weight > 30:\\n        return \\\"freight\\\"\\n    if order.total > 1000:\\n        return \\\"large\\\"\\n    if order.item_count > 20:\\n        return \\\"bulk\\\"\\n    return \\\"standard\\\"\\n```\"\n    }\n  ],\n  \"risk_notes\": \"Changing the public signature from seven positional arguments to a single Order object will break existing callers; all call sites must be updated. The helper functions add a small runtime overhead and increase the number of functions in the module, which could affect metrics like DCC if a class is introduced. Careful unit‑test migration is required to preserve behavior.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:utils'; using 'utils:classify_order' instead"
+      ]
+    }
+  ]
+}

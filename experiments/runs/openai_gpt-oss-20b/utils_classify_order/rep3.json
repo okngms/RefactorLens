@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "rlens_version": "0.2.0",
+  "generated_at": "2026-09-01T17:28:17+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\messy_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "advices": [
+    {
+      "target": "utils:classify_order",
+      "diagnosis": "The function has a high cyclomatic complexity (15) and a large number of parameters (7), which makes it hard to understand, test, and maintain. The physical lines of code (25) are moderate, and the nesting depth is low, so the complexity mainly comes from many independent conditional branches.",
+      "suggestions": [
+        {
+          "title": "Refactor into a rule‑based dispatcher",
+          "rationale_metric_link": [
+            "CC",
+            "PARAMS",
+            "LOC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "CC",
+              "direction": "down"
+            },
+            {
+              "metric": "PARAMS",
+              "direction": "down"
+            },
+            {
+              "metric": "LOC",
+              "direction": "down"
+            }
+          ],
+          "sketch": "Create a small Order dataclass to bundle the arguments, then define a list of rule functions that take an Order and return a classification or None. Iterate over the rules and return the first non‑None result. Example:\n\n```python\nfrom dataclasses import dataclass\n\n@dataclass\nclass Order:\n    total: float\n    item_count: int\n    tier: str\n    is_gift: bool\n    country: str\n    coupon: bool\n    weight: float\n\nRULES = [\n    lambda o: \"invalid\" if o.total <= 0 or o.item_count <= 0 else None,\n    lambda o: \"vip-large\" if o.tier == \"premium\" and o.total > 1000 else None,\n    lambda o: \"vip\" if o.tier == \"premium\" else None,\n    lambda o: \"gift-international\" if o.is_gift and o.country != \"TR\" else None,\n    lambda o: \"gift-domestic\" if o.is_gift else None,\n    lambda o: \"discounted-large\" if o.coupon and o.total > 500 else None,\n    lambda o: \"discounted\" if o.coupon else None,\n    lambda o: \"freight\" if o.weight > 30 else None,\n    lambda o: \"large\" if o.total > 1000 else None,\n    lambda o: \"bulk\" if o.item_count > 20 else None,\n    lambda o: \"standard\",\n]\n\ndef classify_order(order: Order) -> str:\n    for rule in RULES:\n        result = rule(order)\n        if result is not None:\n            return result\n    return \"standard\"\n```\n\nThis reduces the number of parameters to a single object, flattens the branching into a linear list, and keeps the logic easily testable.",
+          "tags": []
+        }
+      ],
+      "risk_notes": "The refactor introduces a new data structure and a list of lambda functions, which may be unfamiliar to some developers. Care must be taken to preserve the original order of rules; any change in the list order can alter classification results. Unit tests should be updated to cover the new dispatcher logic.",
+      "tags": [],
+      "raw_reply": "{\"target\":\"utils:classify_order\",\"diagnosis\":\"The function has a high cyclomatic complexity (15) and a large number of parameters (7), which makes it hard to understand, test, and maintain. The physical lines of code (25) are moderate, and the nesting depth is low, so the complexity mainly comes from many independent conditional branches.\",\"suggestions\":[{\"title\":\"Refactor into a rule‑based dispatcher\",\"rationale_metric_link\":[\"CC\",\"PARAMS\",\"LOC\"],\"expected_effect\":[{\"metric\":\"CC\",\"direction\":\"down\"},{\"metric\":\"PARAMS\",\"direction\":\"down\"},{\"metric\":\"LOC\",\"direction\":\"down\"}],\"sketch\":\"Create a small Order dataclass to bundle the arguments, then define a list of rule functions that take an Order and return a classification or None. Iterate over the rules and return the first non‑None result. Example:\\n\\n```python\\nfrom dataclasses import dataclass\\n\\n@dataclass\\nclass Order:\\n    total: float\\n    item_count: int\\n    tier: str\\n    is_gift: bool\\n    country: str\\n    coupon: bool\\n    weight: float\\n\\nRULES = [\\n    lambda o: \\\"invalid\\\" if o.total <= 0 or o.item_count <= 0 else None,\\n    lambda o: \\\"vip-large\\\" if o.tier == \\\"premium\\\" and o.total > 1000 else None,\\n    lambda o: \\\"vip\\\" if o.tier == \\\"premium\\\" else None,\\n    lambda o: \\\"gift-international\\\" if o.is_gift and o.country != \\\"TR\\\" else None,\\n    lambda o: \\\"gift-domestic\\\" if o.is_gift else None,\\n    lambda o: \\\"discounted-large\\\" if o.coupon and o.total > 500 else None,\\n    lambda o: \\\"discounted\\\" if o.coupon else None,\\n    lambda o: \\\"freight\\\" if o.weight > 30 else None,\\n    lambda o: \\\"large\\\" if o.total > 1000 else None,\\n    lambda o: \\\"bulk\\\" if o.item_count > 20 else None,\\n    lambda o: \\\"standard\\\",\\n]\\n\\ndef classify_order(order: Order) -> str:\\n    for rule in RULES:\\n        result = rule(order)\\n        if result is not None:\\n            return result\\n    return \\\"standard\\\"\\n```\\n\\nThis reduces the number of parameters to a single object, flattens the branching into a linear list, and keeps the logic easily testable.\"}],\"risk_notes\":\"The refactor introduces a new data structure and a list of lambda functions, which may be unfamiliar to some developers. Care must be taken to preserve the original order of rules; any change in the list order can alter classification results. Unit tests should be updated to cover the new dispatcher logic.\"}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": []
+    }
+  ]
+}

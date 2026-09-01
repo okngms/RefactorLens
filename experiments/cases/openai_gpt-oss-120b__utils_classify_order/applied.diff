@@ -1,0 +1,98 @@
+--- a/utils.py
++++ b/utils.py
+@@ -24,28 +24,72 @@
+     return f"{name}|{street}|{city} {postcode}|{country}|{weight:.1f}kg|{speed}"
+ 
+ 
++def _is_invalid_total(total):
++    return total <= 0
++
++
++def _is_invalid_item_count(item_count):
++    return item_count <= 0
++
++
++def _is_vip_large(total, tier):
++    return tier == 'premium' and total > 1000
++
++
++def _is_vip(tier):
++    return tier == 'premium'
++
++
++def _is_gift_international(is_gift, country):
++    return is_gift and country != 'TR'
++
++
++def _is_gift_domestic(is_gift):
++    return is_gift
++
++
++def _is_discounted_large(total, coupon):
++    return coupon and total > 500
++
++
++def _is_discounted(coupon):
++    return coupon
++
++
++def _is_freight(weight):
++    return weight > 30
++
++
++def _is_large(total):
++    return total > 1000
++
++
++def _is_bulk(item_count):
++    return item_count > 20
++
++
+ def classify_order(total, item_count, tier, is_gift, country, coupon, weight):
+     """Kasıtlı yüksek cyclomatic complexity."""
+-    if total <= 0:
+-        return "invalid"
+-    if item_count <= 0:
+-        return "invalid"
+-    if tier == "premium" and total > 1000:
+-        return "vip-large"
+-    if tier == "premium":
+-        return "vip"
+-    if is_gift and country != "TR":
+-        return "gift-international"
+-    if is_gift:
+-        return "gift-domestic"
+-    if coupon and total > 500:
+-        return "discounted-large"
+-    if coupon:
+-        return "discounted"
+-    if weight > 30:
+-        return "freight"
+-    if total > 1000:
+-        return "large"
+-    if item_count > 20:
+-        return "bulk"
+-    return "standard"
++    if _is_invalid_total(total):
++        return 'invalid'
++    if _is_invalid_item_count(item_count):
++        return 'invalid'
++    if _is_vip_large(total, tier):
++        return 'vip-large'
++    if _is_vip(tier):
++        return 'vip'
++    if _is_gift_international(is_gift, country):
++        return 'gift-international'
++    if _is_gift_domestic(is_gift):
++        return 'gift-domestic'
++    if _is_discounted_large(total, coupon):
++        return 'discounted-large'
++    if _is_discounted(coupon):
++        return 'discounted'
++    if _is_freight(weight):
++        return 'freight'
++    if _is_large(total):
++        return 'large'
++    if _is_bulk(item_count):
++        return 'bulk'
++    return 'standard'

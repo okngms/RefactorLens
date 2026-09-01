@@ -1,6 +1,6 @@
 {
-  "root": "/path/to/examples/messy_project",
-  "generated_at": "2026-08-29T09:30:07+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\experiments\\cases\\openai_gpt-oss-120b__god_OrderManager\\project",
+  "generated_at": "2026-09-01T18:10:45+00:00",
   "rlens_version": "0.2.0",
   "schema_version": 1,
   "modules": [

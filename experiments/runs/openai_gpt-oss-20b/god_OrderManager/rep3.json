@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "rlens_version": "0.2.0",
+  "generated_at": "2026-08-31T18:13:23+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\messy_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "advices": [
+    {
+      "target": "god:OrderManager",
+      "diagnosis": "OrderManager has 25 public methods and a cyclomatic complexity of 49, yet its cohesion is low (LCOM4 = 4) and it references eight other internal classes (DCC = 8). These metrics indicate a classic God class that bundles order handling, pricing, auditing, and notification into a single, hard‑to‑maintain component.",
+      "suggestions": [
+        {
+          "title": "Extract responsibilities into dedicated service classes",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down"
+            },
+            {
+              "metric": "DCC",
+              "direction": "down"
+            },
+            {
+              "metric": "WMC",
+              "direction": "down"
+            }
+          ],
+          "sketch": "Create separate classes:\n- **OrderService**: place_order, get_order, cancel_order, order_count, orders_for, line_count, mark_paid, unpaid_orders.\n- **PricingService**: set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_with_tax, shipping_for.\n- **AuditService**: log_event, history, last_event, log_size, clear_log.\n- **NotificationService**: configure_smtp, notify, sent_count, outbox, reset_outbox.\nInject these services into a thin facade or replace OrderManager entirely. Each new class will reference only the classes it needs, reducing DCC, and methods will be grouped by cohesion, lowering LCOM4 and WMC.",
+          "tags": []
+        }
+      ],
+      "risk_notes": "The refactor will break any code that directly instantiates or calls OrderManager for all responsibilities. Tests and client code must be updated to use the new services or the facade. Dependency injection or a service locator may be required to wire the components, adding initial complexity. Careful versioning and backward‑compatibility wrappers can mitigate integration risk.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:OrderManager\",\n  \"diagnosis\": \"OrderManager has 25 public methods and a cyclomatic complexity of 49, yet its cohesion is low (LCOM4 = 4) and it references eight other internal classes (DCC = 8). These metrics indicate a classic God class that bundles order handling, pricing, auditing, and notification into a single, hard‑to‑maintain component.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract responsibilities into dedicated service classes\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\",\n        \"WMC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\"\n        }\n      ],\n      \"sketch\": \"Create separate classes:\\n- **OrderService**: place_order, get_order, cancel_order, order_count, orders_for, line_count, mark_paid, unpaid_orders.\\n- **PricingService**: set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_with_tax, shipping_for.\\n- **AuditService**: log_event, history, last_event, log_size, clear_log.\\n- **NotificationService**: configure_smtp, notify, sent_count, outbox, reset_outbox.\\nInject these services into a thin facade or replace OrderManager entirely. Each new class will reference only the classes it needs, reducing DCC, and methods will be grouped by cohesion, lowering LCOM4 and WMC.\"\n    }\n  ],\n  \"risk_notes\": \"The refactor will break any code that directly instantiates or calls OrderManager for all responsibilities. Tests and client code must be updated to use the new services or the facade. Dependency injection or a service locator may be required to wire the components, adding initial complexity. Careful versioning and backward‑compatibility wrappers can mitigate integration risk.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:OrderManager'; using 'god:OrderManager' instead"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "rlens_version": "0.2.0",
+  "generated_at": "2026-08-31T18:12:55+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\messy_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "advices": [
+    {
+      "target": "utils:classify_order",
+      "diagnosis": "The function has a high cyclomatic complexity (15) and a large parameter list (7), indicating that the decision logic is tangled and difficult to maintain. The moderate LOC (25) is not a problem, but the many branches suggest that the function could be decomposed into smaller, more focused helpers and that the parameter list could be simplified by grouping related data.",
+      "suggestions": [
+        {
+          "title": "Extract predicates and group parameters",
+          "rationale_metric_link": [
+            "CC",
+            "PARAMS",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "CC",
+              "direction": "down"
+            },
+            {
+              "metric": "PARAMS",
+              "direction": "down"
+            },
+            {
+              "metric": "DCC",
+              "direction": "up"
+            }
+          ],
+          "sketch": "```python\nfrom dataclasses import dataclass\n\n@dataclass\nclass OrderInfo:\n    total: float\n    item_count: int\n    tier: str\n    is_gift: bool\n    country: str\n    coupon: bool\n    weight: float\n\n# Predicate helpers\n\ndef is_invalid(info: OrderInfo) -> bool:\n    return info.total <= 0 or info.item_count <= 0\n\ndef is_vip_large(info: OrderInfo) -> bool:\n    return info.tier == \"premium\" and info.total > 1000\n\n# ... other predicates ...\n\n# Main classification\n\ndef classify_order(info: OrderInfo) -> str:\n    if is_invalid(info):\n        return \"invalid\"\n    if is_vip_large(info):\n        return \"vip-large\"\n    if info.tier == \"premium\":\n        return \"vip\"\n    if info.is_gift and info.country != \"TR\":\n        return \"gift-international\"\n    if info.is_gift:\n        return \"gift-domestic\"\n    if info.coupon and info.total > 500:\n        return \"discounted-large\"\n    if info.coupon:\n        return \"discounted\"\n    if info.weight > 30:\n        return \"freight\"\n    if info.total > 1000:\n        return \"large\"\n    if info.item_count > 20:\n        return \"bulk\"\n    return \"standard\"\n```",
+          "tags": []
+        }
+      ],
+      "risk_notes": "Changing the signature to accept a dataclass will require updating all call sites, which may be widespread. The predicate functions must preserve the original ordering of conditions; any mis‑ordering could alter classification results. Additionally, the increased number of small functions may raise the DCC metric, potentially affecting other parts of the system that rely on a flat function structure.",
+      "tags": [],
+      "raw_reply": "{\"target\":\"utils:classify_order\",\"diagnosis\":\"The function has a high cyclomatic complexity (15) and a large parameter list (7), indicating that the decision logic is tangled and difficult to maintain. The moderate LOC (25) is not a problem, but the many branches suggest that the function could be decomposed into smaller, more focused helpers and that the parameter list could be simplified by grouping related data.\",\"suggestions\":[{\"title\":\"Extract predicates and group parameters\",\"rationale_metric_link\":[\"CC\",\"PARAMS\",\"DCC\"],\"expected_effect\":[{\"metric\":\"CC\",\"direction\":\"down\"},{\"metric\":\"PARAMS\",\"direction\":\"down\"},{\"metric\":\"DCC\",\"direction\":\"up\"}],\"sketch\":\"```python\\nfrom dataclasses import dataclass\\n\\n@dataclass\\nclass OrderInfo:\\n    total: float\\n    item_count: int\\n    tier: str\\n    is_gift: bool\\n    country: str\\n    coupon: bool\\n    weight: float\\n\\n# Predicate helpers\\n\\ndef is_invalid(info: OrderInfo) -> bool:\\n    return info.total <= 0 or info.item_count <= 0\\n\\ndef is_vip_large(info: OrderInfo) -> bool:\\n    return info.tier == \\\"premium\\\" and info.total > 1000\\n\\n# ... other predicates ...\\n\\n# Main classification\\n\\ndef classify_order(info: OrderInfo) -> str:\\n    if is_invalid(info):\\n        return \\\"invalid\\\"\\n    if is_vip_large(info):\\n        return \\\"vip-large\\\"\\n    if info.tier == \\\"premium\\\":\\n        return \\\"vip\\\"\\n    if info.is_gift and info.country != \\\"TR\\\":\\n        return \\\"gift-international\\\"\\n    if info.is_gift:\\n        return \\\"gift-domestic\\\"\\n    if info.coupon and info.total > 500:\\n        return \\\"discounted-large\\\"\\n    if info.coupon:\\n        return \\\"discounted\\\"\\n    if info.weight > 30:\\n        return \\\"freight\\\"\\n    if info.total > 1000:\\n        return \\\"large\\\"\\n    if info.item_count > 20:\\n        return \\\"bulk\\\"\\n    return \\\"standard\\\"\\n```\"}],\"risk_notes\":\"Changing the signature to accept a dataclass will require updating all call sites, which may be widespread. The predicate functions must preserve the original ordering of conditions; any mis‑ordering could alter classification results. Additionally, the increased number of small functions may raise the DCC metric, potentially affecting other parts of the system that rely on a flat function structure.\"}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": []
+    }
+  ]
+}

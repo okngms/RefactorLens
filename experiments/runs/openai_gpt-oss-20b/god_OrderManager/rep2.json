@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "rlens_version": "0.2.0",
+  "generated_at": "2026-08-31T18:12:36+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\messy_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "advices": [
+    {
+      "target": "god:OrderManager",
+      "diagnosis": "The class has a very high number of methods (NOM 25) and a large sum of cyclomatic complexity (WMC 49), indicating a single class is handling many responsibilities. The cohesion metric LCOM4 is 4, far above the acceptable threshold, meaning the class is composed of several disconnected components. The class also references eight other internal classes (DCC 8), showing high coupling. The low DAM (1.0) shows almost no private attributes, which is typical for a god object. Together these metrics reveal a classic god‑object anti‑pattern: a single class that mixes order handling, pricing, logging, and notification logic.",
+      "suggestions": [
+        {
+          "title": "Split OrderManager into focused services",
+          "rationale_metric_link": [
+            "NOM",
+            "WMC",
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "NOM",
+              "direction": "down"
+            },
+            {
+              "metric": "WMC",
+              "direction": "down"
+            },
+            {
+              "metric": "LCOM4",
+              "direction": "down"
+            },
+            {
+              "metric": "DCC",
+              "direction": "down"
+            }
+          ],
+          "sketch": "Create separate classes for each logical component:\n\n```python\nclass OrderRepository:\n    def __init__(self):\n        self._orders = {}\n        self._next_id = 1\n    def place(self, customer, lines):\n        # validation and creation logic\n    def get(self, order_id):\n        # lookup logic\n    def cancel(self, order_id):\n        # cancellation logic\n    def list_for(self, customer_id):\n        # filtering logic\n    def count(self):\n        return len(self._orders)\n\nclass PricingEngine:\n    def __init__(self, tax_rate=0.18, discount_rules=None):\n        self._tax_rate = tax_rate\n        self._discount_rules = discount_rules or {}\n    def set_discount(self, tier, rate):\n        # validation\n    def discount_for(self, tier):\n        # lookup\n    def bulk_discount(self, quantity):\n        # tiered logic\n    def apply_tax(self, amount):\n        return round(amount * (1 + self._tax_rate), 2)\n    def total_with_tax(self, subtotal, tier):\n        # combine discount and tax\n\nclass AuditLogger:\n    def __init__(self):\n        self._log = []\n    def log(self, message, level='info'):\n        entry = AuditEntry(message, level)\n        self._log.append(entry)\n    def history(self):\n        return [e.format() for e in self._log]\n    def clear(self):\n        removed = len(self._log)\n        self._log = []\n        return removed\n\nclass NotificationService:\n    def __init__(self, host='localhost'):\n        self._host = host\n        self._sent = []\n    def configure(self, host):\n        if not host:\n            raise ValueError('host bos olamaz')\n        self._host = host\n    def notify(self, customer, subject):\n        notifier = EmailNotifier(self._host)\n        result = notifier.send(customer.email, subject)\n        self._sent.append(result)\n        return result\n    def outbox(self):\n        return list(self._sent)\n    def reset(self):\n        count = len(self._sent)\n        self._sent = []\n        return count\n\n# OrderManager becomes a thin façade that composes these services\nclass OrderManager:\n    def __init__(self):\n        self.repo = OrderRepository()\n        self.pricing = PricingEngine()\n        self.audit = AuditLogger()\n        self.notify = NotificationService()\n    # delegate methods to the composed services\n```\n\nEach new class now has a single responsibility, reducing method count, complexity, and coupling. The façade keeps the original public API if needed, or can be replaced by a more explicit interface.",
+          "tags": []
+        }
+      ],
+      "risk_notes": "The split will increase the number of classes in the codebase, which may raise the overall project DCC if not managed carefully. Additionally, if the original OrderManager was used as a singleton or injected via a framework, the new services must be wired correctly. Finally, the change may affect performance if the façade adds overhead; profiling should be performed after the refactor.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:OrderManager\",\n  \"diagnosis\": \"The class has a very high number of methods (NOM 25) and a large sum of cyclomatic complexity (WMC 49), indicating a single class is handling many responsibilities. The cohesion metric LCOM4 is 4, far above the acceptable threshold, meaning the class is composed of several disconnected components. The class also references eight other internal classes (DCC 8), showing high coupling. The low DAM (1.0) shows almost no private attributes, which is typical for a god object. Together these metrics reveal a classic god‑object anti‑pattern: a single class that mixes order handling, pricing, logging, and notification logic.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Split OrderManager into focused services\",\n      \"rationale_metric_link\": [\n        \"NOM\",\n        \"WMC\",\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\"\n        }\n      ],\n      \"sketch\": \"Create separate classes for each logical component:\\n\\n```python\\nclass OrderRepository:\\n    def __init__(self):\\n        self._orders = {}\\n        self._next_id = 1\\n    def place(self, customer, lines):\\n        # validation and creation logic\\n    def get(self, order_id):\\n        # lookup logic\\n    def cancel(self, order_id):\\n        # cancellation logic\\n    def list_for(self, customer_id):\\n        # filtering logic\\n    def count(self):\\n        return len(self._orders)\\n\\nclass PricingEngine:\\n    def __init__(self, tax_rate=0.18, discount_rules=None):\\n        self._tax_rate = tax_rate\\n        self._discount_rules = discount_rules or {}\\n    def set_discount(self, tier, rate):\\n        # validation\\n    def discount_for(self, tier):\\n        # lookup\\n    def bulk_discount(self, quantity):\\n        # tiered logic\\n    def apply_tax(self, amount):\\n        return round(amount * (1 + self._tax_rate), 2)\\n    def total_with_tax(self, subtotal, tier):\\n        # combine discount and tax\\n\\nclass AuditLogger:\\n    def __init__(self):\\n        self._log = []\\n    def log(self, message, level='info'):\\n        entry = AuditEntry(message, level)\\n        self._log.append(entry)\\n    def history(self):\\n        return [e.format() for e in self._log]\\n    def clear(self):\\n        removed = len(self._log)\\n        self._log = []\\n        return removed\\n\\nclass NotificationService:\\n    def __init__(self, host='localhost'):\\n        self._host = host\\n        self._sent = []\\n    def configure(self, host):\\n        if not host:\\n            raise ValueError('host bos olamaz')\\n        self._host = host\\n    def notify(self, customer, subject):\\n        notifier = EmailNotifier(self._host)\\n        result = notifier.send(customer.email, subject)\\n        self._sent.append(result)\\n        return result\\n    def outbox(self):\\n        return list(self._sent)\\n    def reset(self):\\n        count = len(self._sent)\\n        self._sent = []\\n        return count\\n\\n# OrderManager becomes a thin façade that composes these services\\nclass OrderManager:\\n    def __init__(self):\\n        self.repo = OrderRepository()\\n        self.pricing = PricingEngine()\\n        self.audit = AuditLogger()\\n        self.notify = NotificationService()\\n    # delegate methods to the composed services\\n```\\n\\nEach new class now has a single responsibility, reducing method count, complexity, and coupling. The façade keeps the original public API if needed, or can be replaced by a more explicit interface.\",\n      \"risk_notes\": \"Refactoring a god object into multiple classes will break existing callers that rely on the monolithic API. All unit tests and integration points must be updated to use the new services or the façade. Care must be taken to preserve transactional semantics (e.g., order placement should still be atomic). If the system is large, the refactor may require significant effort to adjust dependency injection or service registration. However, the long‑term maintainability gains outweigh the short‑term migration cost.\"\n    }\n  ],\n  \"risk_notes\": \"The split will increase the number of classes in the codebase, which may raise the overall project DCC if not managed carefully. Additionally, if the original OrderManager was used as a singleton or injected via a framework, the new services must be wired correctly. Finally, the change may affect performance if the façade adds overhead; profiling should be performed after the refactor.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:OrderManager'; using 'god:OrderManager' instead"
+      ]
+    }
+  ]
+}

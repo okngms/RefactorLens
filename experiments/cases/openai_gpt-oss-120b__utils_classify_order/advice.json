@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "rlens_version": "0.2.0",
+  "generated_at": "2026-08-31T18:10:37+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\messy_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "advices": [
+    {
+      "target": "utils:classify_order",
+      "diagnosis": "The function shows a cyclomatic complexity of 15 and accepts 7 parameters, both exceeding typical thresholds. The high CC indicates many independent decision branches, making the logic hard to understand and test. The large parameter list suggests low cohesion and a potential violation of the Single Responsibility Principle, increasing the chance of bugs when callers must supply many arguments.",
+      "suggestions": [
+        {
+          "title": "Extract each rule into its own helper function",
+          "rationale_metric_link": [
+            "CC",
+            "LCOM4"
+          ],
+          "expected_effect": [
+            {
+              "metric": "CC",
+              "direction": "down"
+            },
+            {
+              "metric": "LCOM4",
+              "direction": "down"
+            }
+          ],
+          "sketch": "Create small functions like `def is_invalid_total(total): return total <= 0`, `def is_gift_international(is_gift, country): return is_gift and country != \"TR\"`, etc. Then rewrite `classify_order` to call these helpers sequentially and return the matching label. This flattens the decision tree and groups related checks, reducing cyclomatic complexity while improving cohesion.",
+          "tags": []
+        },
+        {
+          "title": "Bundle input arguments into a dataclass",
+          "rationale_metric_link": [
+            "PARAMS",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "PARAMS",
+              "direction": "down"
+            },
+            {
+              "metric": "DCC",
+              "direction": "up"
+            }
+          ],
+          "sketch": "Define `@dataclass class OrderInfo: total: float; item_count: int; tier: str; is_gift: bool; country: str; coupon: bool; weight: float`. Change the signature to `def classify_order(info: OrderInfo):` and adjust the helper calls to use `info.total`, `info.item_count`, etc. This reduces the visible parameter count at the cost of introducing a new class, raising DCC.",
+          "tags": []
+        }
+      ],
+      "risk_notes": "Splitting logic into many helpers may slightly increase the overall line count and introduce import overhead; ensure all helpers are kept private to the module to avoid API churn. Introducing a dataclass changes the public interface, so callers must be updated and existing tests revised, which could cause breakage if not coordinated.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"utils:classify_order\",\n  \"diagnosis\": \"The function shows a cyclomatic complexity of 15 and accepts 7 parameters, both exceeding typical thresholds. The high CC indicates many independent decision branches, making the logic hard to understand and test. The large parameter list suggests low cohesion and a potential violation of the Single Responsibility Principle, increasing the chance of bugs when callers must supply many arguments.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract each rule into its own helper function\",\n      \"rationale_metric_link\": [\n        \"CC\",\n        \"LCOM4\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"CC\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\"\n        }\n      ],\n      \"sketch\": \"Create small functions like `def is_invalid_total(total): return total <= 0`, `def is_gift_international(is_gift, country): return is_gift and country != \\\"TR\\\"`, etc. Then rewrite `classify_order` to call these helpers sequentially and return the matching label. This flattens the decision tree and groups related checks, reducing cyclomatic complexity while improving cohesion.\"\n    },\n    {\n      \"title\": \"Bundle input arguments into a dataclass\",\n      \"rationale_metric_link\": [\n        \"PARAMS\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"PARAMS\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\"\n        }\n      ],\n      \"sketch\": \"Define `@dataclass class OrderInfo: total: float; item_count: int; tier: str; is_gift: bool; country: str; coupon: bool; weight: float`. Change the signature to `def classify_order(info: OrderInfo):` and adjust the helper calls to use `info.total`, `info.item_count`, etc. This reduces the visible parameter count at the cost of introducing a new class, raising DCC.\"\n    }\n  ],\n  \"risk_notes\": \"Splitting logic into many helpers may slightly increase the overall line count and introduce import overhead; ensure all helpers are kept private to the module to avoid API churn. Introducing a dataclass changes the public interface, so callers must be updated and existing tests revised, which could cause breakage if not coordinated.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": []
+    }
+  ]
+}

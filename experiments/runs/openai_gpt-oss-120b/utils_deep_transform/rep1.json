@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "rlens_version": "0.2.0",
+  "generated_at": "2026-08-31T18:10:47+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\messy_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "advices": [
+    {
+      "target": "utils:deep_transform",
+      "diagnosis": "The function has a cyclomatic complexity of 8 and a nesting depth of 7, both exceeding the project's thresholds. The deep nesting makes the control flow hard to follow and inflates CC, while the modest LOC and single parameter hide the underlying structural complexity.",
+      "suggestions": [
+        {
+          "title": "Extract inner processing into helper functions to flatten nesting",
+          "rationale_metric_link": [
+            "CC",
+            "NESTING",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "CC",
+              "direction": "down"
+            },
+            {
+              "metric": "NESTING",
+              "direction": "down"
+            },
+            {
+              "metric": "DCC",
+              "direction": "up"
+            }
+          ],
+          "sketch": "Create a small function, e.g. `def _process_item(item):` that iterates over `sorted(item)` and yields `(key, value)` tuples with the non‑negative logic. In `deep_transform` replace the three‑level nested loops with a single loop that calls `_process_item` for each dict, and use a list comprehension or `extend` to collect results. This removes one level of `if` nesting and reduces the number of decision points in the main function.",
+          "tags": []
+        }
+      ],
+      "risk_notes": "Introducing a new helper increases the overall function count (DCC up) and may affect callers that rely on the exact ordering of results if the helper changes iteration order. Ensure unit tests cover the output ordering and edge cases (empty groups, non‑list inputs).",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"utils:deep_transform\",\n  \"diagnosis\": \"The function has a cyclomatic complexity of 8 and a nesting depth of 7, both exceeding the project's thresholds. The deep nesting makes the control flow hard to follow and inflates CC, while the modest LOC and single parameter hide the underlying structural complexity.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract inner processing into helper functions to flatten nesting\",\n      \"rationale_metric_link\": [\n        \"CC\",\n        \"NESTING\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"CC\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"NESTING\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\"\n        }\n      ],\n      \"sketch\": \"Create a small function, e.g. `def _process_item(item):` that iterates over `sorted(item)` and yields `(key, value)` tuples with the non‑negative logic. In `deep_transform` replace the three‑level nested loops with a single loop that calls `_process_item` for each dict, and use a list comprehension or `extend` to collect results. This removes one level of `if` nesting and reduces the number of decision points in the main function.\"\n    }\n  ],\n  \"risk_notes\": \"Introducing a new helper increases the overall function count (DCC up) and may affect callers that rely on the exact ordering of results if the helper changes iteration order. Ensure unit tests cover the output ordering and edge cases (empty groups, non‑list inputs).\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": []
+    }
+  ]
+}

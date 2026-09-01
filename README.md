@@ -25,9 +25,8 @@ Class metrics
 8 items over threshold.
 ```
 
-> **Status: v0.1.0.** `scan` is complete and tested. The AI advisor (`advise`)
-> and the verification loop (`verify`) are the next milestones — see
-> [Roadmap](#roadmap).
+> **Status: v1.0.0.** All three commands work, and the experiment they were
+> built for is done — see [FINDINGS.md](FINDINGS.md).
 
 ## Why this exists
 
@@ -47,7 +46,17 @@ suggestion that says "this feels messy" is not.
 applied, the metrics are recomputed and two questions get answered at once: did
 quality actually improve, and **was the model's own prediction correct?**
 
-The second question is the interesting one.
+The second question is the interesting one, and it has an answer now.
+
+Across 13 verifiable predictions from three models, 6 were correct. The misses
+are not scattered: every prediction about a metric that is **arithmetic over the
+measured unit** was right (CC, WMC, PARAMS — 6 of 6), and every prediction about
+a **structural** one was wrong (LCOM4, DCC, NOM, LOC — 0 of 7). The models
+reason about the codebase while the metric measures the entity.
+
+In one case a model predicted all four of its metrics correctly by producing a
+change that deleted the class's entire public interface. Only the behaviour
+tests caught it. Full report: [FINDINGS.md](FINDINGS.md).
 
 ## Install
 
@@ -76,6 +85,94 @@ rlens --version
 
 Values shown as `—` were **not computed**, which is different from zero. The
 footnote below the table says why.
+
+### The full loop
+
+The three commands are meant to be used in sequence.
+
+```bash
+# 1. Measure, establishing a baseline
+rlens scan .
+
+# 2. Ask for advice, grounded in those measurements
+rlens advise .
+
+# 3. Apply one suggestion by hand, then run YOUR tests
+
+# 4. Re-measure and score the model's prediction
+rlens verify . --applied "orders:OrderManager=1" \
+                --advice reports/advice-20260829-153748.json
+```
+
+Step 3 is not optional. A refactoring that improves every metric while breaking
+the code is a regression, not an improvement — `verify` reminds you of this in
+every report, but it cannot check it for you.
+
+### Asking for advice
+
+```bash
+rlens advise .                       # the 3 worst targets
+rlens advise . --top-n 1             # just the worst one
+rlens advise . --dry-run             # print the prompt, send nothing
+rlens advise . --provider ollama --model llama3
+```
+
+`--dry-run` needs no API key and no network. It prints exactly what would be
+sent, which is the honest way to decide whether you want to send it.
+
+Configure the provider in `rlens.yaml` and put the key in `.env`
+(see `.env.example`):
+
+```yaml
+provider:
+  name: groq          # groq (cloud) or ollama (local)
+  model: <model-id>   # from your provider's docs
+```
+
+Model names are never hard-coded. Providers change their catalogues often, and a
+baked-in name breaks quietly when the package ages.
+
+Every suggestion must name at least one metric and state a **measurable
+prediction** — for example "LCOM4 down, DCC up". Suggestions that name no metric
+are kept but tagged `unlinked` rather than dropped, so you can see how often the
+model ignores the rule.
+
+### Verifying
+
+```bash
+rlens verify .                                   # deltas only
+rlens verify . --advice reports/advice-....json  # plus prediction scoring
+rlens verify . --applied "orders:OrderManager=1" --advice ...
+rlens verify . --fail-on-regression              # exit 1 if anything got worse
+```
+
+Without `--before`, the most recent scan report is used as the baseline.
+
+`--applied` matters more than it looks. If a target got three suggestions and you
+applied one, scoring all three punishes the model for advice you never followed.
+
+Output looks like this:
+
+```
+god:OrderManager   improved   WMC 49→34, DCC 8→4
+god:OrderRepository  added
+
+Metric   Predicted  Actual
+LCOM4    down       same     ✗
+NOM      down       same     ✗
+WMC      down       down     ✓
+DCC      up         down     ✗
+
+prediction accuracy: 1/4 (25%)
+```
+
+Two answers at once: the code did get measurably better, and the model was wrong
+about three of its four predictions.
+
+Predictions that cannot be checked — a metric that was never computable, a class
+that no longer exists — are counted separately and **excluded** from the ratio.
+Treating "we could not measure it" as "the model was wrong" would bias every
+number.
 
 ### Exit codes
 
@@ -189,10 +286,11 @@ does not inherit the closure's complexity.
 
 - **It does not run your code.** Files are parsed with `ast`, never executed.
 - **It does not fix anything.** `scan` measures; future versions will suggest.
-- **It does not send anything anywhere.** `scan` is entirely local. When
-  `advise` arrives, it will send selected code to whichever LLM provider you
-  configure, and local execution via Ollama will be supported for sensitive
-  codebases.
+- **`scan` and `verify` send nothing anywhere.** They are entirely local.
+  `advise` sends the selected class or function, plus the signatures of the
+  project classes it depends on, to whichever provider you configure. Use
+  `--dry-run` to see exactly what would go out, or the Ollama provider to keep
+  everything on your machine.
 - **Python only.** No Java or C#.
 
 ## Roadmap
@@ -201,17 +299,22 @@ does not inherit the closure's complexity.
 |---|---|---|
 | 0 | Package skeleton, config, test foundation | — |
 | 1 | Metric engine (`scan`) | — |
-| **2** | **PyPI release** | **v0.1.0** |
-| 3 | AI advisor (`advise`) | v0.2.0 |
-| 4 | Verification loop (`verify`) | v0.3.0 |
-| 5 | Experiment and findings | v1.0.0 |
+| 2 | First PyPI release | v0.1.0 |
+| 3 | AI advisor (`advise`) | — |
+| 4 | Verification loop (`verify`) | v0.2.0 |
+| **5** | **Experiment and findings** | **v1.0.0** |
+
+Phases 3 and 4 shipped together in v0.2.0. The phase 5 experiment lives in
+[`experiments/`](experiments/), with the raw data committed alongside it.
 
 Ideas deliberately out of scope live in [FUTURE.md](FUTURE.md).
+[STRUCTURE.md](STRUCTURE.md) maps the codebase file by file, and
+[AGENTS.md](AGENTS.md) records the locked decisions and invariants behind it.
 
 ## Development
 
 ```bash
-git clone https://github.com/okngms/refactorlens
+git clone https://github.com/<user>/refactorlens
 cd refactorlens
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"

@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "rlens_version": "0.2.0",
+  "generated_at": "2026-08-31T18:11:55+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\messy_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "advices": [
+    {
+      "target": "utils:deep_transform",
+      "diagnosis": "The function shows a high cyclomatic complexity (CC=8) and deep nesting (NESTING=7) relative to its modest size (LOC=15). This indicates that the control flow is tangled and the single routine is handling several distinct concerns (iteration, type checking, value normalisation), which can hurt readability and maintainability.",
+      "suggestions": [
+        {
+          "title": "Extract nested loops into focused helper functions",
+          "rationale_metric_link": [
+            "CC",
+            "NESTING",
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "CC",
+              "direction": "down"
+            },
+            {
+              "metric": "NESTING",
+              "direction": "down"
+            },
+            {
+              "metric": "LCOM4",
+              "direction": "down"
+            },
+            {
+              "metric": "DCC",
+              "direction": "up"
+            }
+          ],
+          "sketch": "Create small private helpers, e.g.:\n```python\ndef _is_positive_number(v):\n    return isinstance(v, (int, float)) and v > 0\n\ndef _normalize_value(v):\n    return v if v > 0 else 0\n\ndef _process_item(item):\n    return [(k, _normalize_value(v)) for k, v in sorted(item.items()) if _is_positive_number(v) or isinstance(v, (int, float))]\n\ndef deep_transform(data):\n    result = []\n    for group in data:\n        if isinstance(group, list):\n            for item in group:\n                if isinstance(item, dict):\n                    result.extend(_process_item(item))\n    return result\n```",
+          "tags": []
+        }
+      ],
+      "risk_notes": "Introducing new helpers increases the number of call sites and may slightly raise coupling (DCC). Ensure the helpers remain internal (prefixed with _) to avoid breaking external imports. Unit tests must be updated to cover the extracted functions.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"utils:deep_transform\",\n  \"diagnosis\": \"The function shows a high cyclomatic complexity (CC=8) and deep nesting (NESTING=7) relative to its modest size (LOC=15). This indicates that the control flow is tangled and the single routine is handling several distinct concerns (iteration, type checking, value normalisation), which can hurt readability and maintainability.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract nested loops into focused helper functions\",\n      \"rationale_metric_link\": [\n        \"CC\",\n        \"NESTING\",\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"CC\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"NESTING\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\"\n        }\n      ],\n      \"sketch\": \"Create small private helpers, e.g.:\\n```python\\ndef _is_positive_number(v):\\n    return isinstance(v, (int, float)) and v > 0\\n\\ndef _normalize_value(v):\\n    return v if v > 0 else 0\\n\\ndef _process_item(item):\\n    return [(k, _normalize_value(v)) for k, v in sorted(item.items()) if _is_positive_number(v) or isinstance(v, (int, float))]\\n\\ndef deep_transform(data):\\n    result = []\\n    for group in data:\\n        if isinstance(group, list):\\n            for item in group:\\n                if isinstance(item, dict):\\n                    result.extend(_process_item(item))\\n    return result\\n```\"\n    }\n  ],\n  \"risk_notes\": \"Introducing new helpers increases the number of call sites and may slightly raise coupling (DCC). Ensure the helpers remain internal (prefixed with _) to avoid breaking external imports. Unit tests must be updated to cover the extracted functions.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": []
+    }
+  ]
+}

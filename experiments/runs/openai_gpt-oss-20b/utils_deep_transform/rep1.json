@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "rlens_version": "0.2.0",
+  "generated_at": "2026-08-31T18:12:26+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\messy_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "advices": [
+    {
+      "target": "utils:deep_transform",
+      "diagnosis": "The function has a cyclomatic complexity of 8 and a nesting depth of 7, both exceeding typical thresholds. With 15 lines of code and only one parameter, the main issue is the deep nested loops and conditionals, which make the logic hard to read and maintain. The high CC and NESTING suggest that the function could be decomposed into smaller, more focused helpers to improve readability and testability.",
+      "suggestions": [
+        {
+          "title": "Extract nested logic into helper functions",
+          "rationale_metric_link": [
+            "CC",
+            "NESTING"
+          ],
+          "expected_effect": [
+            {
+              "metric": "CC",
+              "direction": "down"
+            },
+            {
+              "metric": "NESTING",
+              "direction": "down"
+            }
+          ],
+          "sketch": "```python\n# Keep the public API unchanged\n\ndef deep_transform(data):\n    \"\"\"Return a list of (key, value) tuples for positive numeric values.\"\"\"\n    result = []\n    for group in data:\n        if not isinstance(group, list):\n            continue\n        for item in group:\n            if not isinstance(item, dict):\n                continue\n            result.extend(_process_item(item))\n    return result\n\n# Helper that processes a single dict\n\ndef _process_item(item):\n    out = []\n    for key in sorted(item):\n        value = item[key]\n        if isinstance(value, (int, float)):\n            out.append((key, value if value > 0 else 0))\n    return out\n```",
+          "tags": []
+        }
+      ],
+      "risk_notes": "",
+      "tags": [],
+      "raw_reply": "{\"target\":\"utils:deep_transform\",\"diagnosis\":\"The function has a cyclomatic complexity of 8 and a nesting depth of 7, both exceeding typical thresholds. With 15 lines of code and only one parameter, the main issue is the deep nested loops and conditionals, which make the logic hard to read and maintain. The high CC and NESTING suggest that the function could be decomposed into smaller, more focused helpers to improve readability and testability.\",\"suggestions\":[{\"title\":\"Extract nested logic into helper functions\",\"rationale_metric_link\":[\"CC\",\"NESTING\"],\"expected_effect\":[{\"metric\":\"CC\",\"direction\":\"down\"},{\"metric\":\"NESTING\",\"direction\":\"down\"}],\"sketch\":\"```python\\n# Keep the public API unchanged\\n\\ndef deep_transform(data):\\n    \\\"\\\"\\\"Return a list of (key, value) tuples for positive numeric values.\\\"\\\"\\\"\\n    result = []\\n    for group in data:\\n        if not isinstance(group, list):\\n            continue\\n        for item in group:\\n            if not isinstance(item, dict):\\n                continue\\n            result.extend(_process_item(item))\\n    return result\\n\\n# Helper that processes a single dict\\n\\ndef _process_item(item):\\n    out = []\\n    for key in sorted(item):\\n        value = item[key]\\n        if isinstance(value, (int, float)):\\n            out.append((key, value if value > 0 else 0))\\n    return out\\n```\",\"risk_notes\":\"The refactor introduces new helper functions that must be imported or defined in the same module. If the original function was relied upon for its exact control flow (e.g., for side‑effects or ordering), the new implementation must preserve that behavior. Additionally, the helper functions increase the module’s surface area, which could affect static analysis or documentation tools that expect a single function.\"}]}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": []
+    }
+  ]
+}

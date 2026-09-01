@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "rlens_version": "0.2.0",
+  "generated_at": "2026-08-31T18:14:33+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\messy_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "advices": [
+    {
+      "target": "utils:classify_order",
+      "diagnosis": "The function exhibits a high Cyclomatic Complexity (CC=15) due to a long chain of independent conditional checks, despite having a low nesting depth (NESTING=1). The high parameter count (PARAMS=7) suggests the function is handling multiple distinct classification dimensions (value, quantity, user tier, gift status, geography, promotion, and logistics) in a single procedural block. This structure makes the logic difficult to maintain and test in isolation, as each new rule adds to the linear complexity of the function.",
+      "suggestions": [
+        {
+          "title": "Extract classification rules into a strategy pattern or data-driven table",
+          "rationale_metric_link": [
+            "CC",
+            "PARAMS"
+          ],
+          "expected_effect": [
+            {
+              "metric": "CC",
+              "direction": "down"
+            },
+            {
+              "metric": "PARAMS",
+              "direction": "down"
+            }
+          ],
+          "sketch": "Refactor the function to accept a single `Order` object or a dictionary instead of 7 individual parameters. Replace the linear `if/elif` chain with a list of rule objects or a dictionary mapping conditions to labels. The main function would iterate through these rules and return the first match, reducing the CC of the entry point to a simple loop (CC ~2-3) and moving the complexity into small, testable rule definitions.",
+          "tags": []
+        },
+        {
+          "title": "Group related conditions into helper predicates",
+          "rationale_metric_link": [
+            "CC",
+            "LOC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "CC",
+              "direction": "down"
+            },
+            {
+              "metric": "LOC",
+              "direction": "same"
+            }
+          ],
+          "sketch": "Extract logical groupings such as `is_premium_order`, `is_gift_order`, and `is_discounted_order` into separate private helper functions. The main `classify_order` function would then call these helpers, reducing the number of direct conditional branches in the main body. While the total LOC may remain similar, the CC of the primary function drops significantly, and the logic becomes more readable.",
+          "tags": []
+        }
+      ],
+      "risk_notes": "Refactoring to a strategy pattern or data-driven table may introduce overhead in performance if the rule list is large, though for 10-15 rules this is negligible. Changing the parameter signature from 7 arguments to a single object requires updating all call sites, which could be a significant refactoring effort if the function is widely used. Ensure that the order of evaluation is preserved if the rules are not mutually exclusive, as the current code returns the first match in a specific sequence.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"utils:classify_order\",\n  \"diagnosis\": \"The function exhibits a high Cyclomatic Complexity (CC=15) due to a long chain of independent conditional checks, despite having a low nesting depth (NESTING=1). The high parameter count (PARAMS=7) suggests the function is handling multiple distinct classification dimensions (value, quantity, user tier, gift status, geography, promotion, and logistics) in a single procedural block. This structure makes the logic difficult to maintain and test in isolation, as each new rule adds to the linear complexity of the function.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract classification rules into a strategy pattern or data-driven table\",\n      \"rationale_metric_link\": [\n        \"CC\",\n        \"PARAMS\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"CC\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"PARAMS\",\n          \"direction\": \"down\"\n        }\n      ],\n      \"sketch\": \"Refactor the function to accept a single `Order` object or a dictionary instead of 7 individual parameters. Replace the linear `if/elif` chain with a list of rule objects or a dictionary mapping conditions to labels. The main function would iterate through these rules and return the first match, reducing the CC of the entry point to a simple loop (CC ~2-3) and moving the complexity into small, testable rule definitions.\"\n    },\n    {\n      \"title\": \"Group related conditions into helper predicates\",\n      \"rationale_metric_link\": [\n        \"CC\",\n        \"LOC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"CC\",\n          \"direction\": \"down\"\n        },\n        {\n          \"metric\": \"LOC\",\n          \"direction\": \"same\"\n        }\n      ],\n      \"sketch\": \"Extract logical groupings such as `is_premium_order`, `is_gift_order`, and `is_discounted_order` into separate private helper functions. The main `classify_order` function would then call these helpers, reducing the number of direct conditional branches in the main body. While the total LOC may remain similar, the CC of the primary function drops significantly, and the logic becomes more readable.\"\n    }\n  ],\n  \"risk_notes\": \"Refactoring to a strategy pattern or data-driven table may introduce overhead in performance if the rule list is large, though for 10-15 rules this is negligible. Changing the parameter signature from 7 arguments to a single object requires updating all call sites, which could be a significant refactoring effort if the function is widely used. Ensure that the order of evaluation is preserved if the rules are not mutually exclusive, as the current code returns the first match in a specific sequence.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": []
+    }
+  ]
+}

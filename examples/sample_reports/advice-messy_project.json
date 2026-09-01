@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "rlens_version": "0.2.0",
+  "generated_at": "2026-08-29T16:25:50+00:00",
+  "root": "/path/to/examples/messy_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "advices": [
+    {
+      "target": "god:OrderManager",
+      "diagnosis": "The class aggregates four unrelated responsibilities.",
+      "suggestions": [
+        {
+          "title": "Extract order CRUD to an OrderRepository class",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down"
+            },
+            {
+              "metric": "NOM",
+              "direction": "down"
+            },
+            {
+              "metric": "WMC",
+              "direction": "down"
+            },
+            {
+              "metric": "DCC",
+              "direction": "up"
+            }
+          ],
+          "sketch": "Move _orders and _next_id into OrderRepository; delegate the eight order methods.",
+          "tags": []
+        }
+      ],
+      "risk_notes": "Splitting the class changes the public API.",
+      "tags": [],
+      "raw_reply": "{\"target\": \"god:OrderManager\", \"diagnosis\": \"The class aggregates four unrelated responsibilities.\", \"suggestions\": [{\"title\": \"Extract order CRUD to an OrderRepository class\", \"rationale_metric_link\": [\"LCOM4\", \"NOM\", \"WMC\", \"DCC\"], \"expected_effect\": [{\"metric\": \"LCOM4\", \"direction\": \"down\"}, {\"metric\": \"NOM\", \"direction\": \"down\"}, {\"metric\": \"WMC\", \"direction\": \"down\"}, {\"metric\": \"DCC\", \"direction\": \"up\"}], \"sketch\": \"Move _orders and _next_id into OrderRepository; delegate the eight order methods.\"}], \"risk_notes\": \"Splitting the class changes the public API.\"}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": []
+    }
+  ]
+}

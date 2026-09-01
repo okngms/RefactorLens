@@ -1,0 +1,107 @@
+--- a/god.py
++++ b/god.py
+@@ -22,14 +22,54 @@
+ from services import AuditEntry, EmailNotifier, Invoice, Order, ShippingCalculator
+ 
+ 
++class PricingEngine:
++    def __init__(self):
++        self._tax_rate = 0.18
++        self._discount_rules = {}
++
++    def set_discount(self, tier, rate):
++        if rate < 0 or rate > 1:
++            raise ValueError("indirim orani 0-1 arasinda olmali")
++        self._discount_rules[tier] = rate
++
++    def discount_for(self, tier):
++        if tier in self._discount_rules:
++            return self._discount_rules[tier]
++        return 0.0
++
++    def bulk_discount(self, quantity):
++        if quantity >= 100:
++            return self._discount_rules.get("bulk_large", 0.2)
++        if quantity >= 20:
++            return self._discount_rules.get("bulk_small", 0.1)
++        return 0.0
++
++    def set_tax_rate(self, rate):
++        if rate < 0:
++            raise ValueError("vergi orani negatif olamaz")
++        self._tax_rate = rate
++
++    def apply_tax(self, amount):
++        return round(amount * (1 + self._tax_rate), 2)
++
++    def total_with_tax(self, subtotal, tier):
++        discount = self.discount_for(tier)
++        discounted = subtotal * (1 - discount)
++        return self.apply_tax(discounted)
++
++    def shipping_for(self, weight, express=False):
++        calculator = ShippingCalculator()
++        base = calculator.cost_for(weight, express)
++        return round(base * (1 + self._tax_rate), 2)
++
++
+ class OrderManager:
+     def __init__(self):
+         # Bileşen 1 — siparişler
+         self._orders = {}
+         self._next_id = 1
+-        # Bileşen 2 — fiyatlandırma
+-        self._tax_rate = 0.18
+-        self._discount_rules = {}
++        # Bileşen 2 — fiyatlandırma (PricingEngine'e devredildi)
++        self._pricing = PricingEngine()
+         # Bileşen 3 — denetim günlüğü
+         self._log = []
+         # Bileşen 4 — bildirim
+@@ -103,39 +143,25 @@
+     # -- Bileşen 2: fiyatlandırma ---------------------------------------------
+ 
+     def set_discount(self, tier, rate):
+-        if rate < 0 or rate > 1:
+-            raise ValueError("indirim orani 0-1 arasinda olmali")
+-        self._discount_rules[tier] = rate
++        return self._pricing.set_discount(tier, rate)
+ 
+     def discount_for(self, tier):
+-        if tier in self._discount_rules:
+-            return self._discount_rules[tier]
+-        return 0.0
++        return self._pricing.discount_for(tier)
+ 
+     def bulk_discount(self, quantity):
+-        if quantity >= 100:
+-            return self._discount_rules.get("bulk_large", 0.2)
+-        if quantity >= 20:
+-            return self._discount_rules.get("bulk_small", 0.1)
+-        return 0.0
++        return self._pricing.bulk_discount(quantity)
+ 
+     def set_tax_rate(self, rate):
+-        if rate < 0:
+-            raise ValueError("vergi orani negatif olamaz")
+-        self._tax_rate = rate
++        return self._pricing.set_tax_rate(rate)
+ 
+     def apply_tax(self, amount):
+-        return round(amount * (1 + self._tax_rate), 2)
++        return self._pricing.apply_tax(amount)
+ 
+     def total_with_tax(self, subtotal, tier):
+-        discount = self.discount_for(tier)
+-        discounted = subtotal * (1 - discount)
+-        return self.apply_tax(discounted)
++        return self._pricing.total_with_tax(subtotal, tier)
+ 
+     def shipping_for(self, weight, express=False):
+-        calculator = ShippingCalculator()
+-        base = calculator.cost_for(weight, express)
+-        return round(base * (1 + self._tax_rate), 2)
++        return self._pricing.shipping_for(weight, express)
+ 
+     # -- Bileşen 3: denetim günlüğü -------------------------------------------
+ 
