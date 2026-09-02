@@ -142,14 +142,23 @@ excluded.
 
 Not a gradient. A clean partition, across three different models.
 
-What distinguishes the two groups is not difficulty but **scope**. CC, WMC and
-PARAMS are arithmetic over the unit being measured: remove a branch and CC
-falls, move a method out and WMC falls, collapse the signature and PARAMS falls.
-The models got all of these right.
+What distinguishes the two groups is **what the change leaves behind**.
 
-The other four require reasoning about what the change leaves behind, and every
-miss was a scope error — the models predicted the effect on the *codebase* while
-the metric measures the *entity*:
+CC, WMC and PARAMS are **subtractive**: take work out of the unit and the value
+falls, with nothing stepping into its place. Predicting them requires knowing
+only what was removed. The models got all six right.
+
+The other four are **residue-dependent**: the value turns on what remains. A
+delegating wrapper stands in for the method that left, a new attribute stands in
+for the old ones, a new dependency stands in for the ones that moved out. The
+models got all seven wrong.
+
+(These labels are a hypothesis derived from 13 predictions, not a settled
+taxonomy — one to three observations per metric. Later reports state per-metric
+results first and the grouping second, so the grouping can be refuted.)
+
+Every miss was also a scope error: the models predicted the effect on the
+*codebase* while the metric measures the *entity*.
 
 - **`DCC up`** (twice, both wrong). The models saw new classes entering the
   system and concluded coupling would rise. DCC is per class: extracting
@@ -281,10 +290,11 @@ designed away.
 27 runs, three models, zero violations. They are also reasonably consistent with
 themselves at low temperature.
 
-**Answered.** Predictions about metrics that are arithmetic over the measured
-unit were correct 6 times out of 6. Predictions about structural metrics were
-wrong 7 times out of 7. The failure is specific and it is a scope error: the
-models reason about the codebase while the metric measures the entity.
+**Answered.** Predictions about **subtractive** metrics — where the change
+removes something and nothing replaces it — were correct 6 times out of 6.
+Predictions about **residue-dependent** metrics were wrong 7 times out of 7. The
+failure is specific: the models do not account for what their own change leaves
+behind, and they reason about the codebase while the metric measures the entity.
 
 **Answered, with one case.** A model can be entirely correct about its own
 predictions while destroying the code. Metric verification alone is insufficient;

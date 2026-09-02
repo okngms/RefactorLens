@@ -233,9 +233,20 @@ improvement".
 ### The experiment is done
 
 See [FINDINGS.md](FINDINGS.md). Headline: 6 of 13 verifiable predictions correct,
-split cleanly — 6/6 on unit-local arithmetic metrics (CC, WMC, PARAMS), 0/7 on
-structural ones (LCOM4, DCC, NOM, LOC). One case predicted every metric correctly
-while breaking 42 behaviour tests.
+split cleanly — 6/6 on **subtractive** metrics (CC, WMC, PARAMS), 0/7 on
+**residue-dependent** ones (NOM, LCOM4, DCC, LOC). One case predicted every
+metric correctly while breaking 42 behaviour tests.
+
+**Do not relabel these groups "arithmetic" and "structural".** That naming was
+tried and is wrong: NOM is literally a count, yet it was mispredicted every
+time. What separates the groups is whether the change leaves a replacement
+behind — a delegating wrapper, a new attribute, a new dependency. A v2 planning
+document made this error and it is corrected in `docs/SPEC-duzeltme-2.5.md`;
+reintroducing it would report v1's accuracy as 6/9 instead of 6/6 and erase the
+finding.
+
+The grouping is a **hypothesis from 13 predictions**, not a taxonomy. Report
+per-metric results first, grouping second, and state the refutation condition.
 
 Two rules were added to the protocol while running it, both fixed before results
 were seen: **repetition 1 always**, and **suggestion 1 always**.

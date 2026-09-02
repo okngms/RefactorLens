@@ -1,0 +1,5 @@
+# Katmanlı fikstür kendi config'iyle gelir.
+scan:
+  include: ["src/"]
+  exclude: ["tests/"]
+  output_dir: reports/

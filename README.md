@@ -49,10 +49,10 @@ quality actually improve, and **was the model's own prediction correct?**
 The second question is the interesting one, and it has an answer now.
 
 Across 13 verifiable predictions from three models, 6 were correct. The misses
-are not scattered: every prediction about a metric that is **arithmetic over the
-measured unit** was right (CC, WMC, PARAMS — 6 of 6), and every prediction about
-a **structural** one was wrong (LCOM4, DCC, NOM, LOC — 0 of 7). The models
-reason about the codebase while the metric measures the entity.
+are not scattered. Where the change removes something and nothing replaces it,
+the models were right every time (CC, WMC, PARAMS — 6 of 6). Where the value
+depends on what the change leaves behind — a delegating wrapper, a new
+dependency — they were wrong every time (NOM, LCOM4, DCC, LOC — 0 of 7).
 
 In one case a model predicted all four of its metrics correctly by producing a
 change that deleted the class's entire public interface. Only the behaviour
