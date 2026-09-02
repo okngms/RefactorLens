@@ -36,6 +36,8 @@ from rlens.advise.prompts import (
 )
 from rlens.analysis.model import ADVICE_SCHEMA_VERSION
 from rlens.config import Config
+from rlens.llm.budget import Budget, BudgetExceeded
+from rlens.llm.cache import ResponseCache, prompt_hash
 from rlens.providers.base import Provider, ProviderError
 
 #: Metriğe bağlanmamış öneriler bu etiketi alır.
@@ -104,6 +106,13 @@ class Advice:
     warnings: list[str] = field(default_factory=list)
     """Atılan alanlar ve şema ihlalleri. Ölümcül değildir ama gizlenmez."""
 
+    prompt_hash: str = ""
+    """Gönderilen prompt'un özeti. İki koşunun aynı prompt'la yapıldığını
+    kanıtlamanın tek yolu budur; A/B deneylerinde zorunludur."""
+
+    from_cache: bool = False
+    """Yanıt önbellekten mi geldi? Maliyet ve tekrarlanabilirlik için kaydedilir."""
+
     @property
     def is_structured(self) -> bool:
         return UNSTRUCTURED not in self.tags
@@ -130,6 +139,10 @@ class AdviceDocument:
     temperature: float
     schema_version: int = ADVICE_SCHEMA_VERSION
     advices: list[Advice] = field(default_factory=list)
+    budget: dict = field(default_factory=dict)
+    cache: dict = field(default_factory=dict)
+    partial: bool = False
+    """Bütçe dolduğu için bazı hedefler atlandıysa rapor kısmidir ve bunu söyler."""
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -140,6 +153,9 @@ class AdviceDocument:
             "provider": self.provider,
             "model": self.model,
             "temperature": self.temperature,
+            "budget": self.budget,
+            "cache": self.cache,
+            "partial": self.partial,
             "advices": [advice.to_dict() for advice in self.advices],
         }
 
@@ -288,10 +304,55 @@ def parse_advice(raw_reply: str, target: str) -> tuple[Advice, list[str]]:
     return advice, warnings
 
 
+def _generate(
+    provider: Provider,
+    system: str,
+    user: str,
+    config: Config,
+    cache: ResponseCache | None,
+    budget: Budget | None,
+    label: str,
+) -> tuple[str, str, bool]:
+    """Bir modeli çağırır; önbellek ve bütçeyi hesaba katar.
+
+    Sıra bilinçlidir: **önce önbellek, sonra bütçe.** Önbellekten dönen yanıt
+    para harcamadığı için bütçeden düşmez; tersi sırada, tekrarlanan bir koşu
+    hiç çağrı yapmadan bütçeyi tüketirdi.
+
+    Returns:
+        (yanıt, prompt_hash, önbellekten_mi)
+
+    Raises:
+        BudgetExceeded: Çağrı sınırına ulaşıldıysa.
+    """
+    key = prompt_hash(provider.name, config.provider.model, system + "\n" + user)
+
+    if cache is not None:
+        cached = cache.get(key)
+        if cached is not None:
+            if budget is not None:
+                budget.record_cache_hit()
+            return cached, key, True
+
+    if budget is not None:
+        budget.check(label)
+
+    reply = provider.generate(system, user, config.provider, config.advise.temperature)
+
+    if budget is not None:
+        budget.record_call(len(user) // 4, len(reply) // 4)
+    if cache is not None:
+        cache.set(key, reply, meta={"target": label, "model": config.provider.model})
+    return reply, key, False
+
+
 def request_advice(
     provider: Provider,
     context: PromptContext,
     config: Config,
+    *,
+    cache: ResponseCache | None = None,
+    budget: Budget | None = None,
 ) -> tuple[Advice, list[str]]:
     """Bir hedef için modelden öneri ister ve yanıtı doğrular.
 
@@ -305,13 +366,15 @@ def request_advice(
     target_name = context.target.qualified_name
     user_prompt = build_user_prompt(context)
 
-    raw = provider.generate(
-        SYSTEM_INSTRUCTION, user_prompt, config.provider, config.advise.temperature
+    raw, key, cached = _generate(
+        provider, SYSTEM_INSTRUCTION, user_prompt, config, cache, budget, target_name
     )
 
     try:
         advice, warnings = parse_advice(raw, target_name)
         advice.truncation_notes = list(context.truncation_notes)
+        advice.prompt_hash = key
+        advice.from_cache = cached
         return advice, warnings
     except AdviceParseError as exc:
         # `except` değişkeni blok sonunda silinir; mesajı dışarı taşıyoruz.
@@ -319,13 +382,17 @@ def request_advice(
 
     # Tek onarım denemesi: yeni öneri değil, aynı içeriğin geçerli JSON hali.
     try:
-        repaired_raw = provider.generate(
+        repaired_raw, _, _ = _generate(
+            provider,
             SYSTEM_INSTRUCTION,
             build_repair_prompt(raw, first_error),
-            config.provider,
-            config.advise.temperature,
+            config,
+            cache,
+            budget,
+            f"{target_name} (repair)",
         )
-    except ProviderError:
+    except (ProviderError, BudgetExceeded):
+        # Onarım bütçeye takılırsa ham metin yine saklanır; sessizce boş dönülmez.
         repaired_raw = ""
 
     if repaired_raw:
@@ -333,6 +400,7 @@ def request_advice(
             advice, warnings = parse_advice(repaired_raw, target_name)
             advice.repaired = True
             advice.truncation_notes = list(context.truncation_notes)
+            advice.prompt_hash = key
             warnings.insert(0, f"reply needed repair: {first_error}")
             return advice, warnings
         except AdviceParseError:
@@ -348,6 +416,8 @@ def request_advice(
             raw_reply=raw,
             truncation_notes=list(context.truncation_notes),
             repaired=True,
+            prompt_hash=key,
+            from_cache=cached,
         ),
         [f"could not parse the reply even after repair: {first_error}"],
     )

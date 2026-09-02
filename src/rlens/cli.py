@@ -28,6 +28,8 @@ from rlens.advise.selector import select_targets
 from rlens.analysis.model import SCHEMA_VERSION
 from rlens.analysis.scanner import scan_project, scan_project_with_sources
 from rlens.config import ConfigError, load_config
+from rlens.llm.budget import Budget, BudgetExceeded
+from rlens.llm.cache import ResponseCache, prompt_hash
 from rlens.providers import PROVIDERS, ProviderError, get_provider, load_env_file
 from rlens.report.advice import render_advice
 from rlens.report.files import (
@@ -195,6 +197,10 @@ def advise(
         bool,
         typer.Option("--no-report", help="Skip the report files and only print to the terminal."),
     ] = False,
+    no_cache: Annotated[
+        bool,
+        typer.Option("--no-cache", help="Ignore the response cache and always call."),
+    ] = False,
     dry_run: Annotated[
         bool,
         typer.Option(
@@ -242,7 +248,11 @@ def advise(
     if not contexts:
         raise _fail("None of the selected targets could be located in the source.")
 
+    cache = _build_cache(cfg, path, disabled=no_cache)
+    budget = Budget(cfg.budget)
+
     if dry_run:
+        _render_dry_run_summary(contexts, cfg, cache, budget)
         for context in contexts:
             console.print(f"\n[bold cyan]{context.target.qualified_name}[/bold cyan]")
             console.print(f"[dim]~{context.estimated_tokens} tokens[/dim]\n")
@@ -274,16 +284,42 @@ def advise(
     )
 
     for context in contexts:
-        console.print(f"[dim]asking about {context.target.qualified_name}…[/dim]")
+        name = context.target.qualified_name
+        if not budget.fits(context.estimated_tokens):
+            err_console.print(
+                f"[yellow]Skipping {name}:[/] the prompt is about "
+                f"{context.estimated_tokens} tokens, over "
+                f"`budget.max_tokens_per_call` ({cfg.budget.max_tokens_per_call})."
+            )
+            budget.skipped.append(name)
+            continue
+
+        console.print(f"[dim]asking about {name}…[/dim]")
         try:
-            advice, warnings = request_advice(adapter, context, cfg)
+            advice, warnings = request_advice(adapter, context, cfg, cache=cache, budget=budget)
+        except BudgetExceeded as exc:
+            # Planlı duruş: kalan hedefler atlanır ve rapor kısmi olduğunu söyler.
+            err_console.print(f"[yellow]{exc}[/]")
+            budget.skipped.extend(
+                c.target.qualified_name for c in contexts[contexts.index(context) :]
+            )
+            break
         except ProviderError as exc:
             raise _fail(str(exc)) from exc
         advice.warnings = warnings
         document.advices.append(advice)
 
+    document.budget = budget.summary()
+    document.cache = cache.summary()
+    document.partial = bool(budget.skipped)
+
     console.print()
     render_advice(document, console)
+    console.print(f"[dim]{budget.describe()} · {cache.describe()}[/dim]")
+    if document.partial:
+        console.print(
+            f"[yellow]Partial report:[/] {len(budget.skipped)} target(s) were not asked about."
+        )
 
     if not no_report:
         target_dir = Path(output_dir) if output_dir else path / cfg.scan.output_dir
@@ -408,6 +444,64 @@ def verify(
     regressed = any(entity.summarise() == REGRESSED for entity in delta.entities)
     if fail_on_regression and delta.comparable and regressed:
         raise typer.Exit(code=1)
+
+
+def _build_cache(cfg, path: Path, *, disabled: bool) -> ResponseCache:
+    """Önbelleği kurar; göreli dizin taranan projeye göre çözülür.
+
+    Mutlak yol verilmediyse `.rlens-cache/` kullanıcının çalışma dizinine değil
+    **projenin** yanına yazılır; aynı projeyi farklı dizinlerden taramak
+    önbelleği ıskalamamalıdır.
+    """
+    from dataclasses import replace as _replace
+
+    cache_config = cfg.cache
+    if disabled:
+        cache_config = _replace(cache_config, enabled=False)
+    directory = Path(cache_config.directory)
+    if not directory.is_absolute():
+        cache_config = _replace(cache_config, directory=str(path / directory))
+    return ResponseCache(cache_config)
+
+
+def _render_dry_run_summary(contexts, cfg, cache: ResponseCache, budget: Budget) -> None:
+    """`--dry-run` özeti: kaç çağrı gerekecek, kaçı önbellekte hazır.
+
+    Ağa çıkmadan maliyet tahmini verir — deney planlamanın en sık ihtiyacı.
+    """
+    cached = 0
+    oversized = 0
+    for context in contexts:
+        key = prompt_hash(
+            cfg.provider.name,
+            cfg.provider.model,
+            SYSTEM_INSTRUCTION + "\n" + build_user_prompt(context),
+        )
+        if cache.get(key) is not None:
+            cached += 1
+        if not budget.fits(context.estimated_tokens):
+            oversized += 1
+
+    # Sayaçlar yalnızca tahmin içindi; gerçek koşunun istatistiğini kirletmesin.
+    cache.hits = 0
+    cache.misses = 0
+
+    console.print(
+        f"[bold]{len(contexts)} target(s)[/bold] · "
+        f"budget {cfg.budget.max_calls_per_run} calls, "
+        f"{cfg.budget.max_tokens_per_call} tokens/call · "
+        f"{cache.describe() if not cfg.cache.enabled else 'cache enabled'}"
+    )
+    if cached:
+        console.print(
+            f"[green]{cached} of {len(contexts)} prompt(s) already cached[/] — "
+            f"a real run would make {len(contexts) - cached} call(s)."
+        )
+    if oversized:
+        console.print(
+            f"[yellow]{oversized} prompt(s) exceed the per-call token ceiling[/] "
+            f"and would be skipped."
+        )
 
 
 def main() -> None:

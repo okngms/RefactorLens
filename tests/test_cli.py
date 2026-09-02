@@ -352,3 +352,38 @@ class TestVerifyCommand:
         result = runner.invoke(app, ["verify", str(project), "--no-report"])
         assert result.exit_code == 1
         assert "schema_version" in result.output
+
+
+class TestAdviseBudgetAndCache:
+    """Aşama 0 kabul kriteri: --dry-run bütçe/önbellek özetini basar."""
+
+    @pytest.fixture
+    def messy(self):
+        return str(Path(__file__).resolve().parent.parent / "examples" / "messy_project")
+
+    def test_dry_run_prints_the_budget_summary(self, messy):
+        result = runner.invoke(app, ["advise", messy, "--dry-run", "--top-n", "2"])
+        assert result.exit_code == 0
+        assert "budget 10 calls" in result.output
+        assert "2 target(s)" in result.output
+
+    def test_dry_run_reports_cache_state(self, messy):
+        result = runner.invoke(app, ["advise", messy, "--dry-run", "--top-n", "1"])
+        assert "cache" in result.output
+
+    def test_no_cache_flag_is_accepted(self, messy):
+        result = runner.invoke(app, ["advise", messy, "--dry-run", "--top-n", "1", "--no-cache"])
+        assert result.exit_code == 0
+
+    def test_oversized_prompt_is_flagged_in_dry_run(self, messy, tmp_path):
+        """Çağrı başına token tavanı aşılıyorsa ağa çıkmadan önce söylenir."""
+        config = tmp_path / "tight.yaml"
+        config.write_text(
+            "scan:\n  exclude: ['tests/']\nbudget:\n  max_tokens_per_call: 500\n",
+            encoding="utf-8",
+        )
+        result = runner.invoke(
+            app,
+            ["advise", messy, "--config", str(config), "--dry-run", "--top-n", "1"],
+        )
+        assert "exceed the per-call token ceiling" in result.output

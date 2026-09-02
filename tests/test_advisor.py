@@ -246,3 +246,122 @@ class TestRequestAdvice:
         provider = FakeProvider(json.dumps(VALID_REPLY))
         advice, _ = request_advice(provider, context, config)
         assert advice.truncation_notes
+
+
+class CountingProvider(FakeProvider):
+    """Kaç kez gerçekten çağrıldığını sayar."""
+
+    name = "groq"
+
+    def __init__(self, *replies):
+        super().__init__(*replies)
+        self.generated = 0
+
+    def generate(self, system, user, config, temperature=0.2):
+        self.generated += 1
+        return super().generate(system, user, config, temperature)
+
+
+@pytest.fixture
+def cache(tmp_path):
+    from rlens.config import CacheConfig
+    from rlens.llm.cache import ResponseCache
+
+    return ResponseCache(CacheConfig(enabled=True, directory=str(tmp_path / "cache")))
+
+
+@pytest.fixture
+def budget(context_and_config):
+    from rlens.llm.budget import Budget
+
+    _, config = context_and_config
+    return Budget(config.budget)
+
+
+class TestCacheIntegration:
+    """Aşama 0 kabul kriteri: aynı prompt ikinci koşuda önbellekten döner."""
+
+    def test_second_run_does_not_call_the_provider(self, context_and_config, cache, budget):
+        context, config = context_and_config
+        provider = CountingProvider(json.dumps(VALID_REPLY), json.dumps(VALID_REPLY))
+        request_advice(provider, context, config, cache=cache, budget=budget)
+        request_advice(provider, context, config, cache=cache, budget=budget)
+        assert provider.generated == 1
+
+    def test_cached_reply_is_marked(self, context_and_config, cache, budget):
+        context, config = context_and_config
+        provider = CountingProvider(json.dumps(VALID_REPLY))
+        first, _ = request_advice(provider, context, config, cache=cache, budget=budget)
+        second, _ = request_advice(provider, context, config, cache=cache, budget=budget)
+        assert first.from_cache is False
+        assert second.from_cache is True
+
+    def test_cache_hit_does_not_consume_budget(self, context_and_config, cache, budget):
+        """Önbellekten dönen yanıt para harcamaz."""
+        context, config = context_and_config
+        provider = CountingProvider(json.dumps(VALID_REPLY))
+        request_advice(provider, context, config, cache=cache, budget=budget)
+        calls_after_first = budget.calls
+        request_advice(provider, context, config, cache=cache, budget=budget)
+        assert budget.calls == calls_after_first
+        assert budget.cache_hits == 1
+
+    def test_prompt_hash_is_recorded(self, context_and_config, cache, budget):
+        """İki koşunun aynı prompt'la yapıldığını kanıtlamanın tek yolu."""
+        context, config = context_and_config
+        provider = CountingProvider(json.dumps(VALID_REPLY))
+        advice, _ = request_advice(provider, context, config, cache=cache, budget=budget)
+        assert len(advice.prompt_hash) == 64
+
+    def test_works_without_a_cache(self, context_and_config):
+        context, config = context_and_config
+        provider = CountingProvider(json.dumps(VALID_REPLY), json.dumps(VALID_REPLY))
+        request_advice(provider, context, config)
+        request_advice(provider, context, config)
+        assert provider.generated == 2
+
+
+class TestBudgetIntegration:
+    def test_a_call_is_counted(self, context_and_config, budget):
+        context, config = context_and_config
+        request_advice(FakeProvider(json.dumps(VALID_REPLY)), context, config, budget=budget)
+        assert budget.calls == 1
+
+    def test_repair_counts_as_a_second_call(self, context_and_config, budget):
+        context, config = context_and_config
+        provider = FakeProvider("broken {", json.dumps(VALID_REPLY))
+        request_advice(provider, context, config, budget=budget)
+        assert budget.calls == 2
+
+    def test_exhausted_budget_stops_the_call(self, context_and_config):
+        from rlens.config import BudgetConfig
+        from rlens.llm.budget import Budget, BudgetExceeded
+
+        context, config = context_and_config
+        spent = Budget(BudgetConfig(max_calls_per_run=1, max_tokens_per_call=100_000))
+        spent.record_call()
+        with pytest.raises(BudgetExceeded):
+            request_advice(FakeProvider(json.dumps(VALID_REPLY)), context, config, budget=spent)
+
+    def test_target_name_is_recorded_when_skipped(self, context_and_config):
+        from rlens.config import BudgetConfig
+        from rlens.llm.budget import Budget, BudgetExceeded
+
+        context, config = context_and_config
+        spent = Budget(BudgetConfig(max_calls_per_run=1, max_tokens_per_call=100_000))
+        spent.record_call()
+        with pytest.raises(BudgetExceeded):
+            request_advice(FakeProvider(json.dumps(VALID_REPLY)), context, config, budget=spent)
+        assert spent.skipped == [context.target.qualified_name]
+
+    def test_budget_exhausted_during_repair_keeps_the_raw_reply(self, context_and_config):
+        """Onarım bütçeye takılsa bile ham metin atılmaz."""
+        from rlens.config import BudgetConfig
+        from rlens.llm.budget import Budget
+
+        context, config = context_and_config
+        tight = Budget(BudgetConfig(max_calls_per_run=1, max_tokens_per_call=100_000))
+        provider = FakeProvider("not json at all", json.dumps(VALID_REPLY))
+        advice, _ = request_advice(provider, context, config, budget=tight)
+        assert advice.tags == [UNSTRUCTURED]
+        assert advice.raw_reply == "not json at all"
