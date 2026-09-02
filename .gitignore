@@ -13,3 +13,6 @@ reports/
 # Deney vakalarının proje kopyaları: hacimli ve tekrarlı.
 # Uygulanan değişikliğin kanıtı applied.diff olarak saklanır.
 experiments/cases/*/project/
+
+# LLM yanıt önbelleği: yeniden üretilebilir, commit edilmez.
+.rlens-cache/

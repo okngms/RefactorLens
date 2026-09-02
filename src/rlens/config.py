@@ -56,7 +56,36 @@ DEFAULTS: dict[str, Any] = {
     "metrics": {
         "cam_min_annotation_coverage": 0.7,
     },
+    "arch": {
+        "enabled": True,
+        "scheme": {
+            "layers": ["presentation", "application", "domain", "infrastructure"],
+            "allowed": {
+                "presentation": ["application", "domain"],
+                "application": ["domain"],
+                "infrastructure": ["domain"],
+                "domain": [],
+            },
+            "allow_skip": False,
+        },
+        # Beyan: verilirse çıkarım hiç çalışmaz (`source: declared`).
+        "layers": {},
+        "conventions": {"extra_dirs": {}, "extra_suffixes": {}},
+        # Bu güvenin altındaki atama `unknown` olur. Tahmin zorlanmaz.
+        "min_confidence": 0.5,
+    },
+    "smells": {
+        "god_class": {"nom": 20, "wmc": 50, "lcom4": 3},
+        "data_class": {"max_nom": 5, "min_dam": 0.5, "accessor_ratio": 0.7},
+        "feature_envy": {"ratio": 2.0},
+        "long_method": {"loc": 40},
+    },
+    "budget": {"max_calls_per_run": 10, "max_tokens_per_call": 4000},
+    "cache": {"enabled": True, "dir": ".rlens-cache/"},
+    "verify": {"treat_suspicious_as_regression": True},
     "thresholds": {
+        # Katman bazlı geçersiz kılma: `by_layer.<katman>.<metrik>.<warn|critical>`
+        "by_layer": {},
         "cyclomatic_complexity": {"warn": 10, "critical": 20},
         "max_params": {"warn": 5},
         "max_nesting": {"warn": 4},
@@ -128,13 +157,106 @@ class Threshold:
 
 
 @dataclass(frozen=True)
+class SchemeConfig:
+    """Katman şeması: hangi katmanlar var, hangisi hangisini import edebilir."""
+
+    layers: tuple[str, ...]
+    allowed: dict[str, tuple[str, ...]]
+    allow_skip: bool
+
+    def may_import(self, source: str, destination: str) -> bool:
+        """`source` katmanı `destination`'ı import edebilir mi?
+
+        Aynı katman içi importlar her zaman serbesttir; katmanlar arası kural
+        `allowed` tablosundan okunur.
+        """
+        if source == destination:
+            return True
+        return destination in self.allowed.get(source, ())
+
+    def depth(self, layer: str) -> int | None:
+        """Katmanın şemadaki sırası. Bilinmeyen katman için None."""
+        try:
+            return self.layers.index(layer)
+        except ValueError:
+            return None
+
+
+@dataclass(frozen=True)
+class ArchConfig:
+    enabled: bool
+    scheme: SchemeConfig
+    declared: dict[str, tuple[str, ...]]
+    """Beyan edilmiş katman → yol önekleri. Boşsa çıkarım çalışır."""
+
+    extra_dirs: dict[str, tuple[str, ...]]
+    extra_suffixes: dict[str, tuple[str, ...]]
+    min_confidence: float
+
+    @property
+    def has_declaration(self) -> bool:
+        return bool(self.declared)
+
+
+@dataclass(frozen=True)
+class SmellsConfig:
+    """Koku kurallarının eşikleri. Kurallar LLM'siz, tamamen kural tabanlıdır."""
+
+    god_class_nom: int
+    god_class_wmc: int
+    god_class_lcom4: int
+    data_class_max_nom: int
+    data_class_min_dam: float
+    data_class_accessor_ratio: float
+    feature_envy_ratio: float
+    long_method_loc: int
+
+
+@dataclass(frozen=True)
+class BudgetConfig:
+    max_calls_per_run: int
+    max_tokens_per_call: int
+
+
+@dataclass(frozen=True)
+class CacheConfig:
+    enabled: bool
+    directory: str
+
+
+@dataclass(frozen=True)
+class VerifyConfig:
+    treat_suspicious_as_regression: bool
+    """Metrikler iyileşirken public arayüz küçüldüyse bu bir regresyondur."""
+
+
+@dataclass(frozen=True)
 class Config:
     provider: ProviderConfig
     scan: ScanConfig
     advise: AdviseConfig
     metrics: MetricsConfig
     thresholds: dict[str, Threshold] = field(default_factory=dict)
+    by_layer_thresholds: dict[str, dict[str, Threshold]] = field(default_factory=dict)
+    arch: ArchConfig | None = None
+    smells: SmellsConfig | None = None
+    budget: BudgetConfig | None = None
+    cache: CacheConfig | None = None
+    verify: VerifyConfig | None = None
     source_path: Path | None = None
+
+    def threshold_for(self, metric: str, layer: str | None = None) -> Threshold | None:
+        """Bir metriğin eşiği, katman geçersiz kılmaları uygulanmış hâliyle.
+
+        Aynı DCC değeri application-service sınıfında tasarım gereği, domain
+        modelinde kokudur. Katman bilinmiyorsa (`None` veya `unknown`) genel
+        eşik kullanılır — tahmin zorlanmaz.
+        """
+        if layer and layer != "unknown":
+            override = self.by_layer_thresholds.get(layer, {}).get(metric)
+            if override is not None:
+                return override
+        return self.thresholds.get(metric)
 
     @property
     def loaded_from_file(self) -> bool:
@@ -193,8 +315,26 @@ def load_config(path: Path | None = None, *, search_from: Path | None = None) ->
         raw = parsed
 
     merged = _deep_merge(copy.deepcopy(DEFAULTS), raw)
+    _replace_scheme_if_redefined(merged, raw)
     _reject_unknown_keys(raw)
     return _build(merged, config_path)
+
+
+def _replace_scheme_if_redefined(merged: dict[str, Any], raw: dict[str, Any]) -> None:
+    """Katman kümesi yeniden tanımlandıysa izin tablosu **birleştirilmez**.
+
+    Derin birleştirme burada yanlış davranırdı: kullanıcı `layers: [ui, core]`
+    yazdığında varsayılan `allowed` içindeki `presentation` girdisi ayakta
+    kalır ve şema kendi içinde tutarsız hale gelirdi.
+
+    Kural: katmanları yeniden tanımlıyorsan izinleri de tanımlarsın. Böylece
+    kullanıcının yazdığı her katman adı doğrulanır; sessizce atılan girdi
+    olmaz.
+    """
+    scheme_raw = raw.get("arch", {}).get("scheme")
+    if not isinstance(scheme_raw, dict) or "layers" not in scheme_raw:
+        return
+    merged["arch"]["scheme"]["allowed"] = copy.deepcopy(scheme_raw.get("allowed", {}))
 
 
 def _deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
@@ -206,6 +346,38 @@ def _deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any
     return base
 
 
+def _reject_unknown_nested(raw: dict[str, Any]) -> None:
+    """`arch.scheme`, `arch.conventions` ve `smells` içindeki anahtarlar.
+
+    Bunlar iki seviye derinde olduğu için üst düzey döngü yakalayamaz. Katman
+    ve koku adlarındaki yazım hataları sessiz kalırsa ihlaller hiç görünmez.
+    """
+    arch = raw.get("arch")
+    if isinstance(arch, dict):
+        for block in ("scheme", "conventions"):
+            value = arch.get(block)
+            if isinstance(value, dict):
+                unknown = set(value) - set(DEFAULTS["arch"][block])
+                if unknown:
+                    raise ConfigError(
+                        f"Unknown key under `arch.{block}`: {', '.join(sorted(unknown))}"
+                    )
+
+    smells = raw.get("smells")
+    if isinstance(smells, dict):
+        unknown = set(smells) - set(DEFAULTS["smells"])
+        if unknown:
+            raise ConfigError(f"Unknown smell rule: {', '.join(sorted(unknown))}")
+        for rule, spec in smells.items():
+            if not isinstance(spec, dict):
+                raise ConfigError(f"`smells.{rule}` must be a mapping")
+            unknown = set(spec) - set(DEFAULTS["smells"][rule])
+            if unknown:
+                raise ConfigError(
+                    f"Unknown key under `smells.{rule}`: {', '.join(sorted(unknown))}"
+                )
+
+
 def _reject_unknown_keys(raw: dict[str, Any]) -> None:
     """Yazım hatalarını sessizce yutmamak için bilinmeyen anahtarları reddeder."""
     unknown_top = set(raw) - set(DEFAULTS)
@@ -214,15 +386,39 @@ def _reject_unknown_keys(raw: dict[str, Any]) -> None:
             f"Unknown config section: {', '.join(sorted(unknown_top))}. "
             f"Expected one of: {', '.join(sorted(DEFAULTS))}"
         )
-    for section in ("provider", "scan", "advise", "metrics"):
+    for section in ("provider", "scan", "advise", "metrics", "arch", "budget", "cache", "verify"):
         value = raw.get(section)
         if isinstance(value, dict):
             unknown = set(value) - set(DEFAULTS[section])
             if unknown:
                 raise ConfigError(f"Unknown key under `{section}`: {', '.join(sorted(unknown))}")
+
+    _reject_unknown_nested(raw)
     thresholds = raw.get("thresholds")
     if isinstance(thresholds, dict):
+        # `by_layer` bir metrik değil, katman → metrik sözlüğüdür.
+        by_layer = thresholds.get("by_layer")
+        if by_layer is not None:
+            if not isinstance(by_layer, dict):
+                raise ConfigError("`thresholds.by_layer` must be a mapping of layer names")
+            for layer, metrics in by_layer.items():
+                if not isinstance(metrics, dict):
+                    raise ConfigError(f"`thresholds.by_layer.{layer}` must be a mapping")
+                for metric, spec in metrics.items():
+                    if not isinstance(spec, dict):
+                        raise ConfigError(
+                            f"`thresholds.by_layer.{layer}.{metric}` must be a mapping"
+                        )
+                    unknown = set(spec) - set(_THRESHOLD_KEYS)
+                    if unknown:
+                        raise ConfigError(
+                            f"Unknown key under `thresholds.by_layer.{layer}.{metric}`: "
+                            f"{', '.join(sorted(unknown))}"
+                        )
+
         for metric, spec in thresholds.items():
+            if metric == "by_layer":
+                continue
             if not isinstance(spec, dict):
                 raise ConfigError(f"`thresholds.{metric}` must be a mapping (e.g. {{warn: 10}})")
             unknown = set(spec) - set(_THRESHOLD_KEYS)
@@ -316,19 +512,68 @@ def _build(data: dict[str, Any], source: Path | None) -> Config:
 
     thresholds: dict[str, Threshold] = {}
     for metric, spec in data["thresholds"].items():
-        _require(isinstance(spec, dict), f"`thresholds.{metric}` must be a mapping")
-        _require("warn" in spec, f"`thresholds.{metric}` requires `warn`")
-        warn = _as_float(spec["warn"], f"thresholds.{metric}.warn", low=0.0, high=1e9)
-        critical: float | None = None
-        if spec.get("critical") is not None:
-            critical = _as_float(
-                spec["critical"], f"thresholds.{metric}.critical", low=0.0, high=1e9
-            )
-            _require(
-                critical > warn,
-                f"`thresholds.{metric}`: critical ({critical}) must be greater than warn ({warn})",
-            )
-        thresholds[metric] = Threshold(warn=warn, critical=critical)
+        if metric == "by_layer":
+            continue
+        thresholds[metric] = _threshold(spec, f"thresholds.{metric}")
+
+    arch = _build_arch(data["arch"])
+
+    by_layer: dict[str, dict[str, Threshold]] = {}
+    for layer, metrics_spec in data["thresholds"].get("by_layer", {}).items():
+        _require(
+            layer in arch.scheme.layers,
+            f"`thresholds.by_layer.{layer}`: unknown layer. "
+            f"Declared layers: {', '.join(arch.scheme.layers)}",
+        )
+        by_layer[layer] = {
+            metric: _threshold(spec, f"thresholds.by_layer.{layer}.{metric}")
+            for metric, spec in metrics_spec.items()
+        }
+
+    smells_raw = data["smells"]
+    smells = SmellsConfig(
+        god_class_nom=_as_int(smells_raw["god_class"]["nom"], "smells.god_class.nom"),
+        god_class_wmc=_as_int(smells_raw["god_class"]["wmc"], "smells.god_class.wmc"),
+        god_class_lcom4=_as_int(smells_raw["god_class"]["lcom4"], "smells.god_class.lcom4"),
+        data_class_max_nom=_as_int(
+            smells_raw["data_class"]["max_nom"], "smells.data_class.max_nom"
+        ),
+        data_class_min_dam=_as_float(
+            smells_raw["data_class"]["min_dam"], "smells.data_class.min_dam", low=0.0, high=1.0
+        ),
+        data_class_accessor_ratio=_as_float(
+            smells_raw["data_class"]["accessor_ratio"],
+            "smells.data_class.accessor_ratio",
+            low=0.0,
+            high=1.0,
+        ),
+        feature_envy_ratio=_as_float(
+            smells_raw["feature_envy"]["ratio"], "smells.feature_envy.ratio", low=1.0, high=100.0
+        ),
+        long_method_loc=_as_int(smells_raw["long_method"]["loc"], "smells.long_method.loc"),
+    )
+
+    budget_raw = data["budget"]
+    budget = BudgetConfig(
+        max_calls_per_run=_as_int(budget_raw["max_calls_per_run"], "budget.max_calls_per_run"),
+        max_tokens_per_call=_as_int(
+            budget_raw["max_tokens_per_call"], "budget.max_tokens_per_call", minimum=100
+        ),
+    )
+
+    cache_raw = data["cache"]
+    _require(isinstance(cache_raw["enabled"], bool), "`cache.enabled` must be true or false")
+    _require(isinstance(cache_raw["dir"], str), "`cache.dir` must be a string")
+    cache = CacheConfig(enabled=cache_raw["enabled"], directory=cache_raw["dir"])
+
+    verify_raw = data["verify"]
+    _require(
+        isinstance(verify_raw["treat_suspicious_as_regression"], bool),
+        "`verify.treat_suspicious_as_regression` must be true or false",
+    )
+    verify = VerifyConfig(
+        treat_suspicious_as_regression=verify_raw["treat_suspicious_as_regression"]
+    )
 
     return Config(
         provider=provider,
@@ -336,5 +581,94 @@ def _build(data: dict[str, Any], source: Path | None) -> Config:
         advise=advise,
         metrics=metrics,
         thresholds=thresholds,
+        by_layer_thresholds=by_layer,
+        arch=arch,
+        smells=smells,
+        budget=budget,
+        cache=cache,
+        verify=verify,
         source_path=source,
     )
+
+
+def _threshold(spec: Any, label: str) -> Threshold:
+    """Tek bir eşik tanımını doğrular. Genel ve katman bazlı eşikler aynı kurala uyar."""
+    _require(isinstance(spec, dict), f"`{label}` must be a mapping")
+    _require("warn" in spec, f"`{label}` requires `warn`")
+    warn = _as_float(spec["warn"], f"{label}.warn", low=0.0, high=1e9)
+    critical: float | None = None
+    if spec.get("critical") is not None:
+        critical = _as_float(spec["critical"], f"{label}.critical", low=0.0, high=1e9)
+        _require(
+            critical > warn,
+            f"`{label}`: critical ({critical}) must be greater than warn ({warn})",
+        )
+    return Threshold(warn=warn, critical=critical)
+
+
+def _build_arch(raw: dict[str, Any]) -> ArchConfig:
+    """Katman şemasını kurar ve iç tutarlılığını doğrular.
+
+    Katman adları üç ayrı yerde geçer: şema, izin tablosu ve beyan. Birinde
+    yazım hatası olursa katman sessizce `unknown` olur ve ihlaller kaybolur —
+    bu yüzden hepsi birbirine karşı doğrulanır.
+    """
+    _require(isinstance(raw["enabled"], bool), "`arch.enabled` must be true or false")
+
+    scheme_raw = raw["scheme"]
+    layers = _as_str_list(scheme_raw["layers"], "arch.scheme.layers")
+    _require(len(layers) == len(set(layers)), "`arch.scheme.layers` must not repeat a name")
+    _require(bool(layers), "`arch.scheme.layers` must not be empty")
+
+    allowed_raw = scheme_raw["allowed"]
+    _require(isinstance(allowed_raw, dict), "`arch.scheme.allowed` must be a mapping")
+    allowed: dict[str, tuple[str, ...]] = {}
+    for source_layer, destinations in allowed_raw.items():
+        _require(
+            source_layer in layers,
+            f"`arch.scheme.allowed.{source_layer}`: not in arch.scheme.layers",
+        )
+        targets = _as_str_list(destinations, f"arch.scheme.allowed.{source_layer}")
+        for target in targets:
+            _require(
+                target in layers,
+                f"`arch.scheme.allowed.{source_layer}`: unknown layer {target!r}",
+            )
+        allowed[source_layer] = targets
+
+    _require(
+        isinstance(scheme_raw["allow_skip"], bool),
+        "`arch.scheme.allow_skip` must be true or false",
+    )
+    scheme = SchemeConfig(layers=layers, allowed=allowed, allow_skip=scheme_raw["allow_skip"])
+
+    declared_raw = raw["layers"]
+    _require(isinstance(declared_raw, dict), "`arch.layers` must be a mapping")
+    declared: dict[str, tuple[str, ...]] = {}
+    for layer, paths in declared_raw.items():
+        _require(layer in layers, f"`arch.layers.{layer}`: not in arch.scheme.layers")
+        declared[layer] = _as_str_list(paths, f"arch.layers.{layer}")
+
+    conventions = raw["conventions"]
+    extra_dirs = _layer_map(conventions["extra_dirs"], layers, "arch.conventions.extra_dirs")
+    extra_suffixes = _layer_map(
+        conventions["extra_suffixes"], layers, "arch.conventions.extra_suffixes"
+    )
+
+    return ArchConfig(
+        enabled=raw["enabled"],
+        scheme=scheme,
+        declared=declared,
+        extra_dirs=extra_dirs,
+        extra_suffixes=extra_suffixes,
+        min_confidence=_as_float(raw["min_confidence"], "arch.min_confidence", low=0.0, high=1.0),
+    )
+
+
+def _layer_map(raw: Any, layers: tuple[str, ...], label: str) -> dict[str, tuple[str, ...]]:
+    _require(isinstance(raw, dict), f"`{label}` must be a mapping")
+    result: dict[str, tuple[str, ...]] = {}
+    for layer, values in raw.items():
+        _require(layer in layers, f"`{label}.{layer}`: not in arch.scheme.layers")
+        result[layer] = _as_str_list(values, f"{label}.{layer}")
+    return result
