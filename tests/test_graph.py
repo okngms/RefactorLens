@@ -207,4 +207,5 @@ class TestLayeredFixture:
         )
 
     def test_repository_is_the_most_depended_on_infrastructure(self, layered):
-        assert layered["src.infra.order_repository"].ca == 4
+        """Üç modül onu import ediyor; hepsi de ihlal (LV-DIR + iki LV-SKIP)."""
+        assert layered["src.infra.order_repository"].ca == 3

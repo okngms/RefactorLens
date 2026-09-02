@@ -4,20 +4,22 @@ Dört sorumluluğu tek sınıfta toplar (sipariş, fiyatlandırma, denetim, bild
 Kural: NOM ≥ 20 ∧ WMC ≥ 50 ∧ LCOM4 ≥ 3.
 
 `messy_project.god.OrderManager`'dan farkı: burada sınıf bir katmana aittir ve
-bağımlılıkları katman kurallarına **uygundur**. Yani metrikler aynı derecede
-kötüyken mimari ihlal yoktur — v2'nin ayırt etmesi gereken tam olarak bu.
+bağımlılıkları katman kurallarına **uygundur** — yalnızca domain'i import eder.
+Depo ve bildirici dışarıdan enjekte edilir; application katmanı somut
+infrastructure tiplerine bağlanmaz.
+
+Yani metrikler aynı derecede kötüyken mimari ihlal yoktur. v2'nin ayırt etmesi
+gereken tam olarak bu: kötü metrik ≠ mimari ihlal.
 """
 
 from __future__ import annotations
 
 from domain.entities import Customer, Order, OrderLine
 from domain.policies import DiscountPolicy
-from infra.email_client import EmailClient
-from infra.order_repository import OrderRepository
 
 
 class OrderService:
-    def __init__(self, repository: OrderRepository, notifier: EmailClient) -> None:
+    def __init__(self, repository, notifier) -> None:
         # Bileşen 1 — sipariş yaşam döngüsü
         self._repository = repository
         self._next_order_id = 1

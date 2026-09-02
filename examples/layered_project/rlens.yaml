@@ -3,3 +3,12 @@ scan:
   include: ["src/"]
   exclude: ["tests/"]
   output_dir: reports/
+
+# Katmanlar beyan edilmiştir; çıkarım devreye girmez.
+# `shared/` bilerek beyan dışıdır: çıkarımın `unknown` demesi beklenen modüller.
+arch:
+  layers:
+    presentation: ["src/api/"]
+    application: ["src/services/"]
+    domain: ["src/domain/"]
+    infrastructure: ["src/infra/"]

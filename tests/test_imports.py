@@ -234,4 +234,4 @@ class TestLayeredFixture:
         assert graph.imports_of("src.domain.entities") == set()
 
     def test_edge_count(self, graph):
-        assert len(graph.edges) == 13
+        assert len(graph.edges) == 11

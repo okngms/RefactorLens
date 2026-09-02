@@ -102,9 +102,7 @@ class TestArchitectureIsSeparableFromMetrics:
 
     def test_god_class_has_legal_imports(self, report):
         """OrderService bir god class'tır ama application katmanı kurallarına uyar."""
-        service_module = next(
-            m for m in report.modules if m.module == "src.services.order_service"
-        )
+        service_module = next(m for m in report.modules if m.module == "src.services.order_service")
         source = (FIXTURE / service_module.path).read_text(encoding="utf-8")
         assert "from domain." in source
 
