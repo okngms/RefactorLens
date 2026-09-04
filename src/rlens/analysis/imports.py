@@ -104,17 +104,23 @@ class ImportGraph:
 class _Resolver:
     """Import ifadesindeki adı proje modülüne eşler.
 
-    Eşleme üç adımda denenir ve ilk kesin sonuçta durur:
+    Eşleme sırayla denenir ve ilk kesin sonuçta durur:
 
     1. **Tam eşleşme.** `domain.entities` diye bir modül var mı?
-    2. **Sonek eşleşmesi.** `src.domain.entities` gibi tek bir modül bu adla
+    2. **Kök paket kırpma.** Tarama kökü paketin kendisiyse (`rlens arch
+       src/rlens`) modül adları paket önekini taşımaz (`verify.diff`) ama kod
+       taşır (`rlens.verify.diff`). Bilinen kök paket adı kırpılıp yeniden
+       denenir. Yalnızca **bilinen** kök adı kırpılır; rastgele önek atmak
+       `os.path` gibi importları proje modülüne eşleyebilirdi.
+    3. **Sonek eşleşmesi.** `src.domain.entities` gibi tek bir modül bu adla
        bitiyor mu? Birden fazla aday varsa belirsizdir ve kenar kurulmaz.
-    3. **Üst paket.** `from domain import entities` biçiminde `domain.entities`
+    4. **Üst paket.** `from domain import entities` biçiminde `domain.entities`
        bir modül olabilir.
     """
 
-    def __init__(self, modules: tuple[str, ...]):
+    def __init__(self, modules: tuple[str, ...], root_package: str | None = None):
         self._modules = set(modules)
+        self._root_package = root_package
         self._by_suffix: dict[str, list[str]] = {}
         for module in modules:
             parts = module.split(".")
@@ -127,6 +133,10 @@ class _Resolver:
             return None, "empty import target"
         if name in self._modules:
             return name, ""
+        if self._root_package and name.startswith(self._root_package + "."):
+            stripped = name[len(self._root_package) + 1 :]
+            if stripped in self._modules:
+                return stripped, ""
         candidates = self._by_suffix.get(name, [])
         if len(candidates) == 1:
             return candidates[0], ""
@@ -161,10 +171,17 @@ def _absolute_name(module: ParsedModule, node: ast.ImportFrom) -> str | None:
     return ".".join(base) if base else None
 
 
-def build_import_graph(modules: list[ParsedModule]) -> ImportGraph:
-    """Ayrıştırılmış modüllerden proje-içi import grafiğini kurar."""
+def build_import_graph(modules: list[ParsedModule], root_package: str | None = None) -> ImportGraph:
+    """Ayrıştırılmış modüllerden proje-içi import grafiğini kurar.
+
+    Args:
+        modules: Ayrıştırılmış modüller.
+        root_package: Tarama kökünün paket adı. `rlens arch src/rlens`
+            çalıştırıldığında modül adları paket önekini taşımaz ama kod taşır;
+            bu ad verilirse kırpılarak eşleme yapılır.
+    """
     names = tuple(module.module for module in modules)
-    resolver = _Resolver(names)
+    resolver = _Resolver(names, root_package)
     graph = ImportGraph(modules=names)
     seen: set[tuple[str, str, bool]] = set()
 

@@ -25,6 +25,7 @@ from rlens.advise.advisor import AdviceDocument, request_advice
 from rlens.advise.context import build_context
 from rlens.advise.prompts import SYSTEM_INSTRUCTION, build_user_prompt
 from rlens.advise.selector import select_targets
+from rlens.analysis.architecture import analyse_project
 from rlens.analysis.model import SCHEMA_VERSION
 from rlens.analysis.scanner import scan_project, scan_project_with_sources
 from rlens.config import ConfigError, load_config
@@ -32,11 +33,13 @@ from rlens.llm.budget import Budget, BudgetExceeded
 from rlens.llm.cache import ResponseCache, prompt_hash
 from rlens.providers import PROVIDERS, ProviderError, get_provider, load_env_file
 from rlens.report.advice import render_advice
+from rlens.report.architecture import render_architecture
 from rlens.report.files import (
     ReportError,
     latest_report,
     read_report,
     write_advice,
+    write_arch,
     write_report,
     write_verify,
 )
@@ -152,6 +155,59 @@ def scan(
         console.print(f"[dim]Report: {written}[/dim]")
 
     if fail_on_violation and violations:
+        raise typer.Exit(code=1)
+
+
+@app.command()
+def arch(
+    path: Annotated[
+        Path,
+        typer.Argument(
+            exists=True,
+            file_okay=False,
+            dir_okay=True,
+            readable=True,
+            help="Project directory to analyse.",
+        ),
+    ],
+    config: Annotated[
+        Path | None,
+        typer.Option("--config", "-c", exists=True, dir_okay=False, help="Path to rlens.yaml."),
+    ] = None,
+    output_dir: Annotated[
+        Path | None,
+        typer.Option("--output-dir", "-o", help="Report directory (overrides the config)."),
+    ] = None,
+    no_report: Annotated[
+        bool,
+        typer.Option("--no-report", help="Skip the JSON report and only print the tables."),
+    ] = False,
+    fail_on_violation: Annotated[
+        bool,
+        typer.Option(
+            "--fail-on-violation",
+            help="Exit with code 1 if there is a non-tentative violation (useful in CI).",
+        ),
+    ] = False,
+) -> None:
+    """Map layers, list architecture violations and module coupling."""
+    try:
+        cfg = load_config(config, search_from=path)
+    except ConfigError as exc:
+        raise _fail(str(exc)) from exc
+
+    result = analyse_project(path, cfg)
+    blocking = render_architecture(result, console)
+
+    if not no_report and result.report.assignments:
+        target = Path(output_dir) if output_dir else path / cfg.scan.output_dir
+        try:
+            written = write_arch(result, target)
+        except ReportError as exc:
+            raise _fail(str(exc)) from exc
+        console.print(f"[dim]Report: {written}[/dim]")
+
+    if fail_on_violation and blocking:
         raise typer.Exit(code=1)
 
 

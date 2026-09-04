@@ -11,6 +11,15 @@ from rlens.config import load_config
 LAYERED = Path(__file__).resolve().parent.parent / "examples" / "layered_project"
 
 
+def _write(tmp_path, files: dict[str, str]):
+    (tmp_path / "rlens.yaml").write_text("scan:\n  include: ['.']\n", encoding="utf-8")
+    for name, source in files.items():
+        path = tmp_path / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(source, encoding="utf-8")
+    return tmp_path
+
+
 def build(tmp_path, files: dict[str, str]):
     """Verilen dosyalardan bir proje kurup import grafiğini döndürür."""
     (tmp_path / "rlens.yaml").write_text("scan:\n  include: ['.']\n", encoding="utf-8")
@@ -93,6 +102,39 @@ class TestResolution:
         """Üçüncü parti importlar gürültü üretmemeli."""
         graph = build(tmp_path, {"a.py": "from requests import get\n"})
         assert graph.unresolved == []
+
+
+class TestRootPackageStripping:
+    """`rlens arch src/rlens` — kök paketin kendisi taranırsa adlar önek taşımaz."""
+
+    def test_prefixed_import_resolves_when_the_root_is_known(self, tmp_path):
+        graph = build(
+            tmp_path,
+            {"a.py": "from myapp.b import x\n", "b.py": "x = 1\n"},
+        )
+        # Kök paket adı verilmeden çözülemez
+        assert graph.imports_of("a") == set()
+
+        modules, _ = parse_project(tmp_path, (".",), ())
+        with_root = build_import_graph(modules, root_package="myapp")
+        assert with_root.imports_of("a") == {"b"}
+
+    def test_only_the_known_root_is_stripped(self, tmp_path):
+        """Rastgele önek atmak `os.path`i proje modülüne eşleyebilirdi."""
+        modules, _ = parse_project(
+            _write(tmp_path, {"a.py": "from os.path import join\n", "path.py": "x = 1\n"}),
+            (".",),
+            (),
+        )
+        graph = build_import_graph(modules, root_package="myapp")
+        assert graph.imports_of("a") == set()
+
+    def test_unprefixed_imports_still_work(self, tmp_path):
+        modules, _ = parse_project(
+            _write(tmp_path, {"a.py": "from b import x\n", "b.py": "x = 1\n"}), (".",), ()
+        )
+        graph = build_import_graph(modules, root_package="myapp")
+        assert graph.imports_of("a") == {"b"}
 
 
 class TestRelativeImports:

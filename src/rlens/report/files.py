@@ -22,6 +22,7 @@ REPORT_PREFIX = "scan-"
 REPORT_SUFFIX = ".json"
 ADVICE_PREFIX = "advice-"
 VERIFY_PREFIX = "verify-"
+ARCH_PREFIX = "arch-"
 TIMESTAMP_FORMAT = "%Y%m%d-%H%M%S"
 
 
@@ -186,3 +187,35 @@ def write_verify(delta, predictions, output_dir: Path) -> tuple[Path, Path]:
         raise ReportError(f"Could not write verification report: {exc}") from exc
 
     return json_path, markdown_path
+
+
+def write_arch(result, output_dir: Path) -> Path:
+    """Mimari raporunu JSON olarak yazar.
+
+    Yalnızca JSON: mimari raporun okuyucusu insan değil, `advise` prompt'u ve
+    ileride `diff` komutudur. Markdown gerektiğinde eklenir.
+    """
+    output_dir = Path(output_dir)
+    try:
+        output_dir.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise ReportError(f"Could not create report directory: {output_dir} ({exc})") from exc
+
+    target = output_dir / f"{ARCH_PREFIX}{datetime.now(UTC).strftime(TIMESTAMP_FORMAT)}.json"
+    try:
+        target.write_text(
+            json.dumps(result.to_dict(), indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+    except OSError as exc:
+        raise ReportError(f"Could not write architecture report: {target} ({exc})") from exc
+    return target
+
+
+def latest_arch(output_dir: Path) -> Path | None:
+    """En son yazılmış mimari raporu, yoksa None."""
+    output_dir = Path(output_dir)
+    if not output_dir.is_dir():
+        return None
+    found = sorted(output_dir.glob(f"{ARCH_PREFIX}*{REPORT_SUFFIX}"))
+    return found[-1] if found else None

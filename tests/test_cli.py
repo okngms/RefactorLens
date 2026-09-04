@@ -387,3 +387,55 @@ class TestAdviseBudgetAndCache:
             ["advise", messy, "--config", str(config), "--dry-run", "--top-n", "1"],
         )
         assert "exceed the per-call token ceiling" in result.output
+
+
+class TestArchCommand:
+    """Aşama 1b kabul kriteri: altı ihlal kodlarıyla basılır, fazlası basılmaz."""
+
+    @pytest.fixture
+    def layered(self):
+        return str(Path(__file__).resolve().parent.parent / "examples" / "layered_project")
+
+    def test_arch_appears_in_help(self):
+        assert "arch" in runner.invoke(app, ["--help"]).output
+
+    def test_six_violations_are_printed(self, layered):
+        result = runner.invoke(app, ["arch", layered, "--no-report"])
+        assert result.exit_code == 0
+        assert "6 violation(s)" in result.output
+
+    def test_every_code_appears(self, layered):
+        output = runner.invoke(app, ["arch", layered, "--no-report"]).output
+        for code in ("LV-DIR", "LV-SKIP", "LV-CYCLE", "LV-LEAK"):
+            assert code in output
+
+    def test_layer_map_is_printed(self, layered):
+        output = runner.invoke(app, ["arch", layered, "--no-report"]).output
+        assert "presentation" in output
+        assert "declared" in output
+
+    def test_report_is_written_by_default(self, layered, tmp_path):
+        result = runner.invoke(app, ["arch", layered, "--output-dir", str(tmp_path)])
+        assert result.exit_code == 0
+        assert list(tmp_path.glob("arch-*.json"))
+
+    def test_no_report_writes_nothing(self, layered, tmp_path):
+        runner.invoke(app, ["arch", layered, "--no-report", "--output-dir", str(tmp_path)])
+        assert not list(tmp_path.glob("arch-*.json"))
+
+    def test_fail_on_violation_exits_one(self, layered):
+        result = runner.invoke(app, ["arch", layered, "--no-report", "--fail-on-violation"])
+        assert result.exit_code == 1
+
+    def test_clean_project_passes_the_gate(self, tmp_path):
+        (tmp_path / "rlens.yaml").write_text("scan:\n  include: ['.']\n", encoding="utf-8")
+        (tmp_path / "a.py").write_text("x = 1\n", encoding="utf-8")
+        result = runner.invoke(app, ["arch", str(tmp_path), "--no-report", "--fail-on-violation"])
+        assert result.exit_code == 0
+
+    def test_missing_path_is_a_usage_error(self):
+        assert runner.invoke(app, ["arch", "/yok/boyle"]).exit_code == USAGE_ERROR
+
+    def test_bad_config_exits_one(self, tmp_path):
+        (tmp_path / "rlens.yaml").write_text("advise:\n  top_n: 0\n", encoding="utf-8")
+        assert runner.invoke(app, ["arch", str(tmp_path)]).exit_code == 1

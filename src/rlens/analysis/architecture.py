@@ -39,11 +39,13 @@ from __future__ import annotations
 
 import ast
 from dataclasses import dataclass, field
+from pathlib import Path
 
-from rlens.analysis.graph import cycles
-from rlens.analysis.imports import ImportGraph
-from rlens.analysis.parser import ParsedModule
-from rlens.config import ArchConfig, SchemeConfig
+from rlens.analysis.graph import ModuleMetrics, cycles, module_metrics
+from rlens.analysis.imports import ImportGraph, build_import_graph
+from rlens.analysis.model import ARCH_SCHEMA_VERSION
+from rlens.analysis.parser import ParsedModule, parse_project
+from rlens.config import ArchConfig, Config, SchemeConfig
 
 #: İhlal kodları.
 LV_DIR = "LV-DIR"
@@ -469,3 +471,83 @@ def analyse(
 
     report.violations.sort(key=lambda v: (v.code, v.source, v.target))
     return report
+
+
+@dataclass
+class ArchitectureResult:
+    """`rlens arch` çalıştırmasının tam çıktısı."""
+
+    root: str
+    generated_at: str
+    rlens_version: str
+    scheme: SchemeConfig
+    report: ArchitectureReport
+    graph: ImportGraph
+    metrics: dict[str, ModuleMetrics] = field(default_factory=dict)
+    skipped_files: list[dict[str, str]] = field(default_factory=list)
+    schema_version: int = ARCH_SCHEMA_VERSION
+
+    @property
+    def layered_modules(self) -> int:
+        return sum(1 for a in self.report.assignments.values() if a.is_known)
+
+    def to_dict(self) -> dict:
+        return {
+            "schema_version": self.schema_version,
+            "rlens_version": self.rlens_version,
+            "generated_at": self.generated_at,
+            "root": self.root,
+            "scheme": {
+                "layers": list(self.scheme.layers),
+                "allowed": {k: list(v) for k, v in self.scheme.allowed.items()},
+                "allow_skip": self.scheme.allow_skip,
+            },
+            "modules": [
+                {**self.metrics[module].to_dict(), **self.report.assignments[module].to_dict()}
+                for module in sorted(self.report.assignments)
+                if module in self.metrics
+            ],
+            "graph": self.graph.to_dict(),
+            "violations": [v.to_dict() for v in self.report.violations],
+            "notes": list(self.report.notes),
+            "skipped_files": list(self.skipped_files),
+        }
+
+
+def analyse_project(root: Path, config: Config) -> ArchitectureResult:
+    """Bir projenin mimari analizini uçtan uca yapar.
+
+    Sıra: ayrıştır → import-linter'ı oku → katmanları ata → grafiği kur →
+    ihlalleri ara. import-linter okuması katman atamasından **önce** gelir,
+    çünkü beyanı o sağlayabilir.
+    """
+    from datetime import UTC, datetime
+
+    from rlens import __version__
+    from rlens.integrations.importlinter import apply_to_arch, read_import_linter
+
+    root = Path(root).resolve()
+    modules, skipped = parse_project(root, config.scan.include, config.scan.exclude)
+    # Tarama kökü paketin kendisiyse modül adları önek taşımaz ama kod taşır.
+    graph = build_import_graph(modules, root_package=root.name)
+
+    arch, linter_notes = apply_to_arch(config.arch, read_import_linter(root))
+    report = analyse(modules, graph, arch)
+    report.notes = linter_notes + report.notes
+
+    if graph.unresolved:
+        report.notes.append(
+            f"{len(graph.unresolved)} import(s) could not be resolved to a project "
+            f"module and are excluded from the graph"
+        )
+
+    return ArchitectureResult(
+        root=str(root),
+        generated_at=datetime.now(UTC).isoformat(timespec="seconds"),
+        rlens_version=__version__,
+        scheme=arch.scheme,
+        report=report,
+        graph=graph,
+        metrics=module_metrics(graph),
+        skipped_files=[item.to_dict() for item in skipped],
+    )

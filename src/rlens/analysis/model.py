@@ -19,6 +19,12 @@ from typing import Any
 #: Tarama raporu formatı sürümü. Paket sürümünden bağımsızdır.
 SCHEMA_VERSION = 1
 
+#: Mimari raporu formatı sürümü. Tarama ve öneri şemalarından **ayrıdır**:
+#: ihlal tespiti değişmeden metrik kuralları değişebilir, ya da tersi. Tek sayaç
+#: kullanılsaydı birinin değişmesi diğerinin geçmiş raporlarını gereksiz yere
+#: geçersiz kılardı.
+ARCH_SCHEMA_VERSION = 1
+
 #: Öneri raporu formatı sürümü. Taramadan **ayrıdır**: metrik kuralları
 #: değişmeden öneri formatı değişebilir, ya da tersi. Tek bir sayı kullanılsaydı
 #: birinin değişmesi diğerinin geçmiş raporlarını gereksiz yere geçersiz kılardı.
