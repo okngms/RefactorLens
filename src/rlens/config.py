@@ -77,7 +77,7 @@ DEFAULTS: dict[str, Any] = {
     "smells": {
         "god_class": {"nom": 20, "wmc": 50, "lcom4": 3},
         "data_class": {"max_nom": 5, "min_dam": 0.5, "accessor_ratio": 0.7},
-        "feature_envy": {"ratio": 2.0},
+        "feature_envy": {"ratio": 2.0, "min_accesses": 3},
         "long_method": {"loc": 40},
     },
     "budget": {"max_calls_per_run": 10, "max_tokens_per_call": 4000},
@@ -209,6 +209,12 @@ class SmellsConfig:
     data_class_min_dam: float
     data_class_accessor_ratio: float
     feature_envy_ratio: float
+    feature_envy_min_accesses: int
+    """Oranın tek başına yetmediği durum: iki erişim her metotta olur.
+
+    Literatür kuralı (Lanza & Marinescu) "birkaç yabancı attribute" der; oran
+    olmadan sayı, sayı olmadan oran yanlış pozitif üretir."""
+
     long_method_loc: int
 
 
@@ -549,6 +555,11 @@ def _build(data: dict[str, Any], source: Path | None) -> Config:
         ),
         feature_envy_ratio=_as_float(
             smells_raw["feature_envy"]["ratio"], "smells.feature_envy.ratio", low=1.0, high=100.0
+        ),
+        feature_envy_min_accesses=_as_int(
+            smells_raw["feature_envy"]["min_accesses"],
+            "smells.feature_envy.min_accesses",
+            minimum=2,
         ),
         long_method_loc=_as_int(smells_raw["long_method"]["loc"], "smells.long_method.loc"),
     )

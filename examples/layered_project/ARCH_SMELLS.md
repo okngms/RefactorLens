@@ -60,7 +60,22 @@ findings with separate fixes — stop importing the type, or stop exposing it.
 |---|---|---|---|
 | `god_class` | `services.order_service:OrderService` | NOM 26, WMC 56, LCOM4 5 | NOM≥20 ∧ WMC≥50 ∧ LCOM4≥3 |
 | `data_class` | `domain.entities:Customer` | NOM 5, WMC 5, DAM 1.0, 4 of 5 accessors | NOM≤5 ∧ WMC≤NOM+2 ∧ DAM≥0.5 ∧ accessors≥0.7 |
-| `feature_envy_candidate` | `api.report_view:ReportView.describe_customer` | 4 accesses to `Customer`, 1 to own state | ratio ≥ 2 |
+| `feature_envy_candidate` | `api.report_view:ReportView.describe_customer` | 4 foreign accesses, 1 own | ratio ≥ 2 and ≥ 3 accesses |
+| `feature_envy_candidate` | `services.order_service:OrderService.close` | 3 accesses to `order`, 1 own | same rule |
+
+**Four smells in total**, measured: one `god_class`, one `data_class`, two
+`feature_envy_candidate`.
+
+The second envy candidate was not designed in. `OrderService.close` reads
+`order.status`, calls `order.close()` and reads the status again, touching its
+own state once — the classic shape, and `Order` should arguably own that logic.
+It was found by measuring, kept because it is defensible, and recorded here
+rather than tuned away.
+
+The rule needs **both** a ratio and a minimum access count. With the ratio
+alone, any five-line method that touches a parameter twice and `self` once
+qualified; three such methods were flagged in the first run and none of them
+was envious.
 
 ### Why `Customer` is the important one
 
