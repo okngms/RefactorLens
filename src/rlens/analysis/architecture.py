@@ -51,6 +51,19 @@ LV_SKIP = "LV-SKIP"
 LV_CYCLE = "LV-CYCLE"
 LV_LEAK = "LV-LEAK"
 
+#: Literatürdeki karşılıkları (Sarkar et al.; Pruijt/HUSACCT).
+#:
+#: Kodlar kısa ve grep'lenebilir olduğu için kalır, ama rapor okuyucusunun
+#: bulguyu literatürle eşleştirebilmesi gerekir. Arcan'ın `cyclic dependency`
+#: kokusu `LV-CYCLE` ile, `unstable dependency` ise `LV-DIR` ile örtüşür;
+#: ilişki README'de belgelenir.
+ALIASES = {
+    LV_DIR: "back-call",
+    LV_SKIP: "skip-call",
+    LV_CYCLE: "cyclic",
+    LV_LEAK: "leak",
+}
+
 #: Katman ataması kaynakları.
 DECLARED = "declared"
 INFERRED = "inferred"
@@ -106,9 +119,15 @@ class Violation:
     members: tuple[str, ...] = ()
     """`LV-CYCLE` için döngüdeki tüm modüller."""
 
+    @property
+    def alias(self) -> str:
+        """Literatürdeki adı. Bulguları yayınla eşleştirebilmek için."""
+        return ALIASES.get(self.code, "")
+
     def to_dict(self) -> dict:
         return {
             "code": self.code,
+            "alias": self.alias,
             "source": self.source,
             "target": self.target,
             "layers": [self.source_layer, self.target_layer],

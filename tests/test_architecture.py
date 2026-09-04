@@ -367,3 +367,26 @@ class TestLayeredFixture:
         payload = fixture_report.to_dict()
         assert len(payload["violations"]) == 6
         assert payload["assignments"]["src.api.report_view"]["layer"] == "presentation"
+
+
+class TestAliases:
+    """İhlal kodları literatür adlarıyla eşlenir (Sarkar et al.; Pruijt/HUSACCT)."""
+
+    def test_every_code_has_an_alias(self):
+        from rlens.analysis.architecture import ALIASES
+
+        assert set(ALIASES) == {LV_DIR, LV_SKIP, LV_CYCLE, LV_LEAK}
+
+    def test_documented_names(self):
+        from rlens.analysis.architecture import ALIASES
+
+        assert ALIASES[LV_DIR] == "back-call"
+        assert ALIASES[LV_SKIP] == "skip-call"
+        assert ALIASES[LV_CYCLE] == "cyclic"
+        assert ALIASES[LV_LEAK] == "leak"
+
+    def test_alias_appears_in_the_report(self, fixture_report):
+        payload = fixture_report.to_dict()
+        codes = {v["code"]: v["alias"] for v in payload["violations"]}
+        assert codes[LV_DIR] == "back-call"
+        assert codes[LV_CYCLE] == "cyclic"
