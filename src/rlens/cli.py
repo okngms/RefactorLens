@@ -129,6 +129,13 @@ def scan(
         bool,
         typer.Option("--no-report", help="Skip the JSON report and only print the tables."),
     ] = False,
+    no_arch: Annotated[
+        bool,
+        typer.Option(
+            "--no-arch",
+            help="Skip layer and smell analysis; produces the v1 output.",
+        ),
+    ] = False,
     fail_on_violation: Annotated[
         bool,
         typer.Option(
@@ -143,7 +150,7 @@ def scan(
     except ConfigError as exc:
         raise _fail(str(exc)) from exc
 
-    report = scan_project(path, cfg)
+    report = scan_project(path, cfg, no_arch=no_arch)
     violations = render_report(report, cfg, console)
 
     if not no_report and report.modules:

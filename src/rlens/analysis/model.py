@@ -17,7 +17,12 @@ from dataclasses import asdict, dataclass, field
 from typing import Any
 
 #: Tarama raporu formatı sürümü. Paket sürümünden bağımsızdır.
-SCHEMA_VERSION = 1
+#:
+#: v2: sınıflara `layer`, `smells`, `public_interface`; modüllere `ca`/`ce`/
+#: `instability`; rapora `violations`. `verify` v1 ve v2 raporlarını
+#: karşılaştırmayı reddeder — metrik kuralları aynı kalsa bile eşikler artık
+#: katmana bağlı olabilir ve deltanın anlamı değişir.
+SCHEMA_VERSION = 2
 
 #: Mimari raporu formatı sürümü. Tarama ve öneri şemalarından **ayrıdır**:
 #: ihlal tespiti değişmeden metrik kuralları değişebilir, ya da tersi. Tek sayaç
@@ -65,6 +70,14 @@ class ClassReport:
     cam_skipped_reason: str | None = None
     methods: list[FunctionReport] = field(default_factory=list)
 
+    layer: str | None = None
+    """Sınıfın modülünün katmanı. `--no-arch` ile ya da çıkarılamazsa `None`."""
+
+    layer_source: str | None = None
+    layer_confidence: float | None = None
+    smells: list[dict] = field(default_factory=list)
+    public_interface: dict | None = None
+
     @property
     def qualified_name(self) -> str:
         """`verify` deltalarında sınıfları eşleştirmek için kullanılan kimlik."""
@@ -78,6 +91,13 @@ class ModuleReport:
     classes: list[ClassReport] = field(default_factory=list)
     functions: list[FunctionReport] = field(default_factory=list)
 
+    layer: str | None = None
+    ca: int | None = None
+    ce: int | None = None
+    instability: float | None = None
+    smells: list[dict] = field(default_factory=list)
+    """Modül düzeyi fonksiyonların kokuları."""
+
 
 @dataclass
 class ProjectReport:
@@ -90,6 +110,12 @@ class ProjectReport:
     modules: list[ModuleReport] = field(default_factory=list)
     skipped_files: list[dict[str, str]] = field(default_factory=list)
 
+    violations: list[dict] = field(default_factory=list)
+    """Mimari ihlaller. `--no-arch` ile boş kalır."""
+
+    arch_notes: list[str] = field(default_factory=list)
+    arch_enabled: bool = False
+
     def to_dict(self) -> dict[str, Any]:
         """JSON'a yazılabilir sözlük. `schema_version` kökte ve ilk sıradadır."""
         return asdict(self)
@@ -97,3 +123,10 @@ class ProjectReport:
     def iter_classes(self):
         for module in self.modules:
             yield from module.classes
+
+    def iter_smells(self):
+        """Sınıf ve modül düzeyi tüm koku etiketleri."""
+        for module in self.modules:
+            yield from module.smells
+            for cls in module.classes:
+                yield from cls.smells

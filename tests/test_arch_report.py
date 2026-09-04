@@ -107,10 +107,15 @@ class TestTerminalOutput:
 
 class TestJsonReport:
     def test_schema_version_is_separate_from_scan(self, result, tmp_path):
-        """Mimari şeması tarama şemasından bağımsız sürümlenir."""
+        """Mimari şeması tarama şemasından bağımsız sürümlenir.
+
+        v2'de tarama şeması 2'ye çıktı (katman, koku, arayüz alanları) ama
+        ihlal tespiti değişmedi; mimari şeması 1'de kaldı. Tek sayaç
+        kullanılsaydı geçmiş mimari raporları gereksiz yere geçersiz olurdu.
+        """
         payload = json.loads(write_arch(result, tmp_path).read_text(encoding="utf-8"))
         assert payload["schema_version"] == ARCH_SCHEMA_VERSION
-        assert ARCH_SCHEMA_VERSION == 1 and SCHEMA_VERSION == 1
+        assert ARCH_SCHEMA_VERSION != SCHEMA_VERSION
 
     def test_violations_carry_their_alias(self, result, tmp_path):
         payload = json.loads(write_arch(result, tmp_path).read_text(encoding="utf-8"))

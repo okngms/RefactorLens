@@ -276,3 +276,156 @@ class TestPluralisation:
         text = render_to_text(scan_project(tmp_path, config), config)
         assert "1 class," in text
         assert "classs" not in text
+
+
+LAYERED = Path(__file__).resolve().parent.parent / "examples" / "layered_project"
+
+
+@pytest.fixture(scope="module")
+def layered():
+    cfg = load_config(search_from=LAYERED)
+    return scan_project(LAYERED, cfg), cfg
+
+
+@pytest.fixture(scope="module")
+def layered_no_arch():
+    cfg = load_config(search_from=LAYERED)
+    return scan_project(LAYERED, cfg, no_arch=True), cfg
+
+
+def render_wide(report, config) -> str:
+    console = Console(width=140, no_color=True, record=True)
+    render_report(report, config, console)
+    return console.export_text()
+
+
+class TestArchitectureColumns:
+    def test_layer_column_is_present(self, layered):
+        text = render_wide(*layered)
+        assert "Layer" in text
+        assert "application" in text and "domain" in text
+
+    def test_smell_labels_are_shown(self, layered):
+        text = render_wide(*layered)
+        assert "god" in text and "data" in text and "envy" in text
+
+    def test_module_table_is_present(self, layered):
+        text = render_wide(*layered)
+        assert "Modules" in text
+        assert "Ca" in text and "Ce" in text
+
+    def test_violation_summary_line(self, layered):
+        assert "6 architecture violation(s)" in render_wide(*layered)
+
+    def test_unknown_layer_is_not_invented(self, layered):
+        """`shared/` beyan dışı; katman uydurulmaz."""
+        report, _ = layered
+        registry = next(c for c in report.iter_classes() if c.name == "Registry")
+        assert registry.layer is None
+
+    def test_shared_prefix_is_trimmed(self, layered):
+        text = render_wide(*layered)
+        assert "under `src`" in text
+        assert "src.services.order_service:OrderService" not in text
+        assert "services.order_service:OrderService" in text
+
+
+class TestDataClassFootnote:
+    """Etiketin varlık sebebi LCOM4'ü bağlama oturtmak."""
+
+    def test_customer_is_labelled(self, layered):
+        report, _ = layered
+        customer = next(c for c in report.iter_classes() if c.name == "Customer")
+        assert [s["label"] for s in customer.smells] == ["data_class"]
+
+    def test_its_lcom4_is_still_four(self, layered):
+        """Sayı değişmez; yorumu değişir."""
+        report, _ = layered
+        assert next(c for c in report.iter_classes() if c.name == "Customer").lcom4 == 4
+
+    def test_footnote_explains_the_reading(self, layered):
+        text = render_wide(*layered)
+        assert "data_class marks a data holder" in text
+        assert "high LCOM4 there is expected" in text
+
+
+class TestLayerAwareThresholds:
+    """Aynı DCC değeri farklı katmanda farklı işaretlenir."""
+
+    def test_same_class_flagged_differently_by_layer(self, tmp_path):
+        source = tmp_path / "src" / "domain"
+        source.mkdir(parents=True)
+        (source / "model.py").write_text(
+            "from src.domain.other import A, B, C\n\n\n"
+            "class Thing:\n    def use(self):\n        return (A(), B(), C())\n",
+            encoding="utf-8",
+        )
+        (source / "other.py").write_text(
+            "class A: pass\n\n\nclass B: pass\n\n\nclass C: pass\n", encoding="utf-8"
+        )
+
+        strict = tmp_path / "strict.yaml"
+        strict.write_text(
+            "scan:\n  include: ['src/']\n"
+            "arch:\n  layers:\n    domain: ['src/domain/']\n"
+            "thresholds:\n  by_layer:\n    domain: {dcc: {warn: 2}}\n",
+            encoding="utf-8",
+        )
+        loose = tmp_path / "loose.yaml"
+        loose.write_text(
+            "scan:\n  include: ['src/']\n"
+            "arch:\n  layers:\n    application: ['src/domain/']\n"
+            "thresholds:\n  by_layer:\n    application: {dcc: {warn: 12}}\n",
+            encoding="utf-8",
+        )
+
+        strict_report = scan_project(tmp_path, load_config(strict))
+        loose_report = scan_project(tmp_path, load_config(loose))
+        thing_strict = next(c for c in strict_report.iter_classes() if c.name == "Thing")
+        thing_loose = next(c for c in loose_report.iter_classes() if c.name == "Thing")
+
+        assert thing_strict.dcc == thing_loose.dcc == 3
+        assert class_violations(thing_strict, load_config(strict)) != {}
+        assert class_violations(thing_loose, load_config(loose)) == {}
+
+
+class TestNoArchIsV1:
+    """`--no-arch` v1 davranışını aynen korumalı."""
+
+    def test_no_layer_column(self, layered_no_arch):
+        assert "Layer" not in render_wide(*layered_no_arch)
+
+    def test_no_smells_column(self, layered_no_arch):
+        assert "Smells" not in render_wide(*layered_no_arch)
+
+    def test_no_module_table(self, layered_no_arch):
+        assert "Modules" not in render_wide(*layered_no_arch)
+
+    def test_no_violation_summary(self, layered_no_arch):
+        assert "architecture violation" not in render_wide(*layered_no_arch)
+
+    def test_module_names_are_not_trimmed(self, layered_no_arch):
+        """v1 kırpma yapmıyordu; biçim de korunur."""
+        text = render_wide(*layered_no_arch)
+        assert "src.services.order_service:OrderService" in text
+        assert "under `src`" not in text
+
+    def test_metric_values_are_identical(self, layered, layered_no_arch):
+        """Asıl garanti: mimari analizi metrikleri değiştirmez."""
+        with_arch, _ = layered
+        without, _ = layered_no_arch
+        a = {
+            c.qualified_name: (c.nom, c.wmc, c.lcom4, c.dcc, c.dam, c.cam)
+            for c in with_arch.iter_classes()
+        }
+        b = {
+            c.qualified_name: (c.nom, c.wmc, c.lcom4, c.dcc, c.dam, c.cam)
+            for c in without.iter_classes()
+        }
+        assert a == b
+
+    def test_no_smells_are_computed(self, layered_no_arch):
+        report, _ = layered_no_arch
+        assert list(report.iter_smells()) == []
+        assert report.violations == []
+        assert report.arch_enabled is False

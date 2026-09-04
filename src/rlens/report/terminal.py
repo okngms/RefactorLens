@@ -24,6 +24,7 @@ from rich.table import Table
 from rlens.analysis.model import ClassReport, FunctionReport, ProjectReport
 from rlens.analysis.scanner import count_classes, count_functions
 from rlens.config import Config
+from rlens.report.architecture import common_prefix
 
 #: Hesaplanamayan değerlerin gösterimi.
 NULL_DISPLAY = "—"
@@ -44,6 +45,16 @@ _FUNCTION_THRESHOLD_KEYS = {
     "cyclomatic_complexity": "cyclomatic_complexity",
     "param_count": "max_params",
     "max_nesting": "max_nesting",
+}
+
+#: Koku etiketlerinin tabloya sığan kısa biçimleri. Tam adlar JSON raporunda.
+SMELL_SHORT = {
+    "god_class": "god",
+    "data_class": "data",
+    "feature_envy_candidate": "envy",
+    "long_method": "long",
+    "too_many_params": "params",
+    "layer_misfit": "misfit",
 }
 
 #: CAM'in atlanma nedenlerinin kullanıcıya gösterilen karşılıkları.
@@ -76,7 +87,9 @@ def class_violations(report: ClassReport, config: Config) -> dict[str, str]:
     """Sınıfın hangi metriklerinin hangi seviyede eşiği aştığı."""
     levels: dict[str, str] = {}
     for metric, key in _CLASS_THRESHOLD_KEYS.items():
-        threshold = config.thresholds.get(key)
+        # Aynı DCC değeri application-service'te tasarım gereği, domain
+        # modelinde kokudur. Katman bilinmiyorsa genel eşiğe düşülür.
+        threshold = config.threshold_for(key, report.layer)
         if threshold is None:
             continue
         level = threshold.level(getattr(report, metric))
@@ -107,11 +120,25 @@ def _worst(levels: dict[str, str]) -> str | None:
 
 
 def build_class_table(report: ProjectReport, config: Config) -> Table:
-    """Sınıf metrikleri tablosu; en sorunlu sınıflar üstte."""
-    table = Table(title="Class metrics", title_justify="left", header_style="bold")
+    """Sınıf metrikleri tablosu; en sorunlu sınıflar üstte.
+
+    `Layer` ve `Smells` sütunları yalnızca mimari analizi açıkken eklenir;
+    `--no-arch` çıktısı v1 ile birebir aynı kalmalıdır.
+    """
+    # Ortak paket öneki yalnızca mimari açıkken kırpılır: iki ek sütun tabloyu
+    # sardırır. `--no-arch` v1 tablosunu ve v1 biçimini aynen korur.
+    prefix = _prefix_for(report)
+    title = "Class metrics"
+    if prefix:
+        title += f" (under `{prefix.rstrip('.')}`)"
+    table = Table(title=title, title_justify="left", header_style="bold")
     table.add_column("Class", overflow="fold")
+    if report.arch_enabled:
+        table.add_column("Layer")
     for column in ("NOM", "WMC", "LCOM4", "DCC", "DAM", "CAM"):
         table.add_column(column, justify="right")
+    if report.arch_enabled:
+        table.add_column("Smells")
 
     rows: list[tuple[int, int, ClassReport, dict[str, str]]] = []
     for module in report.modules:
@@ -124,16 +151,79 @@ def build_class_table(report: ProjectReport, config: Config) -> Table:
     rows.sort(key=lambda row: (-row[0], -row[1], row[2].qualified_name))
 
     for _, _, cls, levels in rows:
-        table.add_row(
-            cls.qualified_name,
+        cells = [_shorten(cls.qualified_name, prefix)]
+        if report.arch_enabled:
+            cells.append(cls.layer or "—")
+        cells += [
             _styled(cls.nom, levels.get("nom")),
             _styled(cls.wmc, levels.get("wmc")),
             _styled(cls.lcom4, levels.get("lcom4")),
             _styled(cls.dcc, levels.get("dcc")),
             _format(cls.dam, decimals=2),
             _format(cls.cam, decimals=2),
+        ]
+        if report.arch_enabled:
+            labels = [SMELL_SHORT.get(s["label"], s["label"]) for s in cls.smells]
+            cells.append(", ".join(labels) if labels else "")
+        table.add_row(*cells)
+    return table
+
+
+def _prefix_for(report: ProjectReport) -> str:
+    """Sınıf ve modül adlarında kırpılacak ortak paket öneki."""
+    if not report.arch_enabled:
+        return ""
+    return common_prefix([module.module for module in report.modules])
+
+
+def _shorten(name: str, prefix: str) -> str:
+    return name[len(prefix) :] if prefix and name.startswith(prefix) else name
+
+
+def build_module_table(report: ProjectReport) -> Table | None:
+    """Modül düzeyi bağlantı ölçütleri. Eşik yoktur; yalnızca bilgidir."""
+    if not report.arch_enabled:
+        return None
+    table = Table(title="Modules", title_justify="left", header_style="bold")
+    table.add_column("Module", overflow="fold")
+    table.add_column("Layer")
+    for column in ("Ca", "Ce", "I"):
+        table.add_column(column, justify="right")
+
+    prefix = _prefix_for(report)
+    for module in sorted(report.modules, key=lambda m: (-(m.ca or 0), m.module)):
+        table.add_row(
+            _shorten(module.module, prefix),
+            module.layer or "—",
+            _format(module.ca),
+            _format(module.ce),
+            _format(module.instability, decimals=2),
         )
     return table
+
+
+def _smell_notes(report: ProjectReport) -> list[str]:
+    """Koku özetleri ve gerektiğinde açıklama.
+
+    `data_class` için ayrı bir not vardır: o etiketin varlık sebebi, LCOM4'ün
+    veri taşıyıcılarında yüksek çıkmasının bir kusur olmadığını söylemektir.
+    """
+    counts: dict[str, int] = {}
+    for smell in report.iter_smells():
+        counts[smell["label"]] = counts.get(smell["label"], 0) + 1
+    if not counts:
+        return []
+
+    notes = [
+        ", ".join(f"{count} {label}" for label, count in sorted(counts.items()))
+        + "  (smell labels; see the JSON report for the evidence behind each)"
+    ]
+    if "data_class" in counts:
+        notes.append(
+            "data_class marks a data holder: a high LCOM4 there is expected, "
+            "because one accessor per field shares no state by design"
+        )
+    return notes
 
 
 def build_function_table(report: ProjectReport, config: Config) -> Table | None:
@@ -147,11 +237,13 @@ def build_function_table(report: ProjectReport, config: Config) -> Table | None:
     for column in ("CC", "Params", "Nesting", "LOC"):
         table.add_column(column, justify="right")
 
+    prefix = _prefix_for(report)
     rows: list[tuple[int, FunctionReport, str, dict[str, str]]] = []
     for module in report.modules:
-        candidates = [(module.module, fn) for fn in module.functions]
+        short = _shorten(module.module, prefix)
+        candidates = [(short, fn) for fn in module.functions]
         for cls in module.classes:
-            candidates += [(f"{module.module}:{cls.name}", fn) for fn in cls.methods]
+            candidates += [(f"{short}:{cls.name}", fn) for fn in cls.methods]
 
         for owner, fn in candidates:
             levels = function_violations(fn, config)
@@ -232,8 +324,24 @@ def render_report(report: ProjectReport, config: Config, console: Console) -> in
 
     console.print()
 
+    modules = build_module_table(report)
+    if modules is not None:
+        console.print()
+        console.print(modules)
+        console.print()
+
     for note in _cam_notes(report):
         console.print(f"[dim]{NULL_DISPLAY} {note}[/dim]")
+    for note in _smell_notes(report):
+        console.print(f"[dim]{note}[/dim]")
+    for note in report.arch_notes:
+        console.print(f"[dim]· {note}[/dim]")
+
+    if report.violations:
+        blocking = [v for v in report.violations if not v.get("tentative")]
+        console.print(
+            f"[red]{len(blocking)} architecture violation(s)[/] — run `rlens arch` for details."
+        )
 
     _render_skipped(report, console)
 

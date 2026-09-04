@@ -133,3 +133,81 @@ class TestEdgeCases:
         first = [m.module for m in scan_project(tmp_path, config).modules]
         second = [m.module for m in scan_project(tmp_path, config).modules]
         assert first == second == sorted(first)
+
+
+LAYERED = Path(__file__).resolve().parent.parent / "examples" / "layered_project"
+
+
+@pytest.fixture(scope="module")
+def layered_report():
+    return scan_project(LAYERED, load_config(search_from=LAYERED))
+
+
+class TestArchitectureIntegration:
+    def test_schema_version_is_two(self, layered_report):
+        """v2 raporları v1 ile karşılaştırılamaz; eşikler artık katmana bağlı."""
+        assert layered_report.schema_version == 2
+
+    def test_classes_carry_their_layer(self, layered_report):
+        service = next(c for c in layered_report.iter_classes() if c.name == "OrderService")
+        assert service.layer == "application"
+        assert service.layer_source == "declared"
+        assert service.layer_confidence == 1.0
+
+    def test_modules_carry_coupling_metrics(self, layered_report):
+        entities = next(m for m in layered_report.modules if m.module.endswith("entities"))
+        assert (entities.ca, entities.ce, entities.instability) == (2, 0, 0.0)
+
+    def test_violations_are_included(self, layered_report):
+        assert len(layered_report.violations) == 6
+        assert {v["code"] for v in layered_report.violations} == {
+            "LV-DIR",
+            "LV-SKIP",
+            "LV-CYCLE",
+            "LV-LEAK",
+        }
+
+    def test_public_interface_is_recorded(self, layered_report):
+        """Aşama 4'teki Goodhart koruması bu kümeyi karşılaştıracak."""
+        customer = next(c for c in layered_report.iter_classes() if c.name == "Customer")
+        assert "name" in customer.public_interface["methods"]
+        assert customer.public_interface["size"] == 5
+
+    def test_smells_are_attached(self, layered_report):
+        labels = sorted(s["label"] for s in layered_report.iter_smells())
+        assert labels == [
+            "data_class",
+            "feature_envy_candidate",
+            "feature_envy_candidate",
+            "god_class",
+        ]
+
+    def test_layer_misfit_needs_both_conditions(self, layered_report):
+        """Fikstürde ihlal var ama kuplaj eşik altında."""
+        assert not any(s["label"] == "layer_misfit" for s in layered_report.iter_smells())
+
+    def test_arch_notes_are_carried(self, layered_report):
+        assert any("stay unknown" in note for note in layered_report.arch_notes)
+
+
+class TestNoArch:
+    def test_nothing_architectural_is_computed(self):
+        report = scan_project(LAYERED, load_config(search_from=LAYERED), no_arch=True)
+        assert report.arch_enabled is False
+        assert report.violations == []
+        assert all(c.layer is None for c in report.iter_classes())
+        assert all(m.ca is None for m in report.modules)
+
+    def test_metrics_are_unchanged(self):
+        config = load_config(search_from=LAYERED)
+        with_arch = scan_project(LAYERED, config)
+        without = scan_project(LAYERED, config, no_arch=True)
+        assert [c.wmc for c in with_arch.iter_classes()] == [c.wmc for c in without.iter_classes()]
+
+    def test_disabled_in_config_has_the_same_effect(self, tmp_path):
+        (tmp_path / "rlens.yaml").write_text(
+            "scan:\n  include: ['.']\narch:\n  enabled: false\n", encoding="utf-8"
+        )
+        (tmp_path / "m.py").write_text("class C:\n    pass\n", encoding="utf-8")
+        report = scan_project(tmp_path, load_config(search_from=tmp_path))
+        assert report.arch_enabled is False
