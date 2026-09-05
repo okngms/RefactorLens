@@ -326,7 +326,6 @@ def render_report(report: ProjectReport, config: Config, console: Console) -> in
 
     modules = build_module_table(report)
     if modules is not None:
-        console.print()
         console.print(modules)
         console.print()
 

@@ -36,7 +36,7 @@ class AdviceTarget:
     name: str
     lineno: int
 
-    violations: dict[str, str] = field(default_factory=dict)
+    threshold_flags: dict[str, str] = field(default_factory=dict)
     """Metrik adı → `"warn"` / `"critical"`. Eşik **sayıları** burada yoktur."""
 
     metrics: dict[str, float | int | None] = field(default_factory=dict)
@@ -44,14 +44,27 @@ class AdviceTarget:
 
     score: int = 0
 
+    layer: str | None = None
+    layer_source: str | None = None
+    layer_confidence: float | None = None
+    smells: list[dict] = field(default_factory=list)
+    """Bu hedefin koku etiketleri. Modele sayı yerine durum vermek için."""
+
+    violations: list[dict] = field(default_factory=list)
+    """Hedefin modülünü ilgilendiren mimari ihlaller."""
+
+    @property
+    def smell_labels(self) -> list[str]:
+        return [smell["label"] for smell in self.smells]
+
     @property
     def qualified_name(self) -> str:
         return f"{self.module}:{self.name}"
 
     @property
     def severity(self) -> str:
-        """Hedefin en ağır ihlal seviyesi."""
-        return "critical" if "critical" in self.violations.values() else "warn"
+        """Hedefin en ağır eşik ihlali seviyesi."""
+        return "critical" if "critical" in self.threshold_flags.values() else "warn"
 
 
 def score_violations(violations: dict[str, str]) -> int:
@@ -94,7 +107,15 @@ def collect_targets(report: ProjectReport, config: Config) -> list[AdviceTarget]
     """
     targets: list[AdviceTarget] = []
 
+    module_violations: dict[str, list[dict]] = {}
+    for violation in report.violations:
+        source = violation.get("source", "")
+        # `LV-LEAK` kaynağı `modül:Sınıf.metot` biçimindedir.
+        module_key = source.split(":")[0]
+        module_violations.setdefault(module_key, []).append(violation)
+
     for module in report.modules:
+        related = module_violations.get(module.module, [])
         for cls in module.classes:
             violations = class_violations(cls, config)
             if violations:
@@ -104,9 +125,14 @@ def collect_targets(report: ProjectReport, config: Config) -> list[AdviceTarget]
                         module=module.module,
                         name=cls.name,
                         lineno=cls.lineno,
-                        violations=violations,
+                        threshold_flags=violations,
                         metrics=_class_metrics(cls),
                         score=score_violations(violations),
+                        layer=cls.layer,
+                        layer_source=cls.layer_source,
+                        layer_confidence=cls.layer_confidence,
+                        smells=list(cls.smells),
+                        violations=list(related),
                     )
                 )
 
@@ -119,9 +145,12 @@ def collect_targets(report: ProjectReport, config: Config) -> list[AdviceTarget]
                         module=module.module,
                         name=fn.name,
                         lineno=fn.lineno,
-                        violations=violations,
+                        threshold_flags=violations,
                         metrics=_function_metrics(fn),
                         score=score_violations(violations),
+                        layer=module.layer,
+                        smells=[s for s in module.smells if s["target"].endswith(f".{fn.name}")],
+                        violations=list(related),
                     )
                 )
 

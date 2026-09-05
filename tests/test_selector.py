@@ -61,7 +61,7 @@ class TestCollectTargets:
         targets = collect_targets(make_report(bad), cfg)
         assert len(targets) == 1
         assert targets[0].kind == "class"
-        assert targets[0].violations["lcom4"] == "critical"
+        assert targets[0].threshold_flags["lcom4"] == "critical"
 
     def test_module_functions_can_be_targets(self, messy):
         report, cfg = messy
@@ -80,7 +80,7 @@ class TestNoRawThresholds:
     def test_target_carries_levels_not_numbers(self, messy):
         report, cfg = messy
         target = select_targets(report, cfg, top_n=1)[0]
-        assert set(target.violations.values()) <= {"warn", "critical"}
+        assert set(target.threshold_flags.values()) <= {"warn", "critical"}
 
     def test_metrics_are_measured_values_only(self, messy):
         report, cfg = messy

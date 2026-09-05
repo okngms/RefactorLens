@@ -51,7 +51,9 @@ about trade-offs: splitting a class often lowers LCOM4 while raising DCC.
 3. Do not invent code that is not shown to you. Where a body has been omitted, \
 say so rather than guessing what it contained.
 4. Prefer a small number of substantial suggestions over many superficial ones.
-5. Reply with a single JSON object and nothing else. No prose before or after, \
+5. When architectural context is given, respect the layer rules. If a \
+responsibility moves, name the destination layer.
+6. Reply with a single JSON object and nothing else. No prose before or after, \
 no markdown fences.
 """
 
@@ -69,24 +71,106 @@ _METRIC_GLOSSARY = {
 }
 
 
-def output_schema() -> dict:
-    """Modelden istenen JSON yapısı, örnek değerlerle."""
+def output_schema(*, architectural: bool = False) -> dict:
+    """Modelden istenen JSON yapısı, örnek değerlerle.
+
+    `confidence` **opsiyoneldir** ve yokluğu öneriyi düşürmez: kalibrasyon
+    ölçümü değerlidir ama zorunlu tutmak, veremeyeceği bir sayıyı uyduran
+    modellerle sonucu kirletir.
+    """
+    suggestion = {
+        "title": "Short imperative title",
+        "rationale_metric_link": ["LCOM4", "DCC"],
+        "expected_effect": [
+            {"metric": "LCOM4", "direction": "down", "confidence": 0.8},
+            {"metric": "DCC", "direction": "up", "confidence": 0.5},
+        ],
+        "sketch": "How to carry out the change, in prose or brief code.",
+    }
+    if architectural:
+        suggestion["addresses_smells"] = ["god_class"]
+        suggestion["target_layer_after"] = "application"
+        suggestion["constraints_respected"] = True
+
     return {
         "target": "module:Name",
         "diagnosis": "One paragraph on what the measurements indicate.",
-        "suggestions": [
-            {
-                "title": "Short imperative title",
-                "rationale_metric_link": ["LCOM4", "DCC"],
-                "expected_effect": [
-                    {"metric": "LCOM4", "direction": "down"},
-                    {"metric": "DCC", "direction": "up"},
-                ],
-                "sketch": "How to carry out the change, in prose or brief code.",
-            }
-        ],
+        "suggestions": [suggestion],
         "risk_notes": "What could break, or why this might not be worth doing.",
     }
+
+
+def format_architecture(target, scheme) -> str:
+    """Mimari bağlam bloğu.
+
+    Katmanı bilinmeyen hedef için blok **üretilmez**: "layer: unknown" satırı
+    modele bilgi vermez, yalnızca gürültü ekler ve A/B karşılaştırmasını
+    bulanıklaştırır.
+    """
+    if not target.layer:
+        return ""
+
+    confidence = target.layer_confidence or 0.0
+    source = target.layer_source or "unknown"
+    allowed = scheme.allowed.get(target.layer, ())
+    forbidden = [layer for layer in scheme.layers if layer != target.layer and layer not in allowed]
+
+    lines = [
+        "## Architectural context",
+        f"Target layer: {target.layer} ({source}, confidence {confidence:.2f})",
+        f"{target.layer} may import: {', '.join(allowed) or 'nothing'}",
+        f"{target.layer} must NOT import: {', '.join(forbidden) or 'nothing'}",
+    ]
+
+    if target.violations:
+        lines.append("Open violations involving this module:")
+        for violation in target.violations:
+            alias = violation.get("alias", "")
+            tentative = " (tentative)" if violation.get("tentative") else ""
+            lines.append(
+                f"  - {violation['code']} ({alias}) "
+                f"{violation['source']} → {violation['target']}{tentative}"
+            )
+
+    if target.smells:
+        lines.append("Smell labels:")
+        for smell in target.smells:
+            evidence = ", ".join(
+                f"{key}={value}"
+                for key, value in smell.get("evidence", {}).items()
+                if not isinstance(value, (dict, list))
+            )
+            lines.append(f"  - {smell['label']} ({evidence})")
+            if smell.get("note"):
+                lines.append(f"    note: {smell['note']}")
+
+    return "\n".join(lines)
+
+
+#: Metrik hesaplama kurallarının kısa biçimi (`--metric-rules`).
+#:
+#: FINDINGS-1'de modeller yapısal metriklerde 0/7 yanıldı ve her ıskalama
+#: **kapsam hatasıydı**: kod tabanı hakkında düşünüp varlık hakkında konuştular.
+#: Bu blok o boşluğu doğrudan hedefler. **Eşik sayıları yine yoktur.**
+METRIC_RULES = """\
+## How these metrics are computed
+
+Every metric below is measured **on this entity alone**, not across the project.
+
+- NOM: methods defined on this class, dunders excluded. A method that delegates
+  to another object still counts.
+- WMC: sum of cyclomatic complexity over those same methods.
+- LCOM4: connected components in the method-attribute graph. Two methods are
+  connected if they touch a common `self.<attr>` or call one another. A method
+  left behind as a wrapper still touches whatever attribute it delegates through.
+- DCC: distinct project-internal classes referenced **by this class**. Moving a
+  collaborator out lowers it; the project gaining a class does not raise it.
+- DAM: ratio of private attributes on this class.
+- CAM: parameter-type cohesion; reported only when annotation coverage is high
+  enough, otherwise null.
+- CC / LOC / PARAMS / NESTING: measured on the function itself. Lines moved to a
+  helper leave this function.
+"""
 
 
 def format_evidence(context: PromptContext) -> str:
@@ -100,9 +184,9 @@ def format_evidence(context: PromptContext) -> str:
 
     for metric, value in target.metrics.items():
         shown = "not computed" if value is None else value
-        flag = target.violations.get(metric.lower())
+        flag = target.threshold_flags.get(metric.lower())
         if flag is None:
-            flag = target.violations.get(_violation_key(metric), None)
+            flag = target.threshold_flags.get(_violation_key(metric), None)
         marker = f"  [{flag.upper()}]" if flag else ""
         glossary = _METRIC_GLOSSARY.get(metric, "")
         lines.append(f"  {metric} = {shown}{marker}    # {glossary}")
@@ -135,17 +219,35 @@ def _violation_key(metric: str) -> str:
     }.get(metric, metric.lower())
 
 
-def build_user_prompt(context: PromptContext) -> str:
-    """Modele gönderilecek kullanıcı mesajı."""
-    return "\n\n".join(
-        [
-            format_evidence(context),
-            "Code:\n```python\n" + context.as_text() + "\n```",
-            "Allowed metric names: " + ", ".join(VALID_METRICS),
-            "Allowed directions: " + ", ".join(VALID_DIRECTIONS),
-            "Reply with exactly this JSON structure:\n" + json.dumps(output_schema(), indent=2),
-        ]
-    )
+def build_user_prompt(
+    context: PromptContext,
+    *,
+    scheme=None,
+    metric_rules: bool = False,
+) -> str:
+    """Modele gönderilecek kullanıcı mesajı.
+
+    Args:
+        context: Hedef ve kodu.
+        scheme: Katman şeması. Verilirse mimari bağlam bloğu eklenir;
+            `--no-arch-context` bunu düşürür (5a'nın A/B ekseni).
+        metric_rules: Hesaplama kuralları bloğu eklensin mi (5b'nin A/B ekseni).
+    """
+    architecture = format_architecture(context.target, scheme) if scheme else ""
+
+    parts = [format_evidence(context)]
+    if architecture:
+        parts.append(architecture)
+    if metric_rules:
+        parts.append(METRIC_RULES)
+    parts += [
+        "Code:\n```python\n" + context.as_text() + "\n```",
+        "Allowed metric names: " + ", ".join(VALID_METRICS),
+        "Allowed directions: " + ", ".join(VALID_DIRECTIONS),
+        "Reply with exactly this JSON structure:\n"
+        + json.dumps(output_schema(architectural=bool(architecture)), indent=2),
+    ]
+    return "\n\n".join(parts)
 
 
 def build_repair_prompt(raw_reply: str, error: str) -> str:
