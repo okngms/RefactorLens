@@ -55,6 +55,9 @@ class PredictionCheck:
     reason: str | None = None
     """Doğrulanamadıysa nedeni. Boş bırakılmaz — okuyucu neden bilmeli."""
 
+    confidence: float | None = None
+    """Modelin bu tahmine verdiği güven. Kalibrasyon hesabı bunu kullanır."""
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "target": self.target,
@@ -65,6 +68,7 @@ class PredictionCheck:
             "actual": self.actual,
             "outcome": self.outcome,
             "reason": self.reason,
+            "confidence": self.confidence,
         }
 
 
@@ -170,6 +174,7 @@ def _check_one(
     metric: str,
     predicted: str,
     delta: ProjectDelta,
+    confidence: float | None = None,
 ) -> PredictionCheck:
     """Tek bir tahmini denetler."""
     entity = delta.by_name(target)
@@ -181,6 +186,7 @@ def _check_one(
             suggestion_title=title,
             metric=metric,
             predicted=predicted,
+            confidence=confidence,
             outcome=UNVERIFIABLE,
             reason=reason,
         )
@@ -207,6 +213,7 @@ def _check_one(
         suggestion_title=title,
         metric=metric,
         predicted=predicted,
+        confidence=confidence,
         actual=actual,
         outcome=HIT if actual == predicted else MISS,
     )
@@ -254,8 +261,14 @@ def check_predictions(
                 predicted = str(effect.get("direction", "")).lower()
                 if not metric or not predicted:
                     continue
+                confidence = effect.get("confidence")
+                if confidence is not None:
+                    try:
+                        confidence = float(confidence)
+                    except (TypeError, ValueError):
+                        confidence = None
                 score.checks.append(
-                    _check_one(target, index, score.title, metric, predicted, delta)
+                    _check_one(target, index, score.title, metric, predicted, delta, confidence)
                 )
             report.scores.append(score)
 
