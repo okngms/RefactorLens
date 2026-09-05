@@ -16,6 +16,7 @@ from __future__ import annotations
 from rich.console import Console
 from rich.table import Table
 
+from rlens.verify.calibration import CalibrationReport
 from rlens.verify.diff import (
     ADDED,
     IMPROVED,
@@ -24,6 +25,7 @@ from rlens.verify.diff import (
     REMOVED,
     ProjectDelta,
 )
+from rlens.verify.goodhart import GoodhartReport
 from rlens.verify.prediction import HIT, MISS, UNVERIFIABLE, PredictionReport
 
 #: Sonuç etiketlerinin renkleri.
@@ -100,10 +102,58 @@ def build_prediction_table(report: PredictionReport) -> Table | None:
     return table
 
 
+def build_set_table(delta: ProjectDelta) -> Table | None:
+    """Mimari ihlal ve koku farkı. İkisi de değişmediyse None."""
+    rows: list[tuple[str, str, str]] = []
+    for name, change in (("violations", delta.violations), ("smells", delta.smells)):
+        for item in change.removed:
+            rows.append((name, "gone", item))
+        for item in change.added:
+            rows.append((name, "new", item))
+    if not rows:
+        return None
+
+    table = Table(title="Architecture and smells", title_justify="left", header_style="bold")
+    table.add_column("Kind")
+    table.add_column("Change")
+    table.add_column("Item", overflow="fold")
+    for kind, change, item in rows:
+        style = "green" if change == "gone" else "red"
+        table.add_row(kind, f"[{style}]{change}[/{style}]", item)
+    return table
+
+
+def build_calibration_table(report: CalibrationReport) -> Table | None:
+    """Güven kovaları. Hiç güven verilmemişse None."""
+    if not report.points:
+        return None
+    table = Table(title="Confidence calibration", title_justify="left", header_style="bold")
+    table.add_column("Confidence")
+    table.add_column("Predictions", justify="right")
+    table.add_column("Stated", justify="right")
+    table.add_column("Actual", justify="right")
+    table.add_column("Gap", justify="right")
+    for bucket in report.bins:
+        if not bucket.count:
+            continue
+        style = "red" if bucket.gap and bucket.gap > 0.2 else ""
+        gap = f"{bucket.gap:+.2f}"
+        table.add_row(
+            f"{bucket.low:.1f}–{bucket.high:.1f}",
+            str(bucket.count),
+            f"{bucket.mean_confidence:.2f}",
+            f"{bucket.accuracy:.2f}",
+            f"[{style}]{gap}[/{style}]" if style else gap,
+        )
+    return table
+
+
 def render_verify(
     delta: ProjectDelta,
     console: Console,
     predictions: PredictionReport | None = None,
+    goodhart: GoodhartReport | None = None,
+    calibration: CalibrationReport | None = None,
 ) -> None:
     """Doğrulama sonucunu terminale basar."""
     console.print(
@@ -133,6 +183,24 @@ def render_verify(
     if removed:
         console.print(f"[magenta]gone:[/] {', '.join(e.qualified_name for e in removed)}")
 
+    sets = build_set_table(delta)
+    if sets is not None:
+        console.print()
+        console.print(sets)
+
+    if goodhart is not None and goodhart.any_suspicious:
+        console.print()
+        console.print(
+            f"[bold yellow]{len(goodhart.suspicious)} suspicious improvement(s)[/] — "
+            f"metrics got better while the public interface shrank:"
+        )
+        for check in goodhart.suspicious:
+            console.print(f"  [yellow]{check.qualified_name}[/] — {check.reason}")
+        console.print(
+            "[dim]This is a question, not a verdict: deleting dead code shrinks "
+            "the interface too. The behaviour tests decide.[/dim]"
+        )
+
     if predictions is not None and predictions.scores:
         console.print()
         console.print(build_prediction_table(predictions))
@@ -161,6 +229,20 @@ def render_verify(
                 "actually did."
             )
 
+    if calibration is not None and calibration.points:
+        console.print()
+        console.print(build_calibration_table(calibration))
+        console.print(
+            f"[bold]Brier {calibration.brier:.3f} · ECE {calibration.ece:.3f}[/bold] "
+            f"(stated {calibration.mean_confidence:.2f}, actual "
+            f"{calibration.accuracy:.2f}, gap {calibration.overconfidence:+.2f})"
+        )
+        if calibration.without_confidence:
+            console.print(
+                f"[dim]{calibration.without_confidence} prediction(s) came without a "
+                f"confidence and are excluded.[/dim]"
+            )
+
     console.print()
     console.print(f"[dim]{BEHAVIOUR_REMINDER}[/dim]")
 
@@ -168,6 +250,8 @@ def render_verify(
 def verify_markdown(
     delta: ProjectDelta,
     predictions: PredictionReport | None = None,
+    goodhart: GoodhartReport | None = None,
+    calibration: CalibrationReport | None = None,
 ) -> str:
     """Doğrulama sonucunun markdown hali."""
     lines = [
@@ -232,6 +316,58 @@ def verify_markdown(
             f"- **Accuracy: {overall}**",
             "",
         ]
+
+    if (
+        delta.violations.removed
+        or delta.violations.added
+        or delta.smells.removed
+        or delta.smells.added
+    ):
+        lines += ["## Architecture and smells", ""]
+        for name, change in (("Violations", delta.violations), ("Smells", delta.smells)):
+            if change.removed:
+                lines.append(f"- **{name} gone:** {', '.join(change.removed)}")
+            if change.added:
+                lines.append(f"- **{name} new:** {', '.join(change.added)}")
+        lines.append("")
+
+    if goodhart is not None and goodhart.any_suspicious:
+        lines += [
+            "## Suspicious improvements",
+            "",
+            "> Metrics improved while the public interface shrank. This is a "
+            "question, not a verdict: deleting dead code shrinks the interface "
+            "too. The behaviour tests decide.",
+            "",
+        ]
+        for check in goodhart.suspicious:
+            lines.append(f"- `{check.qualified_name}` — {check.reason}")
+        lines.append("")
+
+    if calibration is not None and calibration.points:
+        lines += [
+            "## Confidence calibration",
+            "",
+            f"- **Brier:** {calibration.brier:.3f} (0 perfect, 0.25 coin flip)",
+            f"- **ECE:** {calibration.ece:.3f}",
+            f"- Stated confidence {calibration.mean_confidence:.2f} vs actual "
+            f"accuracy {calibration.accuracy:.2f} "
+            f"(gap {calibration.overconfidence:+.2f})",
+            f"- {calibration.without_confidence} prediction(s) came without a "
+            f"confidence and are excluded",
+            "",
+            "| Confidence | Predictions | Stated | Actual | Gap |",
+            "|---|---|---|---|---|",
+        ]
+        for bucket in calibration.bins:
+            if not bucket.count:
+                continue
+            lines.append(
+                f"| {bucket.low:.1f}–{bucket.high:.1f} | {bucket.count} | "
+                f"{bucket.mean_confidence:.2f} | {bucket.accuracy:.2f} | "
+                f"{bucket.gap:+.2f} |"
+            )
+        lines.append("")
 
     lines += ["---", "", f"_{BEHAVIOUR_REMINDER}_", ""]
     return "\n".join(lines).rstrip() + "\n"

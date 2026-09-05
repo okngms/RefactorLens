@@ -173,6 +173,31 @@ class EntityDelta:
         }
 
 
+@dataclass(frozen=True)
+class SetDelta:
+    """İki küme arasındaki fark. İhlaller ve kokular için ortak biçim."""
+
+    added: tuple[str, ...] = ()
+    removed: tuple[str, ...] = ()
+    kept: tuple[str, ...] = ()
+
+    @property
+    def improved(self) -> bool:
+        """Kaybolan var, yeni gelen yok."""
+        return bool(self.removed) and not self.added
+
+    @property
+    def worsened(self) -> bool:
+        return bool(self.added)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "added": list(self.added),
+            "removed": list(self.removed),
+            "kept": len(self.kept),
+        }
+
+
 @dataclass
 class ProjectDelta:
     """İki rapor arasındaki tam fark."""
@@ -184,6 +209,10 @@ class ProjectDelta:
     """Karşılaştırma geçersizse nedeni. `None` ise karşılaştırma geçerlidir."""
 
     entities: list[EntityDelta] = field(default_factory=list)
+    violations: SetDelta = field(default_factory=SetDelta)
+    """Mimari ihlal farkı. v1 raporlarında ihlal alanı yoktur ve boş kalır."""
+
+    smells: SetDelta = field(default_factory=SetDelta)
 
     def by_name(self, qualified_name: str) -> EntityDelta | None:
         for entity in self.entities:
@@ -210,7 +239,47 @@ class ProjectDelta:
             "comparable": self.comparable,
             "incompatibility": self.incompatibility,
             "entities": [entity.to_dict() for entity in self.entities],
+            "violations": self.violations.to_dict(),
+            "smells": self.smells.to_dict(),
         }
+
+
+def _violation_keys(report: dict) -> set[str]:
+    """İhlallerin kimlikleri: `KOD source → target`.
+
+    `LV-CYCLE` için üyeler sıralı olduğu için kimlik kararlıdır; aynı döngü
+    iki taramada aynı anahtarı üretir.
+    """
+    keys = set()
+    for violation in report.get("violations", []):
+        members = violation.get("members") or []
+        if members:
+            keys.add(f"{violation['code']} {' ↔ '.join(members)}")
+        else:
+            keys.add(
+                f"{violation['code']} {violation.get('source', '')} → {violation.get('target', '')}"
+            )
+    return keys
+
+
+def _smell_keys(report: dict) -> set[str]:
+    """Koku kimlikleri: `etiket @ hedef`."""
+    keys = set()
+    for module in report.get("modules", []):
+        for smell in module.get("smells", []):
+            keys.add(f"{smell['label']} @ {smell['target']}")
+        for cls in module.get("classes", []):
+            for smell in cls.get("smells", []):
+                keys.add(f"{smell['label']} @ {smell['target']}")
+    return keys
+
+
+def _set_delta(before: set[str], after: set[str]) -> SetDelta:
+    return SetDelta(
+        added=tuple(sorted(after - before)),
+        removed=tuple(sorted(before - after)),
+        kept=tuple(sorted(before & after)),
+    )
 
 
 def _index_entities(report: dict) -> dict[tuple[str, str, str], dict]:
@@ -301,4 +370,6 @@ def diff_reports(before: dict, after: dict) -> ProjectDelta:
         comparable=incompatibility is None,
         incompatibility=incompatibility,
         entities=entities,
+        violations=_set_delta(_violation_keys(before), _violation_keys(after)),
+        smells=_set_delta(_smell_keys(before), _smell_keys(after)),
     )

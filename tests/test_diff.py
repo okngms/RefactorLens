@@ -213,3 +213,78 @@ class TestEmptyReports:
 )
 def test_polarity_table(metric, before, after, expected):
     assert MetricDelta(metric, before, after).improved is expected
+
+
+def arch_report(violations=(), smells=(), schema=SCHEMA_VERSION):
+    """İhlal ve koku alanları olan bir v2 raporu."""
+    return {
+        "schema_version": schema,
+        "generated_at": "2026-01-01T00:00:00+00:00",
+        "violations": list(violations),
+        "modules": [
+            {
+                "module": "m",
+                "path": "m.py",
+                "functions": [],
+                "smells": [],
+                "classes": [{**cls(), "smells": list(smells)}],
+            }
+        ],
+    }
+
+
+class TestViolationDelta:
+    def test_a_fixed_violation_is_reported_as_gone(self):
+        before = arch_report(violations=[{"code": "LV-DIR", "source": "a", "target": "b"}])
+        after = arch_report()
+        delta = diff_reports(before, after)
+        assert delta.violations.removed == ("LV-DIR a → b",)
+        assert delta.violations.improved is True
+
+    def test_a_new_violation_is_reported(self):
+        before = arch_report()
+        after = arch_report(violations=[{"code": "LV-SKIP", "source": "a", "target": "b"}])
+        delta = diff_reports(before, after)
+        assert delta.violations.added == ("LV-SKIP a → b",)
+        assert delta.violations.worsened is True
+
+    def test_unchanged_violations_are_kept(self):
+        violations = [{"code": "LV-DIR", "source": "a", "target": "b"}]
+        delta = diff_reports(arch_report(violations=violations), arch_report(violations=violations))
+        assert delta.violations.kept == ("LV-DIR a → b",)
+        assert delta.violations.improved is False
+
+    def test_cycles_use_their_members_as_identity(self):
+        """Aynı döngü iki taramada aynı anahtarı üretmeli."""
+        cycle = [{"code": "LV-CYCLE", "source": "a", "target": "b", "members": ["a", "b"]}]
+        delta = diff_reports(arch_report(violations=cycle), arch_report(violations=cycle))
+        assert delta.violations.kept == ("LV-CYCLE a ↔ b",)
+
+    def test_v1_reports_have_no_violations(self):
+        delta = diff_reports(report(cls()), report(cls()))
+        assert delta.violations.added == () and delta.violations.removed == ()
+
+
+class TestSmellDelta:
+    def test_a_resolved_smell_is_reported(self):
+        before = arch_report(smells=[{"label": "god_class", "target": "m:C"}])
+        delta = diff_reports(before, arch_report())
+        assert delta.smells.removed == ("god_class @ m:C",)
+
+    def test_a_new_smell_is_reported(self):
+        after = arch_report(smells=[{"label": "data_class", "target": "m:C"}])
+        delta = diff_reports(arch_report(), after)
+        assert delta.smells.added == ("data_class @ m:C",)
+
+    def test_swapping_one_smell_for_another_is_not_an_improvement(self):
+        before = arch_report(smells=[{"label": "god_class", "target": "m:C"}])
+        after = arch_report(smells=[{"label": "data_class", "target": "m:C"}])
+        delta = diff_reports(before, after)
+        assert delta.smells.improved is False
+        assert delta.smells.worsened is True
+
+    def test_serialisation(self):
+        before = arch_report(smells=[{"label": "god_class", "target": "m:C"}])
+        payload = diff_reports(before, arch_report()).to_dict()
+        assert payload["smells"]["removed"] == ["god_class @ m:C"]
+        assert "violations" in payload

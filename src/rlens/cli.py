@@ -45,6 +45,8 @@ from rlens.report.files import (
 )
 from rlens.report.terminal import render_report
 from rlens.report.verify import render_verify
+from rlens.verify import goodhart as goodhart_module
+from rlens.verify.calibration import collect_points
 from rlens.verify.diff import REGRESSED, diff_reports
 from rlens.verify.prediction import check_predictions, parse_applied
 
@@ -502,7 +504,10 @@ def verify(
     current = scan_project(path, cfg).to_dict()
     delta = diff_reports(baseline, current)
 
+    suspicions = goodhart_module.detect(baseline, current, delta.entities)
+
     predictions = None
+    calibration = None
     if advice is not None:
         try:
             advice_document = json.loads(Path(advice).read_text(encoding="utf-8"))
@@ -513,12 +518,15 @@ def verify(
         except ValueError as exc:
             raise _fail(str(exc)) from exc
         predictions = check_predictions(advice_document, delta, applied_map)
+        calibration = collect_points(predictions)
 
-    render_verify(delta, console, predictions)
+    render_verify(delta, console, predictions, suspicions, calibration)
 
     if not no_report:
         try:
-            json_path, markdown_path = write_verify(delta, predictions, report_dir)
+            json_path, markdown_path = write_verify(
+                delta, predictions, report_dir, suspicions, calibration
+            )
         except ReportError as exc:
             raise _fail(str(exc)) from exc
         console.print(f"[dim]Report: {markdown_path}[/dim]")
@@ -527,7 +535,13 @@ def verify(
     # Karşılaştırma geçersizse regresyon kontrolü yapılmaz: anlamsız sayılara
     # dayanarak derlemeyi kırmak, sessizce yanlış delta üretmek kadar zararlı.
     regressed = any(entity.summarise() == REGRESSED for entity in delta.entities)
-    if fail_on_regression and delta.comparable and regressed:
+
+    # Şüpheli iyileşmenin CI'ı kırıp kırmayacağı bir politika sorusudur:
+    # ölü kod silmek de arayüzü küçültür. Varsayılan sıkı, config gevşetebilir.
+    treat_suspicious = cfg.verify is not None and cfg.verify.treat_suspicious_as_regression
+    blocking = regressed or (treat_suspicious and suspicions.any_suspicious)
+
+    if fail_on_regression and delta.comparable and blocking:
         raise typer.Exit(code=1)
 
 

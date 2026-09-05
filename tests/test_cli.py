@@ -483,3 +483,61 @@ class TestAdviseArchFlags:
     def test_smell_labels_reach_the_prompt(self, layered):
         output = runner.invoke(app, ["advise", layered, "--dry-run", "--top-n", "1"]).output
         assert "god_class" in output
+
+
+class TestVerifySuspicious:
+    """`treat_suspicious_as_regression` bir politika seçimidir."""
+
+    @pytest.fixture
+    def project(self, tmp_path):
+        (tmp_path / "rlens.yaml").write_text("scan:\n  include: ['.']\n", encoding="utf-8")
+        (tmp_path / "m.py").write_text(
+            "class C:\n"
+            "    def __init__(self):\n        self._a = 1\n        self._b = 2\n"
+            "    def keep(self):\n        return self._a\n"
+            "    def drop_me(self):\n        return self._b\n",
+            encoding="utf-8",
+        )
+        return tmp_path
+
+    def shrink(self, project):
+        """Arayüzü küçültürken LCOM4'ü düşürür — v1'in vakasının küçük hali."""
+        (project / "m.py").write_text(
+            "class C:\n"
+            "    def __init__(self):\n        self._a = 1\n"
+            "    def keep(self):\n        return self._a\n",
+            encoding="utf-8",
+        )
+
+    def test_it_is_flagged(self, project):
+        runner.invoke(app, ["scan", str(project)])
+        self.shrink(project)
+        result = runner.invoke(app, ["verify", str(project), "--no-report"])
+        assert result.exit_code == 0
+        assert "suspicious improvement" in result.output
+
+    def test_it_blocks_ci_by_default(self, project):
+        runner.invoke(app, ["scan", str(project)])
+        self.shrink(project)
+        result = runner.invoke(app, ["verify", str(project), "--no-report", "--fail-on-regression"])
+        assert result.exit_code == 1
+
+    def test_the_policy_can_be_relaxed(self, project):
+        runner.invoke(app, ["scan", str(project)])
+        self.shrink(project)
+        (project / "rlens.yaml").write_text(
+            "scan:\n  include: ['.']\nverify:\n  treat_suspicious_as_regression: false\n",
+            encoding="utf-8",
+        )
+        result = runner.invoke(app, ["verify", str(project), "--no-report", "--fail-on-regression"])
+        assert result.exit_code == 0
+
+    def test_report_carries_both_sections(self, project):
+        runner.invoke(app, ["scan", str(project)])
+        self.shrink(project)
+        runner.invoke(app, ["verify", str(project)])
+        payload = json.loads(
+            next((project / "reports").glob("verify-*.json")).read_text(encoding="utf-8")
+        )
+        assert payload["goodhart"]["suspicious_count"] == 1
+        assert "calibration" in payload

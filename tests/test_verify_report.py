@@ -181,3 +181,120 @@ class TestFiles:
         json_path, _ = write_verify(improved, None, tmp_path)
         payload = json.loads(json_path.read_text(encoding="utf-8"))
         assert payload["predictions"] is None
+
+
+def with_interface(name="C", members=("a", "b"), **metrics):
+    payload = cls(name=name, **metrics)
+    payload["public_interface"] = {
+        "methods": list(members),
+        "attributes": [],
+        "accessors": [],
+        "size": len(members),
+    }
+    return payload
+
+
+class TestSuspiciousOutput:
+    """FINDINGS-1'in vakası rapora nasıl yansıyor."""
+
+    @pytest.fixture
+    def suspicious(self):
+        from rlens.verify import goodhart
+
+        before = report(with_interface(lcom4=4, members=("place", "get", "log")))
+        after = report(with_interface(lcom4=1, members=("place",)))
+        delta = diff_reports(before, after)
+        return delta, goodhart.detect(before, after, delta.entities)
+
+    def test_it_is_announced(self, suspicious):
+        delta, checks = suspicious
+        console = Console(width=120, no_color=True, record=True)
+        render_verify(delta, console, None, checks)
+        output = console.export_text()
+        assert "1 suspicious improvement(s)" in output
+        assert "public interface shrank" in output
+
+    def test_the_lost_members_are_named(self, suspicious):
+        delta, checks = suspicious
+        console = Console(width=120, no_color=True, record=True)
+        render_verify(delta, console, None, checks)
+        assert "get" in console.export_text()
+
+    def test_it_is_framed_as_a_question(self, suspicious):
+        """Ölü kod silmek de arayüzü küçültür; suçlama değil soru."""
+        delta, checks = suspicious
+        console = Console(width=120, no_color=True, record=True)
+        render_verify(delta, console, None, checks)
+        assert "question, not a verdict" in console.export_text()
+
+    def test_markdown_section(self, suspicious):
+        delta, checks = suspicious
+        markdown = verify_markdown(delta, None, checks)
+        assert "## Suspicious improvements" in markdown
+
+    def test_nothing_shown_when_clean(self):
+        from rlens.verify import goodhart
+
+        before = report(with_interface(lcom4=4))
+        after = report(with_interface(lcom4=1))
+        delta = diff_reports(before, after)
+        checks = goodhart.detect(before, after, delta.entities)
+        console = Console(width=120, no_color=True, record=True)
+        render_verify(delta, console, None, checks)
+        assert "suspicious" not in console.export_text()
+
+
+class TestCalibrationOutput:
+    @pytest.fixture
+    def calibration(self):
+        from rlens.verify.calibration import CalibrationPoint, calibrate
+
+        return calibrate(
+            [CalibrationPoint(0.9, False), CalibrationPoint(0.9, True)],
+            without_confidence=2,
+        )
+
+    def test_scores_are_printed(self, calibration, improved):
+        console = Console(width=120, no_color=True, record=True)
+        render_verify(improved, console, None, None, calibration)
+        output = console.export_text()
+        assert "Brier" in output and "ECE" in output
+
+    def test_bucket_table(self, calibration, improved):
+        console = Console(width=120, no_color=True, record=True)
+        render_verify(improved, console, None, None, calibration)
+        assert "Confidence calibration" in console.export_text()
+
+    def test_predictions_without_confidence_are_disclosed(self, calibration, improved):
+        console = Console(width=120, no_color=True, record=True)
+        render_verify(improved, console, None, None, calibration)
+        assert "without a confidence" in console.export_text()
+
+    def test_markdown_includes_the_table(self, calibration, improved):
+        markdown = verify_markdown(improved, None, None, calibration)
+        assert "## Confidence calibration" in markdown
+        assert "coin flip" in markdown
+
+    def test_nothing_shown_without_confidences(self, improved):
+        from rlens.verify.calibration import calibrate
+
+        console = Console(width=120, no_color=True, record=True)
+        render_verify(improved, console, None, None, calibrate([]))
+        assert "Brier" not in console.export_text()
+
+
+class TestSetDeltaOutput:
+    def test_resolved_violation_is_shown(self):
+        before = {
+            "schema_version": SCHEMA_VERSION,
+            "generated_at": "2026-01-01T00:00:00+00:00",
+            "violations": [{"code": "LV-DIR", "source": "a", "target": "b"}],
+            "modules": [{"module": "m", "path": "m.py", "classes": [cls()], "functions": []}],
+        }
+        after = dict(before, violations=[])
+        delta = diff_reports(before, after)
+        console = Console(width=120, no_color=True, record=True)
+        render_verify(delta, console)
+        output = console.export_text()
+        assert "Architecture and smells" in output
+        assert "LV-DIR a → b" in output

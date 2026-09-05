@@ -151,7 +151,9 @@ def latest_advice(output_dir: Path) -> Path | None:
     return found[-1] if found else None
 
 
-def write_verify(delta, predictions, output_dir: Path) -> tuple[Path, Path]:
+def write_verify(
+    delta, predictions, output_dir: Path, goodhart=None, calibration=None
+) -> tuple[Path, Path]:
     """Doğrulama sonucunu JSON ve Markdown olarak yazar.
 
     JSON, Faz 5 deneyinde birden fazla çalıştırmayı toplamak için gerekir;
@@ -176,13 +178,17 @@ def write_verify(delta, predictions, output_dir: Path) -> tuple[Path, Path]:
         "schema_version": SCHEMA_VERSION,
         "delta": delta.to_dict(),
         "predictions": None if predictions is None else predictions.to_dict(),
+        "goodhart": None if goodhart is None else goodhart.to_dict(),
+        "calibration": None if calibration is None else calibration.to_dict(),
     }
 
     try:
         json_path.write_text(
             json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
         )
-        markdown_path.write_text(verify_markdown(delta, predictions), encoding="utf-8")
+        markdown_path.write_text(
+            verify_markdown(delta, predictions, goodhart, calibration), encoding="utf-8"
+        )
     except OSError as exc:
         raise ReportError(f"Could not write verification report: {exc}") from exc
 

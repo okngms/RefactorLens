@@ -87,6 +87,18 @@ class TestConditions:
         after = report(cls(lcom4=1, dcc=9, interface=["a"]))
         assert analyse(before, after).any_suspicious is True
 
+    def test_renaming_a_member_is_not_suspicious(self):
+        """Bir üye gidip bir tane geldiyse hiçbir yetenek kaybolmamıştır."""
+        before = report(cls(lcom4=4, interface=["keep", "old_name"]))
+        after = report(cls(lcom4=1, interface=["keep", "new_name"]))
+        assert analyse(before, after).any_suspicious is False
+
+    def test_removing_more_than_is_added_is_still_caught(self):
+        """Beş metot silip bir tane eklemek net −4'tür."""
+        before = report(cls(lcom4=4, interface=["a", "b", "c", "d", "e"]))
+        after = report(cls(lcom4=1, interface=["z"]))
+        assert analyse(before, after).any_suspicious is True
+
     def test_growing_the_interface_is_never_suspicious(self):
         before = report(cls(lcom4=4, interface=["a"]))
         after = report(cls(lcom4=1, interface=["a", "b"]))

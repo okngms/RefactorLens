@@ -39,14 +39,22 @@ class SuspicionCheck:
     removed_public: tuple[str, ...] = ()
 
     @property
+    def net_loss(self) -> int:
+        """Kaybolan üye sayısı eksi eklenen. Yeniden adlandırma sıfır verir."""
+        return len(self.interface.removed) - len(self.interface.added)
+
+    @property
     def is_suspicious(self) -> bool:
-        """Metrikler iyileşirken public arayüz küçüldü mü?
+        """Metrikler iyileşirken public arayüz **net olarak** küçüldü mü?
 
         İki koşul birden aranır. Tek başına arayüz küçülmesi meşru olabilir
         (ölü kod silme); tek başına metrik iyileşmesi zaten istenen şeydir.
-        Birlikte olmaları soru işaretidir.
+
+        Net kayıp şartı yeniden adlandırmayı eler: `touch_b` gidip `touch_both`
+        geldiyse hiçbir yetenek kaybolmamıştır. Beş metot silip bir tane
+        eklemek ise hâlâ yakalanır (net −4).
         """
-        return self.metrics_improved and bool(self.removed_public)
+        return self.metrics_improved and self.net_loss > 0
 
     @property
     def reason(self) -> str:
@@ -65,6 +73,7 @@ class SuspicionCheck:
             "qualified_name": self.qualified_name,
             "suspicious": self.is_suspicious,
             "metrics_improved": self.metrics_improved,
+            "net_loss": self.net_loss,
             "interface": self.interface.to_dict(),
             "reason": self.reason,
         }
