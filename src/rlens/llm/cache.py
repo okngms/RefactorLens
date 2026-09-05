@@ -25,13 +25,22 @@ from pathlib import Path
 from rlens.config import CacheConfig
 
 
-def prompt_hash(provider: str, model: str | None, prompt: str) -> str:
+def prompt_hash(provider: str, model: str | None, prompt: str, salt: str = "") -> str:
     """Önbellek anahtarı ve rapora yazılan `prompt_hash`.
 
     Aynı değer deney kayıtlarında da kullanılır: iki koşunun aynı prompt'la
     yapıldığını kanıtlamanın tek yolu budur.
+
+    **`salt` neden var:** deney protokolü aynı soruyu n kez sormayı gerektirir.
+    Tuz olmadan her tekrar aynı anahtarı üretir, ikinci ve üçüncü çağrı
+    önbellekten döner ve **tekrarlar birbirinin kopyası olur**. Tutarlılık
+    ölçümü her yerde 1.0 çıkar, varyans görünmez, deney sessizce anlamsızlaşır.
+
+    Tuz normal kullanımda boştur; yalnızca deney betikleri tekrar numarasını
+    geçer. Böylece hem tekrarlar bağımsız kalır hem yarıda kalan koşu kaldığı
+    yerden devam edebilir.
     """
-    payload = "\n".join([provider, model or "", prompt])
+    payload = "\n".join([provider, model or "", prompt, salt])
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 

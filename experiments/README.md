@@ -89,6 +89,35 @@ table with its own numbers, but it is excluded from the overall accuracy: a
 refactoring that improves the metrics while breaking the code has not
 demonstrated anything about prediction quality.
 
+## Phase 5a (v2): the 2×2 condition matrix
+
+Two interventions, independently on and off:
+
+| Condition | arch-context | metric-rules | Tests |
+|---|---|---|---|
+| `plain` | off | off | baseline |
+| `arch` | on | off | H1 |
+| `rules` | off | on | H2 |
+| `arch_rules` | on | on | interaction |
+
+```bash
+python experiments/run_advice_v2.py --models openai/gpt-oss-120b --plan
+python experiments/run_advice_v2.py --models m1,m2,m3 --delay 8
+python experiments/analyse_advice_v2.py --out experiments/v2/analysis-advice.md
+```
+
+Four conditions × three models × three targets × three repetitions is 108 calls.
+Resumable: rerun the same command.
+
+**The cache is salted with the repetition number.** Without it, the prompt for
+`rep1` and `rep2` is byte-identical, the second call returns the first answer,
+and every consistency figure comes out at 1.0 — the experiment silently
+measures nothing. This was found by running the matrix with fake models before
+spending a single real call.
+
+`run_advice_v2.py` records the condition **inside** each file rather than
+relying on the directory name, so the data survives being moved.
+
 ## Layout
 
 ```
@@ -98,7 +127,10 @@ experiments/
 ├── analyse_advice.py       Part A analysis: compliance, consistency, profile
 ├── run_verify.py           Part B: prepare → (you edit) → measure → summarise
 ├── runs/                   Raw advice — committed, it is the data
-└── cases/                  Part B cases; project copies gitignored, diffs kept
+├── cases/                  Part B cases; project copies gitignored, diffs kept
+├── run_advice_v2.py        Phase 5a: 2×2 conditions
+├── analyse_advice_v2.py    Phase 5a analysis
+└── v2/runs/                Phase 5a raw data
 ```
 
 `runs/` is checked in deliberately. `FINDINGS.md` will make claims about model

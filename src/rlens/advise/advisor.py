@@ -467,6 +467,7 @@ def _generate(
     cache: ResponseCache | None,
     budget: Budget | None,
     label: str,
+    cache_salt: str = "",
 ) -> tuple[str, str, bool]:
     """Bir modeli çağırır; önbellek ve bütçeyi hesaba katar.
 
@@ -480,7 +481,10 @@ def _generate(
     Raises:
         BudgetExceeded: Çağrı sınırına ulaşıldıysa.
     """
-    key = prompt_hash(provider.name, config.provider.model, system + "\n" + user)
+    # `Provider` protokolü `name` ister; yokluğunda önbellek anahtarı yine
+    # üretilmeli, yoksa sözleşmeyi tam uygulamayan bir adapter çöker.
+    provider_name = getattr(provider, "name", config.provider.name)
+    key = prompt_hash(provider_name, config.provider.model, system + "\n" + user, cache_salt)
 
     if cache is not None:
         cached = cache.get(key)
@@ -510,6 +514,7 @@ def request_advice(
     budget: Budget | None = None,
     scheme=None,
     metric_rules: bool = False,
+    cache_salt: str = "",
 ) -> tuple[Advice, list[str]]:
     """Bir hedef için modelden öneri ister ve yanıtı doğrular.
 
@@ -524,7 +529,14 @@ def request_advice(
     user_prompt = build_user_prompt(context, scheme=scheme, metric_rules=metric_rules)
 
     raw, key, cached = _generate(
-        provider, SYSTEM_INSTRUCTION, user_prompt, config, cache, budget, target_name
+        provider,
+        SYSTEM_INSTRUCTION,
+        user_prompt,
+        config,
+        cache,
+        budget,
+        target_name,
+        cache_salt,
     )
 
     try:
@@ -549,6 +561,7 @@ def request_advice(
             cache,
             budget,
             f"{target_name} (repair)",
+            cache_salt,
         )
     except (ProviderError, BudgetExceeded):
         # Onarım bütçeye takılırsa ham metin yine saklanır; sessizce boş dönülmez.
