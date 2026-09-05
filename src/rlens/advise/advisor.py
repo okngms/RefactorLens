@@ -40,8 +40,10 @@ from rlens.llm.budget import Budget, BudgetExceeded
 from rlens.llm.cache import ResponseCache, prompt_hash
 from rlens.providers.base import Provider, ProviderError
 
-#: Metriğe bağlanmamış öneriler bu etiketi alır.
+#: Öneri durumları (SPEC §6). Hiçbir öneri silinmez; oranlar raporlanır.
+LINKED = "linked"
 UNLINKED = "unlinked"
+REJECTED = "rejected"
 
 #: Hiç ayrıştırılamayan yanıtlar bu etiketi alır.
 UNSTRUCTURED = "unstructured"
@@ -55,13 +57,23 @@ class AdviceParseError(Exception):
 
 @dataclass
 class ExpectedEffect:
-    """Modelin ölçülebilir tahmini: bir metrik, bir yön."""
+    """Modelin ölçülebilir tahmini: bir metrik, bir yön, opsiyonel güven."""
 
     metric: str
     direction: str
+    confidence: float | None = None
+    """0-1 arası öz-güven. **Opsiyoneldir ve yokluğu öneriyi düşürmez.**
 
-    def to_dict(self) -> dict[str, str]:
-        return {"metric": self.metric, "direction": self.direction}
+    Kalibrasyon ölçümü değerlidir, ama zorunlu tutmak veremeyeceği bir sayıyı
+    uyduran modellerle sonucu kirletir. `verify` yalnızca verilmiş güvenleri
+    Brier ve ECE hesabına katar."""
+
+    def to_dict(self) -> dict:
+        return {
+            "metric": self.metric,
+            "direction": self.direction,
+            "confidence": self.confidence,
+        }
 
 
 @dataclass
@@ -70,12 +82,31 @@ class Suggestion:
     rationale_metric_link: list[str] = field(default_factory=list)
     expected_effect: list[ExpectedEffect] = field(default_factory=list)
     sketch: str = ""
-    tags: list[str] = field(default_factory=list)
-    """`unlinked` gibi işaretler."""
+    status: str = LINKED
+    """`linked` / `unlinked` / `rejected`. Hiçbir öneri silinmez."""
+
+    addresses_smells: list[str] = field(default_factory=list)
+    target_layer_after: str | None = None
+    claims_constraints_respected: bool | None = None
+    """Modelin **beyanı**. Aracın kendi değerlendirmesiyle karşılaştırılır."""
+
+    constraint_agreement: bool | None = None
+    """Beyan ile araç değerlendirmesi uyuştu mu? 5a'nın ölçütlerinden biri."""
+
+    notes: list[str] = field(default_factory=list)
 
     @property
     def is_linked(self) -> bool:
         return bool(self.rationale_metric_link)
+
+    @property
+    def is_rejected(self) -> bool:
+        return self.status == REJECTED
+
+    @property
+    def tags(self) -> list[str]:
+        """Geriye uyumluluk: eski raporlar `tags` alanını okuyor."""
+        return [] if self.status == LINKED else [self.status]
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -83,7 +114,13 @@ class Suggestion:
             "rationale_metric_link": list(self.rationale_metric_link),
             "expected_effect": [effect.to_dict() for effect in self.expected_effect],
             "sketch": self.sketch,
-            "tags": list(self.tags),
+            "status": self.status,
+            "addresses_smells": list(self.addresses_smells),
+            "target_layer_after": self.target_layer_after,
+            "claims_constraints_respected": self.claims_constraints_respected,
+            "constraint_agreement": self.constraint_agreement,
+            "notes": list(self.notes),
+            "tags": self.tags,
         }
 
 
@@ -173,6 +210,26 @@ class AdviceDocument:
             if not suggestion.is_linked
         )
 
+    @property
+    def rejected_count(self) -> int:
+        """Katman kurallarını çiğnediği için reddedilen öneri sayısı."""
+        return sum(
+            1
+            for advice in self.advices
+            for suggestion in advice.suggestions
+            if suggestion.is_rejected
+        )
+
+    @property
+    def constraint_disagreements(self) -> int:
+        """Modelin kısıt beyanının araç değerlendirmesiyle çeliştiği durumlar."""
+        return sum(
+            1
+            for advice in self.advices
+            for suggestion in advice.suggestions
+            if suggestion.constraint_agreement is False
+        )
+
 
 def strip_code_fences(text: str) -> str:
     """Modelin JSON'u markdown çitiyle sarmasını tolere eder."""
@@ -233,7 +290,20 @@ def _validate_effects(raw: Any, errors: list[str]) -> list[ExpectedEffect]:
         if direction not in VALID_DIRECTIONS:
             errors.append(f"invalid direction for {metric}: {direction or '(empty)'}")
             continue
-        effects.append(ExpectedEffect(metric=metric, direction=direction))
+
+        confidence = item.get("confidence")
+        if confidence is not None:
+            try:
+                confidence = float(confidence)
+            except (TypeError, ValueError):
+                errors.append(f"non-numeric confidence for {metric}")
+                confidence = None
+            else:
+                if not 0.0 <= confidence <= 1.0:
+                    errors.append(f"confidence for {metric} outside 0-1: {confidence}")
+                    confidence = None
+
+        effects.append(ExpectedEffect(metric=metric, direction=direction, confidence=confidence))
     return effects
 
 
@@ -244,7 +314,70 @@ def _validate_links(raw: Any) -> list[str]:
     return [str(item).strip().upper() for item in raw if str(item).strip().upper() in VALID_METRICS]
 
 
-def parse_advice(raw_reply: str, target: str) -> tuple[Advice, list[str]]:
+def validate_constraints(
+    raw: dict, advice_target, scheme
+) -> tuple[str | None, bool | None, list[str]]:
+    """Öneriyi katman kurallarına karşı **bağımsız** denetler.
+
+    Modelin `constraints_respected: true` demesi yeterli değildir: beyan da bir
+    çıktıdır ve yanlış olabilir. Araç kendi değerlendirmesini yapar ve
+    uyuşmazlığı ayrıca sayar — 5a'nın ölçütlerinden biri budur.
+
+    Araç tarafı denetim bilinçli olarak **dar** tutulmuştur: taslak metninden
+    hangi importların ekleneceğini çıkarmak güvenilir değildir. Yalnızca
+    doğrulanabilir olan denetlenir.
+
+    Returns:
+        (reddetme nedeni ya da None, beyanla uyuşma ya da None, notlar)
+    """
+    notes: list[str] = []
+    claim = raw.get("constraints_respected")
+    claim = bool(claim) if isinstance(claim, bool) else None
+
+    destination = raw.get("target_layer_after")
+    destination = str(destination).strip() if destination else None
+
+    tool_verdict: bool | None = None
+    reason: str | None = None
+
+    if scheme is not None and destination:
+        if destination not in scheme.layers:
+            tool_verdict = False
+            reason = (
+                f"target_layer_after `{destination}` is not a layer in this project "
+                f"({', '.join(scheme.layers)})"
+            )
+        else:
+            tool_verdict = True
+
+    if claim is False:
+        tool_verdict = False
+        reason = reason or "the model states the suggestion breaks the layer rules"
+
+    agreement = None if claim is None or tool_verdict is None else claim == tool_verdict
+    if agreement is False:
+        notes.append(f"the model claims constraints_respected={claim} but the tool disagrees")
+
+    if advice_target is not None:
+        known = set(advice_target.smell_labels)
+        claimed = [str(s) for s in raw.get("addresses_smells", []) if str(s)]
+        unknown = [s for s in claimed if s not in known]
+        if unknown:
+            notes.append(
+                f"addresses_smells names labels the target does not carry: "
+                f"{', '.join(sorted(unknown))}"
+            )
+
+    return reason, agreement, notes
+
+
+def parse_advice(
+    raw_reply: str,
+    target: str,
+    *,
+    advice_target=None,
+    scheme=None,
+) -> tuple[Advice, list[str]]:
     """Ham yanıtı `Advice` nesnesine çevirir.
 
     Returns:
@@ -275,14 +408,36 @@ def parse_advice(raw_reply: str, target: str) -> tuple[Advice, list[str]]:
             continue
         links = _validate_links(item.get("rationale_metric_link"))
         effects = _validate_effects(item.get("expected_effect"), warnings)
-        tags = [] if links else [UNLINKED]
+        reason, agreement, notes = validate_constraints(item, advice_target, scheme)
+
+        if reason:
+            status = REJECTED
+            notes.insert(0, reason)
+        elif links:
+            status = LINKED
+        else:
+            status = UNLINKED
+
         suggestions.append(
             Suggestion(
                 title=str(item.get("title", "")).strip() or "(untitled)",
                 rationale_metric_link=links,
                 expected_effect=effects,
                 sketch=str(item.get("sketch", "")).strip(),
-                tags=tags,
+                status=status,
+                addresses_smells=[str(s) for s in item.get("addresses_smells", []) if str(s)],
+                target_layer_after=(
+                    str(item["target_layer_after"]).strip()
+                    if item.get("target_layer_after")
+                    else None
+                ),
+                claims_constraints_respected=(
+                    item["constraints_respected"]
+                    if isinstance(item.get("constraints_respected"), bool)
+                    else None
+                ),
+                constraint_agreement=agreement,
+                notes=notes,
             )
         )
 
@@ -353,6 +508,8 @@ def request_advice(
     *,
     cache: ResponseCache | None = None,
     budget: Budget | None = None,
+    scheme=None,
+    metric_rules: bool = False,
 ) -> tuple[Advice, list[str]]:
     """Bir hedef için modelden öneri ister ve yanıtı doğrular.
 
@@ -364,14 +521,16 @@ def request_advice(
         ProviderError: Ağ, yetki veya yapılandırma sorunlarında.
     """
     target_name = context.target.qualified_name
-    user_prompt = build_user_prompt(context)
+    user_prompt = build_user_prompt(context, scheme=scheme, metric_rules=metric_rules)
 
     raw, key, cached = _generate(
         provider, SYSTEM_INSTRUCTION, user_prompt, config, cache, budget, target_name
     )
 
     try:
-        advice, warnings = parse_advice(raw, target_name)
+        advice, warnings = parse_advice(
+            raw, target_name, advice_target=context.target, scheme=scheme
+        )
         advice.truncation_notes = list(context.truncation_notes)
         advice.prompt_hash = key
         advice.from_cache = cached
@@ -397,7 +556,9 @@ def request_advice(
 
     if repaired_raw:
         try:
-            advice, warnings = parse_advice(repaired_raw, target_name)
+            advice, warnings = parse_advice(
+                repaired_raw, target_name, advice_target=context.target, scheme=scheme
+            )
             advice.repaired = True
             advice.truncation_notes = list(context.truncation_notes)
             advice.prompt_hash = key

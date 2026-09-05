@@ -33,13 +33,20 @@ _DIRECTION_MARKS = {"down": "↓", "up": "↑", "same": "="}
 
 
 def _effects_line(advice_suggestion) -> str:
-    """`LCOM4 ↓  DCC ↑` biçiminde tek satırlık tahmin özeti."""
+    """`LCOM4 ↓ 0.8   DCC ↑` biçiminde tahmin özeti.
+
+    Güven varsa gösterilir; yoksa gösterilmez. Eksik güven bir kusur değildir.
+    """
     if not advice_suggestion.expected_effect:
         return "(no prediction)"
-    return "  ".join(
-        f"{effect.metric} {_DIRECTION_MARKS.get(effect.direction, effect.direction)}"
-        for effect in advice_suggestion.expected_effect
-    )
+    parts = []
+    for effect in advice_suggestion.expected_effect:
+        mark = _DIRECTION_MARKS.get(effect.direction, effect.direction)
+        text = f"{effect.metric} {mark}"
+        if effect.confidence is not None:
+            text += f" {effect.confidence:.2f}"
+        parts.append(text)
+    return "   ".join(parts)
 
 
 def render_advice(document: AdviceDocument, console: Console) -> None:
@@ -67,11 +74,22 @@ def render_advice(document: AdviceDocument, console: Console) -> None:
 
         for index, suggestion in enumerate(advice.suggestions, start=1):
             console.print()
-            marker = "" if suggestion.is_linked else " [yellow](unlinked)[/yellow]"
+            if suggestion.is_rejected:
+                marker = " [red](rejected)[/red]"
+            elif not suggestion.is_linked:
+                marker = " [yellow](unlinked)[/yellow]"
+            else:
+                marker = ""
             console.print(f"  [bold]{index}. {_safe(suggestion.title)}[/bold]{marker}")
             if suggestion.rationale_metric_link:
                 console.print(f"     evidence: {', '.join(suggestion.rationale_metric_link)}")
             console.print(f"     predicts: {_effects_line(suggestion)}")
+            if suggestion.target_layer_after:
+                console.print(f"     destination layer: {suggestion.target_layer_after}")
+            if suggestion.addresses_smells:
+                console.print(f"     addresses: {', '.join(suggestion.addresses_smells)}")
+            for note in suggestion.notes:
+                console.print(f"     [yellow]![/] {_safe(note)}")
             if suggestion.sketch:
                 console.print(f"     [dim]{_safe(suggestion.sketch)}[/dim]")
 
@@ -96,7 +114,14 @@ def render_advice(document: AdviceDocument, console: Console) -> None:
     )
     if document.unlinked_count:
         summary += f", {document.unlinked_count} not linked to any metric"
+    if document.rejected_count:
+        summary += f", {document.rejected_count} rejected"
     console.print(summary)
+    if document.constraint_disagreements:
+        console.print(
+            f"[yellow]{document.constraint_disagreements} suggestion(s) claim to "
+            f"respect the layer rules but do not.[/]"
+        )
 
 
 def _advice_markdown(advice: Advice) -> list[str]:
@@ -118,7 +143,12 @@ def _advice_markdown(advice: Advice) -> list[str]:
         lines += [advice.diagnosis, ""]
 
     for index, suggestion in enumerate(advice.suggestions, start=1):
-        flag = "" if suggestion.is_linked else "  _(not linked to any metric)_"
+        if suggestion.is_rejected:
+            flag = "  _(rejected: breaks the layer rules)_"
+        elif not suggestion.is_linked:
+            flag = "  _(not linked to any metric)_"
+        else:
+            flag = ""
         lines.append(f"### {index}. {suggestion.title}{flag}")
         lines.append("")
         if suggestion.rationale_metric_link:
@@ -127,7 +157,9 @@ def _advice_markdown(advice: Advice) -> list[str]:
             # Predicted effect: ..." tek satır halinde yapışırdı.
             lines.append(f"- **Evidence:** {', '.join(suggestion.rationale_metric_link)}")
         predictions = ", ".join(
-            f"{effect.metric} {effect.direction}" for effect in suggestion.expected_effect
+            f"{effect.metric} {effect.direction}"
+            + (f" ({effect.confidence:.2f})" if effect.confidence is not None else "")
+            for effect in suggestion.expected_effect
         )
         lines.append(f"- **Predicted effect:** {predictions or 'none stated'}")
         lines.append("")

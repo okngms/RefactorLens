@@ -10,8 +10,11 @@ from pathlib import Path
 import pytest
 
 from rlens.advise.advisor import (
+    LINKED,
+    REJECTED,
     UNLINKED,
     UNSTRUCTURED,
+    Advice,
     AdviceParseError,
     ExpectedEffect,
     extract_json_object,
@@ -139,7 +142,7 @@ class TestParseAdvice:
         payload = json.loads(json.dumps(VALID_REPLY))
         payload["suggestions"][0]["rationale_metric_link"] = []
         advice, _ = parse_advice(json.dumps(payload), "t")
-        assert advice.suggestions[0].tags == [UNLINKED]
+        assert advice.suggestions[0].status == UNLINKED
         assert advice.suggestions[0].is_linked is False
 
     def test_unknown_metric_in_link_is_dropped(self):
@@ -365,3 +368,156 @@ class TestBudgetIntegration:
         advice, _ = request_advice(provider, context, config, budget=tight)
         assert advice.tags == [UNSTRUCTURED]
         assert advice.raw_reply == "not json at all"
+
+
+class TestConfidence:
+    """Opsiyoneldir; yokluğu öneriyi düşürmez."""
+
+    def _reply(self, effect):
+        payload = json.loads(json.dumps(VALID_REPLY))
+        payload["suggestions"][0]["expected_effect"] = [effect]
+        return json.dumps(payload)
+
+    def test_confidence_is_parsed(self):
+        advice, _ = parse_advice(
+            self._reply({"metric": "LCOM4", "direction": "down", "confidence": 0.8}), "t"
+        )
+        assert advice.suggestions[0].expected_effect[0].confidence == 0.8
+
+    def test_missing_confidence_is_none_not_zero(self):
+        """Sıfır 'hiç emin değilim' demek olurdu; doğrusu 'söylemedi'."""
+        advice, _ = parse_advice(self._reply({"metric": "LCOM4", "direction": "down"}), "t")
+        assert advice.suggestions[0].expected_effect[0].confidence is None
+
+    def test_missing_confidence_keeps_the_prediction(self):
+        advice, _ = parse_advice(self._reply({"metric": "LCOM4", "direction": "down"}), "t")
+        assert len(advice.suggestions[0].expected_effect) == 1
+
+    def test_out_of_range_confidence_is_dropped_and_reported(self):
+        advice, warnings = parse_advice(
+            self._reply({"metric": "LCOM4", "direction": "down", "confidence": 1.7}), "t"
+        )
+        assert advice.suggestions[0].expected_effect[0].confidence is None
+        assert any("outside 0-1" in w for w in warnings)
+
+    def test_non_numeric_confidence_is_dropped(self):
+        advice, warnings = parse_advice(
+            self._reply({"metric": "LCOM4", "direction": "down", "confidence": "high"}),
+            "t",
+        )
+        assert advice.suggestions[0].expected_effect[0].confidence is None
+        assert any("non-numeric" in w for w in warnings)
+
+    def test_serialisation_keeps_it(self):
+        advice, _ = parse_advice(
+            self._reply({"metric": "LCOM4", "direction": "down", "confidence": 0.6}), "t"
+        )
+        assert advice.to_dict()["suggestions"][0]["expected_effect"][0]["confidence"] == 0.6
+
+
+class TestConstraintValidation:
+    """Modelin beyanı bir çıktıdır; araç kendi kontrolünü yapar."""
+
+    @pytest.fixture
+    def scheme(self, context_and_config):
+        _, config = context_and_config
+        return config.arch.scheme
+
+    def _reply(self, **fields):
+        payload = json.loads(json.dumps(VALID_REPLY))
+        payload["suggestions"][0].update(fields)
+        return json.dumps(payload)
+
+    def test_valid_destination_layer_is_accepted(self, scheme):
+        advice, _ = parse_advice(
+            self._reply(target_layer_after="domain", constraints_respected=True),
+            "t",
+            scheme=scheme,
+        )
+        suggestion = advice.suggestions[0]
+        assert suggestion.status == LINKED
+        assert suggestion.constraint_agreement is True
+
+    def test_unknown_destination_layer_is_rejected(self, scheme):
+        advice, _ = parse_advice(
+            self._reply(target_layer_after="persistence", constraints_respected=True),
+            "t",
+            scheme=scheme,
+        )
+        assert advice.suggestions[0].status == REJECTED
+
+    def test_disagreement_is_recorded(self, scheme):
+        """5a'nın ölçütlerinden biri: beyan ile gerçek arasındaki fark."""
+        advice, _ = parse_advice(
+            self._reply(target_layer_after="persistence", constraints_respected=True),
+            "t",
+            scheme=scheme,
+        )
+        suggestion = advice.suggestions[0]
+        assert suggestion.constraint_agreement is False
+        assert any("disagrees" in note for note in suggestion.notes)
+
+    def test_model_admitting_a_violation_is_rejected(self, scheme):
+        advice, _ = parse_advice(self._reply(constraints_respected=False), "t", scheme=scheme)
+        assert advice.suggestions[0].status == REJECTED
+
+    def test_admitting_is_not_a_disagreement(self, scheme):
+        advice, _ = parse_advice(self._reply(constraints_respected=False), "t", scheme=scheme)
+        assert advice.suggestions[0].constraint_agreement is True
+
+    def test_rejected_suggestions_are_kept(self, scheme):
+        """Hiçbir öneri silinmez; oranlar raporlanır."""
+        advice, _ = parse_advice(self._reply(target_layer_after="nowhere"), "t", scheme=scheme)
+        assert len(advice.suggestions) == 1
+
+    def test_no_scheme_means_no_layer_judgment(self):
+        advice, _ = parse_advice(self._reply(target_layer_after="persistence"), "t")
+        assert advice.suggestions[0].status == LINKED
+
+    def test_unknown_smell_labels_are_reported(self, context_and_config):
+        context, config = context_and_config
+        advice, _ = parse_advice(
+            self._reply(addresses_smells=["god_class", "shotgun_surgery"]),
+            "t",
+            advice_target=context.target,
+            scheme=config.arch.scheme,
+        )
+        assert any("does not carry" in note for note in advice.suggestions[0].notes)
+
+    def test_unknown_smell_labels_do_not_reject(self, context_and_config):
+        """Yanlış etiket bir hatadır ama öneriyi geçersiz kılmaz."""
+        context, config = context_and_config
+        advice, _ = parse_advice(
+            self._reply(addresses_smells=["shotgun_surgery"]),
+            "t",
+            advice_target=context.target,
+            scheme=config.arch.scheme,
+        )
+        assert advice.suggestions[0].status == LINKED
+
+
+class TestDocumentCounters:
+    def test_rejected_and_disagreement_counts(self):
+        from rlens.advise.advisor import AdviceDocument, Suggestion
+
+        document = AdviceDocument(
+            root="/tmp",
+            generated_at="2026-01-01T00:00:00+00:00",
+            rlens_version="1.0.0",
+            provider="fake",
+            model="m",
+            temperature=0.2,
+            advices=[
+                Advice(
+                    target="m:C",
+                    suggestions=[
+                        Suggestion(title="a", status=REJECTED, constraint_agreement=False),
+                        Suggestion(title="b", status=UNLINKED),
+                        Suggestion(title="c", rationale_metric_link=["NOM"]),
+                    ],
+                )
+            ],
+        )
+        assert document.rejected_count == 1
+        assert document.unlinked_count == 2
+        assert document.constraint_disagreements == 1

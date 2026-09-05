@@ -260,6 +260,20 @@ def advise(
         bool,
         typer.Option("--no-report", help="Skip the report files and only print to the terminal."),
     ] = False,
+    no_arch_context: Annotated[
+        bool,
+        typer.Option(
+            "--no-arch-context",
+            help="Drop the architectural context block from the prompt (A/B).",
+        ),
+    ] = False,
+    metric_rules: Annotated[
+        bool,
+        typer.Option(
+            "--metric-rules",
+            help="Add the metric computation rules to the prompt (A/B).",
+        ),
+    ] = False,
     no_cache: Annotated[
         bool,
         typer.Option("--no-cache", help="Ignore the response cache and always call."),
@@ -311,11 +325,15 @@ def advise(
     if not contexts:
         raise _fail("None of the selected targets could be located in the source.")
 
+    # Mimari bağlam yalnızca katmanlar biliniyorsa anlamlıdır; bilinmiyorsa
+    # blok zaten üretilmez (bkz. prompts.format_architecture).
+    scheme = None if no_arch_context or cfg.arch is None else cfg.arch.scheme
+
     cache = _build_cache(cfg, path, disabled=no_cache)
     budget = Budget(cfg.budget)
 
     if dry_run:
-        _render_dry_run_summary(contexts, cfg, cache, budget)
+        _render_dry_run_summary(contexts, cfg, cache, budget, scheme, metric_rules)
         for context in contexts:
             console.print(f"\n[bold cyan]{context.target.qualified_name}[/bold cyan]")
             console.print(f"[dim]~{context.estimated_tokens} tokens[/dim]\n")
@@ -326,7 +344,11 @@ def advise(
             console.print("[dim]--- system ---[/dim]")
             console.print(SYSTEM_INSTRUCTION, markup=False, highlight=False)
             console.print("[dim]--- user ---[/dim]")
-            console.print(build_user_prompt(context), markup=False, highlight=False)
+            console.print(
+                build_user_prompt(context, scheme=scheme, metric_rules=metric_rules),
+                markup=False,
+                highlight=False,
+            )
         return
 
     # `.env` yalnızca gerçekten çağrı yapılacaksa okunur; --dry-run anahtarsız çalışır.
@@ -527,7 +549,9 @@ def _build_cache(cfg, path: Path, *, disabled: bool) -> ResponseCache:
     return ResponseCache(cache_config)
 
 
-def _render_dry_run_summary(contexts, cfg, cache: ResponseCache, budget: Budget) -> None:
+def _render_dry_run_summary(
+    contexts, cfg, cache: ResponseCache, budget: Budget, scheme=None, metric_rules=False
+) -> None:
     """`--dry-run` özeti: kaç çağrı gerekecek, kaçı önbellekte hazır.
 
     Ağa çıkmadan maliyet tahmini verir — deney planlamanın en sık ihtiyacı.
@@ -538,7 +562,9 @@ def _render_dry_run_summary(contexts, cfg, cache: ResponseCache, budget: Budget)
         key = prompt_hash(
             cfg.provider.name,
             cfg.provider.model,
-            SYSTEM_INSTRUCTION + "\n" + build_user_prompt(context),
+            SYSTEM_INSTRUCTION
+            + "\n"
+            + build_user_prompt(context, scheme=scheme, metric_rules=metric_rules),
         )
         if cache.get(key) is not None:
             cached += 1

@@ -439,3 +439,47 @@ class TestArchCommand:
     def test_bad_config_exits_one(self, tmp_path):
         (tmp_path / "rlens.yaml").write_text("advise:\n  top_n: 0\n", encoding="utf-8")
         assert runner.invoke(app, ["arch", str(tmp_path)]).exit_code == 1
+
+
+class TestAdviseArchFlags:
+    """5a ve 5b'nin A/B eksenleri."""
+
+    @pytest.fixture
+    def layered(self):
+        return str(Path(__file__).resolve().parent.parent / "examples" / "layered_project")
+
+    def test_context_block_is_present_by_default(self, layered):
+        output = runner.invoke(app, ["advise", layered, "--dry-run", "--top-n", "1"]).output
+        assert "Architectural context" in output
+        assert "Target layer: application" in output
+
+    def test_no_arch_context_drops_it(self, layered):
+        output = runner.invoke(
+            app, ["advise", layered, "--dry-run", "--top-n", "1", "--no-arch-context"]
+        ).output
+        assert "Architectural context" not in output
+
+    def test_metric_rules_are_off_by_default(self, layered):
+        output = runner.invoke(app, ["advise", layered, "--dry-run", "--top-n", "1"]).output
+        assert "How these metrics are computed" not in output
+
+    def test_metric_rules_can_be_added(self, layered):
+        output = runner.invoke(
+            app, ["advise", layered, "--dry-run", "--top-n", "1", "--metric-rules"]
+        ).output
+        assert "How these metrics are computed" in output
+        assert "on this entity alone" in output
+
+    def test_thresholds_stay_hidden_in_every_combination(self, layered):
+        """Değişmez: hangi bayrak açık olursa olsun eşik sayısı sızmaz."""
+        for flags in ([], ["--metric-rules"], ["--no-arch-context", "--metric-rules"]):
+            output = runner.invoke(
+                app, ["advise", layered, "--dry-run", "--top-n", "1", *flags]
+            ).output
+            evidence = output.split("Code:")[0]
+            assert "deliberately not shown" in evidence
+            assert "lcom4: 2" not in evidence
+
+    def test_smell_labels_reach_the_prompt(self, layered):
+        output = runner.invoke(app, ["advise", layered, "--dry-run", "--top-n", "1"]).output
+        assert "god_class" in output

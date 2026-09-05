@@ -5,6 +5,8 @@ import json
 from rich.console import Console
 
 from rlens.advise.advisor import (
+    REJECTED,
+    UNLINKED,
     UNSTRUCTURED,
     Advice,
     AdviceDocument,
@@ -76,7 +78,7 @@ class TestTerminal:
     def test_unlinked_suggestion_is_marked(self):
         advice = Advice(
             target="m:C",
-            suggestions=[Suggestion(title="Cosmetic tidy-up")],
+            suggestions=[Suggestion(title="Cosmetic tidy-up", status=UNLINKED)],
         )
         text = render_to_text(make_document(advice))
         assert "unlinked" in text
@@ -181,7 +183,10 @@ class TestFiles:
         json_path, _ = write_advice(make_document(linked_advice()), tmp_path)
         payload = json.loads(json_path.read_text(encoding="utf-8"))
         effect = payload["advices"][0]["suggestions"][0]["expected_effect"][0]
-        assert effect == {"metric": "LCOM4", "direction": "down"}
+        assert effect["metric"] == "LCOM4"
+        assert effect["direction"] == "down"
+        # `confidence` v2'de eklendi; verilmediyse null kalır ve öneri düşmez.
+        assert effect["confidence"] is None
 
     def test_provider_settings_are_recorded(self, tmp_path):
         """Faz 5 'hangi model, hangi ayarla' sorusuna cevap verebilmeli."""
@@ -222,7 +227,7 @@ class TestCounts:
     def test_suggestion_and_unlinked_counts(self):
         document = make_document(
             linked_advice(),
-            Advice(target="m:C", suggestions=[Suggestion(title="Tidy")]),
+            Advice(target="m:C", suggestions=[Suggestion(title="Tidy", status=UNLINKED)]),
         )
         assert document.suggestion_count == 2
         assert document.unlinked_count == 1
@@ -282,3 +287,82 @@ class TestMarkupSafety:
         markdown = advice_markdown(make_document(advice))
         assert "items[0]" in markdown
         assert "\\[" not in markdown
+
+
+class TestStatusAndConfidence:
+    def test_rejected_suggestion_is_marked(self):
+        advice = Advice(
+            target="m:C",
+            suggestions=[Suggestion(title="Move it", status=REJECTED, notes=["unknown layer"])],
+        )
+        text = render_to_text(make_document(advice))
+        assert "rejected" in text
+        assert "unknown layer" in text
+
+    def test_confidence_is_shown_when_given(self):
+        advice = Advice(
+            target="m:C",
+            suggestions=[
+                Suggestion(
+                    title="X",
+                    rationale_metric_link=["LCOM4"],
+                    expected_effect=[ExpectedEffect("LCOM4", "down", 0.75)],
+                )
+            ],
+        )
+        assert "0.75" in render_to_text(make_document(advice))
+
+    def test_missing_confidence_is_not_shown_as_zero(self):
+        advice = Advice(
+            target="m:C",
+            suggestions=[
+                Suggestion(
+                    title="X",
+                    rationale_metric_link=["LCOM4"],
+                    expected_effect=[ExpectedEffect("LCOM4", "down")],
+                )
+            ],
+        )
+        text = render_to_text(make_document(advice))
+        assert "LCOM4" in text
+        assert "0.00" not in text
+
+    def test_destination_layer_is_shown(self):
+        advice = Advice(
+            target="m:C",
+            suggestions=[
+                Suggestion(
+                    title="X",
+                    rationale_metric_link=["DCC"],
+                    target_layer_after="domain",
+                )
+            ],
+        )
+        assert "destination layer: domain" in render_to_text(make_document(advice))
+
+    def test_disagreement_is_surfaced_in_the_summary(self):
+        advice = Advice(
+            target="m:C",
+            suggestions=[
+                Suggestion(
+                    title="X",
+                    rationale_metric_link=["DCC"],
+                    constraint_agreement=False,
+                )
+            ],
+        )
+        text = render_to_text(make_document(advice))
+        assert "claim to respect the layer rules but do not" in text
+
+    def test_markdown_shows_confidence(self):
+        advice = Advice(
+            target="m:C",
+            suggestions=[
+                Suggestion(
+                    title="X",
+                    rationale_metric_link=["LCOM4"],
+                    expected_effect=[ExpectedEffect("LCOM4", "down", 0.9)],
+                )
+            ],
+        )
+        assert "LCOM4 down (0.90)" in advice_markdown(make_document(advice))
