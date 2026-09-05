@@ -9,6 +9,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "experiments"))
 
@@ -21,7 +23,14 @@ from analyse_advice_v2 import (  # noqa: E402
     ratio,
     smell_addressing,
 )
-from run_advice_v2 import CONDITIONS, output_path, plan, slug  # noqa: E402
+from run_advice_v2 import (  # noqa: E402
+    CONDITIONS,
+    DEFAULT_TARGETS,
+    output_path,
+    plan,
+    prepare_contexts,
+    slug,
+)
 
 LAYERED = REPO_ROOT / "examples" / "layered_project"
 
@@ -48,6 +57,63 @@ class TestConditionMatrix:
     def test_rules_flag_matches_the_name(self):
         assert CONDITIONS["rules"][1] is True
         assert CONDITIONS["arch_rules"] == (True, True)
+
+
+class TestFixedTargets:
+    """Hedefler protokolde sabittir, seçiciye bırakılmaz."""
+
+    def test_three_targets(self):
+        assert len(DEFAULT_TARGETS) == 3
+
+    def test_they_span_three_layers(self):
+        from rlens.advise.selector import target_for
+        from rlens.analysis.scanner import scan_project
+        from rlens.config import load_config
+
+        config = load_config(search_from=LAYERED)
+        report = scan_project(LAYERED, config)
+        layers = {target_for(report, config, name).layer for name in DEFAULT_TARGETS}
+        assert layers == {"application", "domain", "presentation"}
+
+    def test_each_carries_a_distinct_smell(self):
+        from rlens.advise.selector import target_for
+        from rlens.analysis.scanner import scan_project
+        from rlens.config import load_config
+
+        config = load_config(search_from=LAYERED)
+        report = scan_project(LAYERED, config)
+        labels = {name: target_for(report, config, name).smell_labels for name in DEFAULT_TARGETS}
+        assert "god_class" in labels["src.services.order_service:OrderService"]
+        assert "data_class" in labels["src.domain.entities:Customer"]
+        assert "feature_envy_candidate" in labels["src.api.report_view:ReportView"]
+
+    def test_only_one_carries_a_violation(self):
+        """Mimari bağlamın fark yaratabileceği tek hedef."""
+        from rlens.advise.selector import target_for
+        from rlens.analysis.scanner import scan_project
+        from rlens.config import load_config
+
+        config = load_config(search_from=LAYERED)
+        report = scan_project(LAYERED, config)
+        with_violations = [
+            name for name in DEFAULT_TARGETS if target_for(report, config, name).violations
+        ]
+        assert with_violations == ["src.api.report_view:ReportView"]
+
+    def test_a_typo_fails_before_any_call(self):
+        """36 çağrıyı eksik hedefle yapmak pahalıdır."""
+        from rlens.config import load_config
+
+        with pytest.raises(SystemExit) as error:
+            prepare_contexts(LAYERED, load_config(search_from=LAYERED), ("nope:Ghost",))
+        assert "Target not found" in str(error.value)
+
+    def test_the_error_lists_what_is_available(self):
+        from rlens.config import load_config
+
+        with pytest.raises(SystemExit) as error:
+            prepare_contexts(LAYERED, load_config(search_from=LAYERED), ("nope:Ghost",))
+        assert "src.domain.entities:Customer" in str(error.value)
 
 
 class TestPaths:

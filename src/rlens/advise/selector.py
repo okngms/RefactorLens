@@ -186,3 +186,72 @@ def select_targets(
     """
     limit = top_n if top_n is not None else config.advise.top_n
     return rank_targets(collect_targets(report, config))[:limit]
+
+
+def target_for(report: ProjectReport, config: Config, qualified_name: str) -> AdviceTarget | None:
+    """Adı verilen sınıf veya fonksiyon için hedef kurar.
+
+    `collect_targets` yalnızca eşik aşan öğeleri döndürür — `advise` için doğru
+    davranış budur, sorunsuz koda öneri istemek gürültü üretir.
+
+    Deney farklı bir şey ister: hedefler **önceden sabitlenmiş** olmalıdır.
+    Seçiciye bırakılırsa hedef kümesi eşiklere, eşikler config'e bağlı kalır;
+    biri bir eşiği değiştirdiğinde deneyin hedefleri sessizce değişir ve
+    toplanan veri karşılaştırılamaz hale gelir.
+
+    Bu yüzden eşik aşmayan bir öğe de hedef olabilir. `threshold_flags` yine
+    doldurulur; boş olması bir sorun değil, bir bilgidir.
+    """
+    module_violations: dict[str, list[dict]] = {}
+    for violation in report.violations:
+        key = violation.get("source", "").split(":")[0]
+        module_violations.setdefault(key, []).append(violation)
+
+    for module in report.modules:
+        related = module_violations.get(module.module, [])
+
+        for cls in module.classes:
+            if f"{module.module}:{cls.name}" != qualified_name:
+                continue
+            flags = class_violations(cls, config)
+            return AdviceTarget(
+                kind="class",
+                module=module.module,
+                name=cls.name,
+                lineno=cls.lineno,
+                threshold_flags=flags,
+                metrics=_class_metrics(cls),
+                score=score_violations(flags),
+                layer=cls.layer,
+                layer_source=cls.layer_source,
+                layer_confidence=cls.layer_confidence,
+                smells=list(cls.smells),
+                violations=list(related),
+            )
+
+        for function in module.functions:
+            if f"{module.module}:{function.name}" != qualified_name:
+                continue
+            flags = function_violations(function, config)
+            return AdviceTarget(
+                kind="function",
+                module=module.module,
+                name=function.name,
+                lineno=function.lineno,
+                threshold_flags=flags,
+                metrics=_function_metrics(function),
+                score=score_violations(flags),
+                layer=module.layer,
+                smells=[s for s in module.smells if s["target"].endswith(f".{function.name}")],
+                violations=list(related),
+            )
+    return None
+
+
+def available_targets(report: ProjectReport) -> list[str]:
+    """Projede hedef olabilecek tüm nitelikli adlar. Hata mesajları için."""
+    names = []
+    for module in report.modules:
+        names += [f"{module.module}:{cls.name}" for cls in module.classes]
+        names += [f"{module.module}:{fn.name}" for fn in module.functions]
+    return sorted(names)

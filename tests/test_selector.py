@@ -5,10 +5,12 @@ from pathlib import Path
 import pytest
 
 from rlens.advise.selector import (
+    available_targets,
     collect_targets,
     rank_targets,
     score_violations,
     select_targets,
+    target_for,
 )
 from rlens.analysis.model import ClassReport, ModuleReport, ProjectReport
 from rlens.analysis.scanner import scan_project
@@ -125,3 +127,50 @@ class TestLimit:
     def test_limit_larger_than_available(self, messy):
         report, cfg = messy
         assert len(select_targets(report, cfg, top_n=999)) == len(collect_targets(report, cfg))
+
+
+class TestExplicitTargets:
+    """Deney hedefleri seçiciye değil protokole aittir."""
+
+    def test_a_named_class_is_found(self, messy):
+        report, config = messy
+        target = target_for(report, config, "god:OrderManager")
+        assert target is not None
+        assert target.kind == "class"
+        assert target.metrics["LCOM4"] == 4
+
+    def test_an_entity_without_violations_can_be_a_target(self, messy):
+        """Eşik aşmayan hedef de sabitlenebilir; boş bayrak bir bilgidir."""
+        report, config = messy
+        target = target_for(report, config, "services:Invoice")
+        assert target is not None
+        assert target.threshold_flags == {}
+        assert target.score == 0
+
+    def test_a_module_level_function_is_found(self, messy):
+        report, config = messy
+        target = target_for(report, config, "utils:classify_order")
+        assert target is not None and target.kind == "function"
+
+    def test_an_unknown_name_returns_none(self, messy):
+        report, config = messy
+        assert target_for(report, config, "nope:Ghost") is None
+
+    def test_available_targets_lists_everything(self, messy):
+        report, _ = messy
+        names = available_targets(report)
+        assert "god:OrderManager" in names
+        assert "utils:classify_order" in names
+        assert names == sorted(names)
+
+    def test_layer_and_smells_travel_with_the_target(self):
+        from pathlib import Path
+
+        from rlens.analysis.scanner import scan_project
+
+        layered = Path(__file__).resolve().parent.parent / "examples" / "layered_project"
+        config = load_config(search_from=layered)
+        report = scan_project(layered, config)
+        target = target_for(report, config, "src.domain.entities:Customer")
+        assert target.layer == "domain"
+        assert target.smell_labels == ["data_class"]

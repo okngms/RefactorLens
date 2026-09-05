@@ -40,7 +40,7 @@ sys.path.insert(0, str(REPO_ROOT / "src"))
 from rlens import __version__  # noqa: E402
 from rlens.advise.advisor import AdviceDocument, request_advice  # noqa: E402
 from rlens.advise.context import build_context  # noqa: E402
-from rlens.advise.selector import select_targets  # noqa: E402
+from rlens.advise.selector import available_targets, target_for  # noqa: E402
 from rlens.analysis.scanner import scan_project_with_sources  # noqa: E402
 from rlens.config import Config, load_config  # noqa: E402
 from rlens.llm.budget import Budget, BudgetExceeded  # noqa: E402
@@ -61,7 +61,25 @@ CONDITIONS: dict[str, tuple[bool, bool]] = {
 }
 
 #: Protokol sabitleri. Sonuçlar görüldükten sonra **değiştirilmez**.
-PROTOCOL = {"repetitions": 3, "top_n": 3}
+PROTOCOL = {"repetitions": 3}
+
+#: Deneyin hedefleri, önceden ve açıkça sabitlenmiştir.
+#:
+#: Seçiciye bırakılsaydı hedef kümesi eşiklere bağlı kalırdı; biri bir eşiği
+#: değiştirdiğinde deneyin hedefleri sessizce değişir ve veri karşılaştırılamaz
+#: hale gelirdi. Üçü de farklı katmanda, farklı kokuda:
+#:
+#: * `OrderService` — application, `god_class`, ihlal yok. Metrikleri kötü ama
+#:   mimarisi temiz: fikstürün ana ayrımı.
+#: * `Customer` — domain, `data_class`. FINDINGS-1'de belgelenen LCOM4 yanlış
+#:   pozitifinin birebir aynısı; etiketin işe yarayıp yaramadığı burada ölçülür.
+#: * `ReportView` — presentation, `feature_envy_candidate` **ve** iki `LV-SKIP`
+#:   ihlali. Mimari bağlamın gerçekten fark yarattığı tek hedef.
+DEFAULT_TARGETS = (
+    "src.services.order_service:OrderService",
+    "src.domain.entities:Customer",
+    "src.api.report_view:ReportView",
+)
 
 
 def slug(value: str) -> str:
@@ -72,15 +90,27 @@ def output_path(out_dir: Path, condition: str, model: str, target: str, repetiti
     return out_dir / condition / slug(model) / slug(target) / f"rep{repetition}.json"
 
 
-def prepare_contexts(project: Path, config: Config, top_n: int):
-    """Hedefleri seçer ve bağlamları kurar — **bir kez**, tüm koşullar için aynı.
+def prepare_contexts(project: Path, config: Config, names: tuple[str, ...]):
+    """Hedefleri kurar — **bir kez**, tüm koşullar için aynı.
 
     Koşullar arasındaki fark yalnızca prompt'tan gelmelidir. Bağlam yeniden
     kurulsaydı hedef seçimi veya kırpma farklılaşabilir ve fark müdahaleye
     değil gürültüye ait olurdu.
+
+    Raises:
+        SystemExit: Adı verilen hedef projede yoksa. Yazım hatası yüzünden
+            eksik bir hedefle 36 çağrı yapmak pahalıdır.
     """
     result = scan_project_with_sources(project, config)
-    targets = select_targets(result.report, config, top_n)
+
+    targets = []
+    for name in names:
+        target = target_for(result.report, config, name)
+        if target is None:
+            available = "\n  ".join(available_targets(result.report))
+            raise SystemExit(f"Target not found: {name}\nAvailable:\n  {available}")
+        targets.append(target)
+
     return [
         (
             target,
@@ -115,13 +145,13 @@ def run(
     models: list[str],
     out_dir: Path,
     repetitions: int,
-    top_n: int,
+    targets: tuple[str, ...],
     delay: float,
     plan_only: bool,
     provider_factory=get_provider,
 ) -> int:
     config = load_config(search_from=project)
-    contexts = prepare_contexts(project, config, top_n)
+    contexts = prepare_contexts(project, config, targets)
     pending, skipped = plan(contexts, models, repetitions, out_dir)
 
     total = len(CONDITIONS) * len(models) * repetitions * len(contexts)
@@ -223,7 +253,11 @@ def main() -> int:
     parser.add_argument("--project", type=Path, default=DEFAULT_PROJECT)
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--repetitions", type=int, default=PROTOCOL["repetitions"])
-    parser.add_argument("--top-n", type=int, default=PROTOCOL["top_n"])
+    parser.add_argument(
+        "--targets",
+        default=",".join(DEFAULT_TARGETS),
+        help="Comma-separated qualified names. Fixed in advance by the protocol.",
+    )
     parser.add_argument("--delay", type=float, default=5.0)
     parser.add_argument("--plan", action="store_true", help="List the calls and stop.")
     args = parser.parse_args()
@@ -237,7 +271,7 @@ def main() -> int:
         models=models,
         out_dir=args.out,
         repetitions=args.repetitions,
-        top_n=args.top_n,
+        targets=tuple(t.strip() for t in args.targets.split(",") if t.strip()),
         delay=args.delay,
         plan_only=args.plan,
     )

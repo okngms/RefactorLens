@@ -106,6 +106,29 @@ python experiments/run_advice_v2.py --models m1,m2,m3 --delay 8
 python experiments/analyse_advice_v2.py --out experiments/v2/analysis-advice.md
 ```
 
+### The targets are fixed by the protocol
+
+Not chosen by the selector. The selector ranks by threshold violation, which
+depends on the thresholds, which live in config — change one and the
+experiment's targets change silently, making the data incomparable.
+
+| Target | Layer | Smell | Violations |
+|---|---|---|---|
+| `services.order_service:OrderService` | application | `god_class` | none |
+| `domain.entities:Customer` | domain | `data_class` | none |
+| `api.report_view:ReportView` | presentation | `feature_envy_candidate` | two `LV-SKIP` |
+
+Three layers, three different smells, and exactly one target carrying an
+architecture violation — the only place where the arch-context block can
+change the advice rather than merely decorate it.
+
+`Customer` is the one to watch. Its LCOM4 is 4, reproducing the false positive
+documented in FINDINGS-1. Whether the `data_class` label stops models from
+"fixing" a perfectly good domain entity is measurable here.
+
+A typo in `--targets` fails before any call is made, listing what is available.
+Discovering a missing target after 36 calls is expensive.
+
 Four conditions × three models × three targets × three repetitions is 108 calls.
 Resumable: rerun the same command.
 
