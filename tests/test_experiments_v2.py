@@ -349,3 +349,68 @@ class TestPacing:
 
     def test_a_missing_limit_is_not_a_division_error(self):
         assert pace(4500, 5.0, 0) == 5.0
+
+
+class TestPerTarget:
+    """Toplulaştırma fikstürün karşıtlığını gizler."""
+
+    def runs(self):
+        return [
+            make_run(target="m:Customer", condition="arch", smells=["data_class"]),
+            make_run(target="m:Customer", condition="arch", smells=["god_class"], repetition=2),
+            make_run(target="m:God", condition="arch", smells=["god_class"]),
+        ]
+
+    def test_targets_are_separated(self):
+        from analyse_advice_v2 import per_target
+
+        rows = per_target(self.runs(), {"m:Customer": {"data_class"}, "m:God": {"god_class"}})
+        assert {r["target"] for r in rows} == {"m:Customer", "m:God"}
+
+    def test_addressing_its_own_smell_is_counted(self):
+        from analyse_advice_v2 import per_target
+
+        rows = per_target(self.runs(), {"m:Customer": {"data_class"}, "m:God": {"god_class"}})
+        customer = next(r for r in rows if r["target"] == "m:Customer")
+        assert customer["claimed_a_smell"] == 2
+        assert customer["addressed_own_smell"] == 1
+
+    def test_titles_are_carried(self):
+        from analyse_advice_v2 import per_target
+
+        rows = per_target(self.runs(), {})
+        assert all(isinstance(r["titles"], list) for r in rows)
+
+    def test_mean_confidence(self):
+        from analyse_advice_v2 import per_target
+
+        runs = [
+            make_run(effects=[{"metric": "NOM", "direction": "down", "confidence": 0.8}]),
+            make_run(
+                repetition=2,
+                effects=[{"metric": "NOM", "direction": "down", "confidence": 0.6}],
+            ),
+        ]
+        assert per_target(runs, {})[0]["mean_confidence"] == 0.7
+
+    def test_no_confidence_gives_none(self):
+        from analyse_advice_v2 import per_target
+
+        assert per_target([make_run()], {})[0]["mean_confidence"] is None
+
+    def test_predictions_are_counted_per_target(self):
+        """Ödünleşimi kabul edip etmediği yalnızca burada görülür."""
+        from analyse_advice_v2 import per_target
+
+        runs = [
+            make_run(
+                effects=[
+                    {"metric": "LCOM4", "direction": "down", "confidence": 0.9},
+                    {"metric": "DAM", "direction": "down", "confidence": 0.7},
+                ]
+            ),
+            make_run(repetition=2, effects=[{"metric": "LCOM4", "direction": "down"}]),
+        ]
+        predictions = per_target(runs, {})[0]["predictions"]
+        assert predictions["LCOM4 down"] == 2
+        assert predictions["DAM down"] == 1

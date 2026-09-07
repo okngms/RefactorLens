@@ -209,6 +209,53 @@ def smell_addressing(runs: list[Run], smells_by_target: dict[str, set[str]]) -> 
     return rows
 
 
+def per_target(runs: list[Run], smells_by_target: dict[str, set[str]]) -> list[dict]:
+    """Hedef × koşul kırılımı.
+
+    Toplulaştırma fikstürün varlık sebebini gizler: `Customer` ile
+    `OrderService` bilerek farklı vakalardır ve tek bir ortalamada erirler.
+    Özellikle `data_class` etiketinin işe yarayıp yaramadığı yalnızca burada
+    görülebilir.
+    """
+    grouped: dict[tuple[str, str], list[Run]] = defaultdict(list)
+    for run in runs:
+        grouped[(run.target, run.condition)].append(run)
+
+    rows = []
+    for (target, condition), group in sorted(grouped.items()):
+        suggestions = [s for run in group for s in run.suggestions]
+        own = smells_by_target.get(target, set())
+        addressed = sum(1 for s in suggestions if own & set(s.get("addresses_smells", [])))
+        claimed = sum(1 for s in suggestions if s.get("addresses_smells"))
+        confidences = [
+            e["confidence"]
+            for s in suggestions
+            for e in s.get("expected_effect", [])
+            if e.get("confidence") is not None
+        ]
+        rows.append(
+            {
+                "target": target,
+                "condition": condition,
+                "runs": len(group),
+                "suggestions": len(suggestions),
+                "per_run": ratio(len(suggestions), len(group)),
+                "claimed_a_smell": claimed,
+                "addressed_own_smell": addressed,
+                "mean_confidence": (
+                    round(sum(confidences) / len(confidences), 3) if confidences else None
+                ),
+                "titles": [s.get("title", "") for s in suggestions],
+                "predictions": Counter(
+                    f"{e.get('metric')} {e.get('direction')}"
+                    for s in suggestions
+                    for e in s.get("expected_effect", [])
+                ),
+            }
+        )
+    return rows
+
+
 def render(runs: list[Run], smells_by_target: dict[str, set[str]]) -> str:
     if not runs:
         return (
@@ -298,6 +345,52 @@ def render(runs: list[Run], smells_by_target: dict[str, set[str]]) -> str:
                     f"| {CONDITION_LABELS.get(row['condition'], row['condition'])} | "
                     f"{row['claims']} | {row['wrong']} | {row['wrong_rate']} |"
                 )
+
+    lines += [
+        "",
+        "## Per target",
+        "",
+        "Aggregating across targets hides the contrast the fixture was built "
+        "for. `Customer` is a sound domain entity whose LCOM4 of 4 reproduces "
+        "the false positive from FINDINGS-1; `OrderService` is a genuine god "
+        "class. Whether the `data_class` label changes the advice is only "
+        "visible here.",
+        "",
+        "| Target | Condition | Suggestions | Per run | Claimed a smell | "
+        "Addressed its own | Mean confidence |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    for row in per_target(runs, smells_by_target):
+        lines.append(
+            f"| `{row['target'].split(':')[-1]}` | "
+            f"{CONDITION_LABELS.get(row['condition'], row['condition'])} | "
+            f"{row['suggestions']} | {row['per_run']} | {row['claimed_a_smell']} | "
+            f"{row['addressed_own_smell']} | {row['mean_confidence']} |"
+        )
+
+    lines += [
+        "",
+        "### What was actually suggested",
+        "",
+        "The predicted effects sit beside the titles because the interesting "
+        "question is not only what the model proposes but what it admits the "
+        "proposal will cost. A suggestion to expose private fields that does "
+        "not predict `DAM down` has not noticed the trade-off it is making.",
+        "",
+    ]
+    for row in per_target(runs, smells_by_target):
+        short = row["target"].split(":")[-1]
+        label = CONDITION_LABELS.get(row["condition"], row["condition"])
+        lines.append(f"**`{short}` — {label}**")
+        lines.append("")
+        for title in row["titles"]:
+            lines.append(f"- {title}")
+        predicted = ", ".join(
+            f"{name} ×{count}" for name, count in row["predictions"].most_common()
+        )
+        lines.append("")
+        lines.append(f"  predicted: {predicted or 'nothing'}")
+        lines.append("")
 
     lines += [
         "",
