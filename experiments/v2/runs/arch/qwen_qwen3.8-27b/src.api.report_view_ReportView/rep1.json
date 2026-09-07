@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:19:37+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class exhibits low cohesion (LCOM4=2) because its methods operate on two distinct clusters of attributes: one cluster uses `_width` for formatting (`title`, `describe_customer`), while the other uses `_repository` and `_mailer` for data retrieval and side effects (`order_count`, `mail_summary`). Additionally, the class violates architectural layering by directly importing infrastructure components (`EmailClient`, `OrderRepository`) from the presentation layer, and it displays feature envy towards the `customer` object in `describe_customer`.",
+      "suggestions": [
+        {
+          "title": "Extract formatting logic into a dedicated Formatter class",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.7
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "Create a new class `ReportFormatter` in the presentation layer that holds `_width` and contains the `title()` and `describe_customer()` methods. `ReportView` should delegate these calls to an instance of `ReportFormatter`. This separates the 'how to display' concern from the 'what data to fetch/send' concern.",
+          "status": "linked",
+          "addresses_smells": [
+            "low_cohesion"
+          ],
+          "target_layer_after": "presentation",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [
+            "addresses_smells names labels the target does not carry: low_cohesion"
+          ],
+          "tags": []
+        },
+        {
+          "title": "Introduce Application Service to mediate Infrastructure access",
+          "rationale_metric_link": [
+            "DCC",
+            "LCOM4"
+          ],
+          "expected_effect": [
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.6
+            }
+          ],
+          "sketch": "Create an `OrderReportService` in the application layer that depends on `OrderRepository` and `EmailClient`. This service exposes methods like `get_order_count()` and `send_summary(address)`. `ReportView` should depend only on this application service, removing direct imports of infrastructure classes from the presentation layer.",
+          "status": "linked",
+          "addresses_smells": [
+            "layer_violation"
+          ],
+          "target_layer_after": "application",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [
+            "addresses_smells names labels the target does not carry: layer_violation"
+          ],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Extracting the formatter is low-risk but increases the number of classes. Introducing an application service is a larger refactor that requires updating the dependency injection container or factory that constructs `ReportView`. The feature envy in `describe_customer` is a candidate for moving to the `Customer` class (e.g., `customer.to_report_line()`), but this would require modifying the domain layer, which may be outside the scope of this presentation-layer refactor.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.api.report_view:ReportView\",\n  \"diagnosis\": \"The class exhibits low cohesion (LCOM4=2) because its methods operate on two distinct clusters of attributes: one cluster uses `_width` for formatting (`title`, `describe_customer`), while the other uses `_repository` and `_mailer` for data retrieval and side effects (`order_count`, `mail_summary`). Additionally, the class violates architectural layering by directly importing infrastructure components (`EmailClient`, `OrderRepository`) from the presentation layer, and it displays feature envy towards the `customer` object in `describe_customer`.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract formatting logic into a dedicated Formatter class\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        }\n      ],\n      \"sketch\": \"Create a new class `ReportFormatter` in the presentation layer that holds `_width` and contains the `title()` and `describe_customer()` methods. `ReportView` should delegate these calls to an instance of `ReportFormatter`. This separates the 'how to display' concern from the 'what data to fetch/send' concern.\",\n      \"addresses_smells\": [\n        \"low_cohesion\"\n      ],\n      \"target_layer_after\": \"presentation\",\n      \"constraints_respected\": true\n    },\n    {\n      \"title\": \"Introduce Application Service to mediate Infrastructure access\",\n      \"rationale_metric_link\": [\n        \"DCC\",\n        \"LCOM4\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.6\n        }\n      ],\n      \"sketch\": \"Create an `OrderReportService` in the application layer that depends on `OrderRepository` and `EmailClient`. This service exposes methods like `get_order_count()` and `send_summary(address)`. `ReportView` should depend only on this application service, removing direct imports of infrastructure classes from the presentation layer.\",\n      \"addresses_smells\": [\n        \"layer_violation\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"Extracting the formatter is low-risk but increases the number of classes. Introducing an application service is a larger refactor that requires updating the dependency injection container or factory that constructs `ReportView`. The feature envy in `describe_customer` is a candidate for moving to the `Customer` class (e.g., `customer.to_report_line()`), but this would require modifying the domain layer, which may be outside the scope of this presentation-layer refactor.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "9ac3dfb3b6051742a3bde09a3a5b5603e4f160819f8afd220fbd72f0ad2e8e81",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch",
+  "arch_context": true,
+  "metric_rules": false
+}

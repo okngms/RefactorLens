@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:15:42+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class exhibits low cohesion (LCOM4=2) because its methods operate on two distinct clusters of attributes: one cluster uses `_width` for formatting (`title`, `describe_customer`), while the other cluster uses `_repository` and `_mailer` for data retrieval and communication (`order_count`, `mail_summary`). Additionally, `describe_customer` demonstrates feature envy by accessing four attributes of the `Customer` object rather than its own state, suggesting a responsibility mismatch.",
+      "suggestions": [
+        {
+          "title": "Extract formatting logic to a dedicated Formatter class",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.7
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "Create a `ReportFormatter` class that holds `_width` and contains `title()` and `describe_customer()`. `ReportView` would then delegate these calls to the formatter. This separates the presentation concern (width, string manipulation) from the data access concern (repository, mailer), reducing the connected components in the method-attribute graph of `ReportView`.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Move customer description logic to Customer or a CustomerPresenter",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "same",
+              "confidence": 0.5
+            }
+          ],
+          "sketch": "The method `describe_customer` accesses `customer.customer_id()`, `customer.name()`, `customer.email()`, and `customer.tier()`. This is feature envy. Move this logic to the `Customer` class (e.g., `customer.to_report_string(width)`) or a dedicated `CustomerPresenter`. This reduces the dependency of `ReportView` on the internal structure of `Customer` and improves cohesion by placing the logic where the data resides.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Extracting the formatter increases the number of classes in the system (DCC up) and may introduce indirection. Moving logic to `Customer` requires ensuring that `Customer` does not become a god object if other similar presentation logic is added. The current `ReportView` is small (NOM=4), so over-engineering should be avoided; these changes are primarily for clarity and cohesion rather than performance.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.api.report_view:ReportView\",\n  \"diagnosis\": \"The class exhibits low cohesion (LCOM4=2) because its methods operate on two distinct clusters of attributes: one cluster uses `_width` for formatting (`title`, `describe_customer`), while the other cluster uses `_repository` and `_mailer` for data retrieval and communication (`order_count`, `mail_summary`). Additionally, `describe_customer` demonstrates feature envy by accessing four attributes of the `Customer` object rather than its own state, suggesting a responsibility mismatch.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract formatting logic to a dedicated Formatter class\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.7\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        }\n      ],\n      \"sketch\": \"Create a `ReportFormatter` class that holds `_width` and contains `title()` and `describe_customer()`. `ReportView` would then delegate these calls to the formatter. This separates the presentation concern (width, string manipulation) from the data access concern (repository, mailer), reducing the connected components in the method-attribute graph of `ReportView`.\"\n    },\n    {\n      \"title\": \"Move customer description logic to Customer or a CustomerPresenter\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"same\",\n          \"confidence\": 0.5\n        }\n      ],\n      \"sketch\": \"The method `describe_customer` accesses `customer.customer_id()`, `customer.name()`, `customer.email()`, and `customer.tier()`. This is feature envy. Move this logic to the `Customer` class (e.g., `customer.to_report_string(width)`) or a dedicated `CustomerPresenter`. This reduces the dependency of `ReportView` on the internal structure of `Customer` and improves cohesion by placing the logic where the data resides.\"\n    }\n  ],\n  \"risk_notes\": \"Extracting the formatter increases the number of classes in the system (DCC up) and may introduce indirection. Moving logic to `Customer` requires ensuring that `Customer` does not become a god object if other similar presentation logic is added. The current `ReportView` is small (NOM=4), so over-engineering should be avoided; these changes are primarily for clarity and cohesion rather than performance.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "bbb1dae433960a4a002a380f080d0d58300dcc7db512439941e1f0847e0f2105",
+      "from_cache": false
+    }
+  ],
+  "condition": "plain",
+  "arch_context": false,
+  "metric_rules": false
+}

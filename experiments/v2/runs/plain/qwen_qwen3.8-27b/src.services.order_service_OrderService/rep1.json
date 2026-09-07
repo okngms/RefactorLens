@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:15:03+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.services.order_service:OrderService",
+      "diagnosis": "The class exhibits severe lack of cohesion (LCOM4=5) and high complexity (WMC=56, NOM=26), indicating it acts as a 'God Object' by conflating four distinct responsibilities: order lifecycle management, pricing logic, audit logging, and notification dispatch. The high LCOM4 score confirms that methods are grouped into five disconnected clusters, violating the Single Responsibility Principle. While DCC is low (4), the internal complexity is high, suggesting that the class is doing too much work internally rather than delegating to specialized collaborators.",
+      "suggestions": [
+        {
+          "title": "Extract Pricing Logic to PricingService",
+          "rationale_metric_link": [
+            "LCOM4",
+            "WMC",
+            "NOM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Create a new `PricingService` class in the `src.services` layer. Move methods `set_discount`, `discount_for`, `bulk_discount`, `set_tax_rate`, `apply_tax`, `total_for`, `policy_rate`, and `is_priced` along with attributes `_tax_rate` and `_discounts` to this new class. Inject `PricingService` into `OrderService` via the constructor. This reduces the method count and complexity of `OrderService` while isolating pricing rules.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Extract Audit Logging to AuditLogger",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.6
+            }
+          ],
+          "sketch": "Create an `AuditLogger` class. Move methods `log`, `history`, `last_entry`, `audit_size`, and `clear_audit` along with the `_audit` attribute to this class. Inject `AuditLogger` into `OrderService`. This removes the audit responsibility from the core order service, further reducing LCOM4 and NOM.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Extract Notification Logic to NotificationService",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.6
+            }
+          ],
+          "sketch": "Create a `NotificationService` class. Move methods `notify`, `sent_count`, and `reset_sent` along with the `_sent` attribute and the `_notifier` dependency to this class. Inject `NotificationService` into `OrderService`. This isolates the side-effect of sending notifications, reducing the cohesion issues in `OrderService`.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Splitting the class will increase DCC (coupling to new services) and may introduce overhead from additional object instantiation and method calls. The `OrderService` will become a facade, which is acceptable, but callers must be updated to inject the new dependencies. The `PricingService` might need access to `DiscountPolicy` which is already a dependency, so that coupling remains. Ensure that the new services are stateless or properly managed if they hold state like `_discounts` or `_audit`.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.services.order_service:OrderService\",\n  \"diagnosis\": \"The class exhibits severe lack of cohesion (LCOM4=5) and high complexity (WMC=56, NOM=26), indicating it acts as a 'God Object' by conflating four distinct responsibilities: order lifecycle management, pricing logic, audit logging, and notification dispatch. The high LCOM4 score confirms that methods are grouped into five disconnected clusters, violating the Single Responsibility Principle. While DCC is low (4), the internal complexity is high, suggesting that the class is doing too much work internally rather than delegating to specialized collaborators.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract Pricing Logic to PricingService\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"WMC\",\n        \"NOM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Create a new `PricingService` class in the `src.services` layer. Move methods `set_discount`, `discount_for`, `bulk_discount`, `set_tax_rate`, `apply_tax`, `total_for`, `policy_rate`, and `is_priced` along with attributes `_tax_rate` and `_discounts` to this new class. Inject `PricingService` into `OrderService` via the constructor. This reduces the method count and complexity of `OrderService` while isolating pricing rules.\"\n    },\n    {\n      \"title\": \"Extract Audit Logging to AuditLogger\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.6\n        }\n      ],\n      \"sketch\": \"Create an `AuditLogger` class. Move methods `log`, `history`, `last_entry`, `audit_size`, and `clear_audit` along with the `_audit` attribute to this class. Inject `AuditLogger` into `OrderService`. This removes the audit responsibility from the core order service, further reducing LCOM4 and NOM.\"\n    },\n    {\n      \"title\": \"Extract Notification Logic to NotificationService\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.6\n        }\n      ],\n      \"sketch\": \"Create a `NotificationService` class. Move methods `notify`, `sent_count`, and `reset_sent` along with the `_sent` attribute and the `_notifier` dependency to this class. Inject `NotificationService` into `OrderService`. This isolates the side-effect of sending notifications, reducing the cohesion issues in `OrderService`.\"\n    }\n  ],\n  \"risk_notes\": \"Splitting the class will increase DCC (coupling to new services) and may introduce overhead from additional object instantiation and method calls. The `OrderService` will become a facade, which is acceptable, but callers must be updated to inject the new dependencies. The `PricingService` might need access to `DiscountPolicy` which is already a dependency, so that coupling remains. Ensure that the new services are stateless or properly managed if they hold state like `_discounts` or `_audit`.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "01e23f8a54a7bb85ac4f49e4d1413d2190c3ded3d4c46ff26616b6d85cc04cc1",
+      "from_cache": false
+    }
+  ],
+  "condition": "plain",
+  "arch_context": false,
+  "metric_rules": false
+}

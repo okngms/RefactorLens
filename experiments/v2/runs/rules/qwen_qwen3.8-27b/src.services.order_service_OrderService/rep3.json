@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:27:11+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.services.order_service:OrderService",
+      "diagnosis": "The class exhibits a critical lack of cohesion (LCOM4=5) by mixing four distinct responsibilities: order lifecycle management, pricing logic, audit logging, and notification handling. This results in a high Weighted Method Count (WMC=56) and a high Number of Methods (NOM=26). The class acts as a 'God Object' that aggregates state and behavior for unrelated domains, making it difficult to test, maintain, and reuse. The high LCOM4 indicates that methods are not working together on a common set of attributes, confirming the presence of multiple independent sub-objects within a single class.",
+      "suggestions": [
+        {
+          "title": "Extract Pricing Logic into PricingService",
+          "rationale_metric_link": [
+            "LCOM4",
+            "WMC",
+            "NOM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            }
+          ],
+          "sketch": "Move methods `set_discount`, `discount_for`, `bulk_discount`, `set_tax_rate`, `apply_tax`, `total_for`, `policy_rate`, and `is_priced` along with attributes `_tax_rate` and `_discounts` into a new `PricingService` class. `OrderService` should delegate pricing calculations to this new service. This removes the pricing component from the method-attribute graph, reducing LCOM4 and lowering the complexity and method count of `OrderService`.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Extract Audit Logging into AuditLog",
+          "rationale_metric_link": [
+            "LCOM4",
+            "WMC",
+            "NOM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            }
+          ],
+          "sketch": "Move methods `log`, `history`, `last_entry`, `audit_size`, and `clear_audit` along with attribute `_audit` into a new `AuditLog` class. `OrderService` should hold a reference to `AuditLog` and delegate audit operations. This isolates the audit component, further reducing LCOM4 and simplifying the `OrderService` interface.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Extract Notification Handling into NotificationService",
+          "rationale_metric_link": [
+            "LCOM4",
+            "WMC",
+            "NOM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            }
+          ],
+          "sketch": "Move methods `notify`, `sent_count`, and `reset_sent` along with attributes `_notifier` and `_sent` into a new `NotificationService` class. `OrderService` should delegate notification tasks to this service. This removes the notification component from the method-attribute graph, contributing to a lower LCOM4 and a more focused `OrderService`.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Refactoring will increase the number of classes in the project and may increase the Dependency Count (DCC) of `OrderService` if it now depends on the new services. However, this is a trade-off for improved cohesion and maintainability. The `OrderService` will become a facade or orchestrator, which is a common and acceptable pattern. Tests will need to be updated to mock the new services. The `DAM` (Data Abstraction Metric) of `OrderService` may change depending on how the new services are injected, but the primary benefit is the reduction in LCOM4 and WMC.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.services.order_service:OrderService\",\n  \"diagnosis\": \"The class exhibits a critical lack of cohesion (LCOM4=5) by mixing four distinct responsibilities: order lifecycle management, pricing logic, audit logging, and notification handling. This results in a high Weighted Method Count (WMC=56) and a high Number of Methods (NOM=26). The class acts as a 'God Object' that aggregates state and behavior for unrelated domains, making it difficult to test, maintain, and reuse. The high LCOM4 indicates that methods are not working together on a common set of attributes, confirming the presence of multiple independent sub-objects within a single class.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract Pricing Logic into PricingService\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"WMC\",\n        \"NOM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        }\n      ],\n      \"sketch\": \"Move methods `set_discount`, `discount_for`, `bulk_discount`, `set_tax_rate`, `apply_tax`, `total_for`, `policy_rate`, and `is_priced` along with attributes `_tax_rate` and `_discounts` into a new `PricingService` class. `OrderService` should delegate pricing calculations to this new service. This removes the pricing component from the method-attribute graph, reducing LCOM4 and lowering the complexity and method count of `OrderService`.\"\n    },\n    {\n      \"title\": \"Extract Audit Logging into AuditLog\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"WMC\",\n        \"NOM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        }\n      ],\n      \"sketch\": \"Move methods `log`, `history`, `last_entry`, `audit_size`, and `clear_audit` along with attribute `_audit` into a new `AuditLog` class. `OrderService` should hold a reference to `AuditLog` and delegate audit operations. This isolates the audit component, further reducing LCOM4 and simplifying the `OrderService` interface.\"\n    },\n    {\n      \"title\": \"Extract Notification Handling into NotificationService\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"WMC\",\n        \"NOM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        }\n      ],\n      \"sketch\": \"Move methods `notify`, `sent_count`, and `reset_sent` along with attributes `_notifier` and `_sent` into a new `NotificationService` class. `OrderService` should delegate notification tasks to this service. This removes the notification component from the method-attribute graph, contributing to a lower LCOM4 and a more focused `OrderService`.\"\n    }\n  ],\n  \"risk_notes\": \"Refactoring will increase the number of classes in the project and may increase the Dependency Count (DCC) of `OrderService` if it now depends on the new services. However, this is a trade-off for improved cohesion and maintainability. The `OrderService` will become a facade or orchestrator, which is a common and acceptable pattern. Tests will need to be updated to mock the new services. The `DAM` (Data Abstraction Metric) of `OrderService` may change depending on how the new services are injected, but the primary benefit is the reduction in LCOM4 and WMC.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "2d84ba1469a522fae09935caa66ff9ed10ed844640f04b22784893325803b72e",
+      "from_cache": false
+    }
+  ],
+  "condition": "rules",
+  "arch_context": false,
+  "metric_rules": true
+}

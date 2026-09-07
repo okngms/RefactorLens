@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:21:10+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.services.order_service:OrderService",
+      "diagnosis": "The class exhibits a God Class smell, evidenced by high NOM (26), WMC (56), and critically high LCOM4 (5). The code is explicitly organized into four distinct components (lifecycle, pricing, audit, notification) that share no attributes, confirming the lack of cohesion. Additionally, there is a feature envy candidate where methods like `revenue` and `tier_summary` heavily access `Order` and `Customer` attributes rather than the service's own state.",
+      "suggestions": [
+        {
+          "title": "Extract Pricing and Audit components",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Create a `PricingService` class to handle `set_discount`, `apply_tax`, `total_for`, and related logic, and an `AuditLog` class to manage `log`, `history`, and `clear_audit`. Inject these into `OrderService` or have `OrderService` delegate to them. This separates the pricing and audit concerns from the core order lifecycle.",
+          "status": "linked",
+          "addresses_smells": [
+            "god_class"
+          ],
+          "target_layer_after": "application",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Move notification logic to a dedicated service",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "Extract the `notify`, `sent_count`, and `reset_sent` methods into a `NotificationService` class. This removes the notification component from `OrderService`, further reducing its method count and improving cohesion.",
+          "status": "linked",
+          "addresses_smells": [
+            "god_class"
+          ],
+          "target_layer_after": "application",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Extracting components increases the number of classes and may slightly increase DCC. It requires updating the constructor of `OrderService` to accept the new dependencies. The feature envy in `revenue` and `tier_summary` remains, as these methods still depend on `Order` and `Customer` internals, but the primary God Class issue is addressed by splitting the class.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.services.order_service:OrderService\",\n  \"diagnosis\": \"The class exhibits a God Class smell, evidenced by high NOM (26), WMC (56), and critically high LCOM4 (5). The code is explicitly organized into four distinct components (lifecycle, pricing, audit, notification) that share no attributes, confirming the lack of cohesion. Additionally, there is a feature envy candidate where methods like `revenue` and `tier_summary` heavily access `Order` and `Customer` attributes rather than the service's own state.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract Pricing and Audit components\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Create a `PricingService` class to handle `set_discount`, `apply_tax`, `total_for`, and related logic, and an `AuditLog` class to manage `log`, `history`, and `clear_audit`. Inject these into `OrderService` or have `OrderService` delegate to them. This separates the pricing and audit concerns from the core order lifecycle.\",\n      \"addresses_smells\": [\n        \"god_class\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    },\n    {\n      \"title\": \"Move notification logic to a dedicated service\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        }\n      ],\n      \"sketch\": \"Extract the `notify`, `sent_count`, and `reset_sent` methods into a `NotificationService` class. This removes the notification component from `OrderService`, further reducing its method count and improving cohesion.\",\n      \"addresses_smells\": [\n        \"god_class\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"Extracting components increases the number of classes and may slightly increase DCC. It requires updating the constructor of `OrderService` to accept the new dependencies. The feature envy in `revenue` and `tier_summary` remains, as these methods still depend on `Order` and `Customer` internals, but the primary God Class issue is addressed by splitting the class.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "a01bef10804c7ebd143adae3c2052e9fee468cfe98c38b89059b1f113dfa2975",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch",
+  "arch_context": true,
+  "metric_rules": false
+}

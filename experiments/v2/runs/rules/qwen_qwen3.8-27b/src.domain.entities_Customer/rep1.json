@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:23:38+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The class exhibits a high LCOM4 (4) because the four accessor methods (`customer_id`, `name`, `email`, `tier`) each touch a distinct private attribute without sharing any common state or calling one another, creating four disconnected components in the method-attribute graph. The `is_premium` method connects to the `tier` attribute, but does not bridge the other three accessors. The low WMC (5) and DCC (0) indicate the class is simple and has no internal dependencies, which is typical for a data entity. The high LCOM4 is a false positive for a data class, as the cohesion is inherent to the data structure rather than behavioral logic.",
+      "suggestions": [
+        {
+          "title": "Convert to a dataclass or use properties",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "Replace the explicit accessor methods with Python properties or convert the class to a `@dataclass`. This removes the four separate methods from the method-attribute graph, leaving only `__init__` and `is_premium`. Since `__init__` touches all attributes, it connects them, and `is_premium` touches `tier`, the graph becomes connected, reducing LCOM4 to 1. NOM will drop from 5 to 1 (only `is_premium` remains as a non-dunder method).",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Converting to a dataclass or using properties changes the public API from method calls (e.g., `customer.name()`) to attribute access (e.g., `customer.name`). This requires updating all call sites in the codebase. However, since this is a domain entity, the change is generally safe and improves idiomatic Python design. The LCOM4 metric is known to penalize data classes, so this refactoring aligns the code with the metric's intent by removing the artificial separation of accessors.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.domain.entities:Customer\",\n  \"diagnosis\": \"The class exhibits a high LCOM4 (4) because the four accessor methods (`customer_id`, `name`, `email`, `tier`) each touch a distinct private attribute without sharing any common state or calling one another, creating four disconnected components in the method-attribute graph. The `is_premium` method connects to the `tier` attribute, but does not bridge the other three accessors. The low WMC (5) and DCC (0) indicate the class is simple and has no internal dependencies, which is typical for a data entity. The high LCOM4 is a false positive for a data class, as the cohesion is inherent to the data structure rather than behavioral logic.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Convert to a dataclass or use properties\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        }\n      ],\n      \"sketch\": \"Replace the explicit accessor methods with Python properties or convert the class to a `@dataclass`. This removes the four separate methods from the method-attribute graph, leaving only `__init__` and `is_premium`. Since `__init__` touches all attributes, it connects them, and `is_premium` touches `tier`, the graph becomes connected, reducing LCOM4 to 1. NOM will drop from 5 to 1 (only `is_premium` remains as a non-dunder method).\"\n    }\n  ],\n  \"risk_notes\": \"Converting to a dataclass or using properties changes the public API from method calls (e.g., `customer.name()`) to attribute access (e.g., `customer.name`). This requires updating all call sites in the codebase. However, since this is a domain entity, the change is generally safe and improves idiomatic Python design. The LCOM4 metric is known to penalize data classes, so this refactoring aligns the code with the metric's intent by removing the artificial separation of accessors.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "1fbb0c572c664e024be5b3bf7bf7ce7d5d44043f61712ac5b23068e983896f50",
+      "from_cache": false
+    }
+  ],
+  "condition": "rules",
+  "arch_context": false,
+  "metric_rules": true
+}

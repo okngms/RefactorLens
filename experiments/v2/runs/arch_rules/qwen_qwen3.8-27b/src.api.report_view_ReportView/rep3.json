@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:31:22+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class exhibits low cohesion (LCOM4=2) and high coupling (DCC=2) due to direct dependencies on infrastructure classes (OrderRepository, EmailClient), which violates the presentation layer's architectural constraints. Additionally, the `describe_customer` method displays feature envy towards the `Customer` object, accessing its attributes directly rather than delegating to a domain or application service.",
+      "suggestions": [
+        {
+          "title": "Introduce Application Service for Report Logic",
+          "rationale_metric_link": [
+            "DCC",
+            "LCOM4",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.7
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "Create a `ReportService` in the application layer that accepts `OrderRepository` and `EmailClient`. Move `order_count` and `mail_summary` logic into this service. `ReportView` should depend on `ReportService` instead of infrastructure classes. This resolves the LV-SKIP violations and reduces DCC by replacing two infrastructure dependencies with one application dependency.",
+          "status": "linked",
+          "addresses_smells": [
+            "feature_envy_candidate"
+          ],
+          "target_layer_after": "presentation",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Delegate Customer Description to Domain",
+          "rationale_metric_link": [
+            "LCOM4",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.6
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Move the formatting logic from `describe_customer` to a method on the `Customer` domain object (e.g., `Customer.to_display_string(width)`). `ReportView.describe_customer` becomes a simple delegation call. This addresses feature envy and reduces the complexity of the view method.",
+          "status": "linked",
+          "addresses_smells": [
+            "feature_envy_candidate"
+          ],
+          "target_layer_after": "presentation",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Moving logic to the application layer requires ensuring the `ReportService` is properly injected into the presentation layer. The domain change for `Customer` may impact other parts of the system if `Customer` is widely used, but adding a display method is generally low-risk. The LCOM4 improvement is moderate because the class will still have distinct responsibilities (title, customer display, report data), but the coupling reduction is significant.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.api.report_view:ReportView\",\n  \"diagnosis\": \"The class exhibits low cohesion (LCOM4=2) and high coupling (DCC=2) due to direct dependencies on infrastructure classes (OrderRepository, EmailClient), which violates the presentation layer's architectural constraints. Additionally, the `describe_customer` method displays feature envy towards the `Customer` object, accessing its attributes directly rather than delegating to a domain or application service.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Introduce Application Service for Report Logic\",\n      \"rationale_metric_link\": [\n        \"DCC\",\n        \"LCOM4\",\n        \"WMC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        }\n      ],\n      \"sketch\": \"Create a `ReportService` in the application layer that accepts `OrderRepository` and `EmailClient`. Move `order_count` and `mail_summary` logic into this service. `ReportView` should depend on `ReportService` instead of infrastructure classes. This resolves the LV-SKIP violations and reduces DCC by replacing two infrastructure dependencies with one application dependency.\",\n      \"addresses_smells\": [\n        \"feature_envy_candidate\"\n      ],\n      \"target_layer_after\": \"presentation\",\n      \"constraints_respected\": true\n    },\n    {\n      \"title\": \"Delegate Customer Description to Domain\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"WMC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.6\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Move the formatting logic from `describe_customer` to a method on the `Customer` domain object (e.g., `Customer.to_display_string(width)`). `ReportView.describe_customer` becomes a simple delegation call. This addresses feature envy and reduces the complexity of the view method.\",\n      \"addresses_smells\": [\n        \"feature_envy_candidate\"\n      ],\n      \"target_layer_after\": \"presentation\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"Moving logic to the application layer requires ensuring the `ReportService` is properly injected into the presentation layer. The domain change for `Customer` may impact other parts of the system if `Customer` is widely used, but adding a display method is generally low-risk. The LCOM4 improvement is moderate because the class will still have distinct responsibilities (title, customer display, report data), but the coupling reduction is significant.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "808e79359c4dfe330acd51f6637245d98ec79fd3be70ab368a9f9cfcc7f63f23",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch_rules",
+  "arch_context": true,
+  "metric_rules": true
+}

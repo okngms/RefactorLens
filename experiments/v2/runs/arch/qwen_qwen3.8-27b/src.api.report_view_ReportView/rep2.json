@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:20:59+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class exhibits low cohesion (LCOM4=2) due to two distinct responsibilities: formatting customer data (feature envy) and orchestrating report generation via infrastructure dependencies (OrderRepository, EmailClient). The high DAM (1.0) indicates strict encapsulation, but the direct imports of infrastructure classes violate the presentation layer's architectural constraints. The feature envy in `describe_customer` suggests that the logic for formatting customer details belongs closer to the domain or application layer, while the orchestration of fetching data and sending emails is a use-case concern that should be handled by an application service.",
+      "suggestions": [
+        {
+          "title": "Extract customer formatting to a domain or application service",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Move the logic from `describe_customer` into a method on the `Customer` domain object (e.g., `Customer.format_for_report()`) or a dedicated `CustomerFormatter` in the application layer. This reduces the number of attributes accessed by `ReportView` and eliminates the feature envy. `ReportView` would then call `customer.format_for_report()` instead of accessing `customer_id`, `name`, `email`, and `tier` directly.",
+          "status": "linked",
+          "addresses_smells": [
+            "feature_envy_candidate"
+          ],
+          "target_layer_after": "domain",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Delegate report orchestration to an application service",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.9
+            }
+          ],
+          "sketch": "Create an `OrderReportService` in the application layer that depends on `OrderRepository` and `EmailClient`. Move the logic from `order_count` and `mail_summary` into this service. `ReportView` should then depend on this application service (or a port/interface) rather than directly on infrastructure classes. This resolves the architectural violations (LV-SKIP) and reduces the direct dependencies of `ReportView`.",
+          "status": "linked",
+          "addresses_smells": [
+            "architectural_violation"
+          ],
+          "target_layer_after": "application",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [
+            "addresses_smells names labels the target does not carry: architectural_violation"
+          ],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Refactoring to move logic to the domain or application layer requires updating the constructor of `ReportView` and potentially introducing new interfaces (ports) to maintain loose coupling. The `EmailClient` and `OrderRepository` are currently concrete classes; if they are not already behind interfaces, the application service will need to depend on abstractions to allow for testing and adherence to dependency inversion. The change may increase the number of classes in the system but improves cohesion and architectural compliance.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.api.report_view:ReportView\",\n  \"diagnosis\": \"The class exhibits low cohesion (LCOM4=2) due to two distinct responsibilities: formatting customer data (feature envy) and orchestrating report generation via infrastructure dependencies (OrderRepository, EmailClient). The high DAM (1.0) indicates strict encapsulation, but the direct imports of infrastructure classes violate the presentation layer's architectural constraints. The feature envy in `describe_customer` suggests that the logic for formatting customer details belongs closer to the domain or application layer, while the orchestration of fetching data and sending emails is a use-case concern that should be handled by an application service.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract customer formatting to a domain or application service\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Move the logic from `describe_customer` into a method on the `Customer` domain object (e.g., `Customer.format_for_report()`) or a dedicated `CustomerFormatter` in the application layer. This reduces the number of attributes accessed by `ReportView` and eliminates the feature envy. `ReportView` would then call `customer.format_for_report()` instead of accessing `customer_id`, `name`, `email`, and `tier` directly.\",\n      \"addresses_smells\": [\n        \"feature_envy_candidate\"\n      ],\n      \"target_layer_after\": \"domain\",\n      \"constraints_respected\": true\n    },\n    {\n      \"title\": \"Delegate report orchestration to an application service\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        }\n      ],\n      \"sketch\": \"Create an `OrderReportService` in the application layer that depends on `OrderRepository` and `EmailClient`. Move the logic from `order_count` and `mail_summary` into this service. `ReportView` should then depend on this application service (or a port/interface) rather than directly on infrastructure classes. This resolves the architectural violations (LV-SKIP) and reduces the direct dependencies of `ReportView`.\",\n      \"addresses_smells\": [\n        \"architectural_violation\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"Refactoring to move logic to the domain or application layer requires updating the constructor of `ReportView` and potentially introducing new interfaces (ports) to maintain loose coupling. The `EmailClient` and `OrderRepository` are currently concrete classes; if they are not already behind interfaces, the application service will need to depend on abstractions to allow for testing and adherence to dependency inversion. The change may increase the number of classes in the system but improves cohesion and architectural compliance.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "013806e4d306752262cf71e046db6c81eb810bb26d8880dc135f81460feebfb6",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch",
+  "arch_context": true,
+  "metric_rules": false
+}

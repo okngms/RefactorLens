@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:29:50+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.services.order_service:OrderService",
+      "diagnosis": "The class exhibits a God Class smell, evidenced by a high Number of Methods (NOM=26), high Weighted Methods per Class (WMC=56), and critically low cohesion (LCOM4=5). The code is explicitly organized into four distinct components: order lifecycle, pricing, auditing, and notification. The high LCOM4 indicates that methods in these groups do not share attributes or call each other, confirming they are independent responsibilities. Additionally, the class has a moderate coupling (DCC=4) to domain objects, which is acceptable for an application service, but the internal lack of cohesion suggests it should be decomposed.",
+      "suggestions": [
+        {
+          "title": "Extract Pricing Logic into PricingService",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 1.0
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "same",
+              "confidence": 0.9
+            }
+          ],
+          "sketch": "Create a new `PricingService` class in the application layer. Move the attributes `_tax_rate` and `_discounts` along with the methods `set_discount`, `discount_for`, `bulk_discount`, `set_tax_rate`, `apply_tax`, `total_for`, `policy_rate`, and `is_priced` to this new class. Inject `PricingService` into `OrderService` if `OrderService` needs to calculate totals, or keep pricing calls external to `OrderService` if they are independent. This reduces the method count and complexity of `OrderService` and improves cohesion by grouping pricing-related methods.",
+          "status": "linked",
+          "addresses_smells": [
+            "god_class"
+          ],
+          "target_layer_after": "application",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Extract Audit Logic into AuditService",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 1.0
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "same",
+              "confidence": 0.9
+            }
+          ],
+          "sketch": "Create a new `AuditService` class in the application layer. Move the attribute `_audit` and the methods `log`, `history`, `last_entry`, `audit_size`, and `clear_audit` to this new class. Inject `AuditService` into `OrderService` if `OrderService` needs to log events, or keep auditing external. This further reduces the size of `OrderService` and isolates the audit responsibility.",
+          "status": "linked",
+          "addresses_smells": [
+            "god_class"
+          ],
+          "target_layer_after": "application",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Extract Notification Logic into NotificationService",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 1.0
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Create a new `NotificationService` class in the application layer. Move the attributes `_notifier` and `_sent` and the methods `notify`, `sent_count`, and `reset_sent` to this new class. Inject `NotificationService` into `OrderService` if `OrderService` triggers notifications, or keep notifications external. This reduces the coupling of `OrderService` to the `notifier` collaborator and improves cohesion.",
+          "status": "linked",
+          "addresses_smells": [
+            "god_class"
+          ],
+          "target_layer_after": "application",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Extracting these components will increase the number of classes in the application layer and may require updating the dependency injection container or factory that creates `OrderService`. The `OrderService` will need to be refactored to delegate calls to the new services, which may introduce slight performance overhead due to additional method calls. However, the benefits in terms of maintainability, testability, and adherence to the Single Responsibility Principle outweigh these risks.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.services.order_service:OrderService\",\n  \"diagnosis\": \"The class exhibits a God Class smell, evidenced by a high Number of Methods (NOM=26), high Weighted Methods per Class (WMC=56), and critically low cohesion (LCOM4=5). The code is explicitly organized into four distinct components: order lifecycle, pricing, auditing, and notification. The high LCOM4 indicates that methods in these groups do not share attributes or call each other, confirming they are independent responsibilities. Additionally, the class has a moderate coupling (DCC=4) to domain objects, which is acceptable for an application service, but the internal lack of cohesion suggests it should be decomposed.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract Pricing Logic into PricingService\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 1.0\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"same\",\n          \"confidence\": 0.9\n        }\n      ],\n      \"sketch\": \"Create a new `PricingService` class in the application layer. Move the attributes `_tax_rate` and `_discounts` along with the methods `set_discount`, `discount_for`, `bulk_discount`, `set_tax_rate`, `apply_tax`, `total_for`, `policy_rate`, and `is_priced` to this new class. Inject `PricingService` into `OrderService` if `OrderService` needs to calculate totals, or keep pricing calls external to `OrderService` if they are independent. This reduces the method count and complexity of `OrderService` and improves cohesion by grouping pricing-related methods.\",\n      \"addresses_smells\": [\n        \"god_class\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    },\n    {\n      \"title\": \"Extract Audit Logic into AuditService\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 1.0\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"same\",\n          \"confidence\": 0.9\n        }\n      ],\n      \"sketch\": \"Create a new `AuditService` class in the application layer. Move the attribute `_audit` and the methods `log`, `history`, `last_entry`, `audit_size`, and `clear_audit` to this new class. Inject `AuditService` into `OrderService` if `OrderService` needs to log events, or keep auditing external. This further reduces the size of `OrderService` and isolates the audit responsibility.\",\n      \"addresses_smells\": [\n        \"god_class\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    },\n    {\n      \"title\": \"Extract Notification Logic into NotificationService\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 1.0\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Create a new `NotificationService` class in the application layer. Move the attributes `_notifier` and `_sent` and the methods `notify`, `sent_count`, and `reset_sent` to this new class. Inject `NotificationService` into `OrderService` if `OrderService` triggers notifications, or keep notifications external. This reduces the coupling of `OrderService` to the `notifier` collaborator and improves cohesion.\",\n      \"addresses_smells\": [\n        \"god_class\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"Extracting these components will increase the number of classes in the application layer and may require updating the dependency injection container or factory that creates `OrderService`. The `OrderService` will need to be refactored to delegate calls to the new services, which may introduce slight performance overhead due to additional method calls. However, the benefits in terms of maintainability, testability, and adherence to the Single Responsibility Principle outweigh these risks.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "56e896434ed3a3f42602b26b6745ed7b0e0c6d05e2ef8edcfaf7d65d15634b65",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch_rules",
+  "arch_context": true,
+  "metric_rules": true
+}

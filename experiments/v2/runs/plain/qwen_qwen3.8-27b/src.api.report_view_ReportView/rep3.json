@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:18:01+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class exhibits low cohesion (LCOM4=2) because its methods operate on two distinct sets of attributes: `title` and `describe_customer` rely on `_width`, while `order_count` and `mail_summary` depend on `_repository` and `_mailer`. This indicates a violation of the Single Responsibility Principle, where the class mixes presentation formatting with data retrieval and notification logic. The high DAM (1.0) confirms that all state is private, which is good, but the lack of cohesion suggests that the class is doing too much for its size (NOM=4).",
+      "suggestions": [
+        {
+          "title": "Extract formatting logic into a dedicated Formatter",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.7
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "Create a new class `ReportFormatter` that holds `_width` and contains the `title()` and `describe_customer()` methods. `ReportView` would then delegate these calls to an instance of `ReportFormatter`. This separates the concern of 'how to display' from 'what to display'.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Move data aggregation to a Service or Repository",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "same",
+              "confidence": 0.6
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "The methods `order_count()` and `mail_summary()` interact with `_repository` and `_mailer`. Consider moving `mail_summary` to a `NotificationService` or keeping it in `ReportView` but ensuring `ReportView` is primarily a facade. If `ReportView` remains, ensure it only orchestrates. However, since `mail_summary` sends an email, it might be better placed in a service layer that `ReportView` calls, or `ReportView` should only return the data and let a controller handle the side effect of sending mail.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Splitting the class will increase the number of classes in the system (DCC up) and may introduce indirection. If `ReportView` is tightly coupled to specific UI components, extracting the formatter might require updating those components to use the new formatter directly or through the view. The change is low-risk as the methods are small and well-defined.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.api.report_view:ReportView\",\n  \"diagnosis\": \"The class exhibits low cohesion (LCOM4=2) because its methods operate on two distinct sets of attributes: `title` and `describe_customer` rely on `_width`, while `order_count` and `mail_summary` depend on `_repository` and `_mailer`. This indicates a violation of the Single Responsibility Principle, where the class mixes presentation formatting with data retrieval and notification logic. The high DAM (1.0) confirms that all state is private, which is good, but the lack of cohesion suggests that the class is doing too much for its size (NOM=4).\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract formatting logic into a dedicated Formatter\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.7\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        }\n      ],\n      \"sketch\": \"Create a new class `ReportFormatter` that holds `_width` and contains the `title()` and `describe_customer()` methods. `ReportView` would then delegate these calls to an instance of `ReportFormatter`. This separates the concern of 'how to display' from 'what to display'.\"\n    },\n    {\n      \"title\": \"Move data aggregation to a Service or Repository\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"same\",\n          \"confidence\": 0.6\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        }\n      ],\n      \"sketch\": \"The methods `order_count()` and `mail_summary()` interact with `_repository` and `_mailer`. Consider moving `mail_summary` to a `NotificationService` or keeping it in `ReportView` but ensuring `ReportView` is primarily a facade. If `ReportView` remains, ensure it only orchestrates. However, since `mail_summary` sends an email, it might be better placed in a service layer that `ReportView` calls, or `ReportView` should only return the data and let a controller handle the side effect of sending mail.\"\n    }\n  ],\n  \"risk_notes\": \"Splitting the class will increase the number of classes in the system (DCC up) and may introduce indirection. If `ReportView` is tightly coupled to specific UI components, extracting the formatter might require updating those components to use the new formatter directly or through the view. The change is low-risk as the methods are small and well-defined.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "58ebe33c54266eeb6d87bd8951730d7f10f49502ff766d7acb5a18bac18653e9",
+      "from_cache": false
+    }
+  ],
+  "condition": "plain",
+  "arch_context": false,
+  "metric_rules": false
+}

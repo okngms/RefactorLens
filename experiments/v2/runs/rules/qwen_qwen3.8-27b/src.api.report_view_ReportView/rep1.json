@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:24:11+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class exhibits low cohesion (LCOM4=2) because its methods operate on two distinct sets of attributes: `title` and `describe_customer` rely on `self._width`, while `order_count` and `mail_summary` rely on `self._repository` and `self._mailer`. Additionally, `describe_customer` demonstrates feature envy by accessing four attributes of the `Customer` object, suggesting that the formatting logic belongs closer to the data source or a dedicated formatter, rather than in the view which only holds a width constraint.",
+      "suggestions": [
+        {
+          "title": "Extract customer formatting logic",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "same",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "Move the logic in `describe_customer` to a method on the `Customer` class (e.g., `Customer.format_for_report(width)`) or a dedicated `CustomerFormatter` class. This removes the dependency of `ReportView` on the internal structure of `Customer` and isolates the `self._width` usage. If moved to `Customer`, `ReportView` simply calls `customer.format_for_report(self._width)`. This reduces the attribute coupling within `ReportView` by removing the need for `ReportView` to know how to assemble customer parts, potentially allowing `describe_customer` to be removed or simplified to a pure delegation, which helps consolidate the method-attribute graph.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Separate reporting and notification responsibilities",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.7
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.6
+            }
+          ],
+          "sketch": "Split `ReportView` into two classes: `ReportFormatter` (handling `title`, `describe_customer`, and `self._width`) and `ReportNotifier` (handling `mail_summary` and `order_count`, depending on `repository` and `mailer`). This eliminates the LCOM4 warning by ensuring each new class has a single cohesive set of attributes. `ReportFormatter` would have DCC=0 (or 1 if it references Customer), and `ReportNotifier` would have DCC=2 (Repository, Mailer). This adheres to the Single Responsibility Principle.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Splitting the class increases the number of classes in the system and may require updating the composition root where `ReportView` is instantiated. Moving logic to `Customer` requires ensuring `Customer` is not a simple data transfer object (DTO) if the project architecture forbids behavior on DTOs. The `mail_summary` method currently returns a dict from the mailer; if this return value is used for UI feedback, separating it from the view might require a new interface or event mechanism.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.api.report_view:ReportView\",\n  \"diagnosis\": \"The class exhibits low cohesion (LCOM4=2) because its methods operate on two distinct sets of attributes: `title` and `describe_customer` rely on `self._width`, while `order_count` and `mail_summary` rely on `self._repository` and `self._mailer`. Additionally, `describe_customer` demonstrates feature envy by accessing four attributes of the `Customer` object, suggesting that the formatting logic belongs closer to the data source or a dedicated formatter, rather than in the view which only holds a width constraint.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract customer formatting logic\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"same\",\n          \"confidence\": 0.8\n        }\n      ],\n      \"sketch\": \"Move the logic in `describe_customer` to a method on the `Customer` class (e.g., `Customer.format_for_report(width)`) or a dedicated `CustomerFormatter` class. This removes the dependency of `ReportView` on the internal structure of `Customer` and isolates the `self._width` usage. If moved to `Customer`, `ReportView` simply calls `customer.format_for_report(self._width)`. This reduces the attribute coupling within `ReportView` by removing the need for `ReportView` to know how to assemble customer parts, potentially allowing `describe_customer` to be removed or simplified to a pure delegation, which helps consolidate the method-attribute graph.\"\n    },\n    {\n      \"title\": \"Separate reporting and notification responsibilities\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.6\n        }\n      ],\n      \"sketch\": \"Split `ReportView` into two classes: `ReportFormatter` (handling `title`, `describe_customer`, and `self._width`) and `ReportNotifier` (handling `mail_summary` and `order_count`, depending on `repository` and `mailer`). This eliminates the LCOM4 warning by ensuring each new class has a single cohesive set of attributes. `ReportFormatter` would have DCC=0 (or 1 if it references Customer), and `ReportNotifier` would have DCC=2 (Repository, Mailer). This adheres to the Single Responsibility Principle.\"\n    }\n  ],\n  \"risk_notes\": \"Splitting the class increases the number of classes in the system and may require updating the composition root where `ReportView` is instantiated. Moving logic to `Customer` requires ensuring `Customer` is not a simple data transfer object (DTO) if the project architecture forbids behavior on DTOs. The `mail_summary` method currently returns a dict from the mailer; if this return value is used for UI feedback, separating it from the view might require a new interface or event mechanism.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "27bd5a9f13c7a22417d16a651f6e0928caaf61e701458339bcd434587a5fcda4",
+      "from_cache": false
+    }
+  ],
+  "condition": "rules",
+  "arch_context": false,
+  "metric_rules": true
+}

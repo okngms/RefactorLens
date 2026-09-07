@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:30:23+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class exhibits low cohesion (LCOM4=2) and high coupling to infrastructure (DCC=2), violating the presentation layer's architectural constraints by directly importing `OrderRepository` and `EmailClient`. The `describe_customer` method displays feature envy towards the `customer` object, accessing its attributes four times while only using one local attribute. The class acts as a thin wrapper over infrastructure components, which is inappropriate for a presentation layer that should depend on application or domain abstractions.",
+      "suggestions": [
+        {
+          "title": "Introduce application layer services to decouple from infrastructure",
+          "rationale_metric_link": [
+            "DCC",
+            "LCOM4"
+          ],
+          "expected_effect": [
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Replace `OrderRepository` and `EmailClient` dependencies with application layer interfaces (e.g., `OrderQueryService` and `NotificationService`). The `ReportView` should accept these services in its constructor. This moves the infrastructure dependency out of the presentation layer, resolving the LV-SKIP violations. The `order_count` and `mail_summary` methods will delegate to these services, reducing direct coupling to infra classes.",
+          "status": "linked",
+          "addresses_smells": [
+            "layer_violation"
+          ],
+          "target_layer_after": "presentation",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [
+            "addresses_smells names labels the target does not carry: layer_violation"
+          ],
+          "tags": []
+        },
+        {
+          "title": "Extract customer formatting logic to a domain or application service",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "same",
+              "confidence": 0.6
+            }
+          ],
+          "sketch": "Move the `describe_customer` logic to a `CustomerFormatter` in the domain or application layer. The `ReportView` will call `formatter.format(customer)` instead of accessing `customer` attributes directly. This reduces feature envy and improves cohesion by separating formatting concerns from the view class. The `ReportView` will no longer need to know the structure of `Customer`.",
+          "status": "linked",
+          "addresses_smells": [
+            "feature_envy_candidate"
+          ],
+          "target_layer_after": "presentation",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Introducing new application layer services requires defining their interfaces and implementations, which may increase the number of classes in the project. However, this is a necessary step to respect layer boundaries. The feature envy extraction is low-risk as it is a pure refactoring of string formatting logic. Ensure that the new services are properly tested and that the `ReportView` remains a thin presentation component.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.api.report_view:ReportView\",\n  \"diagnosis\": \"The class exhibits low cohesion (LCOM4=2) and high coupling to infrastructure (DCC=2), violating the presentation layer's architectural constraints by directly importing `OrderRepository` and `EmailClient`. The `describe_customer` method displays feature envy towards the `customer` object, accessing its attributes four times while only using one local attribute. The class acts as a thin wrapper over infrastructure components, which is inappropriate for a presentation layer that should depend on application or domain abstractions.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Introduce application layer services to decouple from infrastructure\",\n      \"rationale_metric_link\": [\n        \"DCC\",\n        \"LCOM4\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Replace `OrderRepository` and `EmailClient` dependencies with application layer interfaces (e.g., `OrderQueryService` and `NotificationService`). The `ReportView` should accept these services in its constructor. This moves the infrastructure dependency out of the presentation layer, resolving the LV-SKIP violations. The `order_count` and `mail_summary` methods will delegate to these services, reducing direct coupling to infra classes.\",\n      \"addresses_smells\": [\n        \"layer_violation\"\n      ],\n      \"target_layer_after\": \"presentation\",\n      \"constraints_respected\": true\n    },\n    {\n      \"title\": \"Extract customer formatting logic to a domain or application service\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"same\",\n          \"confidence\": 0.6\n        }\n      ],\n      \"sketch\": \"Move the `describe_customer` logic to a `CustomerFormatter` in the domain or application layer. The `ReportView` will call `formatter.format(customer)` instead of accessing `customer` attributes directly. This reduces feature envy and improves cohesion by separating formatting concerns from the view class. The `ReportView` will no longer need to know the structure of `Customer`.\",\n      \"addresses_smells\": [\n        \"feature_envy_candidate\"\n      ],\n      \"target_layer_after\": \"presentation\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"Introducing new application layer services requires defining their interfaces and implementations, which may increase the number of classes in the project. However, this is a necessary step to respect layer boundaries. The feature envy extraction is low-risk as it is a pure refactoring of string formatting logic. Ensure that the new services are properly tested and that the `ReportView` remains a thin presentation component.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "caf440794632e1a02c80f56ff5f28544a74575d7faab2f38088df33e553c6a7a",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch_rules",
+  "arch_context": true,
+  "metric_rules": true
+}

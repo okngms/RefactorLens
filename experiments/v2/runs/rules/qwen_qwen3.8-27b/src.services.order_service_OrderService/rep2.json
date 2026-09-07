@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:24:52+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.services.order_service:OrderService",
+      "diagnosis": "The class exhibits a critical lack of cohesion (LCOM4=5) by conflating four distinct responsibilities: order lifecycle management, pricing logic, audit logging, and notification dispatch. This results in a high Number of Methods (NOM=26) and Weighted Methods per Class (WMC=56), indicating that the class is a 'God Object' that is difficult to test and maintain. The high LCOM4 score confirms that methods are not interacting with a common set of attributes, but rather operate on disjoint clusters of state (e.g., `_audit` vs `_tax_rate` vs `_repository`).",
+      "suggestions": [
+        {
+          "title": "Extract Pricing Logic into a PricingService",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Create a new `PricingService` class in the `src.services` layer. Move attributes `_tax_rate` and `_discounts`, and methods `set_discount`, `discount_for`, `bulk_discount`, `set_tax_rate`, `apply_tax`, `total_for`, `policy_rate`, and `is_priced` to this new class. `OrderService` should hold a reference to `PricingService` and delegate pricing-related calls to it. This removes the pricing component from the method-attribute graph of `OrderService`, reducing LCOM4.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Extract Audit Logging into an AuditLogger",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Create an `AuditLogger` class. Move the `_audit` list and methods `log`, `history`, `last_entry`, `audit_size`, and `clear_audit` to it. `OrderService` should instantiate or receive an `AuditLogger` and delegate audit operations. This isolates the audit state, further reducing the connected components in `OrderService`.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Extract Notification Dispatch into a NotificationService",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Create a `NotificationService` class. Move `_notifier` and `_sent` attributes, and methods `notify`, `sent_count`, and `reset_sent` to it. `OrderService` should delegate notification tasks to this service. This removes the notification component from `OrderService`'s cohesion graph.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Extracting these components will increase the DCC (Data Coupling) of `OrderService` as it will now reference more distinct project-internal classes (`PricingService`, `AuditLogger`, `NotificationService`). However, this trade-off is acceptable because it significantly improves cohesion (LCOM4) and maintainability. The primary risk is ensuring that the new services are correctly injected and that the delegation logic in `OrderService` does not introduce new complexity or bugs. Additionally, the `OrderService` will become a facade, which is a valid architectural pattern but requires careful management of dependencies.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.services.order_service:OrderService\",\n  \"diagnosis\": \"The class exhibits a critical lack of cohesion (LCOM4=5) by conflating four distinct responsibilities: order lifecycle management, pricing logic, audit logging, and notification dispatch. This results in a high Number of Methods (NOM=26) and Weighted Methods per Class (WMC=56), indicating that the class is a 'God Object' that is difficult to test and maintain. The high LCOM4 score confirms that methods are not interacting with a common set of attributes, but rather operate on disjoint clusters of state (e.g., `_audit` vs `_tax_rate` vs `_repository`).\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract Pricing Logic into a PricingService\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Create a new `PricingService` class in the `src.services` layer. Move attributes `_tax_rate` and `_discounts`, and methods `set_discount`, `discount_for`, `bulk_discount`, `set_tax_rate`, `apply_tax`, `total_for`, `policy_rate`, and `is_priced` to this new class. `OrderService` should hold a reference to `PricingService` and delegate pricing-related calls to it. This removes the pricing component from the method-attribute graph of `OrderService`, reducing LCOM4.\"\n    },\n    {\n      \"title\": \"Extract Audit Logging into an AuditLogger\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Create an `AuditLogger` class. Move the `_audit` list and methods `log`, `history`, `last_entry`, `audit_size`, and `clear_audit` to it. `OrderService` should instantiate or receive an `AuditLogger` and delegate audit operations. This isolates the audit state, further reducing the connected components in `OrderService`.\"\n    },\n    {\n      \"title\": \"Extract Notification Dispatch into a NotificationService\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Create a `NotificationService` class. Move `_notifier` and `_sent` attributes, and methods `notify`, `sent_count`, and `reset_sent` to it. `OrderService` should delegate notification tasks to this service. This removes the notification component from `OrderService`'s cohesion graph.\"\n    }\n  ],\n  \"risk_notes\": \"Extracting these components will increase the DCC (Data Coupling) of `OrderService` as it will now reference more distinct project-internal classes (`PricingService`, `AuditLogger`, `NotificationService`). However, this trade-off is acceptable because it significantly improves cohesion (LCOM4) and maintainability. The primary risk is ensuring that the new services are correctly injected and that the delegation logic in `OrderService` does not introduce new complexity or bugs. Additionally, the `OrderService` will become a facade, which is a valid architectural pattern but requires careful management of dependencies.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "3dd89b21e80190549b9913dc6f9ad169bf5df0be58cd4cf87b7aa4585ae83007",
+      "from_cache": false
+    }
+  ],
+  "condition": "rules",
+  "arch_context": false,
+  "metric_rules": true
+}

@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:16:29+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.services.order_service:OrderService",
+      "diagnosis": "The class exhibits a critical lack of cohesion (LCOM4 = 5) and high complexity (WMC = 56, NOM = 26), indicating it is a 'God Class' that conflates four distinct responsibilities: order lifecycle management, pricing logic, audit logging, and notification dispatch. The high LCOM4 score confirms that methods operate on disjoint sets of attributes, violating the Single Responsibility Principle. While the Dependency Coupling (DCC) is low (4), the internal complexity is driven by the sheer volume of unrelated methods and the branching logic within the pricing and lifecycle components.",
+      "suggestions": [
+        {
+          "title": "Extract Pricing Logic into a dedicated component",
+          "rationale_metric_link": [
+            "LCOM4",
+            "WMC",
+            "NOM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Create a new class `PricingEngine` (or `PricingService`) in the same service layer. Move attributes `_tax_rate` and `_discounts` along with methods `set_discount`, `discount_for`, `bulk_discount`, `set_tax_rate`, `apply_tax`, `total_for`, `policy_rate`, and `is_priced` to this new class. `OrderService` should instantiate `PricingEngine` and delegate pricing-related calls to it. This removes the 'Bileşen 2' cluster from `OrderService`, significantly reducing its method count and complexity while improving cohesion.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Extract Audit Logging into a dedicated component",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.6
+            }
+          ],
+          "sketch": "Create a new class `AuditLog` (or `AuditService`). Move the attribute `_audit` and methods `log`, `history`, `last_entry`, `audit_size`, and `clear_audit` to this class. `OrderService` should hold a reference to an `AuditLog` instance and delegate audit operations. This isolates the 'Bileşen 3' cluster, further reducing the LCOM4 score and simplifying the `OrderService` interface.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Extract Notification Dispatch into a dedicated component",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "Create a new class `NotificationDispatcher` (or `NotifierService`). Move the attributes `_notifier` and `_sent` along with methods `notify`, `sent_count`, and `reset_sent` to this class. `OrderService` should delegate notification tasks to this new component. This removes the 'Bileşen 4' cluster, leaving `OrderService` focused primarily on the order lifecycle ('Bileşen 1').",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Splitting `OrderService` will increase the number of classes in the system and may increase the DCC of the new `OrderService` if it needs to reference the new components. It also requires updating all callers of `OrderService` to use the new components for pricing, auditing, and notifications, or providing a facade in `OrderService` that delegates to them. If the current codebase relies on `OrderService` as a single entry point for all order-related operations, a facade pattern might be necessary to maintain API stability while internally decomposing the responsibilities.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.services.order_service:OrderService\",\n  \"diagnosis\": \"The class exhibits a critical lack of cohesion (LCOM4 = 5) and high complexity (WMC = 56, NOM = 26), indicating it is a 'God Class' that conflates four distinct responsibilities: order lifecycle management, pricing logic, audit logging, and notification dispatch. The high LCOM4 score confirms that methods operate on disjoint sets of attributes, violating the Single Responsibility Principle. While the Dependency Coupling (DCC) is low (4), the internal complexity is driven by the sheer volume of unrelated methods and the branching logic within the pricing and lifecycle components.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract Pricing Logic into a dedicated component\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"WMC\",\n        \"NOM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Create a new class `PricingEngine` (or `PricingService`) in the same service layer. Move attributes `_tax_rate` and `_discounts` along with methods `set_discount`, `discount_for`, `bulk_discount`, `set_tax_rate`, `apply_tax`, `total_for`, `policy_rate`, and `is_priced` to this new class. `OrderService` should instantiate `PricingEngine` and delegate pricing-related calls to it. This removes the 'Bileşen 2' cluster from `OrderService`, significantly reducing its method count and complexity while improving cohesion.\"\n    },\n    {\n      \"title\": \"Extract Audit Logging into a dedicated component\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.6\n        }\n      ],\n      \"sketch\": \"Create a new class `AuditLog` (or `AuditService`). Move the attribute `_audit` and methods `log`, `history`, `last_entry`, `audit_size`, and `clear_audit` to this class. `OrderService` should hold a reference to an `AuditLog` instance and delegate audit operations. This isolates the 'Bileşen 3' cluster, further reducing the LCOM4 score and simplifying the `OrderService` interface.\"\n    },\n    {\n      \"title\": \"Extract Notification Dispatch into a dedicated component\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        }\n      ],\n      \"sketch\": \"Create a new class `NotificationDispatcher` (or `NotifierService`). Move the attributes `_notifier` and `_sent` along with methods `notify`, `sent_count`, and `reset_sent` to this class. `OrderService` should delegate notification tasks to this new component. This removes the 'Bileşen 4' cluster, leaving `OrderService` focused primarily on the order lifecycle ('Bileşen 1').\"\n    }\n  ],\n  \"risk_notes\": \"Splitting `OrderService` will increase the number of classes in the system and may increase the DCC of the new `OrderService` if it needs to reference the new components. It also requires updating all callers of `OrderService` to use the new components for pricing, auditing, and notifications, or providing a facade in `OrderService` that delegates to them. If the current codebase relies on `OrderService` as a single entry point for all order-related operations, a facade pattern might be necessary to maintain API stability while internally decomposing the responsibilities.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "e0c96760c2c59333c3497ceddc3b8908a1d308e81c426dd0b0e1f622396463f4",
+      "from_cache": false
+    }
+  ],
+  "condition": "plain",
+  "arch_context": false,
+  "metric_rules": false
+}

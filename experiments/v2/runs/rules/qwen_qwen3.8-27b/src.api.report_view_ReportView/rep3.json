@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:28:47+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class exhibits low cohesion (LCOM4=2) because its methods operate on two distinct sets of attributes: `title` and `describe_customer` rely on `self._width`, while `order_count` and `mail_summary` rely on `self._repository` and `self._mailer`. Additionally, `describe_customer` displays feature envy by accessing four attributes of the `Customer` object, suggesting that formatting logic should reside closer to the data. The class also has a moderate dependency count (DCC=2) on `OrderRepository` and `EmailClient`.",
+      "suggestions": [
+        {
+          "title": "Extract formatting logic to a dedicated Formatter class",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.7
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "Create a `ReportFormatter` class that holds the `_width` attribute and contains the `title` and `describe_customer` methods. `ReportView` would then delegate these calls to the formatter. This separates the presentation logic (width, padding) from the data retrieval logic (repository, mailer), reducing the connected components in the method-attribute graph. `ReportView` will now reference `ReportFormatter`, increasing DCC, but the internal cohesion of `ReportView` improves significantly as its remaining methods (`order_count`, `mail_summary`) share the repository/mailer dependencies.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Move customer formatting to Customer or a CustomerFormatter",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.6
+            }
+          ],
+          "sketch": "The `describe_customer` method accesses `customer.customer_id()`, `customer.name()`, `customer.email()`, and `customer.tier()`. This is feature envy. Move the logic to construct the string representation into the `Customer` class (e.g., `customer.format_for_report(width)`) or a dedicated `CustomerFormatter`. This removes the need for `ReportView` to know the internal structure of `Customer` for formatting purposes. If moved to `Customer`, `ReportView`'s dependency on `Customer` internals is reduced (though DCC might stay same if `Customer` is already referenced, but the coupling strength decreases). If a new `CustomerFormatter` is created, DCC increases for `ReportView` but decreases for `Customer` if it was previously coupled to formatting. However, the primary benefit is resolving the feature envy and improving the cohesion of `ReportView` by removing a method that doesn't share attributes with the others.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Extracting the formatter increases the number of classes in the system and may introduce indirection. Moving formatting logic to `Customer` couples the domain model to presentation concerns (width), which might be undesirable if the width is a view-specific concern. If `Customer` is a shared domain object, adding view-specific formatting methods to it could violate the Single Responsibility Principle for the domain model. The `ReportView` class is small (NOM=4), so over-engineering with multiple new classes might not be justified if the current coupling is acceptable for the application's scale.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.api.report_view:ReportView\",\n  \"diagnosis\": \"The class exhibits low cohesion (LCOM4=2) because its methods operate on two distinct sets of attributes: `title` and `describe_customer` rely on `self._width`, while `order_count` and `mail_summary` rely on `self._repository` and `self._mailer`. Additionally, `describe_customer` displays feature envy by accessing four attributes of the `Customer` object, suggesting that formatting logic should reside closer to the data. The class also has a moderate dependency count (DCC=2) on `OrderRepository` and `EmailClient`.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract formatting logic to a dedicated Formatter class\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.7\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        }\n      ],\n      \"sketch\": \"Create a `ReportFormatter` class that holds the `_width` attribute and contains the `title` and `describe_customer` methods. `ReportView` would then delegate these calls to the formatter. This separates the presentation logic (width, padding) from the data retrieval logic (repository, mailer), reducing the connected components in the method-attribute graph. `ReportView` will now reference `ReportFormatter`, increasing DCC, but the internal cohesion of `ReportView` improves significantly as its remaining methods (`order_count`, `mail_summary`) share the repository/mailer dependencies.\"\n    },\n    {\n      \"title\": \"Move customer formatting to Customer or a CustomerFormatter\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.6\n        }\n      ],\n      \"sketch\": \"The `describe_customer` method accesses `customer.customer_id()`, `customer.name()`, `customer.email()`, and `customer.tier()`. This is feature envy. Move the logic to construct the string representation into the `Customer` class (e.g., `customer.format_for_report(width)`) or a dedicated `CustomerFormatter`. This removes the need for `ReportView` to know the internal structure of `Customer` for formatting purposes. If moved to `Customer`, `ReportView`'s dependency on `Customer` internals is reduced (though DCC might stay same if `Customer` is already referenced, but the coupling strength decreases). If a new `CustomerFormatter` is created, DCC increases for `ReportView` but decreases for `Customer` if it was previously coupled to formatting. However, the primary benefit is resolving the feature envy and improving the cohesion of `ReportView` by removing a method that doesn't share attributes with the others.\"\n    }\n  ],\n  \"risk_notes\": \"Extracting the formatter increases the number of classes in the system and may introduce indirection. Moving formatting logic to `Customer` couples the domain model to presentation concerns (width), which might be undesirable if the width is a view-specific concern. If `Customer` is a shared domain object, adding view-specific formatting methods to it could violate the Single Responsibility Principle for the domain model. The `ReportView` class is small (NOM=4), so over-engineering with multiple new classes might not be justified if the current coupling is acceptable for the application's scale.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "a08375660bc294a99a662696e91a9eaa6e93a7b1a9d85b3f16b5af4af65b28f6",
+      "from_cache": false
+    }
+  ],
+  "condition": "rules",
+  "arch_context": false,
+  "metric_rules": true
+}

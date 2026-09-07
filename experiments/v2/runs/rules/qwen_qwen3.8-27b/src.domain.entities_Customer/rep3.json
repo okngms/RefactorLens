@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:28:15+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The class exhibits a high LCOM4 (4) because the four accessor methods (`customer_id`, `name`, `email`, `tier`) each touch a distinct private attribute without interacting with each other or the `is_premium` method. This fragmentation is characteristic of a pure data holder or anemic domain model where behavior is minimal. The high DAM (1.0) confirms that all state is encapsulated, which is good for encapsulation but contributes to the LCOM4 fragmentation if methods do not share attribute access. The low WMC (5) and NOM (5) indicate the class is simple and not overly complex in terms of logic, but the lack of cohesion in attribute usage suggests it may be serving as a passive data container rather than an active domain entity.",
+      "suggestions": [
+        {
+          "title": "Convert to a dataclass or record to reduce method count",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            }
+          ],
+          "sketch": "Replace the explicit getter methods with a Python `@dataclass` or `NamedTuple`. This removes the four accessor methods from the class definition, leaving only `__init__` (auto-generated) and `is_premium`. Since LCOM4 is calculated on the method-attribute graph, removing the isolated accessor methods that each touch a single attribute will significantly reduce the number of connected components. The `is_premium` method will remain, but the overall fragmentation caused by the getters will be eliminated.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Converting to a dataclass changes the public API from method calls (e.g., `customer.name()`) to attribute access (e.g., `customer.name`). This requires updating all call sites in the codebase. If the project strictly enforces anemic domain models or if these methods are part of a public interface contract, this change may be undesirable. Additionally, `is_premium` remains a method, so LCOM4 will not drop to 1, but it will drop significantly from 4 to 1 or 2 depending on how the dataclass fields are treated in the metric calculation (typically dataclass fields are not methods, so only `is_premium` and `__init__` would be considered, likely resulting in LCOM4=1 if `__init__` is excluded or if `is_premium` is the only method touching attributes).",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.domain.entities:Customer\",\n  \"diagnosis\": \"The class exhibits a high LCOM4 (4) because the four accessor methods (`customer_id`, `name`, `email`, `tier`) each touch a distinct private attribute without interacting with each other or the `is_premium` method. This fragmentation is characteristic of a pure data holder or anemic domain model where behavior is minimal. The high DAM (1.0) confirms that all state is encapsulated, which is good for encapsulation but contributes to the LCOM4 fragmentation if methods do not share attribute access. The low WMC (5) and NOM (5) indicate the class is simple and not overly complex in terms of logic, but the lack of cohesion in attribute usage suggests it may be serving as a passive data container rather than an active domain entity.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Convert to a dataclass or record to reduce method count\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        }\n      ],\n      \"sketch\": \"Replace the explicit getter methods with a Python `@dataclass` or `NamedTuple`. This removes the four accessor methods from the class definition, leaving only `__init__` (auto-generated) and `is_premium`. Since LCOM4 is calculated on the method-attribute graph, removing the isolated accessor methods that each touch a single attribute will significantly reduce the number of connected components. The `is_premium` method will remain, but the overall fragmentation caused by the getters will be eliminated.\"\n    }\n  ],\n  \"risk_notes\": \"Converting to a dataclass changes the public API from method calls (e.g., `customer.name()`) to attribute access (e.g., `customer.name`). This requires updating all call sites in the codebase. If the project strictly enforces anemic domain models or if these methods are part of a public interface contract, this change may be undesirable. Additionally, `is_premium` remains a method, so LCOM4 will not drop to 1, but it will drop significantly from 4 to 1 or 2 depending on how the dataclass fields are treated in the metric calculation (typically dataclass fields are not methods, so only `is_premium` and `__init__` would be considered, likely resulting in LCOM4=1 if `__init__` is excluded or if `is_premium` is the only method touching attributes).\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "30e16436254ebc6e59563f222336a694989beb4367aae250b534e5dbfef32366",
+      "from_cache": false
+    }
+  ],
+  "condition": "rules",
+  "arch_context": false,
+  "metric_rules": true
+}

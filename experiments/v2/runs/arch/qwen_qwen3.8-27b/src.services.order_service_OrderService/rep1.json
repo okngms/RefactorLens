@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:18:44+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.services.order_service:OrderService",
+      "diagnosis": "The class exhibits a god class smell, evidenced by high NOM (26), WMC (56), and critically high LCOM4 (5). The code is explicitly organized into four distinct functional components (lifecycle, pricing, audit, notification) that share no attributes, confirming the low cohesion. Additionally, the feature envy candidate suggests that pricing logic, which relies heavily on domain concepts like tiers and policies, might be better suited for the domain layer.",
+      "suggestions": [
+        {
+          "title": "Extract Pricing Logic to Domain Layer",
+          "rationale_metric_link": [
+            "LCOM4",
+            "WMC",
+            "NOM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.6
+            }
+          ],
+          "sketch": "Move methods set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_for, policy_rate, and is_priced into a new domain class, e.g., PricingPolicy. This class should encapsulate the _tax_rate and _discounts state. OrderService will then delegate pricing calculations to this domain object, removing the 'feature envy' and reducing the application layer's complexity.",
+          "status": "linked",
+          "addresses_smells": [
+            "god_class",
+            "feature_envy_candidate"
+          ],
+          "target_layer_after": "domain",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Extract Audit Trail to Infrastructure Layer",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.5
+            }
+          ],
+          "sketch": "Create an AuditLogger class in the infrastructure layer to handle log, history, last_entry, audit_size, and clear_audit. This moves the stateful _audit list out of the application service, allowing OrderService to remain stateless regarding audit data and focusing solely on orchestration.",
+          "status": "rejected",
+          "addresses_smells": [
+            "god_class"
+          ],
+          "target_layer_after": "infrastructure",
+          "claims_constraints_respected": true,
+          "constraint_agreement": false,
+          "notes": [
+            "moving a responsibility from application to infrastructure requires application → infrastructure, which the scheme forbids",
+            "the model claims constraints_respected=True but the tool disagrees"
+          ],
+          "tags": [
+            "rejected"
+          ]
+        },
+        {
+          "title": "Extract Notification Handling to Infrastructure Layer",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "Move notify, sent_count, and reset_sent into a NotificationService in the infrastructure layer. This encapsulates the _notifier dependency and the _sent counter, further reducing the number of methods and attributes in OrderService.",
+          "status": "rejected",
+          "addresses_smells": [
+            "god_class"
+          ],
+          "target_layer_after": "infrastructure",
+          "claims_constraints_respected": true,
+          "constraint_agreement": false,
+          "notes": [
+            "moving a responsibility from application to infrastructure requires application → infrastructure, which the scheme forbids",
+            "the model claims constraints_respected=True but the tool disagrees"
+          ],
+          "tags": [
+            "rejected"
+          ]
+        }
+      ],
+      "risk_notes": "Splitting the class will increase DCC as OrderService will now depend on more specialized classes. The application layer must ensure it does not import from the infrastructure layer directly if strict layering is enforced; it should depend on abstractions (interfaces) defined in the domain or application layer that the infrastructure implements. The pricing logic move requires careful handling of state (tax rates/discounts) to ensure consistency between the application service and the domain policy.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.services.order_service:OrderService\",\n  \"diagnosis\": \"The class exhibits a god class smell, evidenced by high NOM (26), WMC (56), and critically high LCOM4 (5). The code is explicitly organized into four distinct functional components (lifecycle, pricing, audit, notification) that share no attributes, confirming the low cohesion. Additionally, the feature envy candidate suggests that pricing logic, which relies heavily on domain concepts like tiers and policies, might be better suited for the domain layer.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract Pricing Logic to Domain Layer\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"WMC\",\n        \"NOM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.6\n        }\n      ],\n      \"sketch\": \"Move methods set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_for, policy_rate, and is_priced into a new domain class, e.g., PricingPolicy. This class should encapsulate the _tax_rate and _discounts state. OrderService will then delegate pricing calculations to this domain object, removing the 'feature envy' and reducing the application layer's complexity.\",\n      \"addresses_smells\": [\n        \"god_class\",\n        \"feature_envy_candidate\"\n      ],\n      \"target_layer_after\": \"domain\",\n      \"constraints_respected\": true\n    },\n    {\n      \"title\": \"Extract Audit Trail to Infrastructure Layer\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.5\n        }\n      ],\n      \"sketch\": \"Create an AuditLogger class in the infrastructure layer to handle log, history, last_entry, audit_size, and clear_audit. This moves the stateful _audit list out of the application service, allowing OrderService to remain stateless regarding audit data and focusing solely on orchestration.\",\n      \"addresses_smells\": [\n        \"god_class\"\n      ],\n      \"target_layer_after\": \"infrastructure\",\n      \"constraints_respected\": true\n    },\n    {\n      \"title\": \"Extract Notification Handling to Infrastructure Layer\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        }\n      ],\n      \"sketch\": \"Move notify, sent_count, and reset_sent into a NotificationService in the infrastructure layer. This encapsulates the _notifier dependency and the _sent counter, further reducing the number of methods and attributes in OrderService.\",\n      \"addresses_smells\": [\n        \"god_class\"\n      ],\n      \"target_layer_after\": \"infrastructure\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"Splitting the class will increase DCC as OrderService will now depend on more specialized classes. The application layer must ensure it does not import from the infrastructure layer directly if strict layering is enforced; it should depend on abstractions (interfaces) defined in the domain or application layer that the infrastructure implements. The pricing logic move requires careful handling of state (tax rates/discounts) to ensure consistency between the application service and the domain policy.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "b804fd2f92046f4b071156b0ce3e741f6ceb9dd7768fda520038aa2f32972748",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch",
+  "arch_context": true,
+  "metric_rules": false
+}

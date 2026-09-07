@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:20:39+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The measurements indicate a pure data class (anemic domain model) with high cohesion in terms of data storage but low behavioral cohesion. LCOM4 is 4, which is high, but the smell label 'data_class' explicitly notes that this is expected for a data holder and not a defect. The class has no dependencies (DCC=0), adheres to the domain layer rule of importing nothing, and has a high ratio of private attributes (DAM=1.0). The primary behavior is a simple check `is_premium`. The high LCOM4 is an artifact of the accessor-heavy design where each method touches a different attribute, but since it is a data class, this is structurally sound for its purpose.",
+      "suggestions": [],
+      "risk_notes": "No refactoring is recommended. The class is a valid data holder. Attempting to lower LCOM4 by adding behavior would violate the 'data_class' intent or require moving logic to a different layer, which is unnecessary given the current simple domain rule. The high LCOM4 is a false positive for this specific architectural role.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.domain.entities:Customer\",\n  \"diagnosis\": \"The measurements indicate a pure data class (anemic domain model) with high cohesion in terms of data storage but low behavioral cohesion. LCOM4 is 4, which is high, but the smell label 'data_class' explicitly notes that this is expected for a data holder and not a defect. The class has no dependencies (DCC=0), adheres to the domain layer rule of importing nothing, and has a high ratio of private attributes (DAM=1.0). The primary behavior is a simple check `is_premium`. The high LCOM4 is an artifact of the accessor-heavy design where each method touches a different attribute, but since it is a data class, this is structurally sound for its purpose.\",\n  \"suggestions\": [],\n  \"risk_notes\": \"No refactoring is recommended. The class is a valid data holder. Attempting to lower LCOM4 by adding behavior would violate the 'data_class' intent or require moving logic to a different layer, which is unnecessary given the current simple domain rule. The high LCOM4 is a false positive for this specific architectural role.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "00ae93d9f4860c9c821a5f2358608164670f2b6e0ed0a1365e4d4f86b8d6796f",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch",
+  "arch_context": true,
+  "metric_rules": false
+}

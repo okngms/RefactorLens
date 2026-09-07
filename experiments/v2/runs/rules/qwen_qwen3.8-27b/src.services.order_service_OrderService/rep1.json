@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:22:34+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.services.order_service:OrderService",
+      "diagnosis": "The OrderService class exhibits a critical lack of cohesion (LCOM4=5) and high complexity (WMC=56, NOM=26), indicating it is a 'God Class' that conflates four distinct responsibilities: order lifecycle management, pricing logic, audit logging, and notification handling. The high LCOM4 score confirms that methods are partitioned into disconnected clusters, each operating on a separate set of attributes (e.g., _repository vs. _tax_rate vs. _audit). This design violates the Single Responsibility Principle, making the class difficult to test, maintain, and reuse, as changes to pricing rules, for instance, require modifying a class that also manages order persistence and notifications.",
+      "suggestions": [
+        {
+          "title": "Extract Pricing Logic into a PricingService",
+          "rationale_metric_link": [
+            "LCOM4",
+            "WMC",
+            "NOM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            }
+          ],
+          "sketch": "Move methods set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_for, policy_rate, and is_priced, along with attributes _tax_rate and _discounts, into a new PricingService class. OrderService should delegate pricing calculations to this new service. This reduces the number of methods and complexity in OrderService and isolates pricing rules, which are likely to change independently of order lifecycle logic.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Extract Audit Logging into an AuditLogger",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "Move methods log, history, last_entry, audit_size, and clear_audit, along with the _audit attribute, into a dedicated AuditLogger class. OrderService should hold a reference to this logger and delegate audit calls. This removes a distinct cluster of methods from OrderService, further improving cohesion.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Extract Notification Handling into a NotificationService",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "Move methods notify, sent_count, and reset_sent, along with attributes _notifier and _sent, into a NotificationService class. OrderService should delegate notification tasks to this service. This separates the side-effect of sending notifications from the core order management logic.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Refactoring will increase the number of classes in the project and may increase DCC for OrderService if it needs to reference the new services. It requires updating all callers of OrderService methods that are moved to the new classes. The behavior must remain identical, so careful testing is required to ensure that delegation does not introduce bugs or performance overhead. The DAM metric for OrderService may change depending on how the new services are injected and managed.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.services.order_service:OrderService\",\n  \"diagnosis\": \"The OrderService class exhibits a critical lack of cohesion (LCOM4=5) and high complexity (WMC=56, NOM=26), indicating it is a 'God Class' that conflates four distinct responsibilities: order lifecycle management, pricing logic, audit logging, and notification handling. The high LCOM4 score confirms that methods are partitioned into disconnected clusters, each operating on a separate set of attributes (e.g., _repository vs. _tax_rate vs. _audit). This design violates the Single Responsibility Principle, making the class difficult to test, maintain, and reuse, as changes to pricing rules, for instance, require modifying a class that also manages order persistence and notifications.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract Pricing Logic into a PricingService\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"WMC\",\n        \"NOM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        }\n      ],\n      \"sketch\": \"Move methods set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_for, policy_rate, and is_priced, along with attributes _tax_rate and _discounts, into a new PricingService class. OrderService should delegate pricing calculations to this new service. This reduces the number of methods and complexity in OrderService and isolates pricing rules, which are likely to change independently of order lifecycle logic.\"\n    },\n    {\n      \"title\": \"Extract Audit Logging into an AuditLogger\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        }\n      ],\n      \"sketch\": \"Move methods log, history, last_entry, audit_size, and clear_audit, along with the _audit attribute, into a dedicated AuditLogger class. OrderService should hold a reference to this logger and delegate audit calls. This removes a distinct cluster of methods from OrderService, further improving cohesion.\"\n    },\n    {\n      \"title\": \"Extract Notification Handling into a NotificationService\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        }\n      ],\n      \"sketch\": \"Move methods notify, sent_count, and reset_sent, along with attributes _notifier and _sent, into a NotificationService class. OrderService should delegate notification tasks to this service. This separates the side-effect of sending notifications from the core order management logic.\"\n    }\n  ],\n  \"risk_notes\": \"Refactoring will increase the number of classes in the project and may increase DCC for OrderService if it needs to reference the new services. It requires updating all callers of OrderService methods that are moved to the new classes. The behavior must remain identical, so careful testing is required to ensure that delegation does not introduce bugs or performance overhead. The DAM metric for OrderService may change depending on how the new services are injected and managed.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "2b53349bf87fceb283cbfc3e3647cfff088d483695c606b1692cf83ddd3dc1fc",
+      "from_cache": false
+    }
+  ],
+  "condition": "rules",
+  "arch_context": false,
+  "metric_rules": true
+}

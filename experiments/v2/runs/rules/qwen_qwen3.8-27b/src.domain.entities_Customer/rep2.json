@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:25:55+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The class exhibits a high LCOM4 (4) because the four getter methods (`customer_id`, `name`, `email`, `tier`) each touch a distinct private attribute without sharing any common state or calling each other, creating four disconnected components in the method-attribute graph. The `is_premium` method connects to `_tier`, but the getters remain isolated. This is a classic 'data class' or 'anemic domain model' pattern where the class acts as a passive container. The high LCOM4 is flagged as critical, but the docstring explicitly notes that this is a known false positive for data classes, suggesting the metric may be penalizing a valid design choice rather than indicating a true cohesion defect.",
+      "suggestions": [
+        {
+          "title": "Convert to a Python dataclass",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            }
+          ],
+          "sketch": "Replace the explicit `__init__` and getter methods with the `@dataclass` decorator. This removes the four getter methods from the class definition, leaving only `__init__` (auto-generated) and `is_premium`. The LCOM4 will drop significantly because the remaining methods (if any) or the auto-generated init will not create the same fragmented attribute-access graph as manual getters. The NOM will decrease from 5 to 1 (only `is_premium` remains as a defined method, dunders excluded).",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Converting to a dataclass changes the API from method calls (`customer.name()`) to attribute access (`customer.name`). This is a breaking change for all existing callers. If the project's architecture relies on method-based access for future extensibility (e.g., adding validation or lazy loading in getters), this change may be premature. The docstring suggests the current design is intentional to test metric behavior, so refactoring might be unnecessary if the goal is to validate the metric's false positive rate rather than improve the code.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.domain.entities:Customer\",\n  \"diagnosis\": \"The class exhibits a high LCOM4 (4) because the four getter methods (`customer_id`, `name`, `email`, `tier`) each touch a distinct private attribute without sharing any common state or calling each other, creating four disconnected components in the method-attribute graph. The `is_premium` method connects to `_tier`, but the getters remain isolated. This is a classic 'data class' or 'anemic domain model' pattern where the class acts as a passive container. The high LCOM4 is flagged as critical, but the docstring explicitly notes that this is a known false positive for data classes, suggesting the metric may be penalizing a valid design choice rather than indicating a true cohesion defect.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Convert to a Python dataclass\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        }\n      ],\n      \"sketch\": \"Replace the explicit `__init__` and getter methods with the `@dataclass` decorator. This removes the four getter methods from the class definition, leaving only `__init__` (auto-generated) and `is_premium`. The LCOM4 will drop significantly because the remaining methods (if any) or the auto-generated init will not create the same fragmented attribute-access graph as manual getters. The NOM will decrease from 5 to 1 (only `is_premium` remains as a defined method, dunders excluded).\"\n    }\n  ],\n  \"risk_notes\": \"Converting to a dataclass changes the API from method calls (`customer.name()`) to attribute access (`customer.name`). This is a breaking change for all existing callers. If the project's architecture relies on method-based access for future extensibility (e.g., adding validation or lazy loading in getters), this change may be premature. The docstring suggests the current design is intentional to test metric behavior, so refactoring might be unnecessary if the goal is to validate the metric's false positive rate rather than improve the code.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "ce617dfd834a7ee5bcd0a6461bd82ba2428fe92318b60f03b72b6f7a72bef0a0",
+      "from_cache": false
+    }
+  ],
+  "condition": "rules",
+  "arch_context": false,
+  "metric_rules": true
+}

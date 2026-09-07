@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:30:13+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The measurements indicate a pure data class (anemic domain model) with high cohesion in terms of data storage but fragmented method-attribute usage. LCOM4 is 4, which is high for a small class, but the smell label 'data_class' and the note explicitly state that this is expected and not a defect for this type of entity. WMC is low (5), DCC is 0 (no dependencies), and DAM is 1.0 (fully encapsulated). The class is a passive holder of state with simple accessors and one derived property.",
+      "suggestions": [],
+      "risk_notes": "No refactoring is recommended. The high LCOM4 is a false positive for a data class, as confirmed by the architectural context and smell notes. Attempting to lower LCOM4 (e.g., by merging accessors or adding behavior) would violate the domain layer's intent for a simple entity or introduce unnecessary complexity. The class is correctly placed in the domain layer with no external dependencies.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.domain.entities:Customer\",\n  \"diagnosis\": \"The measurements indicate a pure data class (anemic domain model) with high cohesion in terms of data storage but fragmented method-attribute usage. LCOM4 is 4, which is high for a small class, but the smell label 'data_class' and the note explicitly state that this is expected and not a defect for this type of entity. WMC is low (5), DCC is 0 (no dependencies), and DAM is 1.0 (fully encapsulated). The class is a passive holder of state with simple accessors and one derived property.\",\n  \"suggestions\": [],\n  \"risk_notes\": \"No refactoring is recommended. The high LCOM4 is a false positive for a data class, as confirmed by the architectural context and smell notes. Attempting to lower LCOM4 (e.g., by merging accessors or adding behavior) would violate the domain layer's intent for a simple entity or introduce unnecessary complexity. The class is correctly placed in the domain layer with no external dependencies.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "7f443fc248dc7855cc0c34494be051b1e140ff540e7a799c74c27571faf06d2e",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch_rules",
+  "arch_context": true,
+  "metric_rules": true
+}

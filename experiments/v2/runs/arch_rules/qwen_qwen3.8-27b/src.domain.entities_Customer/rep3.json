@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:31:08+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The class is a pure data holder with 5 methods, all of which are simple accessors or trivial predicates. The LCOM4 score of 4 is high because each accessor touches a distinct private attribute without sharing state with other methods, creating disconnected components in the method-attribute graph. However, the smell label 'data_class' explicitly notes that high LCOM4 is expected for this pattern and not a defect. The low WMC (5) and DCC (0) confirm it has no complex logic or external dependencies, adhering strictly to domain layer rules.",
+      "suggestions": [],
+      "risk_notes": "No refactoring is recommended. The high LCOM4 is a false positive for a data class. Converting accessors to properties would lower LCOM4 to 1 but would change the public API, potentially breaking callers that expect method calls. The current design is cohesive for its purpose as a value object/entity.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.domain.entities:Customer\",\n  \"diagnosis\": \"The class is a pure data holder with 5 methods, all of which are simple accessors or trivial predicates. The LCOM4 score of 4 is high because each accessor touches a distinct private attribute without sharing state with other methods, creating disconnected components in the method-attribute graph. However, the smell label 'data_class' explicitly notes that high LCOM4 is expected for this pattern and not a defect. The low WMC (5) and DCC (0) confirm it has no complex logic or external dependencies, adhering strictly to domain layer rules.\",\n  \"suggestions\": [],\n  \"risk_notes\": \"No refactoring is recommended. The high LCOM4 is a false positive for a data class. Converting accessors to properties would lower LCOM4 to 1 but would change the public API, potentially breaking callers that expect method calls. The current design is cohesive for its purpose as a value object/entity.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "2052aee1cf4386f726bf11d6146ad792b04ac451de688e21163dd0d30b53cc96",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch_rules",
+  "arch_context": true,
+  "metric_rules": true
+}

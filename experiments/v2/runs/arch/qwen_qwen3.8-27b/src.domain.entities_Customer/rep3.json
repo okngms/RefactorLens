@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:22:12+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The measurements indicate a pure data class (anemic domain model) with high cohesion in terms of data storage but low behavioral cohesion. LCOM4 is 4, which is high for a class with only 5 methods, but the smell label 'data_class' and the note explicitly state that this is expected for a data holder and not a defect. The class has no dependencies (DCC=0), is fully private (DAM=1.0), and contains minimal logic (WMC=5). The high LCOM4 is an artifact of the metric's sensitivity to accessor-heavy classes, not a sign of poor design in this specific context.",
+      "suggestions": [],
+      "risk_notes": "No refactoring is recommended. The class is a valid data holder in the domain layer. Attempting to lower LCOM4 by adding behavior would violate the 'data_class' intent and potentially introduce unnecessary complexity. The high LCOM4 is a known false positive for this type of class, as documented in the class docstring.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.domain.entities:Customer\",\n  \"diagnosis\": \"The measurements indicate a pure data class (anemic domain model) with high cohesion in terms of data storage but low behavioral cohesion. LCOM4 is 4, which is high for a class with only 5 methods, but the smell label 'data_class' and the note explicitly state that this is expected for a data holder and not a defect. The class has no dependencies (DCC=0), is fully private (DAM=1.0), and contains minimal logic (WMC=5). The high LCOM4 is an artifact of the metric's sensitivity to accessor-heavy classes, not a sign of poor design in this specific context.\",\n  \"suggestions\": [],\n  \"risk_notes\": \"No refactoring is recommended. The class is a valid data holder in the domain layer. Attempting to lower LCOM4 by adding behavior would violate the 'data_class' intent and potentially introduce unnecessary complexity. The high LCOM4 is a known false positive for this type of class, as documented in the class docstring.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "406391f6cc147dce6363e8aed58ec494cc2f58107e1c3307d24cd4cde5d5a74b",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch",
+  "arch_context": true,
+  "metric_rules": false
+}

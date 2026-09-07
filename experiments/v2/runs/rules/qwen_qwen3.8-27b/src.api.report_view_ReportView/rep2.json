@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:26:29+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class exhibits low cohesion (LCOM4=2) because its methods operate on two distinct sets of attributes: `title` and `describe_customer` rely on `_width`, while `order_count` and `mail_summary` rely on `_repository` and `_mailer`. Additionally, `describe_customer` displays feature envy by accessing four attributes of the `Customer` object, suggesting that the formatting logic belongs closer to the data source or a dedicated formatter.",
+      "suggestions": [
+        {
+          "title": "Extract customer formatting logic",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Move the logic in `describe_customer` to a method on the `Customer` class (e.g., `Customer.format_for_report(width)`) or a dedicated `CustomerFormatter`. This removes the dependency on `Customer` internals from `ReportView` and eliminates the feature envy. If moved to `Customer`, `ReportView` no longer references `Customer` directly, potentially lowering DCC if `Customer` was the only other reference, or keeping it same if `Order` is also referenced elsewhere. It also removes the `_width` dependency from the customer-related logic, helping to separate the 'display width' concern from the 'data retrieval' concern.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Separate reporting concerns",
+          "rationale_metric_link": [
+            "LCOM4"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            }
+          ],
+          "sketch": "Split `ReportView` into two classes: `ReportHeader` (handling `title` and `_width`) and `OrderSummary` (handling `order_count` and `mail_summary`). This reduces the number of methods per class and ensures each class has a single cohesive responsibility, directly addressing the LCOM4 warning.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Splitting the class may increase the number of objects instantiated in the view layer, potentially complicating the composition root. Moving formatting logic to `Customer` couples the domain model to presentation details (width), which may violate layering rules if `Customer` is a pure domain entity. If `Customer` is in a lower layer, it should not know about `_width`.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.api.report_view:ReportView\",\n  \"diagnosis\": \"The class exhibits low cohesion (LCOM4=2) because its methods operate on two distinct sets of attributes: `title` and `describe_customer` rely on `_width`, while `order_count` and `mail_summary` rely on `_repository` and `_mailer`. Additionally, `describe_customer` displays feature envy by accessing four attributes of the `Customer` object, suggesting that the formatting logic belongs closer to the data source or a dedicated formatter.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract customer formatting logic\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Move the logic in `describe_customer` to a method on the `Customer` class (e.g., `Customer.format_for_report(width)`) or a dedicated `CustomerFormatter`. This removes the dependency on `Customer` internals from `ReportView` and eliminates the feature envy. If moved to `Customer`, `ReportView` no longer references `Customer` directly, potentially lowering DCC if `Customer` was the only other reference, or keeping it same if `Order` is also referenced elsewhere. It also removes the `_width` dependency from the customer-related logic, helping to separate the 'display width' concern from the 'data retrieval' concern.\"\n    },\n    {\n      \"title\": \"Separate reporting concerns\",\n      \"rationale_metric_link\": [\n        \"LCOM4\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        }\n      ],\n      \"sketch\": \"Split `ReportView` into two classes: `ReportHeader` (handling `title` and `_width`) and `OrderSummary` (handling `order_count` and `mail_summary`). This reduces the number of methods per class and ensures each class has a single cohesive responsibility, directly addressing the LCOM4 warning.\"\n    }\n  ],\n  \"risk_notes\": \"Splitting the class may increase the number of objects instantiated in the view layer, potentially complicating the composition root. Moving formatting logic to `Customer` couples the domain model to presentation details (width), which may violate layering rules if `Customer` is a pure domain entity. If `Customer` is in a lower layer, it should not know about `_width`.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "a58d9b4ded5471595b8c93188229ceffbfd97e7ccc32f9562a4e0f6a0d694607",
+      "from_cache": false
+    }
+  ],
+  "condition": "rules",
+  "arch_context": false,
+  "metric_rules": true
+}
