@@ -1,0 +1,17 @@
+--- a/src/domain/entities.py
++++ b/src/domain/entities.py
+@@ -32,6 +32,14 @@
+     def is_premium(self) -> bool:
+         return self._tier == "premium"
+ 
++    def upgrade_to_premium(self) -> None:
++        """Promote the customer to the premium tier.
++
++        This introduces behaviour that uses existing attributes, linking
++        methods together.
++        """
++        self._tier = "premium"
++
+ 
+ class OrderLine:
+     def __init__(self, sku: str, quantity: int, unit_price: float) -> None:

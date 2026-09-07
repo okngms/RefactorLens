@@ -14,5 +14,7 @@ reports/
 # Uygulanan değişikliğin kanıtı applied.diff olarak saklanır.
 experiments/cases/*/project/
 
+experiments/v2/cases/*/project/
+
 # LLM yanıt önbelleği: yeniden üretilebilir, commit edilmez.
 .rlens-cache/
