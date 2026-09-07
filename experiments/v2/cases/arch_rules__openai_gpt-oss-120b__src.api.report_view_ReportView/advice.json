@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:32:37+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "ReportView shows low cohesion (LCOM4 = 2) and holds two distinct internal collaborators (DCC = 2). It also exhibits a feature‑envy pattern toward Customer (four accesses) and violates the presentation layer rule by directly importing infrastructure classes (EmailClient, OrderRepository). These metrics indicate that the class is doing too much and is tightly coupled to lower‑level modules.",
+      "suggestions": [
+        {
+          "title": "Extract a ReportService to the application layer",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "Create a new class `ReportService` in the `application` package that receives `OrderRepository` and `EmailClient` in its constructor. Move `order_count`, `mail_summary`, and the title‑generation logic into methods of this service. `ReportView` then only holds a reference to `ReportService` and delegates to it:\n```python\n# application/report_service.py\nclass ReportService:\n    def __init__(self, repository: OrderRepository, mailer: EmailClient):\n        self._repository = repository\n        self._mailer = mailer\n        self._width = 40\n\n    def title(self) -> str:\n        return \"Orders\".center(self._width, \"-\")\n\n    def order_count(self) -> int:\n        return self._repository.count()\n\n    def mail_summary(self, address: str) -> dict[str, str]:\n        return self._mailer.send(address, f\"{self._repository.count()} orders\")\n```\n```python\n# src/api/report_view.py\nclass ReportView:\n    def __init__(self, service: ReportService):\n        self._service = service\n\n    def title(self) -> str:\n        return self._service.title()\n\n    def order_count(self) -> int:\n        return self._service.order_count()\n\n    def mail_summary(self, address: str) -> dict[str, str]:\n        return self._service.mail_summary(address)\n```",
+          "status": "linked",
+          "addresses_smells": [
+            "feature_envy_candidate",
+            "layer_violation"
+          ],
+          "target_layer_after": "application",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [
+            "addresses_smells names labels the target does not carry: layer_violation"
+          ],
+          "tags": []
+        },
+        {
+          "title": "Separate customer formatting into its own view class",
+          "rationale_metric_link": [
+            "LCOM4"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.85
+            }
+          ],
+          "sketch": "Introduce `CustomerView` in the presentation layer that receives a `Customer` instance and provides `format()` (the current `describe_customer`). Remove `describe_customer` from `ReportView`. The two classes will each have a single responsibility, reducing the method‑attribute graph to one connected component per class:\n```python\nclass CustomerView:\n    def __init__(self, width: int = 40):\n        self._width = width\n\n    def format(self, customer) -> str:\n        parts = [\n            str(customer.customer_id()),\n            customer.name(),\n            customer.email(),\n            customer.tier(),\n        ]\n        return \" | \".join(parts).ljust(self._width)\n```\n`ReportView` now only handles report‑level concerns (title, order count, mailing).",
+          "status": "linked",
+          "addresses_smells": [
+            "feature_envy_candidate"
+          ],
+          "target_layer_after": "presentation",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Extracting a service changes the public API of ReportView; callers must be updated to inject the new service, which may affect tests and wiring code. Splitting the customer formatter introduces an extra class that must be imported where needed, potentially increasing import noise. Both changes increase the overall number of classes, so DCC for the new service may rise, but the measured metrics for ReportView improve. Careful integration testing is required to ensure that email sending and repository counting still behave identically.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.api.report_view:ReportView\",\n  \"diagnosis\": \"ReportView shows low cohesion (LCOM4 = 2) and holds two distinct internal collaborators (DCC = 2). It also exhibits a feature‑envy pattern toward Customer (four accesses) and violates the presentation layer rule by directly importing infrastructure classes (EmailClient, OrderRepository). These metrics indicate that the class is doing too much and is tightly coupled to lower‑level modules.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract a ReportService to the application layer\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        }\n      ],\n      \"sketch\": \"Create a new class `ReportService` in the `application` package that receives `OrderRepository` and `EmailClient` in its constructor. Move `order_count`, `mail_summary`, and the title‑generation logic into methods of this service. `ReportView` then only holds a reference to `ReportService` and delegates to it:\\n```python\\n# application/report_service.py\\nclass ReportService:\\n    def __init__(self, repository: OrderRepository, mailer: EmailClient):\\n        self._repository = repository\\n        self._mailer = mailer\\n        self._width = 40\\n\\n    def title(self) -> str:\\n        return \\\"Orders\\\".center(self._width, \\\"-\\\")\\n\\n    def order_count(self) -> int:\\n        return self._repository.count()\\n\\n    def mail_summary(self, address: str) -> dict[str, str]:\\n        return self._mailer.send(address, f\\\"{self._repository.count()} orders\\\")\\n```\\n```python\\n# src/api/report_view.py\\nclass ReportView:\\n    def __init__(self, service: ReportService):\\n        self._service = service\\n\\n    def title(self) -> str:\\n        return self._service.title()\\n\\n    def order_count(self) -> int:\\n        return self._service.order_count()\\n\\n    def mail_summary(self, address: str) -> dict[str, str]:\\n        return self._service.mail_summary(address)\\n```\",\n      \"addresses_smells\": [\n        \"feature_envy_candidate\",\n        \"layer_violation\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    },\n    {\n      \"title\": \"Separate customer formatting into its own view class\",\n      \"rationale_metric_link\": [\n        \"LCOM4\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        }\n      ],\n      \"sketch\": \"Introduce `CustomerView` in the presentation layer that receives a `Customer` instance and provides `format()` (the current `describe_customer`). Remove `describe_customer` from `ReportView`. The two classes will each have a single responsibility, reducing the method‑attribute graph to one connected component per class:\\n```python\\nclass CustomerView:\\n    def __init__(self, width: int = 40):\\n        self._width = width\\n\\n    def format(self, customer) -> str:\\n        parts = [\\n            str(customer.customer_id()),\\n            customer.name(),\\n            customer.email(),\\n            customer.tier(),\\n        ]\\n        return \\\" | \\\".join(parts).ljust(self._width)\\n```\\n`ReportView` now only handles report‑level concerns (title, order count, mailing).\",\n      \"addresses_smells\": [\n        \"feature_envy_candidate\"\n      ],\n      \"target_layer_after\": \"presentation\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"Extracting a service changes the public API of ReportView; callers must be updated to inject the new service, which may affect tests and wiring code. Splitting the customer formatter introduces an extra class that must be imported where needed, potentially increasing import noise. Both changes increase the overall number of classes, so DCC for the new service may rise, but the measured metrics for ReportView improve. Careful integration testing is required to ensure that email sending and repository counting still behave identically.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "898e125f8d4cdb50ae060fab781d8c1734728599cf2e2e3817c8a0011b25f9ad",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch_rules",
+  "arch_context": true,
+  "metric_rules": true
+}
