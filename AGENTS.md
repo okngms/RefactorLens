@@ -91,6 +91,15 @@ instead of fixing the design — the Goodhart trap this tool is meant to expose.
 
 Guarded by `tests/test_prompts.py::TestNoRawThresholds` and a CLI-level test.
 
+**The invariant test covers the whole prompt, not one block.** A new prompt
+block does not get merged without extending it. Thresholds leaked once through
+a smell's evidence field (`dcc_threshold`), which the block-scoped test did not
+see.
+
+**Thresholds live only under `evidence["thresholds"]`.** The prompt side prints
+from a **whitelist** of measurement keys, never a blacklist: a new smell must
+default to not leaking.
+
 ### `expected_effect` is structured, not prose
 
 A list of `{metric, direction}` where direction is `up` / `down` / `same` and
@@ -105,6 +114,18 @@ A suggestion linked to no metric gets the `unlinked` tag and stays in the report
 A reply that cannot be parsed at all gets `unstructured` and its raw text is
 kept. Dropping them would make phase 5 unable to measure how often models ignore
 the contract.
+
+### `suspicious` is only for deleted members, never moved ones
+
+Extract Class moves members to a new class. A check that only looks at the
+target's own interface calls every Extract Class suspicious — the tool would
+punish exactly the refactoring it recommends, and `apply` in v3 would reject
+all of them.
+
+Vanished members are searched for elsewhere in the project first. Found →
+`moved`, reported separately. Not found → `deleted`, and only those raise
+suspicion. FINDINGS-1's two cases are the litmus test: in one the members
+vanished, in the other they moved.
 
 ### Unverifiable predictions are excluded from the accuracy ratio
 

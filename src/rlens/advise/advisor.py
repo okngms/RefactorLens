@@ -325,7 +325,14 @@ def validate_constraints(
 
     Araç tarafı denetim bilinçli olarak **dar** tutulmuştur: taslak metninden
     hangi importların ekleneceğini çıkarmak güvenilir değildir. Yalnızca
-    doğrulanabilir olan denetlenir.
+    doğrulanabilir olan denetlenir; şu üç şey:
+
+    1. `target_layer_after` şemada var olan bir katman mı?
+    2. Hedef katmandan oraya taşımak izin matrisine uyuyor mu?
+    3. Model kendisi "kuralları çiğniyorum" mu diyor?
+
+    Yön ve import düzeyinde uyum v2'de **ölçülmez**; v3'te `apply` diff'inden
+    ölçülecek. FINDINGS-2 `rejected` oranını bu daralmayla birlikte sunmalıdır.
 
     Returns:
         (reddetme nedeni ya da None, beyanla uyuşma ya da None, notlar)
@@ -341,11 +348,21 @@ def validate_constraints(
     reason: str | None = None
 
     if scheme is not None and destination:
+        current = getattr(advice_target, "layer", None)
         if destination not in scheme.layers:
             tool_verdict = False
             reason = (
                 f"target_layer_after `{destination}` is not a layer in this project "
                 f"({', '.join(scheme.layers)})"
+            )
+        elif current and destination != current and not scheme.may_import(current, destination):
+            # Matrisin **doğrulanabilir** kısmı: sorumluluğu X'ten Y'ye taşımak
+            # X'in Y'yi kullanabilmesini gerektirir. Taslak metninden import
+            # çıkarmak güvenilir değildir; bu kontrol ise metne bakmaz.
+            tool_verdict = False
+            reason = (
+                f"moving a responsibility from {current} to {destination} "
+                f"requires {current} → {destination}, which the scheme forbids"
             )
         else:
             tool_verdict = True
@@ -556,7 +573,10 @@ def request_advice(
         repaired_raw, _, _ = _generate(
             provider,
             SYSTEM_INSTRUCTION,
-            build_repair_prompt(raw, first_error),
+            # İlk prompt'ta mimari blok varsa onarım şeması da onu taşımalı;
+            # aksi halde onarılan cevap kısıt alanlarını sessizce düşürür ve
+            # 5a'nın `rejected` istatistiği koşullar arasında eşitsiz kirlenir.
+            build_repair_prompt(raw, first_error, architectural=scheme is not None),
             config,
             cache,
             budget,

@@ -52,7 +52,7 @@ class TestTheFindingsOneCase:
 
     def test_the_reason_names_the_lost_members(self, result):
         reason = result.suspicious[0].reason
-        assert "4 public member(s) disappeared" in reason
+        assert "4 public member(s) were deleted" in reason
         assert "place" in reason
 
     def test_the_metric_verdict_is_still_improved(self):
@@ -150,3 +150,72 @@ class TestSerialisation:
         before = report(cls(lcom4=4, interface=members))
         after = report(cls(lcom4=1, interface=[]))
         assert "and 4 more" in analyse(before, after).suspicious[0].reason
+
+
+class TestMovedMembers:
+    """Extract Class cezalandırılmamalı: araç kendi tavsiyesini reddetmemeli."""
+
+    def test_extract_class_moving_members_is_not_suspicious(self):
+        before = report(cls(name="A", lcom4=4, interface=["f", "g", "h"]))
+        after = report(
+            cls(name="A", lcom4=1, interface=["f"]),
+            cls(name="B", lcom4=1, interface=["g", "h"]),
+        )
+        result = analyse(before, after)
+        check = next(c for c in result.checks if c.qualified_name.endswith(":A"))
+        assert check.is_suspicious is False
+        assert check.moved == (("g", "m:B"), ("h", "m:B"))
+        assert check.deleted == ()
+
+    def test_deleting_members_stays_suspicious(self):
+        """FINDINGS-1'in arayüz-silme vakası."""
+        before = report(cls(lcom4=4, interface=["place", "log", "history", "clear"]))
+        after = report(cls(lcom4=1, interface=[]))
+        check = analyse(before, after).checks[0]
+        assert check.is_suspicious is True
+        assert len(check.deleted) == 4
+
+    def test_mixed_move_and_delete(self):
+        before = report(cls(name="A", lcom4=4, interface=["f", "g", "h", "i", "j"]))
+        after = report(
+            cls(name="A", lcom4=1, interface=["f"]),
+            cls(name="B", lcom4=1, interface=["g", "h"]),
+        )
+        check = next(c for c in analyse(before, after).checks if c.qualified_name.endswith(":A"))
+        assert check.is_suspicious is True
+        assert len(check.moved) == 2
+        assert check.deleted == ("i", "j")
+
+    def test_the_reason_separates_moved_from_deleted(self):
+        before = report(cls(name="A", lcom4=4, interface=["f", "g", "h"]))
+        after = report(
+            cls(name="A", lcom4=1, interface=[]), cls(name="B", lcom4=1, interface=["f"])
+        )
+        check = next(c for c in analyse(before, after).checks if c.qualified_name.endswith(":A"))
+        assert "2 public member(s) were deleted" in check.reason
+        assert "1 moved to m:B" in check.reason
+
+    def test_rename_is_still_neutral(self):
+        before = report(cls(lcom4=4, interface=["keep", "old"]))
+        after = report(cls(lcom4=1, interface=["keep", "new"]))
+        assert analyse(before, after).any_suspicious is False
+
+    def test_a_new_class_is_searched_first(self):
+        """Extract Class'ın sonucu genelde yeni bir sınıftır."""
+        before = report(cls(name="A", lcom4=4, interface=["f", "moved"]))
+        after = report(
+            cls(name="A", lcom4=1, interface=["f"]),
+            cls(name="New", lcom4=1, interface=["moved"]),
+        )
+        check = next(c for c in analyse(before, after).checks if c.qualified_name.endswith(":A"))
+        assert check.moved == (("moved", "m:New"),)
+
+    def test_serialisation_reports_both(self):
+        before = report(cls(name="A", lcom4=4, interface=["f", "g", "h"]))
+        after = report(
+            cls(name="A", lcom4=1, interface=[]), cls(name="B", lcom4=1, interface=["f"])
+        )
+        payload = analyse(before, after).to_dict()["checks"][0]
+        assert payload["moved"] == [["f", "m:B"]]
+        assert sorted(payload["deleted"]) == ["g", "h"]
+        assert payload["net_deleted"] == 2

@@ -42,6 +42,14 @@ yayılabilir, kesintiye dayanıklı olmalı (v1'in `run_advice.py` deseni).
 | Ölçüt | Nasıl |
 |---|---|
 | Kısıt uyumu | `constraints_respected` beyanı **ve** araç tarafından bağımsız doğrulaması; uyuşmazlık ayrı raporlanır |
+
+> **`rejected` ne ölçer, ne ölçmez.** Araç tarafı denetim üç doğrulanabilir
+> şeyle sınırlıdır: hedef katman adı şemada var mı, hedef katmandan oraya
+> taşımak izin matrisine uyuyor mu, ve model kendisi kuralı çiğnediğini beyan
+> ediyor mu. **Import düzeyinde uyum v2'de ölçülmez**; taslak metninden hangi
+> importların ekleneceğini çıkarmak güvenilir değildir. v3'te `apply` diff'inden
+> ölçülecek. FINDINGS-2 `rejected` oranını "kısıt uyumu" diye sunarken bu
+> daralmayı belirtmelidir, aksi halde ölçülenden fazlası iddia edilmiş olur.
 | `rejected` oranı | Katman kuralını ihlal eden öneri oranı, koşul başına |
 | Hedef katman doğruluğu | `target_layer_after` beyanı elle değerlendirilir (3 hedef × 4 koşul = 12 karar, uygulanabilir) |
 | Koku adresleme | `addresses_smells` gerçekten o kokuyu ele alıyor mu |

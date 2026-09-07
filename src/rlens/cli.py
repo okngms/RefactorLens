@@ -135,7 +135,10 @@ def scan(
         bool,
         typer.Option(
             "--no-arch",
-            help="Skip layer and smell analysis; produces the v1 output.",
+            help=(
+                "Skip layer analysis and violations. Smell labels and the "
+                "public interface are still computed."
+            ),
         ),
     ] = False,
     fail_on_violation: Annotated[

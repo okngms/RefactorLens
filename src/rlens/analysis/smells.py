@@ -14,6 +14,11 @@ Etiket bu yanlış pozitifi nötrler — sayı değişmez, **yorumu** değişir.
 
 Her etiket `evidence` taşır: hangi metrik, hangi eşik. Gerekçesiz etiket,
 kullanıcının doğrulayamayacağı bir iddiadır.
+
+**Eşikler yalnızca `evidence["thresholds"]` altında yaşar.** Düz bir alan olarak
+yazılan eşik prompt'a sızar ve projenin kilitli değişmezini —*ham eşik sayıları
+modele gitmez*— ihlal eder. Bu, dosya düzeyinde bir kuraldır: yeni bir koku
+eklerken eşiği `thresholds` içine koyun, yanına değil.
 """
 
 from __future__ import annotations
@@ -231,7 +236,7 @@ def detect_function_smells(report: FunctionReport, owner: str, config: Config) -
                 target=f"{owner}.{report.name}",
                 evidence={
                     "params": report.param_count,
-                    "threshold": params_threshold.warn,
+                    "thresholds": {"params": params_threshold.warn},
                 },
             )
         )
@@ -269,8 +274,8 @@ def detect_layer_misfit(
         evidence={
             "layer": layer,
             "dcc": report.dcc,
-            "dcc_threshold": threshold.warn,
             "module_has_violation": True,
+            "thresholds": {"dcc": threshold.warn},
         },
         note="its module breaks a layer rule and its coupling is above the "
         "threshold for that layer",

@@ -155,3 +155,23 @@ class TestDiff:
             PublicInterface(methods=("a", "b")), PublicInterface(methods=("a",))
         )
         assert delta.to_dict()["removed"] == ["b"]
+
+
+class TestSlots:
+    """`__slots__` adı dunder'dır ama içeriği attribute'lardır."""
+
+    def test_public_slot_names_are_attributes(self):
+        assert public_interface(parse('class C:\n    __slots__ = ("x", "_y")')).attributes == ("x",)
+
+    def test_a_list_works_too(self):
+        assert public_interface(parse('class C:\n    __slots__ = ["a"]')).attributes == ("a",)
+
+    def test_slots_combine_with_self_assignment(self):
+        node = parse(
+            'class C:\n    __slots__ = ("x",)\n'
+            "    def set(self):\n        self.y = 1"
+        )
+        assert public_interface(node).attributes == ("x", "y")
+
+    def test_a_non_literal_slots_value_is_ignored(self):
+        assert public_interface(parse("class C:\n    __slots__ = NAMES")).attributes == ()

@@ -139,6 +139,16 @@ def public_interface(node: ast.ClassDef) -> PublicInterface:
         ):
             attributes.add(item.target.id)
 
+        # `__slots__` adın kendisi dunder'dır ama **içeriği** attribute'lardır;
+        # `class_metrics` de bu kaynağı sayar, arayüz de saymalı.
+        if isinstance(item, (ast.Assign, ast.AnnAssign)):
+            targets = item.targets if isinstance(item, ast.Assign) else [item.target]
+            if any(isinstance(x, ast.Name) and x.id == "__slots__" for x in targets):
+                for element in getattr(item.value, "elts", []):
+                    named = isinstance(element, ast.Constant) and isinstance(element.value, str)
+                    if named and is_public(element.value):
+                        attributes.add(element.value)
+
     for child in ast.walk(node):
         if (
             isinstance(child, ast.Attribute)

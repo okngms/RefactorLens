@@ -293,3 +293,47 @@ class TestMessyFixture:
         found = smells_of(MESSY)
         targets = [s.target for s in found if s.label == FEATURE_ENVY]
         assert targets == ["god:OrderManager.mark_paid"]
+
+
+class TestThresholdsStayNested:
+    """Kilitli değişmez: ham eşik sayıları prompt'a sızmamalı.
+
+    Eşik düz bir alan olarak yazılırsa `format_architecture` onu basar.
+    `dcc_threshold` tam olarak böyle sızmıştı.
+    """
+
+    def _flat_keys(self, evidence: dict) -> list[str]:
+        return [k for k in evidence if k != "thresholds"]
+
+    def test_god_class(self, config):
+        smell = detect_god_class(cls(nom=25, wmc=60, lcom4=4), config.smells)
+        assert not any("threshold" in k for k in self._flat_keys(smell.evidence))
+
+    def test_too_many_params(self, config):
+        report = FunctionReport(name="f", lineno=1, param_count=7)
+        smell = next(
+            s for s in detect_function_smells(report, "m", config) if s.label == TOO_MANY_PARAMS
+        )
+        assert not any("threshold" in k for k in self._flat_keys(smell.evidence))
+        assert smell.evidence["thresholds"]["params"] == 5
+
+    def test_long_method(self, config):
+        report = FunctionReport(name="f", lineno=1, cyclomatic_complexity=12, loc=60)
+        smell = next(
+            s for s in detect_function_smells(report, "m", config) if s.label == LONG_METHOD
+        )
+        assert not any("threshold" in k for k in self._flat_keys(smell.evidence))
+
+    def test_layer_misfit(self, tmp_path):
+        (tmp_path / "rlens.yaml").write_text(
+            "thresholds:\n  by_layer:\n    domain: {dcc: {warn: 2}}\n", encoding="utf-8"
+        )
+        config = load_config(search_from=tmp_path)
+        smell = detect_layer_misfit(cls(module="m", dcc=5), "domain", 1.0, {"m"}, config)
+        assert not any("threshold" in k for k in self._flat_keys(smell.evidence))
+        assert smell.evidence["thresholds"]["dcc"] == 2
+
+    def test_feature_envy(self, config):
+        node = parse("class C:\n    def m(self, o):\n        return (o.a, o.b, o.c, self._x)")
+        smell = detect_feature_envy(node, "m", config.smells)[0]
+        assert not any("threshold" in k for k in self._flat_keys(smell.evidence))

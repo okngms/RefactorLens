@@ -521,3 +521,62 @@ class TestDocumentCounters:
         assert document.rejected_count == 1
         assert document.unlinked_count == 2
         assert document.constraint_disagreements == 1
+
+
+class TestLayerMatrixConstraint:
+    """Matrisin doğrulanabilir kısmı: taşıma yönü izinli mi?"""
+
+    @pytest.fixture
+    def scheme(self, context_and_config):
+        _, config = context_and_config
+        return config.arch.scheme
+
+    def _reply(self, **fields):
+        payload = json.loads(json.dumps(VALID_REPLY))
+        payload["suggestions"][0].update(fields)
+        return json.dumps(payload)
+
+    def _target(self, layer):
+        from rlens.advise.selector import AdviceTarget
+
+        return AdviceTarget(kind="class", module="m", name="C", lineno=1, layer=layer)
+
+    def test_allowed_direction_is_accepted(self, scheme):
+        advice, _ = parse_advice(
+            self._reply(target_layer_after="domain"),
+            "t",
+            advice_target=self._target("application"),
+            scheme=scheme,
+        )
+        assert advice.suggestions[0].status == LINKED
+
+    def test_forbidden_direction_is_rejected(self, scheme):
+        """domain → infrastructure izinli değil."""
+        advice, _ = parse_advice(
+            self._reply(target_layer_after="infrastructure"),
+            "t",
+            advice_target=self._target("domain"),
+            scheme=scheme,
+        )
+        suggestion = advice.suggestions[0]
+        assert suggestion.status == REJECTED
+        assert "the scheme forbids" in suggestion.notes[0]
+
+    def test_staying_in_the_same_layer_is_fine(self, scheme):
+        advice, _ = parse_advice(
+            self._reply(target_layer_after="domain"),
+            "t",
+            advice_target=self._target("domain"),
+            scheme=scheme,
+        )
+        assert advice.suggestions[0].status == LINKED
+
+    def test_unknown_target_layer_skips_the_check(self, scheme):
+        """Katman bilinmiyorsa yön hakkında konuşulamaz."""
+        advice, _ = parse_advice(
+            self._reply(target_layer_after="infrastructure"),
+            "t",
+            advice_target=self._target(None),
+            scheme=scheme,
+        )
+        assert advice.suggestions[0].status == LINKED

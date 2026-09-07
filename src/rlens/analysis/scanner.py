@@ -88,35 +88,39 @@ def scan_project_with_sources(root: Path, config: Config, *, no_arch: bool = Fal
                 project_classes=project_classes,
                 cam_min_annotation_coverage=config.metrics.cam_min_annotation_coverage,
             )
-            if architecture is not None:
-                assignment = architecture.assignments.get(module.module)
+            assignment = architecture.assignments.get(module.module) if architecture else None
+            if assignment is not None:
                 measured.layer = layer
-                measured.layer_source = assignment.source if assignment else None
-                measured.layer_confidence = assignment.confidence if assignment else None
-                measured.public_interface = public_interface(node).to_dict()
-                measured.smells = [
-                    smell.to_dict()
-                    for smell in detect_class_smells(
-                        node,
-                        measured,
-                        config,
-                        layer=layer,
-                        layer_confidence=assignment.confidence if assignment else 0.0,
-                        violating_modules=architecture.violating_modules,
-                    )
-                ]
+                measured.layer_source = assignment.source
+                measured.layer_confidence = assignment.confidence
+
+            # Arayüz ve katmandan bağımsız kokular **her zaman** hesaplanır.
+            # `--no-arch` katman analizini kapatır; kullanıcının `god_class`
+            # etiketini ya da `verify`'ın Goodhart korumasını kaybetmesi
+            # istenmeyen bir yan etkidir — o kontrol arayüz kümesine bağlıdır
+            # ve arayüz katmanla ilgisizdir.
+            measured.public_interface = public_interface(node).to_dict()
+            measured.smells = [
+                smell.to_dict()
+                for smell in detect_class_smells(
+                    node,
+                    measured,
+                    config,
+                    layer=layer,
+                    layer_confidence=assignment.confidence if assignment else 0.0,
+                    violating_modules=(architecture.violating_modules if architecture else set()),
+                )
+            ]
             classes.append(measured)
 
         functions = [
             measure_function(node, is_method=False) for node in iter_module_functions(module.tree)
         ]
-        module_smells: list[dict] = []
-        if architecture is not None:
-            for function in functions:
-                module_smells.extend(
-                    smell.to_dict()
-                    for smell in detect_function_smells(function, module.module, config)
-                )
+        module_smells: list[dict] = [
+            smell.to_dict()
+            for function in functions
+            for smell in detect_function_smells(function, module.module, config)
+        ]
 
         module_reports.append(
             ModuleReport(

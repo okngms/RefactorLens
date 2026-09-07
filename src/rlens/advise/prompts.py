@@ -100,6 +100,48 @@ def output_schema(*, architectural: bool = False) -> dict:
     }
 
 
+#: Koku kanıtından prompt'a basılabilecek anahtarlar.
+#:
+#: **Beyaz liste, kara liste değil.** Yeni bir koku eklendiğinde varsayılan
+#: davranış *sızdırmamak* olmalıdır; kara liste, listelenmemiş her yeni alanı
+#: sessizce geçirir ve `dcc_threshold` gibi bir ad tam olarak böyle sızmıştı.
+EVIDENCE_KEYS = frozenset(
+    {
+        "nom",
+        "wmc",
+        "lcom4",
+        "dam",
+        "dcc",
+        "cam",
+        "cc",
+        "loc",
+        "params",
+        "nesting",
+        "layer",
+        "envied",
+        "accesses_to_other",
+        "accesses_to_self",
+        "ratio",
+        "accessor_ratio",
+        "module_has_violation",
+    }
+)
+
+
+def format_evidence_fields(evidence: dict) -> str:
+    """Koku kanıtını prompt için biçimlendirir.
+
+    Yalnızca beyaz listedeki ölçüm anahtarları basılır. Eşikler
+    `evidence["thresholds"]` altında yaşar ve **hiçbir koşulda** basılmaz.
+    """
+    parts = [
+        f"{key}={value}"
+        for key, value in evidence.items()
+        if key in EVIDENCE_KEYS and not isinstance(value, (dict, list))
+    ]
+    return ", ".join(parts)
+
+
 def format_architecture(target, scheme) -> str:
     """Mimari bağlam bloğu.
 
@@ -135,11 +177,7 @@ def format_architecture(target, scheme) -> str:
     if target.smells:
         lines.append("Smell labels:")
         for smell in target.smells:
-            evidence = ", ".join(
-                f"{key}={value}"
-                for key, value in smell.get("evidence", {}).items()
-                if not isinstance(value, (dict, list))
-            )
+            evidence = format_evidence_fields(smell.get("evidence", {}))
             lines.append(f"  - {smell['label']} ({evidence})")
             if smell.get("note"):
                 lines.append(f"    note: {smell['note']}")
@@ -250,7 +288,7 @@ def build_user_prompt(
     return "\n\n".join(parts)
 
 
-def build_repair_prompt(raw_reply: str, error: str) -> str:
+def build_repair_prompt(raw_reply: str, error: str, *, architectural: bool = False) -> str:
     """Bozuk JSON için tek seferlik onarım isteği.
 
     Yeni bir öneri istenmez — yalnızca var olan cevabın geçerli JSON'a
@@ -263,6 +301,8 @@ def build_repair_prompt(raw_reply: str, error: str) -> str:
         "Return the same content as a single valid JSON object matching the "
         "structure below. Do not add new suggestions, do not change the meaning, "
         "do not wrap it in markdown fences.\n\n"
-        f"Required structure:\n{json.dumps(output_schema(), indent=2)}\n\n"
+        "Required structure:\n"
+        + json.dumps(output_schema(architectural=architectural), indent=2)
+        + "\n\n"
         f"Your previous reply:\n{raw_reply}"
     )

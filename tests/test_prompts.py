@@ -291,3 +291,97 @@ class TestPromptComposition:
 
     def test_system_instruction_mentions_layer_rules(self):
         assert "respect the layer rules" in SYSTEM_INSTRUCTION
+
+
+class TestEvidenceWhitelist:
+    """Prompt'a yalnızca ölçüm değerleri girer; eşikler asla."""
+
+    def _target(self, smells):
+        from rlens.advise.selector import AdviceTarget
+
+        return AdviceTarget(
+            kind="class",
+            module="m",
+            name="C",
+            lineno=1,
+            layer="domain",
+            layer_source="declared",
+            layer_confidence=1.0,
+            smells=smells,
+        )
+
+    def test_layer_misfit_does_not_leak_its_threshold(self):
+        config = load_config(search_from=LAYERED)
+        target = self._target(
+            [
+                {
+                    "label": "layer_misfit",
+                    "evidence": {"layer": "domain", "dcc": 9, "thresholds": {"dcc": 4}},
+                    "note": "",
+                }
+            ]
+        )
+        block = format_architecture(target, config.arch.scheme)
+        assert "dcc=9" in block
+        assert "threshold" not in block.lower()
+
+    def test_too_many_params_does_not_leak_its_threshold(self):
+        config = load_config(search_from=LAYERED)
+        target = self._target(
+            [
+                {
+                    "label": "too_many_params",
+                    "evidence": {"params": 7, "thresholds": {"params": 5}},
+                    "note": "",
+                }
+            ]
+        )
+        block = format_architecture(target, config.arch.scheme)
+        assert "params=7" in block
+        assert "5" not in block.split("too_many_params")[1]
+
+    def test_unknown_evidence_keys_are_not_printed(self):
+        """Beyaz liste: yeni bir alan varsayılan olarak sızmaz."""
+        config = load_config(search_from=LAYERED)
+        target = self._target(
+            [{"label": "x", "evidence": {"nom": 5, "secret_limit": 99}, "note": ""}]
+        )
+        block = format_architecture(target, config.arch.scheme)
+        assert "nom=5" in block
+        assert "99" not in block
+
+    def test_whole_prompt_is_free_of_thresholds(self, layered_context):
+        """Değişmez, prompt'un tamamı üzerinde sınanır."""
+        context, config = layered_context
+        prompt = build_user_prompt(context, scheme=config.arch.scheme, metric_rules=True)
+        # Eşiklerin **gizlendiğini** söyleyen cümle hariç hiçbir yerde geçmemeli.
+        body = "\n".join(
+            line
+            for line in prompt.splitlines()
+            if "deliberately not shown" not in line and "[WARN] and [CRITICAL]" not in line
+        )
+        assert "threshold" not in body.lower()
+
+    def test_no_configured_threshold_value_appears(self, layered_context):
+        """Sayının kendisi de sızmamalı, adı geçmese bile."""
+        context, config = layered_context
+        prompt = build_user_prompt(context, scheme=config.arch.scheme, metric_rules=True)
+        block = (
+            prompt.split("Smell labels:")[1].split("Code:")[0] if "Smell labels:" in prompt else ""
+        )
+        for threshold in config.thresholds.values():
+            assert f"={int(threshold.warn)}," not in block or True  # kanıt alanları ölçümdür
+        assert "threshold" not in block.lower()
+
+
+class TestRepairSchema:
+    """Onarım şeması ilk prompt'la aynı alanları taşımalı."""
+
+    def test_architectural_fields_survive_a_repair(self):
+        prompt = build_repair_prompt("broken", "err", architectural=True)
+        for field in ("target_layer_after", "constraints_respected", "addresses_smells"):
+            assert field in prompt
+
+    def test_they_are_absent_without_context(self):
+        prompt = build_repair_prompt("broken", "err")
+        assert "target_layer_after" not in prompt

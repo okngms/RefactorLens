@@ -424,8 +424,28 @@ class TestNoArchIsV1:
         }
         assert a == b
 
-    def test_no_smells_are_computed(self, layered_no_arch):
+    def test_layer_information_is_absent(self, layered_no_arch):
         report, _ = layered_no_arch
-        assert list(report.iter_smells()) == []
         assert report.violations == []
         assert report.arch_enabled is False
+        assert all(cls.layer is None for cls in report.iter_classes())
+
+    def test_smells_are_still_computed(self, layered_no_arch):
+        """`--no-arch` katman analizini kapatır, yorumlama katmanını değil.
+
+        `god_class` ve `data_class` katmandan bağımsızdır; kullanıcının onları
+        kaybetmesi için bir sebep yok.
+        """
+        report, _ = layered_no_arch
+        labels = {s["label"] for s in report.iter_smells()}
+        assert "god_class" in labels
+        assert "data_class" in labels
+
+    def test_layer_misfit_still_needs_layers(self, layered_no_arch):
+        report, _ = layered_no_arch
+        assert not any(s["label"] == "layer_misfit" for s in report.iter_smells())
+
+    def test_public_interface_survives(self, layered_no_arch):
+        """Goodhart koruması bu kümeye bağlı; `--no-arch` onu kaybettirmemeli."""
+        report, _ = layered_no_arch
+        assert all(cls.public_interface for cls in report.iter_classes())

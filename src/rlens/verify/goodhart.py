@@ -17,6 +17,16 @@ değil **iş silmekten** gelmiş olabilir.
 küçültebilir; ölü kod silmek tam olarak budur. Bu yüzden karar `regressed`
 değil ayrı bir etikettir ve `verify.treat_suspicious_as_regression` ile CI
 davranışı seçilebilir.
+
+**Taşınan üye silinmiş sayılmaz.** Extract Class tam olarak "üyeleri başka bir
+sınıfa taşımak"tır ve aracın önerdiği refactoring türlerinin başında gelir.
+Yalnızca hedefin kendi arayüzüne bakan bir kontrol, her Extract Class'ı
+şüpheli ilan eder ve araç kendi tavsiyesini cezalandırır. Bu yüzden kaybolan
+her üye önce projenin geri kalanında aranır; bulunursa `moved`, bulunmazsa
+`deleted` sayılır ve şüphe yalnızca silinenlerden doğar.
+
+FINDINGS-1'in iki vakası bu ayrımın turnusolüdür: arayüz-silme vakasında
+üyeler yok oldu, denetim-çıkarma vakasında taşındı.
 """
 
 from __future__ import annotations
@@ -24,7 +34,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from rlens.analysis.interface import InterfaceDelta, PublicInterface, diff_interfaces
-from rlens.verify.diff import IMPROVED, MIXED, EntityDelta
+from rlens.verify.diff import ADDED, IMPROVED, MIXED, EntityDelta
 
 SUSPICIOUS = "suspicious"
 
@@ -36,44 +46,58 @@ class SuspicionCheck:
     qualified_name: str
     interface: InterfaceDelta
     metrics_improved: bool
-    removed_public: tuple[str, ...] = ()
+    moved: tuple[tuple[str, str], ...] = ()
+    """`(üye adı, yeni sahibi)` çiftleri. Taşınan üye kaybolmamıştır."""
 
     @property
-    def net_loss(self) -> int:
-        """Kaybolan üye sayısı eksi eklenen. Yeniden adlandırma sıfır verir."""
-        return len(self.interface.removed) - len(self.interface.added)
+    def deleted(self) -> tuple[str, ...]:
+        """Projede hiçbir yerde bulunamayan üyeler."""
+        relocated = {name for name, _ in self.moved}
+        return tuple(name for name in self.interface.removed if name not in relocated)
+
+    @property
+    def net_deleted(self) -> int:
+        """Silinen üye sayısı eksi eklenen. Yeniden adlandırma sıfır verir."""
+        return len(self.deleted) - len(self.interface.added)
 
     @property
     def is_suspicious(self) -> bool:
-        """Metrikler iyileşirken public arayüz **net olarak** küçüldü mü?
+        """Metrikler iyileşirken public arayüz **net olarak silindi** mi?
 
-        İki koşul birden aranır. Tek başına arayüz küçülmesi meşru olabilir
-        (ölü kod silme); tek başına metrik iyileşmesi zaten istenen şeydir.
+        Üç şey birden aranır ve her biri bir yanlış pozitifi eler:
 
-        Net kayıp şartı yeniden adlandırmayı eler: `touch_b` gidip `touch_both`
-        geldiyse hiçbir yetenek kaybolmamıştır. Beş metot silip bir tane
-        eklemek ise hâlâ yakalanır (net −4).
+        * Metrikler iyileşmiş olmalı — tek başına arayüz küçülmesi meşrudur.
+        * Kaybolan üye başka bir sınıfa taşınmamış olmalı — Extract Class
+          cezalandırılmamalı.
+        * Kayıp net olmalı — `touch_b` gidip `touch_both` geldiyse hiçbir
+          yetenek kaybolmamıştır.
+
+        Beş metot silip bir tane eklemek hâlâ yakalanır (net −4).
         """
-        return self.metrics_improved and self.net_loss > 0
+        return self.metrics_improved and self.net_deleted > 0
 
     @property
     def reason(self) -> str:
         if not self.is_suspicious:
             return ""
-        names = ", ".join(self.removed_public[:5])
-        if len(self.removed_public) > 5:
-            names += f" and {len(self.removed_public) - 5} more"
-        return (
-            f"metrics improved while {len(self.removed_public)} public member(s) "
-            f"disappeared: {names}"
-        )
+        deleted = self.deleted
+        names = ", ".join(deleted[:5])
+        if len(deleted) > 5:
+            names += f" and {len(deleted) - 5} more"
+        text = f"metrics improved while {len(deleted)} public member(s) were deleted: {names}"
+        if self.moved:
+            owners = sorted({owner for _, owner in self.moved})
+            text += f"; {len(self.moved)} moved to {', '.join(owners)}"
+        return text
 
     def to_dict(self) -> dict:
         return {
             "qualified_name": self.qualified_name,
             "suspicious": self.is_suspicious,
             "metrics_improved": self.metrics_improved,
-            "net_loss": self.net_loss,
+            "deleted": list(self.deleted),
+            "moved": [list(pair) for pair in self.moved],
+            "net_deleted": self.net_deleted,
             "interface": self.interface.to_dict(),
             "reason": self.reason,
         }
@@ -114,10 +138,47 @@ def _interface_from(payload: dict | None) -> PublicInterface | None:
     )
 
 
+def find_new_owner(
+    member: str,
+    exclude: str,
+    interfaces: dict[str, dict],
+    preferred: set[str],
+    module: str,
+) -> str | None:
+    """Kaybolan bir üyenin projede yeniden ortaya çıktığı sınıf.
+
+    Arama sırası daralan olasılığa göredir: önce **yeni eklenen** sınıflar
+    (Extract Class'ın tipik sonucu), sonra aynı modüldekiler, sonra proje.
+
+    **Sınırlılık:** eşleşme yalnızca ada bakar. `public_interface` parametre
+    bilgisi taşımadığı için arite karşılaştırılamaz; aynı adlı ilgisiz bir
+    metot yanlışlıkla "taşınmış" sayılabilir. v3'te AST diff ile
+    kesinleştirilecek. Yanlış tarafı bilinçli seçildi: meşru bir Extract
+    Class'ı şüpheli ilan etmek, kaçırılan bir silmeden daha zararlıdır, çünkü
+    davranış testleri silmeyi zaten yakalar.
+    """
+
+    def owns(name: str) -> bool:
+        payload = interfaces.get(name, {})
+        return member in set(payload.get("methods", ())) | set(payload.get("attributes", ()))
+
+    for group in (
+        sorted(preferred),
+        sorted(n for n in interfaces if n.startswith(f"{module}:")),
+        sorted(interfaces),
+    ):
+        for name in group:
+            if name != exclude and owns(name):
+                return name
+    return None
+
+
 def check_entity(
     delta: EntityDelta,
     before: dict | None,
     after: dict | None,
+    after_interfaces: dict[str, dict] | None = None,
+    added_classes: set[str] | None = None,
 ) -> SuspicionCheck | None:
     """Tek bir sınıfı değerlendirir.
 
@@ -130,14 +191,27 @@ def check_entity(
         return None
 
     interface = diff_interfaces(old, new)
-    verdict = delta.summarise()
-    improved = verdict in (IMPROVED, MIXED)
+    improved = delta.summarise() in (IMPROVED, MIXED)
+
+    moved: list[tuple[str, str]] = []
+    if after_interfaces:
+        module = delta.qualified_name.split(":")[0]
+        for member in interface.removed:
+            owner = find_new_owner(
+                member,
+                delta.qualified_name,
+                after_interfaces,
+                added_classes or set(),
+                module,
+            )
+            if owner:
+                moved.append((member, owner))
 
     return SuspicionCheck(
         qualified_name=delta.qualified_name,
         interface=interface,
         metrics_improved=improved,
-        removed_public=interface.removed,
+        moved=tuple(moved),
     )
 
 
@@ -160,13 +234,20 @@ def detect(before: dict, after: dict, deltas: list[EntityDelta]) -> GoodhartRepo
     """
     old_index = _index_interfaces(before)
     new_index = _index_interfaces(after)
+    # Extract Class'ın sonucu genelde yeni bir sınıftır; taşınan üye önce orada
+    # aranır.
+    added = {d.qualified_name for d in deltas if d.kind == "class" and d.status == ADDED}
 
     report = GoodhartReport()
     for delta in deltas:
         if delta.kind != "class":
             continue
         check = check_entity(
-            delta, old_index.get(delta.qualified_name), new_index.get(delta.qualified_name)
+            delta,
+            old_index.get(delta.qualified_name),
+            new_index.get(delta.qualified_name),
+            new_index,
+            added,
         )
         if check is None:
             report.unavailable.append(delta.qualified_name)
