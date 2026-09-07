@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:30:49+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The class has a critical LCOM4 value (4), indicating that its methods are largely isolated and do not share state, which hurts cohesion. The class is essentially a data holder with trivial getters, reflected by a perfect DAM (1.0) and zero DCC, but the many accessor methods inflate NOM and WMC without adding behavior.",
+      "suggestions": [
+        {
+          "title": "Replace explicit getters with a dataclass and keep only behavior",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC",
+            "DAM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DAM",
+              "direction": "down",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Convert the class to a @dataclass, expose the fields as public (or keep them private but rely on the dataclass generated __init__), and delete the trivial getter methods. Keep only the domain behavior method `is_premium` (or turn it into a @property). Example:\n```python\nfrom dataclasses import dataclass\n\n@dataclass\nclass Customer:\n    customer_id: int\n    name: str\n    email: str\n    tier: str = \"standard\"\n\n    def is_premium(self) -> bool:\n        return self.tier == \"premium\"\n```\nIf other code relies on the old getter names, add thin wrappers that delegate to the attributes, but place them outside the core data class (e.g., in a service layer) to keep the entity cohesive.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Removing the getter methods is a breaking change for any client code that calls `customer.name()`, `customer.email()`, etc. Add compatibility shims only if necessary, and update callers to use attribute access. Changing private attributes to public reduces encapsulation, which may affect future validation logic; ensure that invariants are enforced elsewhere (e.g., in a factory or validator).",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.domain.entities:Customer\",\n  \"diagnosis\": \"The class has a critical LCOM4 value (4), indicating that its methods are largely isolated and do not share state, which hurts cohesion. The class is essentially a data holder with trivial getters, reflected by a perfect DAM (1.0) and zero DCC, but the many accessor methods inflate NOM and WMC without adding behavior.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Replace explicit getters with a dataclass and keep only behavior\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\",\n        \"DAM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DAM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Convert the class to a @dataclass, expose the fields as public (or keep them private but rely on the dataclass generated __init__), and delete the trivial getter methods. Keep only the domain behavior method `is_premium` (or turn it into a @property). Example:\\n```python\\nfrom dataclasses import dataclass\\n\\n@dataclass\\nclass Customer:\\n    customer_id: int\\n    name: str\\n    email: str\\n    tier: str = \\\"standard\\\"\\n\\n    def is_premium(self) -> bool:\\n        return self.tier == \\\"premium\\\"\\n```\\nIf other code relies on the old getter names, add thin wrappers that delegate to the attributes, but place them outside the core data class (e.g., in a service layer) to keep the entity cohesive.\"\n    }\n  ],\n  \"risk_notes\": \"Removing the getter methods is a breaking change for any client code that calls `customer.name()`, `customer.email()`, etc. Add compatibility shims only if necessary, and update callers to use attribute access. Changing private attributes to public reduces encapsulation, which may affect future validation logic; ensure that invariants are enforced elsewhere (e.g., in a factory or validator).\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "59638e58216bb675b184890a20aa92cd43af75248656fb487bb6ca68769001e5",
+      "from_cache": false
+    }
+  ],
+  "condition": "rules",
+  "arch_context": false,
+  "metric_rules": true
+}

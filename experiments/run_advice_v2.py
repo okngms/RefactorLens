@@ -82,6 +82,31 @@ DEFAULT_TARGETS = (
 )
 
 
+#: Ücretsiz katmanın dakika başına token sınırı (Groq `on_demand`).
+DEFAULT_TPM = 8000
+
+#: Prompt token'ı başına toplam token. Ölçülmüş değer 1,63; pay bırakılmıştır.
+RESPONSE_RATIO = 1.7
+
+
+def pace(estimated_tokens: int, minimum: float, tokens_per_minute: int) -> float:
+    """İki çağrı arasında beklenecek süre.
+
+    Sabit bir gecikme yetmez: dakika başına token sınırı çağrı sayısına değil
+    **boyutuna** bakar. 5a'nın ilk koşusunda 4500 token'lık prompt'lar 8
+    saniyelik sabit gecikmeyle sınırı aştı ve 8 çağrı düştü — hepsi en uzun
+    hedefte, yani kayıp rastgele değildi.
+
+    Yanıt token'ları da sınıra sayılır. Çarpan tahmin değil ölçüm: 5a'nın ilk
+    koşusunda 28 çağrı 27.941 girdi ve 17.583 çıktı token harcadı, yani yanıt
+    oranı ~0,63. Pay bırakmak için 1,7 kullanılır.
+    """
+    if tokens_per_minute <= 0:
+        return minimum
+    budgeted = (estimated_tokens * RESPONSE_RATIO) * 60.0 / tokens_per_minute
+    return max(minimum, budgeted)
+
+
 def slug(value: str) -> str:
     return value.replace("/", "_").replace(":", "_")
 
@@ -148,6 +173,7 @@ def run(
     targets: tuple[str, ...],
     delay: float,
     plan_only: bool,
+    tokens_per_minute: int = DEFAULT_TPM,
     provider_factory=get_provider,
 ) -> int:
     config = load_config(search_from=project)
@@ -160,7 +186,8 @@ def run(
     print(f"models     : {', '.join(models)}")
     print(f"conditions : {', '.join(CONDITIONS)}")
     print(f"protocol   : n={repetitions}, temperature={config.advise.temperature}")
-    print(f"total      : {total} runs ({skipped} already on disk)\n")
+    print(f"total      : {total} runs ({skipped} already on disk)")
+    print(f"pacing     : >= {delay}s between calls, {tokens_per_minute} TPM budget\n")
 
     if plan_only:
         for condition, model, repetition, target, _ in pending:
@@ -235,8 +262,10 @@ def run(
             counts.append("cached")
         print("  → " + ", ".join(counts))
 
-        if index < len(pending) and delay > 0 and not advice.from_cache:
-            time.sleep(delay)
+        if index < len(pending) and not advice.from_cache:
+            wait = pace(context.estimated_tokens, delay, tokens_per_minute)
+            if wait > 0:
+                time.sleep(wait)
 
     print(f"\n{made} run(s) written to {out_dir}")
     print(f"{budget.describe()} · {cache.describe()}")
@@ -258,7 +287,13 @@ def main() -> int:
         default=",".join(DEFAULT_TARGETS),
         help="Comma-separated qualified names. Fixed in advance by the protocol.",
     )
-    parser.add_argument("--delay", type=float, default=5.0)
+    parser.add_argument("--delay", type=float, default=5.0, help="Minimum seconds between calls.")
+    parser.add_argument(
+        "--tpm",
+        type=int,
+        default=DEFAULT_TPM,
+        help="Provider tokens-per-minute limit; pacing is derived from it.",
+    )
     parser.add_argument("--plan", action="store_true", help="List the calls and stop.")
     args = parser.parse_args()
 
@@ -274,6 +309,7 @@ def main() -> int:
         targets=tuple(t.strip() for t in args.targets.split(",") if t.strip()),
         delay=args.delay,
         plan_only=args.plan,
+        tokens_per_minute=args.tpm,
     )
     return 0
 

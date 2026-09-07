@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:26:50+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.services.order_service:OrderService",
+      "diagnosis": "The OrderService class bundles four distinct responsibilities (order lifecycle, pricing, audit, notification) resulting in a very high method count (NOM=26) and cyclomatic complexity (WMC=56). The LCOM4 value of 5 signals poor cohesion: the methods are split into four loosely connected groups. While all attributes are private (DAM=1.0), the class already depends on four internal types (DCC=4), and extracting responsibilities will likely increase that count.",
+      "suggestions": [
+        {
+          "title": "Split OrderService into four focused services",
+          "rationale_metric_link": [
+            "NOM",
+            "WMC",
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.6
+            }
+          ],
+          "sketch": "Create four new classes—OrderLifecycleService (methods place, fetch, cancel, close, order_count, orders_for, open_orders, line_count, revenue, tier_summary), PricingEngine (methods set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_for, policy_rate, is_priced), AuditLog (methods log, history, last_entry, audit_size, clear_audit) and NotificationService (methods notify, sent_count, reset_sent). Each class receives only the dependencies it needs (e.g., OrderLifecycleService gets repository, NotificationService gets notifier). OrderService becomes a thin façade that composes these services or is removed entirely.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Introduce an AuditLog value object to encapsulate audit state",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.75
+            },
+            {
+              "metric": "DCC",
+              "direction": "same",
+              "confidence": 0.5
+            }
+          ],
+          "sketch": "Define a new class AuditLog with a private list attribute and the methods log, history, last_entry, audit_size, clear_audit. Replace the _audit list in OrderService with an instance of AuditLog passed via the constructor. This moves audit‑related behavior out of the main class, reducing the number of unrelated method‑attribute connections and improving cohesion without adding new project‑internal dependencies.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Splitting the class changes the public API; callers that previously used OrderService directly will need to be updated to use the new services or the façade. Tests that mock the original repository/notifier may break if the dependency injection points shift. Introducing new classes increases the surface area, so careful integration testing is required to ensure transactional consistency (e.g., order placement and notification still happen atomically).",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.services.order_service:OrderService\",\n  \"diagnosis\": \"The OrderService class bundles four distinct responsibilities (order lifecycle, pricing, audit, notification) resulting in a very high method count (NOM=26) and cyclomatic complexity (WMC=56). The LCOM4 value of 5 signals poor cohesion: the methods are split into four loosely connected groups. While all attributes are private (DAM=1.0), the class already depends on four internal types (DCC=4), and extracting responsibilities will likely increase that count.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Split OrderService into four focused services\",\n      \"rationale_metric_link\": [\n        \"NOM\",\n        \"WMC\",\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.6\n        }\n      ],\n      \"sketch\": \"Create four new classes—OrderLifecycleService (methods place, fetch, cancel, close, order_count, orders_for, open_orders, line_count, revenue, tier_summary), PricingEngine (methods set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_for, policy_rate, is_priced), AuditLog (methods log, history, last_entry, audit_size, clear_audit) and NotificationService (methods notify, sent_count, reset_sent). Each class receives only the dependencies it needs (e.g., OrderLifecycleService gets repository, NotificationService gets notifier). OrderService becomes a thin façade that composes these services or is removed entirely.\\n\"\n    },\n    {\n      \"title\": \"Introduce an AuditLog value object to encapsulate audit state\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.75\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"same\",\n          \"confidence\": 0.5\n        }\n      ],\n      \"sketch\": \"Define a new class AuditLog with a private list attribute and the methods log, history, last_entry, audit_size, clear_audit. Replace the _audit list in OrderService with an instance of AuditLog passed via the constructor. This moves audit‑related behavior out of the main class, reducing the number of unrelated method‑attribute connections and improving cohesion without adding new project‑internal dependencies.\\n\"\n    }\n  ],\n  \"risk_notes\": \"Splitting the class changes the public API; callers that previously used OrderService directly will need to be updated to use the new services or the façade. Tests that mock the original repository/notifier may break if the dependency injection points shift. Introducing new classes increases the surface area, so careful integration testing is required to ensure transactional consistency (e.g., order placement and notification still happen atomically).\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "20a01eaaedca5a695a5d4a8f9deeee6b33c15701a3a4e8138b4701e9eaf924b0",
+      "from_cache": false
+    }
+  ],
+  "condition": "plain",
+  "arch_context": false,
+  "metric_rules": false
+}

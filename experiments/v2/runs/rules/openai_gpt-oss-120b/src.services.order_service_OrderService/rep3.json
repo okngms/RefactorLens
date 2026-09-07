@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:31:25+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.services.order_service:OrderService",
+      "diagnosis": "The OrderService class is a God object: it bundles four unrelated responsibilities (order lifecycle, pricing, audit, notification) resulting in a high LCOM4 (5 components) and a large number of methods (NOM=26) with a summed cyclomatic complexity of 56. All attributes are private (DAM=1.0), which is fine, but the class references four other internal classes (DCC=4). The metrics indicate low cohesion and excessive size, suggesting the class should be split and its complex methods simplified.",
+      "suggestions": [
+        {
+          "title": "Extract component services",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.6
+            }
+          ],
+          "sketch": "Create four new classes in the same module (or dedicated sub‑modules):\n\n- OrderLifecycleService handling place, fetch, cancel, close, order_count, orders_for, open_orders, line_count, revenue, tier_summary.\n- PricingService handling set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_for, policy_rate, is_priced.\n- AuditService handling log, history, last_entry, audit_size, clear_audit.\n- NotificationService handling notify, sent_count, reset_sent.\n\nEach new class receives only the attributes it needs (e.g., OrderLifecycleService gets repository, NotificationService gets notifier). OrderService becomes a thin façade that composes these services and delegates calls.\n\n```python\nclass OrderService:\n    def __init__(self, repository, notifier):\n        self._lifecycle = OrderLifecycleService(repository)\n        self._pricing = PricingService()\n        self._audit = AuditService()\n        self._notification = NotificationService(notifier)\n\n    # delegate methods\n    def place(self, *a, **kw):\n        return self._lifecycle.place(*a, **kw)\n    # … similarly for the other groups\n```",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Extract validation helpers from place()",
+          "rationale_metric_link": [
+            "WMC",
+            "CC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "CC",
+              "direction": "down",
+              "confidence": 0.75
+            }
+          ],
+          "sketch": "Move the type‑ and value‑checking logic inside `place` into private helper methods so the main flow stays simple.\n\n```python\ndef _validate_customer(self, customer):\n    if not isinstance(customer, Customer):\n        raise TypeError(\"customer must be a Customer\")\n\ndef _validate_lines(self, lines):\n    if not lines:\n        raise ValueError(\"an order needs at least one line\")\n    for line in lines:\n        if not isinstance(line, OrderLine):\n            raise TypeError(\"lines must contain OrderLine objects\")\n        if line.quantity < 0:\n            raise ValueError(\"a line quantity cannot be negative\")\n        if line.unit_price < 0:\n            raise ValueError(\"a unit price cannot be negative\")\n```\n\nThen `place` becomes:\n```python\ndef place(self, customer, lines):\n    self._validate_customer(customer)\n    self._validate_lines(lines)\n    order = Order(self._next_order_id, customer, lines)\n    self._next_order_id += 1\n    return self._repository.save(order)\n```",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Splitting the class introduces new public interfaces; existing code that imports OrderService and expects all methods on a single object will need to be updated to use the façade or the new component classes. The increase in DCC reflects the additional service classes, which may slightly raise coupling if they are widely used elsewhere. Extracting validation helpers does not change external behavior but adds private methods; ensure they remain internal to avoid accidental use. Thorough integration tests are required to verify that delegation and refactored validation preserve the original contract.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.services.order_service:OrderService\",\n  \"diagnosis\": \"The OrderService class is a God object: it bundles four unrelated responsibilities (order lifecycle, pricing, audit, notification) resulting in a high LCOM4 (5 components) and a large number of methods (NOM=26) with a summed cyclomatic complexity of 56. All attributes are private (DAM=1.0), which is fine, but the class references four other internal classes (DCC=4). The metrics indicate low cohesion and excessive size, suggesting the class should be split and its complex methods simplified.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract component services\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.6\n        }\n      ],\n      \"sketch\": \"Create four new classes in the same module (or dedicated sub‑modules):\\n\\n- OrderLifecycleService handling place, fetch, cancel, close, order_count, orders_for, open_orders, line_count, revenue, tier_summary.\\n- PricingService handling set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_for, policy_rate, is_priced.\\n- AuditService handling log, history, last_entry, audit_size, clear_audit.\\n- NotificationService handling notify, sent_count, reset_sent.\\n\\nEach new class receives only the attributes it needs (e.g., OrderLifecycleService gets repository, NotificationService gets notifier). OrderService becomes a thin façade that composes these services and delegates calls.\\n\\n```python\\nclass OrderService:\\n    def __init__(self, repository, notifier):\\n        self._lifecycle = OrderLifecycleService(repository)\\n        self._pricing = PricingService()\\n        self._audit = AuditService()\\n        self._notification = NotificationService(notifier)\\n\\n    # delegate methods\\n    def place(self, *a, **kw):\\n        return self._lifecycle.place(*a, **kw)\\n    # … similarly for the other groups\\n```\"\n    },\n    {\n      \"title\": \"Extract validation helpers from place()\",\n      \"rationale_metric_link\": [\n        \"WMC\",\n        \"CC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"CC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.75\n        }\n      ],\n      \"sketch\": \"Move the type‑ and value‑checking logic inside `place` into private helper methods so the main flow stays simple.\\n\\n```python\\ndef _validate_customer(self, customer):\\n    if not isinstance(customer, Customer):\\n        raise TypeError(\\\"customer must be a Customer\\\")\\n\\ndef _validate_lines(self, lines):\\n    if not lines:\\n        raise ValueError(\\\"an order needs at least one line\\\")\\n    for line in lines:\\n        if not isinstance(line, OrderLine):\\n            raise TypeError(\\\"lines must contain OrderLine objects\\\")\\n        if line.quantity < 0:\\n            raise ValueError(\\\"a line quantity cannot be negative\\\")\\n        if line.unit_price < 0:\\n            raise ValueError(\\\"a unit price cannot be negative\\\")\\n```\\n\\nThen `place` becomes:\\n```python\\ndef place(self, customer, lines):\\n    self._validate_customer(customer)\\n    self._validate_lines(lines)\\n    order = Order(self._next_order_id, customer, lines)\\n    self._next_order_id += 1\\n    return self._repository.save(order)\\n```\"\n    }\n  ],\n  \"risk_notes\": \"Splitting the class introduces new public interfaces; existing code that imports OrderService and expects all methods on a single object will need to be updated to use the façade or the new component classes. The increase in DCC reflects the additional service classes, which may slightly raise coupling if they are widely used elsewhere. Extracting validation helpers does not change external behavior but adds private methods; ensure they remain internal to avoid accidental use. Thorough integration tests are required to verify that delegation and refactored validation preserve the original contract.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "8f831819e8a4acaa0d5c619bfe5ffcceebf299357564538e8d50dfe3f26b0532",
+      "from_cache": false
+    }
+  ],
+  "condition": "rules",
+  "arch_context": false,
+  "metric_rules": true
+}

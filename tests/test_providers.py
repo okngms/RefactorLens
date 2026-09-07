@@ -253,3 +253,106 @@ class TestOllama:
         monkeypatch.setattr(httpx, "post", Recorder(FakeResponse(200, {"nope": 1})))
         with pytest.raises(ProviderError, match="pulled"):
             OllamaProvider().generate("s", "u", ollama_config, 0.2, sleep=lambda _: None)
+
+
+class TestServerAdvisedBackoff:
+    """Sunucu gerçek süreyi söylüyorsa tahmin etmeye gerek yok."""
+
+    def response(self, status=429, text="", headers=None):
+        import httpx
+
+        return httpx.Response(status, text=text, headers=headers or {})
+
+    def test_body_hint_is_read(self):
+        from rlens.providers.base import advised_wait
+
+        body = '{"error":{"message":"Rate limit. Please try again in 13.9275s."}}'
+        assert advised_wait(self.response(text=body)) == 13.9275
+
+    def test_retry_after_header_is_read(self):
+        from rlens.providers.base import advised_wait
+
+        assert advised_wait(self.response(headers={"retry-after": "7"})) == 7.0
+
+    def test_header_wins_over_the_body(self):
+        from rlens.providers.base import advised_wait
+
+        body = "try again in 30s"
+        assert advised_wait(self.response(text=body, headers={"retry-after": "2"})) == 2.0
+
+    def test_an_http_date_header_falls_through_to_the_body(self):
+        from rlens.providers.base import advised_wait
+
+        response = self.response(
+            text="try again in 4s", headers={"retry-after": "Wed, 21 Oct 2026 07:28:00 GMT"}
+        )
+        assert advised_wait(response) == 4.0
+
+    def test_nothing_advised(self):
+        from rlens.providers.base import advised_wait
+
+        assert advised_wait(self.response(status=500, text="oops")) is None
+
+    def test_advice_beats_exponential_backoff(self):
+        from rlens.providers.base import backoff_delay
+
+        body = "try again in 13.9s"
+        assert backoff_delay(0, self.response(text=body)) == pytest.approx(14.9)
+
+    def test_exponential_backoff_wins_when_larger(self):
+        """Sunucu 0.5 derken 4 beklemek zararsız; tersi ikinci bir 429."""
+        from rlens.providers.base import backoff_delay
+
+        assert backoff_delay(2, self.response(text="try again in 0.5s")) == 4.0
+
+    def test_a_margin_is_added(self):
+        from rlens.providers.base import backoff_delay
+
+        assert backoff_delay(0, self.response(text="try again in 5.04s")) == pytest.approx(6.04)
+
+    def test_absurd_advice_is_capped(self):
+        from rlens.providers.base import MAX_RETRY_WAIT_SECONDS, backoff_delay
+
+        delay = backoff_delay(0, self.response(text="try again in 9999s"))
+        assert delay == MAX_RETRY_WAIT_SECONDS
+
+    def test_without_a_response_it_is_purely_exponential(self):
+        from rlens.providers.base import backoff_delay
+
+        assert backoff_delay(3) == 8.0
+
+    def test_the_retry_loop_uses_it(self, provider_config, monkeypatch):
+        """429 gövdesindeki süre gerçekten uygulanıyor mu?"""
+        import httpx
+
+        from rlens.providers import base
+
+        waits: list[float] = []
+        responses = [
+            httpx.Response(429, text="try again in 6s", request=httpx.Request("POST", "http://x")),
+            httpx.Response(
+                200,
+                json={"choices": [{"message": {"content": "ok"}}]},
+                request=httpx.Request("POST", "http://x"),
+            ),
+        ]
+        monkeypatch.setattr(base.httpx, "post", lambda *a, **k: responses.pop(0))
+        base.post_with_retry("http://x", {}, {}, provider_config, sleep=waits.append)
+        assert waits == [7.0]
+
+    def test_a_response_without_headers_does_not_crash(self):
+        """Her sağlayıcı `Retry-After` göndermez; eksiklik hata değildir."""
+        from rlens.providers.base import advised_wait
+
+        class Bare:
+            text = "try again in 3s"
+
+        assert advised_wait(Bare()) == 3.0
+
+    def test_a_response_without_a_body_does_not_crash(self):
+        from rlens.providers.base import advised_wait
+
+        class Bare:
+            headers = {}
+
+        assert advised_wait(Bare()) is None

@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:30:30+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class has a low cohesion score (LCOM4 = 2) because its methods operate on unrelated data: it formats a title, delegates to a repository, sends email, and formats a Customer object (feature envy). The class references two internal collaborators (DCC = 2) and all its attributes are private (DAM = 1.0), which is fine. The main design problem is the mixed responsibilities that cause the cohesion warning.",
+      "suggestions": [
+        {
+          "title": "Extract customer formatting into its own presenter",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "DCC",
+              "direction": "same",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Create a new class, e.g.\n```python\nclass CustomerPresenter:\n    def __init__(self, width: int = 40) -> None:\n        self._width = width\n\n    def describe(self, customer) -> str:\n        parts = [\n            str(customer.customer_id()),\n            customer.name(),\n            customer.email(),\n            customer.tier(),\n        ]\n        return \" | \".join(parts).ljust(self._width)\n```\nInject it into `ReportView` (or instantiate locally) and replace the old `describe_customer` method with a thin delegator or remove it entirely:\n```python\nclass ReportView:\n    def __init__(self, repository: OrderRepository, mailer: EmailClient, presenter: CustomerPresenter) -> None:\n        self._repository = repository\n        self._mailer = mailer\n        self._presenter = presenter\n        self._width = 40\n\n    # keep title, order_count, mail_summary unchanged\n    def describe_customer(self, customer) -> str:\n        return self._presenter.describe(customer)\n```\nThe original `ReportView` now only deals with repository, mailer, and presentation width, improving method‑attribute cohesion.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "The refactor adds a small amount of indirection and a new class, which could increase the overall DCC count for the new class but leaves `ReportView`'s DCC unchanged. Ensure that dependency injection is wired correctly in the application container; otherwise, runtime errors may occur.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.api.report_view:ReportView\",\n  \"diagnosis\": \"The class has a low cohesion score (LCOM4 = 2) because its methods operate on unrelated data: it formats a title, delegates to a repository, sends email, and formats a Customer object (feature envy). The class references two internal collaborators (DCC = 2) and all its attributes are private (DAM = 1.0), which is fine. The main design problem is the mixed responsibilities that cause the cohesion warning.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract customer formatting into its own presenter\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"same\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Create a new class, e.g.\\n```python\\nclass CustomerPresenter:\\n    def __init__(self, width: int = 40) -> None:\\n        self._width = width\\n\\n    def describe(self, customer) -> str:\\n        parts = [\\n            str(customer.customer_id()),\\n            customer.name(),\\n            customer.email(),\\n            customer.tier(),\\n        ]\\n        return \\\" | \\\".join(parts).ljust(self._width)\\n```\\nInject it into `ReportView` (or instantiate locally) and replace the old `describe_customer` method with a thin delegator or remove it entirely:\\n```python\\nclass ReportView:\\n    def __init__(self, repository: OrderRepository, mailer: EmailClient, presenter: CustomerPresenter) -> None:\\n        self._repository = repository\\n        self._mailer = mailer\\n        self._presenter = presenter\\n        self._width = 40\\n\\n    # keep title, order_count, mail_summary unchanged\\n    def describe_customer(self, customer) -> str:\\n        return self._presenter.describe(customer)\\n```\\nThe original `ReportView` now only deals with repository, mailer, and presentation width, improving method‑attribute cohesion.\",\n      \"risk_notes\": \"Introducing a new class adds a dependency that must be imported wherever `ReportView` is used. Existing code that called `ReportView.describe_customer` directly will still work if the delegator is kept, but tests may need to be updated to provide a `CustomerPresenter`. Circular import risks are minimal because the new class only depends on the `Customer` type, not on `ReportView`.\"\n    }\n  ],\n  \"risk_notes\": \"The refactor adds a small amount of indirection and a new class, which could increase the overall DCC count for the new class but leaves `ReportView`'s DCC unchanged. Ensure that dependency injection is wired correctly in the application container; otherwise, runtime errors may occur.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "9fcf3c682c27446455c5dfe09d6305a3d88eba0e389e0a5052e117b2596b4947",
+      "from_cache": false
+    }
+  ],
+  "condition": "rules",
+  "arch_context": false,
+  "metric_rules": true
+}

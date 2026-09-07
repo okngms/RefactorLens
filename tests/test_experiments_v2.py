@@ -26,7 +26,9 @@ from analyse_advice_v2 import (  # noqa: E402
 from run_advice_v2 import (  # noqa: E402
     CONDITIONS,
     DEFAULT_TARGETS,
+    DEFAULT_TPM,
     output_path,
+    pace,
     plan,
     prepare_contexts,
     slug,
@@ -327,3 +329,23 @@ class TestLoadRuns:
 
     def test_empty_directory(self, tmp_path):
         assert load_runs(tmp_path) == []
+
+
+class TestPacing:
+    """Sabit gecikme yetmez: TPM sınırı çağrı sayısına değil boyutuna bakar."""
+
+    def test_a_large_prompt_waits_longer(self):
+        assert pace(4500, 5.0, DEFAULT_TPM) > pace(1300, 5.0, DEFAULT_TPM)
+
+    def test_the_minimum_is_respected(self):
+        assert pace(10, 5.0, DEFAULT_TPM) == 5.0
+
+    def test_a_prompt_near_the_limit_waits_about_a_minute(self):
+        """4500 token + yanıtı, 8000 TPM'in yarısından fazlası."""
+        assert 50 < pace(4500, 5.0, 8000) < 70
+
+    def test_a_generous_limit_falls_back_to_the_minimum(self):
+        assert pace(4500, 5.0, 2_000_000) == 5.0
+
+    def test_a_missing_limit_is_not_a_division_error(self):
+        assert pace(4500, 5.0, 0) == 5.0

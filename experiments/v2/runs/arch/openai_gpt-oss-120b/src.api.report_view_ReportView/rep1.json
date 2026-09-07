@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:28:58+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class has a low method count (NOM=4) but its cohesion is weak (LCOM4=2) because two of its methods reach into the OrderRepository and EmailClient, while only one method accesses its own state. It also references two distinct internal classes (DCC=2), violating the presentation layer's rule against infrastructure imports and triggering feature‑envy and LV‑SKIP warnings.",
+      "suggestions": [
+        {
+          "title": "Extract infrastructure interactions into an application service",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Create a new class in the application layer, e.g. OrderReportService, that receives OrderRepository and EmailClient in its constructor and implements `order_count` and `mail_summary`. In ReportView keep only presentation logic (title, describe_customer) and delegate to the service:\n```python\nclass OrderReportService:\n    def __init__(self, repository: OrderRepository, mailer: EmailClient):\n        self._repository = repository\n        self._mailer = mailer\n    def order_count(self) -> int:\n        return self._repository.count()\n    def mail_summary(self, address: str) -> dict[str, str]:\n        return self._mailer.send(address, f\"{self._repository.count()} orders\")\n\nclass ReportView:\n    def __init__(self, service: OrderReportService):\n        self._service = service\n        self._width = 40\n    # title and describe_customer stay unchanged\n    def order_count(self) -> int:\n        return self._service.order_count()\n    def mail_summary(self, address: str) -> dict[str, str]:\n        return self._service.mail_summary(address)\n```",
+          "status": "linked",
+          "addresses_smells": [
+            "feature_envy_candidate",
+            "layer_violation"
+          ],
+          "target_layer_after": "application",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [
+            "addresses_smells names labels the target does not carry: layer_violation"
+          ],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Moving the repository and mailer behind an application service changes the public API of ReportView; callers must be updated to provide the new service instance. If other presentation components rely on direct access to OrderRepository or EmailClient, they will also need refactoring. The added indirection may slightly increase runtime overhead, but it restores layer boundaries and improves cohesion.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.api.report_view:ReportView\",\n  \"diagnosis\": \"The class has a low method count (NOM=4) but its cohesion is weak (LCOM4=2) because two of its methods reach into the OrderRepository and EmailClient, while only one method accesses its own state. It also references two distinct internal classes (DCC=2), violating the presentation layer's rule against infrastructure imports and triggering feature‑envy and LV‑SKIP warnings.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract infrastructure interactions into an application service\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Create a new class in the application layer, e.g. OrderReportService, that receives OrderRepository and EmailClient in its constructor and implements `order_count` and `mail_summary`. In ReportView keep only presentation logic (title, describe_customer) and delegate to the service:\\n```python\\nclass OrderReportService:\\n    def __init__(self, repository: OrderRepository, mailer: EmailClient):\\n        self._repository = repository\\n        self._mailer = mailer\\n    def order_count(self) -> int:\\n        return self._repository.count()\\n    def mail_summary(self, address: str) -> dict[str, str]:\\n        return self._mailer.send(address, f\\\"{self._repository.count()} orders\\\")\\n\\nclass ReportView:\\n    def __init__(self, service: OrderReportService):\\n        self._service = service\\n        self._width = 40\\n    # title and describe_customer stay unchanged\\n    def order_count(self) -> int:\\n        return self._service.order_count()\\n    def mail_summary(self, address: str) -> dict[str, str]:\\n        return self._service.mail_summary(address)\\n```\",\n      \"addresses_smells\": [\n        \"feature_envy_candidate\",\n        \"layer_violation\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"Moving the repository and mailer behind an application service changes the public API of ReportView; callers must be updated to provide the new service instance. If other presentation components rely on direct access to OrderRepository or EmailClient, they will also need refactoring. The added indirection may slightly increase runtime overhead, but it restores layer boundaries and improves cohesion.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "e01adfae645f4aa523591d89c969fdf53e4ee1c4bd7f0104564dbb7e0692199b",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch",
+  "arch_context": true,
+  "metric_rules": false
+}

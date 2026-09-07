@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:31:44+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The class has five trivial accessor methods, each touching a distinct private attribute, which yields a high LCOM4 of 4 (low cohesion). WMC equals NOM because each method is a simple one‑line return, and DCC is zero because the class does not depend on any other internal types. DAM is perfect (1.0) because all attributes are private, but that contributes to the cohesion problem.",
+      "suggestions": [
+        {
+          "title": "Replace trivial getters with a data class and public fields",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC",
+            "DAM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "DAM",
+              "direction": "down",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Convert the class to a @dataclass with public attributes and drop the explicit getter methods.\n```python\nfrom dataclasses import dataclass\n\n@dataclass\nclass Customer:\n    customer_id: int\n    name: str\n    email: str\n    tier: str = \"standard\"\n\n    def is_premium(self) -> bool:\n        return self.tier == \"premium\"\n```\nThe dataclass generates __init__ automatically, and callers can read attributes directly (e.g., `cust.name`). The only remaining method (`is_premium`) now shares the `tier` attribute with the generated __init__, collapsing the method‑attribute graph to a single component.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Changing private attributes to public breaks any code that relied on encapsulation or on the getter methods. Existing callers must be updated to use attribute access instead of method calls, which may be a breaking change for downstream modules. If strict encapsulation is required, consider adding a single method that returns a view of the data rather than exposing fields directly.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.domain.entities:Customer\",\n  \"diagnosis\": \"The class has five trivial accessor methods, each touching a distinct private attribute, which yields a high LCOM4 of 4 (low cohesion). WMC equals NOM because each method is a simple one‑line return, and DCC is zero because the class does not depend on any other internal types. DAM is perfect (1.0) because all attributes are private, but that contributes to the cohesion problem.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Replace trivial getters with a data class and public fields\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\",\n        \"DAM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"DAM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Convert the class to a @dataclass with public attributes and drop the explicit getter methods.\\n```python\\nfrom dataclasses import dataclass\\n\\n@dataclass\\nclass Customer:\\n    customer_id: int\\n    name: str\\n    email: str\\n    tier: str = \\\"standard\\\"\\n\\n    def is_premium(self) -> bool:\\n        return self.tier == \\\"premium\\\"\\n```\\nThe dataclass generates __init__ automatically, and callers can read attributes directly (e.g., `cust.name`). The only remaining method (`is_premium`) now shares the `tier` attribute with the generated __init__, collapsing the method‑attribute graph to a single component.\"\n    }\n  ],\n  \"risk_notes\": \"Changing private attributes to public breaks any code that relied on encapsulation or on the getter methods. Existing callers must be updated to use attribute access instead of method calls, which may be a breaking change for downstream modules. If strict encapsulation is required, consider adding a single method that returns a view of the data rather than exposing fields directly.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "7b908ca6e2eaa5051f0e3fd7397e658ba29610d6da5d0c73eeb55112d9d8555d",
+      "from_cache": false
+    }
+  ],
+  "condition": "rules",
+  "arch_context": false,
+  "metric_rules": true
+}

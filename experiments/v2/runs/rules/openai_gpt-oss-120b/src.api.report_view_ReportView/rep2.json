@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:31:05+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class has a low cohesion score (LCOM4 = 2) because its methods split into two independent groups: one that deals with repository data and formatting, and another that sends email via a separate collaborator. It also references two distinct internal classes (DCC = 2), contributing to coupling. While the method count and complexity are modest, the cohesion warning suggests the class is trying to do more than one responsibility.",
+      "suggestions": [
+        {
+          "title": "Extract email‑sending responsibility to a dedicated Mailer helper",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.75
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.6
+            }
+          ],
+          "sketch": "Create a small class that owns the EmailClient and provides a `send_summary(count: int, address: str) -> dict[str, str]` method. Move `ReportView.mail_summary` into this class and inject the helper into ReportView (or let callers use it directly).\n\n```python\nclass ReportMailer:\n    def __init__(self, mailer: EmailClient) -> None:\n        self._mailer = mailer\n\n    def send_summary(self, count: int, address: str) -> dict[str, str]:\n        return self._mailer.send(address, f\"{count} orders\")\n\nclass ReportView:\n    def __init__(self, repository: OrderRepository, mailer: EmailClient) -> None:\n        self._repository = repository\n        self._mailer_helper = ReportMailer(mailer)\n        self._width = 40\n\n    # ... title, describe_customer, order_count unchanged ...\n\n    def mail_summary(self, address: str) -> dict[str, str]:\n        return self._mailer_helper.send_summary(self._repository.count(), address)\n```",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Call sites that relied on `ReportView.mail_summary` returning a raw dict may need to be updated if the helper's interface changes. Introducing a new class adds a tiny amount of indirection, so ensure it is wired correctly in dependency injection containers. If the mail‑summary logic is very simple and used only once, the benefit may not outweigh the added class.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.api.report_view:ReportView\",\n  \"diagnosis\": \"The class has a low cohesion score (LCOM4 = 2) because its methods split into two independent groups: one that deals with repository data and formatting, and another that sends email via a separate collaborator. It also references two distinct internal classes (DCC = 2), contributing to coupling. While the method count and complexity are modest, the cohesion warning suggests the class is trying to do more than one responsibility.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract email‑sending responsibility to a dedicated Mailer helper\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.75\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.6\n        }\n      ],\n      \"sketch\": \"Create a small class that owns the EmailClient and provides a `send_summary(count: int, address: str) -> dict[str, str]` method. Move `ReportView.mail_summary` into this class and inject the helper into ReportView (or let callers use it directly).\\n\\n```python\\nclass ReportMailer:\\n    def __init__(self, mailer: EmailClient) -> None:\\n        self._mailer = mailer\\n\\n    def send_summary(self, count: int, address: str) -> dict[str, str]:\\n        return self._mailer.send(address, f\\\"{count} orders\\\")\\n\\nclass ReportView:\\n    def __init__(self, repository: OrderRepository, mailer: EmailClient) -> None:\\n        self._repository = repository\\n        self._mailer_helper = ReportMailer(mailer)\\n        self._width = 40\\n\\n    # ... title, describe_customer, order_count unchanged ...\\n\\n    def mail_summary(self, address: str) -> dict[str, str]:\\n        return self._mailer_helper.send_summary(self._repository.count(), address)\\n```\"\n    }\n  ],\n  \"risk_notes\": \"Call sites that relied on `ReportView.mail_summary` returning a raw dict may need to be updated if the helper's interface changes. Introducing a new class adds a tiny amount of indirection, so ensure it is wired correctly in dependency injection containers. If the mail‑summary logic is very simple and used only once, the benefit may not outweigh the added class.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "c924137c6cfbfda8726df181f0c35db75b7c280a99278ad5225e6740b142626a",
+      "from_cache": false
+    }
+  ],
+  "condition": "rules",
+  "arch_context": false,
+  "metric_rules": true
+}

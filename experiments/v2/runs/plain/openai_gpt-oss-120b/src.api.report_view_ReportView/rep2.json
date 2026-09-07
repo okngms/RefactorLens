@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:27:43+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class has a low method count but a warning LCOM4 of 2, indicating that its methods operate on unrelated data (the repository, the mailer, and a Customer instance). It also references two distinct internal classes (OrderRepository and EmailClient), contributing to a DCC of 2. The private attribute ratio (DAM) is perfect, but the cohesion among methods is weak, suggesting a need to separate unrelated responsibilities.",
+      "suggestions": [
+        {
+          "title": "Extract customer description to a dedicated presenter class",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Create a new class, e.g. `CustomerPresenter`, that receives a `Customer` in its constructor and implements `describe()` returning the formatted string. Move `describe_customer` from `ReportView` to this class and have `ReportView.title`, `order_count`, and `mail_summary` remain unchanged. Update any call sites to use `CustomerPresenter(customer).describe()`.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Introducing a new class may require updates to existing tests and any code that directly called `ReportView.describe_customer`. If the presentation format is tightly coupled to other view logic, the split could add indirection without much benefit. Ensure the new presenter is placed in the appropriate layer (e.g., the UI/presentation layer) to respect architectural boundaries.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.api.report_view:ReportView\",\n  \"diagnosis\": \"The class has a low method count but a warning LCOM4 of 2, indicating that its methods operate on unrelated data (the repository, the mailer, and a Customer instance). It also references two distinct internal classes (OrderRepository and EmailClient), contributing to a DCC of 2. The private attribute ratio (DAM) is perfect, but the cohesion among methods is weak, suggesting a need to separate unrelated responsibilities.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract customer description to a dedicated presenter class\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Create a new class, e.g. `CustomerPresenter`, that receives a `Customer` in its constructor and implements `describe()` returning the formatted string. Move `describe_customer` from `ReportView` to this class and have `ReportView.title`, `order_count`, and `mail_summary` remain unchanged. Update any call sites to use `CustomerPresenter(customer).describe()`.\"\n    }\n  ],\n  \"risk_notes\": \"Introducing a new class may require updates to existing tests and any code that directly called `ReportView.describe_customer`. If the presentation format is tightly coupled to other view logic, the split could add indirection without much benefit. Ensure the new presenter is placed in the appropriate layer (e.g., the UI/presentation layer) to respect architectural boundaries.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "9a1a77b62f5c2499f9ad66a42d3c399db2bc4251ed003b453f2a9c6d03f8b288",
+      "from_cache": false
+    }
+  ],
+  "condition": "plain",
+  "arch_context": false,
+  "metric_rules": false
+}

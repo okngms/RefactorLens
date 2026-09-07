@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:27:33+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The class has a critical LCOM4 of 4, meaning its methods are not sharing attributes and the class is poorly cohesive. It also has a modest NOM (5) and WMC (5) due solely to trivial getter methods, and a perfect DAM (1.0) because all attributes are private. No internal class references (DCC=0) are present.",
+      "suggestions": [
+        {
+          "title": "Replace explicit getters with dataclass fields or @property accessors",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC",
+            "DAM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DAM",
+              "direction": "down",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Convert the class to a frozen @dataclass with public attributes (customer_id, name, email, tier). If you need read‑only semantics, keep the attributes public and rely on the dataclass's immutability, or replace each getter with a simple @property that returns the underlying attribute. This removes the five trivial getter methods, collapsing the method‑attribute graph into a single component.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Call sites that currently invoke customer.customer_id() (or name(), email(), tier()) will break and must be updated to use the attribute access (customer.customer_id) or the new property name. If the class is part of a public API, this change is a breaking change and may require version bumping or deprecation shim.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.domain.entities:Customer\",\n  \"diagnosis\": \"The class has a critical LCOM4 of 4, meaning its methods are not sharing attributes and the class is poorly cohesive. It also has a modest NOM (5) and WMC (5) due solely to trivial getter methods, and a perfect DAM (1.0) because all attributes are private. No internal class references (DCC=0) are present.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Replace explicit getters with dataclass fields or @property accessors\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\",\n        \"DAM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DAM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Convert the class to a frozen @dataclass with public attributes (customer_id, name, email, tier). If you need read‑only semantics, keep the attributes public and rely on the dataclass's immutability, or replace each getter with a simple @property that returns the underlying attribute. This removes the five trivial getter methods, collapsing the method‑attribute graph into a single component.\"\n    }\n  ],\n  \"risk_notes\": \"Call sites that currently invoke customer.customer_id() (or name(), email(), tier()) will break and must be updated to use the attribute access (customer.customer_id) or the new property name. If the class is part of a public API, this change is a breaking change and may require version bumping or deprecation shim.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "25ab673327b5e6454bcc892b49f730a7c0adeb93fa021d3a1e473dee2ea6bbdc",
+      "from_cache": false
+    }
+  ],
+  "condition": "plain",
+  "arch_context": false,
+  "metric_rules": false
+}

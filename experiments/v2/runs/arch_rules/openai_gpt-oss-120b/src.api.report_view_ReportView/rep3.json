@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:33:50+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class has a low method count but suffers from low cohesion (LCOM4=2) and references two infrastructure classes (DCC=2), violating the presentation layer's import rules and showing a feature‑envy pattern toward Customer. The private attribute ratio is perfect (DAM=1.0), but the mixed responsibilities inflate cyclomatic complexity and create a structural dependency on infra.",
+      "suggestions": [
+        {
+          "title": "Move infrastructure collaborators to an application service",
+          "rationale_metric_link": [
+            "DCC",
+            "LCOM4"
+          ],
+          "expected_effect": [
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Create a new class src.application.report_service.ReportService that receives OrderRepository and EmailClient via its constructor and implements methods count_orders() and send_summary(address). Refactor ReportView to depend only on ReportService (injection) and remove direct imports of EmailClient and OrderRepository. Example:\n\nclass ReportService:\n    def __init__(self, repository: OrderRepository, mailer: EmailClient):\n        self._repository = repository\n        self._mailer = mailer\n    def count_orders(self) -> int:\n        return self._repository.count()\n    def send_summary(self, address: str) -> dict[str, str]:\n        return self._mailer.send(address, f\"{self._repository.count()} orders\")\n\nclass ReportView:\n    def __init__(self, service: ReportService):\n        self._service = service\n        self._width = 40\n    ...\n    def order_count(self) -> int:\n        return self._service.count_orders()\n    def mail_summary(self, address: str) -> dict[str, str]:\n        return self._service.send_summary(address)",
+          "status": "linked",
+          "addresses_smells": [
+            "layer_violation",
+            "feature_envy_candidate"
+          ],
+          "target_layer_after": "application",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [
+            "addresses_smells names labels the target does not carry: layer_violation"
+          ],
+          "tags": []
+        },
+        {
+          "title": "Extract Customer formatting to a domain helper",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "DCC",
+              "direction": "same",
+              "confidence": 0.6
+            }
+          ],
+          "sketch": "Add a new class src.domain.customer_formatter.CustomerFormatter with a static method format(customer) -> str that builds the \"id | name | email | tier\" string. Replace ReportView.describe_customer with a thin delegator that calls CustomerFormatter.format(customer). This moves the four Customer attribute accesses out of ReportView, reducing its feature envy and increasing cohesion.",
+          "status": "linked",
+          "addresses_smells": [
+            "feature_envy_candidate"
+          ],
+          "target_layer_after": "domain",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Refactoring the dependencies introduces a new application service; callers must be updated to provide it, which may affect existing injection wiring. Moving formatting logic creates an additional import (domain) for the presentation layer, but this respects the allowed presentation→domain direction. Ensure unit tests are updated to mock the new service and formatter.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.api.report_view:ReportView\",\n  \"diagnosis\": \"The class has a low method count but suffers from low cohesion (LCOM4=2) and references two infrastructure classes (DCC=2), violating the presentation layer's import rules and showing a feature‑envy pattern toward Customer. The private attribute ratio is perfect (DAM=1.0), but the mixed responsibilities inflate cyclomatic complexity and create a structural dependency on infra.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Move infrastructure collaborators to an application service\",\n      \"rationale_metric_link\": [\n        \"DCC\",\n        \"LCOM4\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Create a new class src.application.report_service.ReportService that receives OrderRepository and EmailClient via its constructor and implements methods count_orders() and send_summary(address). Refactor ReportView to depend only on ReportService (injection) and remove direct imports of EmailClient and OrderRepository. Example:\\n\\nclass ReportService:\\n    def __init__(self, repository: OrderRepository, mailer: EmailClient):\\n        self._repository = repository\\n        self._mailer = mailer\\n    def count_orders(self) -> int:\\n        return self._repository.count()\\n    def send_summary(self, address: str) -> dict[str, str]:\\n        return self._mailer.send(address, f\\\"{self._repository.count()} orders\\\")\\n\\nclass ReportView:\\n    def __init__(self, service: ReportService):\\n        self._service = service\\n        self._width = 40\\n    ...\\n    def order_count(self) -> int:\\n        return self._service.count_orders()\\n    def mail_summary(self, address: str) -> dict[str, str]:\\n        return self._service.send_summary(address)\",\n      \"addresses_smells\": [\n        \"layer_violation\",\n        \"feature_envy_candidate\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    },\n    {\n      \"title\": \"Extract Customer formatting to a domain helper\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"same\",\n          \"confidence\": 0.6\n        }\n      ],\n      \"sketch\": \"Add a new class src.domain.customer_formatter.CustomerFormatter with a static method format(customer) -> str that builds the \\\"id | name | email | tier\\\" string. Replace ReportView.describe_customer with a thin delegator that calls CustomerFormatter.format(customer). This moves the four Customer attribute accesses out of ReportView, reducing its feature envy and increasing cohesion.\",\n      \"addresses_smells\": [\n        \"feature_envy_candidate\"\n      ],\n      \"target_layer_after\": \"domain\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"Refactoring the dependencies introduces a new application service; callers must be updated to provide it, which may affect existing injection wiring. Moving formatting logic creates an additional import (domain) for the presentation layer, but this respects the allowed presentation→domain direction. Ensure unit tests are updated to mock the new service and formatter.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "648f05721d526245c30bd75bba7cce7fc277baee4d53078e880352d709e2f100",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch_rules",
+  "arch_context": true,
+  "metric_rules": true
+}

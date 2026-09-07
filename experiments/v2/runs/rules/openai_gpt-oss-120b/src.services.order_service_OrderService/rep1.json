@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:45:16+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.services.order_service:OrderService",
+      "diagnosis": "The OrderService class is a God‑object: it bundles order lifecycle, pricing, audit, and notification concerns. NOM (26) and WMC (56) are far above typical thresholds, indicating many responsibilities and complex methods. LCOM4 = 5 shows the class is split into five disconnected cohesion groups, confirming low internal cohesion. DCC = 4 means the class already depends on several internal types, and moving responsibilities will shift those dependencies. DAM = 1.0 (all attributes private) is fine, but does not compensate for the cohesion problem.",
+      "suggestions": [
+        {
+          "title": "Extract pricing responsibilities into a dedicated PricingService",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.4
+            }
+          ],
+          "sketch": "Create a new class PricingService that receives tax_rate, discounts, and optional DiscountPolicy via its constructor. Move methods set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_for, policy_rate, is_priced into it. OrderService keeps a private _pricing attribute and delegates pricing calls (e.g., self._pricing.total_for(...)). Adjust imports accordingly.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Separate audit logic into an AuditLog component",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "DCC",
+              "direction": "same",
+              "confidence": 0.6
+            }
+          ],
+          "sketch": "Introduce class AuditLog with methods log, history, last_entry, audit_size, clear. It owns the internal list of entries. OrderService receives an AuditLog instance (or creates one) and forwards audit calls. Remove the _audit attribute from OrderService.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Move notification handling to a NotificationFacade",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.75
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "Create class NotificationFacade that wraps the notifier dependency and tracks sent count. Methods: notify(customer, subject) and sent_count/reset_sent. OrderService keeps a _notification attribute and delegates notification calls.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Splitting the class introduces additional objects and wiring; existing code that directly accesses OrderService's private attributes (e.g., _tax_rate) will break and must be updated to use the new services. Unit tests need to be revised to mock or inject the new components. The DCC metric may rise slightly because each new service references the same domain classes, but the trade‑off is higher cohesion and maintainability.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.services.order_service:OrderService\",\n  \"diagnosis\": \"The OrderService class is a God‑object: it bundles order lifecycle, pricing, audit, and notification concerns. NOM (26) and WMC (56) are far above typical thresholds, indicating many responsibilities and complex methods. LCOM4 = 5 shows the class is split into five disconnected cohesion groups, confirming low internal cohesion. DCC = 4 means the class already depends on several internal types, and moving responsibilities will shift those dependencies. DAM = 1.0 (all attributes private) is fine, but does not compensate for the cohesion problem.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract pricing responsibilities into a dedicated PricingService\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.4\n        }\n      ],\n      \"sketch\": \"Create a new class PricingService that receives tax_rate, discounts, and optional DiscountPolicy via its constructor. Move methods set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_for, policy_rate, is_priced into it. OrderService keeps a private _pricing attribute and delegates pricing calls (e.g., self._pricing.total_for(...)). Adjust imports accordingly.\"\n    },\n    {\n      \"title\": \"Separate audit logic into an AuditLog component\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"same\",\n          \"confidence\": 0.6\n        }\n      ],\n      \"sketch\": \"Introduce class AuditLog with methods log, history, last_entry, audit_size, clear. It owns the internal list of entries. OrderService receives an AuditLog instance (or creates one) and forwards audit calls. Remove the _audit attribute from OrderService.\"\n    },\n    {\n      \"title\": \"Move notification handling to a NotificationFacade\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.75\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        }\n      ],\n      \"sketch\": \"Create class NotificationFacade that wraps the notifier dependency and tracks sent count. Methods: notify(customer, subject) and sent_count/reset_sent. OrderService keeps a _notification attribute and delegates notification calls.\"\n    }\n  ],\n  \"risk_notes\": \"Splitting the class introduces additional objects and wiring; existing code that directly accesses OrderService's private attributes (e.g., _tax_rate) will break and must be updated to use the new services. Unit tests need to be revised to mock or inject the new components. The DCC metric may rise slightly because each new service references the same domain classes, but the trade‑off is higher cohesion and maintainability.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "41749b5866701220db70ca48f49591484eb73d208885c447737d7ed0f5a77efc",
+      "from_cache": false
+    }
+  ],
+  "condition": "rules",
+  "arch_context": false,
+  "metric_rules": true
+}

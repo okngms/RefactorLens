@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:33:13+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class has a low method count but suffers from low cohesion (LCOM4=2) and references two infrastructure classes (DCC=2), violating the presentation layer's import rules. The describe_customer method shows feature envy toward the Customer entity, and the class directly depends on infra collaborators, causing skip-call violations.",
+      "suggestions": [
+        {
+          "title": "Introduce ReportService to encapsulate repository and mailer",
+          "rationale_metric_link": [
+            "DCC",
+            "LCOM4"
+          ],
+          "expected_effect": [
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.6
+            }
+          ],
+          "sketch": "Create a new class in the application layer, e.g.\n```python\nclass ReportService:\n    def __init__(self, repository: OrderRepository, mailer: EmailClient) -> None:\n        self._repository = repository\n        self._mailer = mailer\n    def order_count(self) -> int:\n        return self._repository.count()\n    def mail_summary(self, address: str) -> dict[str, str]:\n        return self._mailer.send(address, f\"{self._repository.count()} orders\")\n```\nReplace the two infra attributes in ReportView with a single `self._service: ReportService` and delegate `order_count` and `mail_summary` to it. Adjust imports so ReportView only imports the application layer.",
+          "status": "linked",
+          "addresses_smells": [
+            "feature_envy_candidate"
+          ],
+          "target_layer_after": "application",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Extract customer description to a formatter class",
+          "rationale_metric_link": [
+            "LCOM4"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "Create a small formatter in the presentation or domain layer:\n```python\nclass CustomerFormatter:\n    def __init__(self, width: int = 40) -> None:\n        self._width = width\n    def format(self, customer) -> str:\n        parts = [\n            str(customer.customer_id()),\n            customer.name(),\n            customer.email(),\n            customer.tier(),\n        ]\n        return \" | \".join(parts).ljust(self._width)\n```\nIn ReportView replace `describe_customer` with a call to `self._formatter.format(customer)`. Inject the formatter via the constructor. This removes the direct Customer accesses from ReportView, improving cohesion.",
+          "status": "linked",
+          "addresses_smells": [
+            "feature_envy_candidate"
+          ],
+          "target_layer_after": "presentation",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Introducing ReportService adds an extra indirection; ensure its public API matches existing callers and that dependency injection is updated throughout the codebase. Extracting the formatter changes the formatting contract; tests that assert exact string output may need adjustment. Both changes require updating imports and may affect serialization or logging expectations.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.api.report_view:ReportView\",\n  \"diagnosis\": \"The class has a low method count but suffers from low cohesion (LCOM4=2) and references two infrastructure classes (DCC=2), violating the presentation layer's import rules. The describe_customer method shows feature envy toward the Customer entity, and the class directly depends on infra collaborators, causing skip-call violations.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Introduce ReportService to encapsulate repository and mailer\",\n      \"rationale_metric_link\": [\n        \"DCC\",\n        \"LCOM4\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.6\n        }\n      ],\n      \"sketch\": \"Create a new class in the application layer, e.g.\\n```python\\nclass ReportService:\\n    def __init__(self, repository: OrderRepository, mailer: EmailClient) -> None:\\n        self._repository = repository\\n        self._mailer = mailer\\n    def order_count(self) -> int:\\n        return self._repository.count()\\n    def mail_summary(self, address: str) -> dict[str, str]:\\n        return self._mailer.send(address, f\\\"{self._repository.count()} orders\\\")\\n```\\nReplace the two infra attributes in ReportView with a single `self._service: ReportService` and delegate `order_count` and `mail_summary` to it. Adjust imports so ReportView only imports the application layer.\",\n      \"addresses_smells\": [\n        \"feature_envy_candidate\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    },\n    {\n      \"title\": \"Extract customer description to a formatter class\",\n      \"rationale_metric_link\": [\n        \"LCOM4\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        }\n      ],\n      \"sketch\": \"Create a small formatter in the presentation or domain layer:\\n```python\\nclass CustomerFormatter:\\n    def __init__(self, width: int = 40) -> None:\\n        self._width = width\\n    def format(self, customer) -> str:\\n        parts = [\\n            str(customer.customer_id()),\\n            customer.name(),\\n            customer.email(),\\n            customer.tier(),\\n        ]\\n        return \\\" | \\\".join(parts).ljust(self._width)\\n```\\nIn ReportView replace `describe_customer` with a call to `self._formatter.format(customer)`. Inject the formatter via the constructor. This removes the direct Customer accesses from ReportView, improving cohesion.\",\n      \"addresses_smells\": [\n        \"feature_envy_candidate\"\n      ],\n      \"target_layer_after\": \"presentation\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"Introducing ReportService adds an extra indirection; ensure its public API matches existing callers and that dependency injection is updated throughout the codebase. Extracting the formatter changes the formatting contract; tests that assert exact string output may need adjustment. Both changes require updating imports and may affect serialization or logging expectations.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "6c0c946147cdb5a1526113b5d29dfe6e70733f63b6f582f3b72bd2ec451c07f4",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch_rules",
+  "arch_context": true,
+  "metric_rules": true
+}

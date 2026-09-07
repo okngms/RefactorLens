@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:27:22+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.services.order_service:OrderService",
+      "diagnosis": "The OrderService class aggregates four unrelated responsibilities (order lifecycle, pricing, audit, notification), which is reflected by a critical LCOM4 of 5 and high NOM (26) and WMC (56). All attributes are private (DAM = 1.0), so encapsulation is not the issue; the problem is low cohesion and excessive size. The DCC of 4 shows it already depends on several internal types, and further splitting will likely increase that count modestly.",
+      "suggestions": [
+        {
+          "title": "Extract each component into its own service class",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.5
+            }
+          ],
+          "sketch": "Create four new classes—OrderLifecycleService, PricingService, AuditService, NotificationService—each receiving only the dependencies it needs (e.g., OrderRepository for lifecycle, TaxRate/Discounts for pricing, a logger or storage for audit, Notifier for notifications). Move the corresponding methods and related private attributes into the appropriate class and inject the new services into OrderService (or replace OrderService with a façade that delegates). Example:\n\n```python\nclass PricingService:\n    def __init__(self, tax_rate: float = 0.18, discounts: dict[str, float] | None = None):\n        self._tax_rate = tax_rate\n        self._discounts = discounts or {}\n    # move set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_for, policy_rate, is_priced here\n```\n\nDo the same for the other three components, then adjust callers to use the façade or the new services directly.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Refactoring may break code that relies on the monolithic OrderService API; comprehensive integration tests are needed. The increase in DCC could be a concern if the project enforces strict layer boundaries, so place the extracted services in layers that match their responsibilities.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.services.order_service:OrderService\",\n  \"diagnosis\": \"The OrderService class aggregates four unrelated responsibilities (order lifecycle, pricing, audit, notification), which is reflected by a critical LCOM4 of 5 and high NOM (26) and WMC (56). All attributes are private (DAM = 1.0), so encapsulation is not the issue; the problem is low cohesion and excessive size. The DCC of 4 shows it already depends on several internal types, and further splitting will likely increase that count modestly.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract each component into its own service class\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.5\n        }\n      ],\n      \"sketch\": \"Create four new classes—OrderLifecycleService, PricingService, AuditService, NotificationService—each receiving only the dependencies it needs (e.g., OrderRepository for lifecycle, TaxRate/Discounts for pricing, a logger or storage for audit, Notifier for notifications). Move the corresponding methods and related private attributes into the appropriate class and inject the new services into OrderService (or replace OrderService with a façade that delegates). Example:\\n\\n```python\\nclass PricingService:\\n    def __init__(self, tax_rate: float = 0.18, discounts: dict[str, float] | None = None):\\n        self._tax_rate = tax_rate\\n        self._discounts = discounts or {}\\n    # move set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_for, policy_rate, is_priced here\\n```\\n\\nDo the same for the other three components, then adjust callers to use the façade or the new services directly.\",\n      \"risk_notes\": \"Splitting the class introduces additional modules and dependency injection, which may require updates to existing code that directly instantiated OrderService. Tests that mock OrderService will need to be refactored. The modest rise in DCC reflects the new service classes being part of the same project; ensure they are placed in appropriate layers (e.g., pricing in a domain layer, audit in an infrastructure layer) to avoid circular dependencies.\"\n    }\n  ],\n  \"risk_notes\": \"Refactoring may break code that relies on the monolithic OrderService API; comprehensive integration tests are needed. The increase in DCC could be a concern if the project enforces strict layer boundaries, so place the extracted services in layers that match their responsibilities.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "3ae29403813dab78675723e2ac59a9b5087cc414615337b46a83e824171725cd",
+      "from_cache": false
+    }
+  ],
+  "condition": "plain",
+  "arch_context": false,
+  "metric_rules": false
+}

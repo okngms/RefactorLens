@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:27:11+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class has a low method count (NOM=4) and modest complexity (WMC=4), but its cohesion metric LCOM4=2 signals two independent groups of behavior: presentation logic (title, describe_customer) and coordination with infrastructure (order_count, mail_summary). It also couples to two internal services (DCC=2). This split responsibility makes the class harder to maintain and test, and the warning on LCOM4 highlights a cohesion problem.",
+      "suggestions": [
+        {
+          "title": "Extract infrastructure coordination into a dedicated service",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Create a new class, e.g. ReportCoordinator, that receives OrderRepository and EmailClient. Move order_count() and mail_summary() there. ReportView keeps only presentation methods (title, describe_customer) and holds a reference to ReportCoordinator for data retrieval when needed.\n\n```python\nclass ReportCoordinator:\n    def __init__(self, repository: OrderRepository, mailer: EmailClient) -> None:\n        self._repository = repository\n        self._mailer = mailer\n\n    def order_count(self) -> int:\n        return self._repository.count()\n\n    def mail_summary(self, address: str) -> dict[str, str]:\n        return self._mailer.send(address, f\"{self._repository.count()} orders\")\n```\n\nUpdate ReportView to accept a ReportCoordinator (or keep the repository for formatting only) and delegate the two methods.\n```python\nclass ReportView:\n    def __init__(self, coordinator: ReportCoordinator) -> None:\n        self._coordinator = coordinator\n        self._width = 40\n    # title and describe_customer stay unchanged\n    def order_count(self) -> int:\n        return self._coordinator.order_count()\n    def mail_summary(self, address: str) -> dict[str, str]:\n        return self._coordinator.mail_summary(address)\n```",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Introducing a new class adds an extra layer of indirection; callers must be updated to provide a ReportCoordinator. If the application relies on ReportView's current constructor signature, those injection points need refactoring. The change is worthwhile only if the cohesion issue is causing maintenance pain; otherwise the added complexity may not be justified.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.api.report_view:ReportView\",\n  \"diagnosis\": \"The class has a low method count (NOM=4) and modest complexity (WMC=4), but its cohesion metric LCOM4=2 signals two independent groups of behavior: presentation logic (title, describe_customer) and coordination with infrastructure (order_count, mail_summary). It also couples to two internal services (DCC=2). This split responsibility makes the class harder to maintain and test, and the warning on LCOM4 highlights a cohesion problem.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract infrastructure coordination into a dedicated service\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Create a new class, e.g. ReportCoordinator, that receives OrderRepository and EmailClient. Move order_count() and mail_summary() there. ReportView keeps only presentation methods (title, describe_customer) and holds a reference to ReportCoordinator for data retrieval when needed.\\n\\n```python\\nclass ReportCoordinator:\\n    def __init__(self, repository: OrderRepository, mailer: EmailClient) -> None:\\n        self._repository = repository\\n        self._mailer = mailer\\n\\n    def order_count(self) -> int:\\n        return self._repository.count()\\n\\n    def mail_summary(self, address: str) -> dict[str, str]:\\n        return self._mailer.send(address, f\\\"{self._repository.count()} orders\\\")\\n```\\n\\nUpdate ReportView to accept a ReportCoordinator (or keep the repository for formatting only) and delegate the two methods.\\n```python\\nclass ReportView:\\n    def __init__(self, coordinator: ReportCoordinator) -> None:\\n        self._coordinator = coordinator\\n        self._width = 40\\n    # title and describe_customer stay unchanged\\n    def order_count(self) -> int:\\n        return self._coordinator.order_count()\\n    def mail_summary(self, address: str) -> dict[str, str]:\\n        return self._coordinator.mail_summary(address)\\n```\"\n    }\n  ],\n  \"risk_notes\": \"Introducing a new class adds an extra layer of indirection; callers must be updated to provide a ReportCoordinator. If the application relies on ReportView's current constructor signature, those injection points need refactoring. The change is worthwhile only if the cohesion issue is causing maintenance pain; otherwise the added complexity may not be justified.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "0d89cf9a584868104a97b687b2ec89ef2a58bba5636ef8d89688f5e9b999d88e",
+      "from_cache": false
+    }
+  ],
+  "condition": "plain",
+  "arch_context": false,
+  "metric_rules": false
+}

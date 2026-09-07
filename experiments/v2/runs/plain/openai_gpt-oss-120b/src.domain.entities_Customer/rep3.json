@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:28:13+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The class has a critical LCOM4 of 4, meaning its methods are largely isolated – each getter touches a distinct private attribute, so the method‑attribute graph splits into many components. The class is essentially a data holder with only one real behavior (is_premium). It also has a perfect DAM of 1.0, indicating all attributes are private, which contributes to the low cohesion. No internal dependencies (DCC=0) and modest method count (NOM=5) keep the other metrics low, but the high LCOM4 signals a design smell: the class is over‑encapsulated for a simple data structure.",
+      "suggestions": [
+        {
+          "title": "Replace getters with public fields via a dataclass",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "DAM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DAM",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "Convert the class to a @dataclass with public attributes and keep only the business method:\n```python\nfrom dataclasses import dataclass\n\n@dataclass\nclass Customer:\n    customer_id: int\n    name: str\n    email: str\n    tier: str = \"standard\"\n\n    def is_premium(self) -> bool:\n        return self.tier == \"premium\"\n```\nRemove the explicit getter methods; callers will access attributes directly (e.g., cust.name).",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Existing code that calls the getter methods (customer_id(), name(), etc.) will break and must be updated to use attribute access. If the class is part of a public API, this change is a breaking change and may require a deprecation period or wrapper methods to preserve compatibility.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.domain.entities:Customer\",\n  \"diagnosis\": \"The class has a critical LCOM4 of 4, meaning its methods are largely isolated – each getter touches a distinct private attribute, so the method‑attribute graph splits into many components. The class is essentially a data holder with only one real behavior (is_premium). It also has a perfect DAM of 1.0, indicating all attributes are private, which contributes to the low cohesion. No internal dependencies (DCC=0) and modest method count (NOM=5) keep the other metrics low, but the high LCOM4 signals a design smell: the class is over‑encapsulated for a simple data structure.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Replace getters with public fields via a dataclass\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"DAM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DAM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        }\n      ],\n      \"sketch\": \"Convert the class to a @dataclass with public attributes and keep only the business method:\\n```python\\nfrom dataclasses import dataclass\\n\\n@dataclass\\nclass Customer:\\n    customer_id: int\\n    name: str\\n    email: str\\n    tier: str = \\\"standard\\\"\\n\\n    def is_premium(self) -> bool:\\n        return self.tier == \\\"premium\\\"\\n```\\nRemove the explicit getter methods; callers will access attributes directly (e.g., cust.name).\"\n    }\n  ],\n  \"risk_notes\": \"Existing code that calls the getter methods (customer_id(), name(), etc.) will break and must be updated to use attribute access. If the class is part of a public API, this change is a breaking change and may require a deprecation period or wrapper methods to preserve compatibility.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "904296d0bb7957a3bd09640a116a977901985abbe4efd26c951d0f03f911fb32",
+      "from_cache": false
+    }
+  ],
+  "condition": "plain",
+  "arch_context": false,
+  "metric_rules": false
+}

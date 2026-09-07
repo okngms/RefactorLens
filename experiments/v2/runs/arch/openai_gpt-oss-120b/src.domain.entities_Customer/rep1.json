@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:28:47+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The class has five simple accessor methods and a tiny boolean check, giving it a low NOM and WMC but a critical LCOM4 of 4, indicating very low cohesion among its methods and attributes. DAM is 1.0 because all attributes are private, and DCC is 0 since it does not reference any other internal classes. The metrics together confirm the intentional data‑class nature of Customer, which the project flags as a known false‑positive for LCOM4.",
+      "suggestions": [
+        {
+          "title": "Add domain behavior to increase cohesion",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.5
+            }
+          ],
+          "sketch": "Add a method that operates on the customer's state, e.g.:\n```python\n    def upgrade_to_premium(self) -> None:\n        \"\"\"Promote the customer to the premium tier.\n        This introduces behaviour that uses existing attributes, linking methods together.\n        \"\"\"\n        self._tier = \"premium\"\n```\nOptionally, introduce a small value‑object like `Tier` from the same domain package and type‑hint it, which will raise DCC modestly while further tying behaviour to the data.",
+          "status": "linked",
+          "addresses_smells": [
+            "data_class"
+          ],
+          "target_layer_after": "domain",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Adding mutating behaviour changes the class from a pure data holder to a mutable entity; callers that relied on immutability may need adjustments. Introducing a reference to another domain class (e.g., a Tier value‑object) raises DCC and creates a coupling that must be managed carefully.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.domain.entities:Customer\",\n  \"diagnosis\": \"The class has five simple accessor methods and a tiny boolean check, giving it a low NOM and WMC but a critical LCOM4 of 4, indicating very low cohesion among its methods and attributes. DAM is 1.0 because all attributes are private, and DCC is 0 since it does not reference any other internal classes. The metrics together confirm the intentional data‑class nature of Customer, which the project flags as a known false‑positive for LCOM4.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Add domain behavior to increase cohesion\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.5\n        }\n      ],\n      \"sketch\": \"Add a method that operates on the customer's state, e.g.:\\n```python\\n    def upgrade_to_premium(self) -> None:\\n        \\\"\\\"\\\"Promote the customer to the premium tier.\\n        This introduces behaviour that uses existing attributes, linking methods together.\\n        \\\"\\\"\\\"\\n        self._tier = \\\"premium\\\"\\n```\\nOptionally, introduce a small value‑object like `Tier` from the same domain package and type‑hint it, which will raise DCC modestly while further tying behaviour to the data.\",\n      \"addresses_smells\": [\n        \"data_class\"\n      ],\n      \"target_layer_after\": \"domain\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"Adding mutating behaviour changes the class from a pure data holder to a mutable entity; callers that relied on immutability may need adjustments. Introducing a reference to another domain class (e.g., a Tier value‑object) raises DCC and creates a coupling that must be managed carefully.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "80250cd2d2a04290eb392860bdcb70772ea2f8504fdcfbf8877e06f5f9f585cd",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch",
+  "arch_context": true,
+  "metric_rules": false
+}

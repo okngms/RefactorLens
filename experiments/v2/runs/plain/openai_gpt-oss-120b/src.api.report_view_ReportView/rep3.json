@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:28:28+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class has low cohesion (LCOM4=2) because its methods operate on unrelated data: title uses only a formatting width, describe_customer works solely with a Customer argument, order_count accesses the repository, and mail_summary touches both the repository and the mailer. It also couples to two internal classes (DCC=2). The small method count (NOM=4) and modest complexity (WMC=4) suggest the class could be split without inflating its size.",
+      "suggestions": [
+        {
+          "title": "Extract mail_summary to a dedicated EmailReport helper",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Create a new class, e.g.\n```python\nclass EmailReport:\n    def __init__(self, repository: OrderRepository, mailer: EmailClient) -> None:\n        self._repository = repository\n        self._mailer = mailer\n\n    def send_summary(self, address: str) -> dict[str, str]:\n        return self._mailer.send(address, f\"{self._repository.count()} orders\")\n```\nThen modify ReportView to depend on EmailReport instead of EmailClient directly:\n```python\nclass ReportView:\n    def __init__(self, repository: OrderRepository, email_report: EmailReport) -> None:\n        self._repository = repository\n        self._email_report = email_report\n        self._width = 40\n\n    # ... other methods unchanged ...\n\n    def mail_summary(self, address: str) -> dict[str, str]:\n        return self._email_report.send_summary(address)\n```",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Introducing EmailReport adds a new public class; callers must be updated to provide it, which may require changes in dependency injection wiring. If EmailReport is used elsewhere, its interface must remain stable. The refactor does not affect business logic, but test suites need to be adjusted to mock the new helper.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.api.report_view:ReportView\",\n  \"diagnosis\": \"The class has low cohesion (LCOM4=2) because its methods operate on unrelated data: title uses only a formatting width, describe_customer works solely with a Customer argument, order_count accesses the repository, and mail_summary touches both the repository and the mailer. It also couples to two internal classes (DCC=2). The small method count (NOM=4) and modest complexity (WMC=4) suggest the class could be split without inflating its size.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract mail_summary to a dedicated EmailReport helper\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Create a new class, e.g.\\n```python\\nclass EmailReport:\\n    def __init__(self, repository: OrderRepository, mailer: EmailClient) -> None:\\n        self._repository = repository\\n        self._mailer = mailer\\n\\n    def send_summary(self, address: str) -> dict[str, str]:\\n        return self._mailer.send(address, f\\\"{self._repository.count()} orders\\\")\\n```\\nThen modify ReportView to depend on EmailReport instead of EmailClient directly:\\n```python\\nclass ReportView:\\n    def __init__(self, repository: OrderRepository, email_report: EmailReport) -> None:\\n        self._repository = repository\\n        self._email_report = email_report\\n        self._width = 40\\n\\n    # ... other methods unchanged ...\\n\\n    def mail_summary(self, address: str) -> dict[str, str]:\\n        return self._email_report.send_summary(address)\\n```\"\n    }\n  ],\n  \"risk_notes\": \"Introducing EmailReport adds a new public class; callers must be updated to provide it, which may require changes in dependency injection wiring. If EmailReport is used elsewhere, its interface must remain stable. The refactor does not affect business logic, but test suites need to be adjusted to mock the new helper.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "7b8256876af372ae922f2ecbf4ac251126c7a8579945daa066ea392b838c92ef",
+      "from_cache": false
+    }
+  ],
+  "condition": "plain",
+  "arch_context": false,
+  "metric_rules": false
+}

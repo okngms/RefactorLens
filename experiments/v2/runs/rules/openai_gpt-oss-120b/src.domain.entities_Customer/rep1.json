@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:30:19+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The class has a high LCOM4 (4), indicating that its methods are not sharing state and the class is essentially a bag of independent getters. All attributes are private (DAM = 1.0) and there are no external collaborators (DCC = 0). The low method count (NOM = 5) and modest WMC (5) hide the cohesion problem, which is the primary design smell here.",
+      "suggestions": [
+        {
+          "title": "Replace getters with public fields via a dataclass",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DAM",
+            "NOM",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "DAM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.9
+            }
+          ],
+          "sketch": "Convert the class to a frozen dataclass and expose the data attributes directly. Keep only the behaviour method `is_premium`.\n```python\nfrom dataclasses import dataclass\n\n@dataclass(frozen=True)\nclass Customer:\n    customer_id: int\n    name: str\n    email: str\n    tier: str = \"standard\"\n\n    def is_premium(self) -> bool:\n        return self.tier == \"premium\"\n```\nRemove the explicit getter methods (`customer_id`, `name`, `email`, `tier`). Callers can now access `customer.customer_id` etc., while the class remains immutable and cohesive.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Existing code that calls the getter methods will raise AttributeError after the change; a migration plan (e.g., adding thin wrapper properties or updating call sites) is required. Making the dataclass frozen enforces immutability, which could affect parts of the system that previously mutated attributes directly.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.domain.entities:Customer\",\n  \"diagnosis\": \"The class has a high LCOM4 (4), indicating that its methods are not sharing state and the class is essentially a bag of independent getters. All attributes are private (DAM = 1.0) and there are no external collaborators (DCC = 0). The low method count (NOM = 5) and modest WMC (5) hide the cohesion problem, which is the primary design smell here.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Replace getters with public fields via a dataclass\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DAM\",\n        \"NOM\",\n        \"WMC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"DAM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        }\n      ],\n      \"sketch\": \"Convert the class to a frozen dataclass and expose the data attributes directly. Keep only the behaviour method `is_premium`.\\n```python\\nfrom dataclasses import dataclass\\n\\n@dataclass(frozen=True)\\nclass Customer:\\n    customer_id: int\\n    name: str\\n    email: str\\n    tier: str = \\\"standard\\\"\\n\\n    def is_premium(self) -> bool:\\n        return self.tier == \\\"premium\\\"\\n```\\nRemove the explicit getter methods (`customer_id`, `name`, `email`, `tier`). Callers can now access `customer.customer_id` etc., while the class remains immutable and cohesive.\"\n    }\n  ],\n  \"risk_notes\": \"Existing code that calls the getter methods will raise AttributeError after the change; a migration plan (e.g., adding thin wrapper properties or updating call sites) is required. Making the dataclass frozen enforces immutability, which could affect parts of the system that previously mutated attributes directly.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "ea4070bdc95f1fe88c8bf2c25bb8eb080c0a8358e85716205cb8d22fd95fd140",
+      "from_cache": false
+    }
+  ],
+  "condition": "rules",
+  "arch_context": false,
+  "metric_rules": true
+}

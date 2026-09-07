@@ -8,6 +8,7 @@ kılar, **Ollama** kodun makineden hiç çıkmamasını sağlar.
 from __future__ import annotations
 
 import os
+import re
 import time
 from pathlib import Path
 from typing import Protocol, runtime_checkable
@@ -96,6 +97,56 @@ def require_model(config: ProviderConfig, provider: str) -> str:
 #: Yeniden denemeye değer HTTP durum kodları: oran limiti ve sunucu hataları.
 RETRYABLE_STATUS = frozenset({408, 409, 425, 429, 500, 502, 503, 504})
 
+#: Sunucunun önerdiği bekleme süresine eklenen pay.
+#:
+#: "5.04 saniye sonra dene" denildiğinde tam 5.04 beklemek sınıra sıfır payla
+#: dönmek demektir; sayaç tarafındaki en ufak kayma ikinci bir 429 üretir.
+RETRY_MARGIN_SECONDS = 1.0
+
+#: Sunucu saçma bir süre önerirse beklenecek üst sınır.
+MAX_RETRY_WAIT_SECONDS = 60.0
+
+#: Gövdedeki "Please try again in 5.04s" kalıbı.
+_RETRY_HINT = re.compile(r"try again in ([0-9]+(?:\.[0-9]+)?)\s*s", re.IGNORECASE)
+
+
+def advised_wait(response) -> float | None:
+    """Sunucunun önerdiği bekleme süresi, saniye.
+
+    İki kaynağa bakılır: standart `Retry-After` başlığı ve gövdedeki serbest
+    metin. Groq oran limitinde ikincisini kullanır ve saniyenin yüzdeliğine
+    kadar söyler — üstel geri çekilme bunu tahmin etmeye çalışmak zorunda
+    değildir, okumak yeterlidir.
+
+    Eksik başlık ya da gövde bir hata değildir: her sağlayıcı öneride bulunmaz
+    ve bulunmadığında üstel geri çekilmeye dönülür.
+    """
+    headers = getattr(response, "headers", None) or {}
+    header = headers.get("retry-after") or headers.get("Retry-After")
+    if header:
+        try:
+            return float(header)
+        except ValueError:
+            pass  # HTTP-date biçimi; gövdeye düşülür
+
+    body = getattr(response, "text", "") or ""
+    match = _RETRY_HINT.search(body)
+    return float(match.group(1)) if match else None
+
+
+def backoff_delay(attempt: int, response=None) -> float:
+    """Bir sonraki denemeye kadar beklenecek süre.
+
+    Üstel geri çekilme bir tahmindir; sunucu gerçek süreyi biliyorsa onunkine
+    uyulur. İkisinin **büyüğü** alınır: sunucu 0.5 saniye derken 4 saniye
+    beklemek zararsızdır, tersi ikinci bir 429'dur.
+    """
+    exponential = float(2**attempt)
+    advised = advised_wait(response) if response is not None else None
+    if advised is None:
+        return exponential
+    return min(max(exponential, advised + RETRY_MARGIN_SECONDS), MAX_RETRY_WAIT_SECONDS)
+
 
 def post_with_retry(
     url: str,
@@ -109,7 +160,13 @@ def post_with_retry(
 
     Ücretsiz katmanlarda oran limiti kuraldır, istisna değil. Geri çekilme
     üstel olur (1s, 2s, 4s…) çünkü sabit aralıkla ısrar etmek limiti daha da
-    kötüleştirir.
+    kötüleştirir — **ama sunucu gerçek süreyi söylüyorsa ona uyulur.**
+
+    Bu fark ölçüldü: 5a'nın ilk koşusunda 36 çağrının 8'i 429 ile düştü ve
+    hepsi en uzun prompt'lu hedefteydi. Groq "13.9 saniye sonra dene" diyordu,
+    üstel geri çekilme 4 saniye bekliyordu. Kayıp rastgele değildi: uzun
+    prompt'lu koşullar daha çok kaybediyordu, yani A/B karşılaştırması
+    müdahaleye değil hangi çağrının hayatta kaldığına bakar hâle gelmişti.
 
     `sleep` dışarıdan verilebilir; testler gerçekten beklemek zorunda kalmasın
     diye.
@@ -127,7 +184,7 @@ def post_with_retry(
         except httpx.TimeoutException as exc:
             last_error = exc
             if attempt < config.max_retries:
-                sleep(2**attempt)
+                sleep(backoff_delay(attempt))
                 continue
             raise ProviderError(
                 f"Request timed out after {config.timeout_seconds}s "
@@ -137,7 +194,7 @@ def post_with_retry(
             raise ProviderError(f"Network error: {exc}") from exc
 
         if response.status_code in RETRYABLE_STATUS and attempt < config.max_retries:
-            sleep(2**attempt)
+            sleep(backoff_delay(attempt, response))
             continue
 
         if response.status_code == 401:

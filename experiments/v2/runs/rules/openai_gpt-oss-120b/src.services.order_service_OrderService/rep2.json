@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:45:40+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.services.order_service:OrderService",
+      "diagnosis": "The OrderService class bundles four distinct concerns—order lifecycle, pricing, audit, and notification—resulting in a high method count (NOM=26) and cyclomatic complexity (WMC=56). The LCOM4 value of 5 indicates the class is split into several disconnected method groups, confirming low cohesion. DCC=4 shows it already depends on several internal types, and moving responsibilities may shift those dependencies.",
+      "suggestions": [
+        {
+          "title": "Extract component services for lifecycle, pricing, audit, and notification",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.6
+            }
+          ],
+          "sketch": "Create four new classes—OrderLifecycleService, PricingService, AuditService, NotificationService—each receiving only the collaborators it needs (e.g., OrderLifecycleService gets repository, NotificationService gets notifier). Move the corresponding method groups into the new classes and inject them into OrderService via its constructor. OrderService then becomes a thin façade delegating calls:\n\n```python\nclass OrderService:\n    def __init__(self, lifecycle: OrderLifecycleService, pricing: PricingService,\n                 audit: AuditService, notifier: NotificationService):\n        self._lifecycle = lifecycle\n        self._pricing = pricing\n        self._audit = audit\n        self._notifier = notifier\n\n    # façade methods delegating to the appropriate component\n    def place(self, *args, **kwargs):\n        return self._lifecycle.place(*args, **kwargs)\n    # ... similarly for pricing, audit, notification methods\n```\n\nEach new component contains the private attributes and logic previously grouped in OrderService, restoring high cohesion within each class.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "The refactor introduces new classes and alters constructor signatures, so integration tests and any code that instantiated OrderService directly will need adjustment. Care must be taken to preserve transactional semantics (e.g., audit logging should still occur even if a pricing method raises).",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.services.order_service:OrderService\",\n  \"diagnosis\": \"The OrderService class bundles four distinct concerns—order lifecycle, pricing, audit, and notification—resulting in a high method count (NOM=26) and cyclomatic complexity (WMC=56). The LCOM4 value of 5 indicates the class is split into several disconnected method groups, confirming low cohesion. DCC=4 shows it already depends on several internal types, and moving responsibilities may shift those dependencies.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract component services for lifecycle, pricing, audit, and notification\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.6\n        }\n      ],\n      \"sketch\": \"Create four new classes—OrderLifecycleService, PricingService, AuditService, NotificationService—each receiving only the collaborators it needs (e.g., OrderLifecycleService gets repository, NotificationService gets notifier). Move the corresponding method groups into the new classes and inject them into OrderService via its constructor. OrderService then becomes a thin façade delegating calls:\\n\\n```python\\nclass OrderService:\\n    def __init__(self, lifecycle: OrderLifecycleService, pricing: PricingService,\\n                 audit: AuditService, notifier: NotificationService):\\n        self._lifecycle = lifecycle\\n        self._pricing = pricing\\n        self._audit = audit\\n        self._notifier = notifier\\n\\n    # façade methods delegating to the appropriate component\\n    def place(self, *args, **kwargs):\\n        return self._lifecycle.place(*args, **kwargs)\\n    # ... similarly for pricing, audit, notification methods\\n```\\n\\nEach new component contains the private attributes and logic previously grouped in OrderService, restoring high cohesion within each class.\",\n      \"risk_notes\": \"Splitting the class changes the public API; callers must be updated to use the façade or the new components directly. Dependency injection changes may affect existing tests and require mocking of the new services. If the components are over‑engineered for a small codebase, the added indirection could increase maintenance overhead without proportional benefit.\"\n    }\n  ],\n  \"risk_notes\": \"The refactor introduces new classes and alters constructor signatures, so integration tests and any code that instantiated OrderService directly will need adjustment. Care must be taken to preserve transactional semantics (e.g., audit logging should still occur even if a pricing method raises).\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "505d7c5647b4f7fc454141f73665445e60e82e47257b7c8cc84a10ab6d972ff6",
+      "from_cache": false
+    }
+  ],
+  "condition": "rules",
+  "arch_context": false,
+  "metric_rules": true
+}

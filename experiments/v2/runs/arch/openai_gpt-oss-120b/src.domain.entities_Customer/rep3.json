@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:29:49+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The class has a very low behavioral complexity (NOM=5, WMC=5) and is fully encapsulated (DAM=1.0), but its LCOM4 of 4 indicates that its methods operate on disjoint attribute subsets, a typical pattern for a pure data holder. DCC is 0, meaning it does not collaborate with any other internal class, reinforcing the data‑class nature.",
+      "suggestions": [
+        {
+          "title": "Extract tier‑related behavior to a dedicated domain value object",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.6
+            }
+          ],
+          "sketch": "Create a new class Tier in src.domain.entities:\n```python\nclass Tier:\n    def __init__(self, name: str = \"standard\"):\n        self._name = name\n    def is_premium(self) -> bool:\n        return self._name == \"premium\"\n```\nReplace the _tier attribute in Customer with a Tier instance and delegate the is_premium call:\n```python\nclass Customer:\n    def __init__(self, customer_id: int, name: str, email: str, tier: Tier = Tier()):\n        self._customer_id = customer_id\n        self._name = name\n        self._email = email\n        self._tier = tier\n    def is_premium(self) -> bool:\n        return self._tier.is_premium()\n```",
+          "status": "linked",
+          "addresses_smells": [
+            "data_class"
+          ],
+          "target_layer_after": "domain",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Introducing a new Tier class adds a dependency (raising DCC) and may require updates wherever Customer is instantiated. If the project heavily relies on simple attribute access, the extra indirection could affect performance or readability. Ensure that serialization/deserialization logic is updated to handle the Tier object.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.domain.entities:Customer\",\n  \"diagnosis\": \"The class has a very low behavioral complexity (NOM=5, WMC=5) and is fully encapsulated (DAM=1.0), but its LCOM4 of 4 indicates that its methods operate on disjoint attribute subsets, a typical pattern for a pure data holder. DCC is 0, meaning it does not collaborate with any other internal class, reinforcing the data‑class nature.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract tier‑related behavior to a dedicated domain value object\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.6\n        }\n      ],\n      \"sketch\": \"Create a new class Tier in src.domain.entities:\\n```python\\nclass Tier:\\n    def __init__(self, name: str = \\\"standard\\\"):\\n        self._name = name\\n    def is_premium(self) -> bool:\\n        return self._name == \\\"premium\\\"\\n```\\nReplace the _tier attribute in Customer with a Tier instance and delegate the is_premium call:\\n```python\\nclass Customer:\\n    def __init__(self, customer_id: int, name: str, email: str, tier: Tier = Tier()):\\n        self._customer_id = customer_id\\n        self._name = name\\n        self._email = email\\n        self._tier = tier\\n    def is_premium(self) -> bool:\\n        return self._tier.is_premium()\\n```\",\n      \"addresses_smells\": [\n        \"data_class\"\n      ],\n      \"target_layer_after\": \"domain\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"Introducing a new Tier class adds a dependency (raising DCC) and may require updates wherever Customer is instantiated. If the project heavily relies on simple attribute access, the extra indirection could affect performance or readability. Ensure that serialization/deserialization logic is updated to handle the Tier object.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "b8b68067383ef922109b56cb61beea4f3a7569b78902ce539bf56b13910f3c7b",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch",
+  "arch_context": true,
+  "metric_rules": false
+}

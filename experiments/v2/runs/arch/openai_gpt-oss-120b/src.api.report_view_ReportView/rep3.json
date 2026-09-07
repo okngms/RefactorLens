@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:29:59+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class is tiny (NOM=4, WMC=4) but its cohesion is poor (LCOM4=2) because it mixes presentation logic with domain‑infrastructure concerns (OrderRepository and EmailClient). It also shows a feature‑envy pattern (many accesses to Customer) and violates the presentation layer rule by directly importing infra components, flagged by LV‑SKIP violations.",
+      "suggestions": [
+        {
+          "title": "Extract a ReportService to the application layer",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.6
+            }
+          ],
+          "sketch": "Create a new class in src.application.report_service:\n```python\nclass ReportService:\n    def __init__(self, repository: OrderRepository, mailer: EmailClient) -> None:\n        self._repository = repository\n        self._mailer = mailer\n\n    def order_count(self) -> int:\n        return self._repository.count()\n\n    def mail_summary(self, address: str) -> dict[str, str]:\n        return self._mailer.send(address, f\"{self._repository.count()} orders\")\n```\nThen modify ReportView to depend only on ReportService and on Customer for formatting:\n```python\nclass ReportView:\n    def __init__(self, service: ReportService) -> None:\n        self._service = service\n        self._width = 40\n\n    def title(self) -> str:\n        return \"Orders\".center(self._width, \"-\")\n\n    def describe_customer(self, customer) -> str:\n        parts = [\n            str(customer.customer_id()),\n            customer.name(),\n            customer.email(),\n            customer.tier(),\n        ]\n        return \" | \".join(parts).ljust(self._width)\n\n    def order_count(self) -> int:\n        return self._service.order_count()\n\n    def mail_summary(self, address: str) -> dict[str, str]:\n        return self._service.mail_summary(address)\n```",
+          "status": "linked",
+          "addresses_smells": [
+            "feature_envy",
+            "layer_violation"
+          ],
+          "target_layer_after": "application",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [
+            "addresses_smells names labels the target does not carry: feature_envy, layer_violation"
+          ],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Moving repository and mailer calls into a new service introduces an extra class and may increase DCC (more distinct internal types referenced). Existing code that instantiates ReportView will need to be updated to provide a ReportService, which could break runtime wiring if dependency injection is not adjusted. The change also adds a thin delegation layer, so performance impact is negligible but test suites must be updated to mock the new service.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.api.report_view:ReportView\",\n  \"diagnosis\": \"The class is tiny (NOM=4, WMC=4) but its cohesion is poor (LCOM4=2) because it mixes presentation logic with domain‑infrastructure concerns (OrderRepository and EmailClient). It also shows a feature‑envy pattern (many accesses to Customer) and violates the presentation layer rule by directly importing infra components, flagged by LV‑SKIP violations.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract a ReportService to the application layer\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.6\n        }\n      ],\n      \"sketch\": \"Create a new class in src.application.report_service:\\n```python\\nclass ReportService:\\n    def __init__(self, repository: OrderRepository, mailer: EmailClient) -> None:\\n        self._repository = repository\\n        self._mailer = mailer\\n\\n    def order_count(self) -> int:\\n        return self._repository.count()\\n\\n    def mail_summary(self, address: str) -> dict[str, str]:\\n        return self._mailer.send(address, f\\\"{self._repository.count()} orders\\\")\\n```\\nThen modify ReportView to depend only on ReportService and on Customer for formatting:\\n```python\\nclass ReportView:\\n    def __init__(self, service: ReportService) -> None:\\n        self._service = service\\n        self._width = 40\\n\\n    def title(self) -> str:\\n        return \\\"Orders\\\".center(self._width, \\\"-\\\")\\n\\n    def describe_customer(self, customer) -> str:\\n        parts = [\\n            str(customer.customer_id()),\\n            customer.name(),\\n            customer.email(),\\n            customer.tier(),\\n        ]\\n        return \\\" | \\\".join(parts).ljust(self._width)\\n\\n    def order_count(self) -> int:\\n        return self._service.order_count()\\n\\n    def mail_summary(self, address: str) -> dict[str, str]:\\n        return self._service.mail_summary(address)\\n```\",\n      \"addresses_smells\": [\n        \"feature_envy\",\n        \"layer_violation\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"Moving repository and mailer calls into a new service introduces an extra class and may increase DCC (more distinct internal types referenced). Existing code that instantiates ReportView will need to be updated to provide a ReportService, which could break runtime wiring if dependency injection is not adjusted. The change also adds a thin delegation layer, so performance impact is negligible but test suites must be updated to mock the new service.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "f0c752c50a2fa8fff47335729cea4e670191eb0069c94fbdf20c13ffc8c435bc",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch",
+  "arch_context": true,
+  "metric_rules": false
+}

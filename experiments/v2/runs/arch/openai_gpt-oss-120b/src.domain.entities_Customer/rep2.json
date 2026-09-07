@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:29:17+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The class has a very high LCOM4 (4) because each accessor method touches a distinct private attribute, creating multiple disconnected components. It also has a modest NOM (5) and WMC (5) but DCC is zero, indicating no external dependencies. The data_class smell is intentional, yet the metrics reveal that the class is overly accessor‑heavy, which inflates LCOM4 and adds unnecessary boilerplate.",
+      "suggestions": [
+        {
+          "title": "Replace explicit getters with a frozen dataclass and keep only behavior",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.9
+            }
+          ],
+          "sketch": "Convert the class to:\n```python\nfrom dataclasses import dataclass\n\n@dataclass(frozen=True)\nclass Customer:\n    customer_id: int\n    name: str\n    email: str\n    tier: str = \"standard\"\n\n    def is_premium(self) -> bool:\n        return self.tier == \"premium\"\n```\nRemove the five accessor methods; the fields are now public and immutable, preserving domain integrity while keeping the single behavior method.",
+          "status": "linked",
+          "addresses_smells": [
+            "data_class"
+          ],
+          "target_layer_after": "domain",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Changing to a frozen dataclass removes the private attribute encapsulation; any code that relied on the original getter methods will need to be updated to access attributes directly. If other layers expect mutability, they must be refactored accordingly. However, because the domain layer has no outward imports, the impact is contained within the domain model.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.domain.entities:Customer\",\n  \"diagnosis\": \"The class has a very high LCOM4 (4) because each accessor method touches a distinct private attribute, creating multiple disconnected components. It also has a modest NOM (5) and WMC (5) but DCC is zero, indicating no external dependencies. The data_class smell is intentional, yet the metrics reveal that the class is overly accessor‑heavy, which inflates LCOM4 and adds unnecessary boilerplate.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Replace explicit getters with a frozen dataclass and keep only behavior\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        }\n      ],\n      \"sketch\": \"Convert the class to:\\n```python\\nfrom dataclasses import dataclass\\n\\n@dataclass(frozen=True)\\nclass Customer:\\n    customer_id: int\\n    name: str\\n    email: str\\n    tier: str = \\\"standard\\\"\\n\\n    def is_premium(self) -> bool:\\n        return self.tier == \\\"premium\\\"\\n```\\nRemove the five accessor methods; the fields are now public and immutable, preserving domain integrity while keeping the single behavior method.\",\n      \"addresses_smells\": [\n        \"data_class\"\n      ],\n      \"target_layer_after\": \"domain\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"Changing to a frozen dataclass removes the private attribute encapsulation; any code that relied on the original getter methods will need to be updated to access attributes directly. If other layers expect mutability, they must be refactored accordingly. However, because the domain layer has no outward imports, the impact is contained within the domain model.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "6b84989a86689d7d590e64dcd37c9109a1bfae0441e3c8c8f069ead0eb4c436c",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch",
+  "arch_context": true,
+  "metric_rules": false
+}

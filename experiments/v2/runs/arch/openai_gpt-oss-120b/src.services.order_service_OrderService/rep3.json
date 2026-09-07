@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:44:53+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.services.order_service:OrderService",
+      "diagnosis": "The OrderService class aggregates four distinct responsibilities (order lifecycle, pricing, audit, notification) resulting in a very high method count (NOM=26) and cyclomatic complexity (WMC=56). The method‑attribute graph is split into five disconnected components (LCOM4=5), indicating poor cohesion. While the class only uses four internal domain types (DCC=4), extracting the responsibilities will improve cohesion and reduce the god‑class smell, though it may slightly increase DCC as new service classes will also reference those domain types.",
+      "suggestions": [
+        {
+          "title": "Extract responsibility‑specific services",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.5
+            }
+          ],
+          "sketch": "Create four new classes in the same application layer:\n\n```python\nclass OrderLifecycleService:\n    def __init__(self, repository):\n        self._repository = repository\n    # move place, fetch, cancel, close, order_count, orders_for, open_orders, line_count, revenue, tier_summary\n```\n\n```python\nclass PricingService:\n    def __init__(self, tax_rate=0.18, discounts=None):\n        self._tax_rate = tax_rate\n        self._discounts = discounts or {}\n    # move set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_for, policy_rate, is_priced\n```\n\n```python\nclass AuditService:\n    def __init__(self):\n        self._audit = []\n    # move log, history, last_entry, audit_size, clear_audit\n```\n\n```python\nclass NotificationService:\n    def __init__(self, notifier):\n        self._notifier = notifier\n        self._sent = 0\n    # move notify, sent_count, reset_sent\n```\n\nUpdate OrderService to become a façade that composes these services and delegates calls, keeping only thin orchestration logic. No imports from presentation or infrastructure are added, preserving the application‑layer rule.",
+          "status": "linked",
+          "addresses_smells": [
+            "god_class",
+            "feature_envy_candidate"
+          ],
+          "target_layer_after": "application",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Splitting the class introduces additional objects and may require updating all callers to use the new façade or to inject the specific services, which could break existing tests. The increase in DCC reflects the new service classes also depending on domain entities; if the project enforces a strict DCC limit, this trade‑off must be weighed. Careful integration testing is needed to ensure that stateful aspects (e.g., audit list, sent counter) remain consistent after delegation.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.services.order_service:OrderService\",\n  \"diagnosis\": \"The OrderService class aggregates four distinct responsibilities (order lifecycle, pricing, audit, notification) resulting in a very high method count (NOM=26) and cyclomatic complexity (WMC=56). The method‑attribute graph is split into five disconnected components (LCOM4=5), indicating poor cohesion. While the class only uses four internal domain types (DCC=4), extracting the responsibilities will improve cohesion and reduce the god‑class smell, though it may slightly increase DCC as new service classes will also reference those domain types.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract responsibility‑specific services\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.5\n        }\n      ],\n      \"sketch\": \"Create four new classes in the same application layer:\\n\\n```python\\nclass OrderLifecycleService:\\n    def __init__(self, repository):\\n        self._repository = repository\\n    # move place, fetch, cancel, close, order_count, orders_for, open_orders, line_count, revenue, tier_summary\\n```\\n\\n```python\\nclass PricingService:\\n    def __init__(self, tax_rate=0.18, discounts=None):\\n        self._tax_rate = tax_rate\\n        self._discounts = discounts or {}\\n    # move set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_for, policy_rate, is_priced\\n```\\n\\n```python\\nclass AuditService:\\n    def __init__(self):\\n        self._audit = []\\n    # move log, history, last_entry, audit_size, clear_audit\\n```\\n\\n```python\\nclass NotificationService:\\n    def __init__(self, notifier):\\n        self._notifier = notifier\\n        self._sent = 0\\n    # move notify, sent_count, reset_sent\\n```\\n\\nUpdate OrderService to become a façade that composes these services and delegates calls, keeping only thin orchestration logic. No imports from presentation or infrastructure are added, preserving the application‑layer rule.\",\n      \"addresses_smells\": [\n        \"god_class\",\n        \"feature_envy_candidate\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"Splitting the class introduces additional objects and may require updating all callers to use the new façade or to inject the specific services, which could break existing tests. The increase in DCC reflects the new service classes also depending on domain entities; if the project enforces a strict DCC limit, this trade‑off must be weighed. Careful integration testing is needed to ensure that stateful aspects (e.g., audit list, sent counter) remain consistent after delegation.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "c2c2c028cfdca46c0a568bc8fe486dcd18da6cc1d3218ed0253ac117b5f58e26",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch",
+  "arch_context": true,
+  "metric_rules": false
+}

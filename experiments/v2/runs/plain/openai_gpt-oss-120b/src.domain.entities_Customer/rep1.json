@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:27:01+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The class has five trivial accessor methods that each touch a distinct private attribute, resulting in a high LCOM4 (4) indicating low cohesion. All attributes are private (DAM = 1.0) and the class does not depend on any other internal types (DCC = 0). The overall complexity (WMC = 5) is driven solely by the getters, not by real behavior.",
+      "suggestions": [
+        {
+          "title": "Replace trivial getters with public dataclass fields",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DAM",
+            "NOM",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "DAM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.9
+            }
+          ],
+          "sketch": "Convert the class to a @dataclass with public attributes and drop the five accessor methods. Keep the business method is_premium because it adds real behavior.\n\n```python\nfrom dataclasses import dataclass\n\n@dataclass\nclass Customer:\n    customer_id: int\n    name: str\n    email: str\n    tier: str = \"standard\"\n\n    def is_premium(self) -> bool:\n        return self.tier == \"premium\"\n```\n\nIf external code still expects the old getter names, add thin wrappers that delegate to the public fields, but mark them as deprecated.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Changing attribute visibility may break code that relied on the private‑attribute convention or on the getter methods. Adding deprecated wrappers mitigates this, but the extra wrappers re‑introduce some of the original cohesion problem. If the project enforces strict encapsulation, the public‑field approach might be rejected, in which case the benefit to LCOM4 would be smaller.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.domain.entities:Customer\",\n  \"diagnosis\": \"The class has five trivial accessor methods that each touch a distinct private attribute, resulting in a high LCOM4 (4) indicating low cohesion. All attributes are private (DAM = 1.0) and the class does not depend on any other internal types (DCC = 0). The overall complexity (WMC = 5) is driven solely by the getters, not by real behavior.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Replace trivial getters with public dataclass fields\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DAM\",\n        \"NOM\",\n        \"WMC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"DAM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        }\n      ],\n      \"sketch\": \"Convert the class to a @dataclass with public attributes and drop the five accessor methods. Keep the business method is_premium because it adds real behavior.\\n\\n```python\\nfrom dataclasses import dataclass\\n\\n@dataclass\\nclass Customer:\\n    customer_id: int\\n    name: str\\n    email: str\\n    tier: str = \\\"standard\\\"\\n\\n    def is_premium(self) -> bool:\\n        return self.tier == \\\"premium\\\"\\n```\\n\\nIf external code still expects the old getter names, add thin wrappers that delegate to the public fields, but mark them as deprecated.\"\n    }\n  ],\n  \"risk_notes\": \"Changing attribute visibility may break code that relied on the private‑attribute convention or on the getter methods. Adding deprecated wrappers mitigates this, but the extra wrappers re‑introduce some of the original cohesion problem. If the project enforces strict encapsulation, the public‑field approach might be rejected, in which case the benefit to LCOM4 would be smaller.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "9fb7df7e9aeeb0e9f4e1cf2dcaf2587c538beb130c6a866fb257a499be182992",
+      "from_cache": false
+    }
+  ],
+  "condition": "plain",
+  "arch_context": false,
+  "metric_rules": false
+}

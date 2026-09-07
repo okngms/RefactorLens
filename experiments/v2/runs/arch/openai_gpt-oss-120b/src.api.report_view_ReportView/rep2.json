@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:29:30+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class has a low method count but a high LCOM4 (2), indicating that its methods are not tightly bound to its own state. It also references two distinct internal classes (OrderRepository, EmailClient), giving it a DCC of 2, and it violates the presentation layer rule by directly importing infrastructure components, which is flagged by LV‑SKIP. The feature envy candidate (describe_customer) accesses a Customer object far more than its own attributes, reinforcing the cohesion problem.",
+      "suggestions": [
+        {
+          "title": "Extract infrastructure interactions to an application‑layer service",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Create a new class ReportPresenter in the application layer:\n```python\nclass ReportPresenter:\n    def __init__(self, repository: OrderRepository, mailer: EmailClient) -> None:\n        self._repository = repository\n        self._mailer = mailer\n\n    def order_count(self) -> int:\n        return self._repository.count()\n\n    def mail_summary(self, address: str) -> dict[str, str]:\n        return self._mailer.send(address, f\"{self._repository.count()} orders\")\n```\nRefactor ReportView to receive only presentation data and drop the two infra dependencies:\n```python\nclass ReportView:\n    def __init__(self, width: int = 40) -> None:\n        self._width = width\n\n    def title(self) -> str:\n        return \"Orders\".center(self._width, \"-\")\n\n    def describe_customer(self, customer) -> str:\n        parts = [\n            str(customer.customer_id()),\n            customer.name(),\n            customer.email(),\n            customer.tier(),\n        ]\n        return \" | \".join(parts).ljust(self._width)\n```\nCallers now use `ReportPresenter` for business logic and `ReportView` only for formatting.",
+          "status": "linked",
+          "addresses_smells": [
+            "feature_envy_candidate",
+            "layer_violation"
+          ],
+          "target_layer_after": "application",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [
+            "addresses_smells names labels the target does not carry: layer_violation"
+          ],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Moving the repository and mailer out of ReportView changes its public API; any code that instantiated ReportView with those arguments must be updated to use ReportPresenter. Tests that mock those dependencies will need adjustment. If other presentation components relied on ReportView's side‑effects, they must be refactored accordingly. The added ReportPresenter introduces a new class, slightly increasing overall class count, but the cohesion and layer compliance improvements outweigh this cost.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.api.report_view:ReportView\",\n  \"diagnosis\": \"The class has a low method count but a high LCOM4 (2), indicating that its methods are not tightly bound to its own state. It also references two distinct internal classes (OrderRepository, EmailClient), giving it a DCC of 2, and it violates the presentation layer rule by directly importing infrastructure components, which is flagged by LV‑SKIP. The feature envy candidate (describe_customer) accesses a Customer object far more than its own attributes, reinforcing the cohesion problem.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract infrastructure interactions to an application‑layer service\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Create a new class ReportPresenter in the application layer:\\n```python\\nclass ReportPresenter:\\n    def __init__(self, repository: OrderRepository, mailer: EmailClient) -> None:\\n        self._repository = repository\\n        self._mailer = mailer\\n\\n    def order_count(self) -> int:\\n        return self._repository.count()\\n\\n    def mail_summary(self, address: str) -> dict[str, str]:\\n        return self._mailer.send(address, f\\\"{self._repository.count()} orders\\\")\\n```\\nRefactor ReportView to receive only presentation data and drop the two infra dependencies:\\n```python\\nclass ReportView:\\n    def __init__(self, width: int = 40) -> None:\\n        self._width = width\\n\\n    def title(self) -> str:\\n        return \\\"Orders\\\".center(self._width, \\\"-\\\")\\n\\n    def describe_customer(self, customer) -> str:\\n        parts = [\\n            str(customer.customer_id()),\\n            customer.name(),\\n            customer.email(),\\n            customer.tier(),\\n        ]\\n        return \\\" | \\\".join(parts).ljust(self._width)\\n```\\nCallers now use `ReportPresenter` for business logic and `ReportView` only for formatting.\",\n      \"addresses_smells\": [\n        \"feature_envy_candidate\",\n        \"layer_violation\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"Moving the repository and mailer out of ReportView changes its public API; any code that instantiated ReportView with those arguments must be updated to use ReportPresenter. Tests that mock those dependencies will need adjustment. If other presentation components relied on ReportView's side‑effects, they must be refactored accordingly. The added ReportPresenter introduces a new class, slightly increasing overall class count, but the cohesion and layer compliance improvements outweigh this cost.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "27a397ddfaadce397180e14dee4ca65ffb1f20b1fbc1ac4263a05115de00b06c",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch",
+  "arch_context": true,
+  "metric_rules": false
+}

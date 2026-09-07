@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:27:54+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.services.order_service:OrderService",
+      "diagnosis": "The OrderService class bundles four distinct concerns—order lifecycle, pricing, audit, and notification—resulting in a very high method count (NOM=26) and cyclomatic complexity (WMC=56). The LCOM4 value of 5 signals that its methods are split across multiple unrelated attribute groups, i.e., low cohesion. While all attributes are private (DAM=1.0), the class also references four internal types (DCC=4), which will increase if responsibilities are split further.",
+      "suggestions": [
+        {
+          "title": "Extract pricing responsibilities into a dedicated PricingService",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.5
+            }
+          ],
+          "sketch": "Create a new class PricingService that receives tax_rate, discounts, and possibly a DiscountPolicy in its constructor. Move methods set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_for, policy_rate, and is_priced there. OrderService keeps a reference to PricingService and delegates pricing calls (e.g., total_for) to it.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Extract audit functionality into an AuditLog component",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.4
+            }
+          ],
+          "sketch": "Introduce class AuditLog with methods log, history, last_entry, audit_size, clear_audit. It owns the internal list of entries. OrderService receives an AuditLog instance (or creates one) and forwards audit calls. Remove the _audit attribute and related methods from OrderService.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Splitting the class changes the public API; callers that previously used OrderService for pricing or audit must be updated to use the new services, which may be a breaking change. The new classes increase the overall DCC because they each depend on internal types (Customer, DiscountPolicy, etc.). Care must be taken to preserve transactionality—e.g., placing an order and then logging/auditing should remain atomic, possibly requiring coordination or a higher‑level façade that composes the extracted services.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.services.order_service:OrderService\",\n  \"diagnosis\": \"The OrderService class bundles four distinct concerns—order lifecycle, pricing, audit, and notification—resulting in a very high method count (NOM=26) and cyclomatic complexity (WMC=56). The LCOM4 value of 5 signals that its methods are split across multiple unrelated attribute groups, i.e., low cohesion. While all attributes are private (DAM=1.0), the class also references four internal types (DCC=4), which will increase if responsibilities are split further.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract pricing responsibilities into a dedicated PricingService\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.5\n        }\n      ],\n      \"sketch\": \"Create a new class PricingService that receives tax_rate, discounts, and possibly a DiscountPolicy in its constructor. Move methods set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_for, policy_rate, and is_priced there. OrderService keeps a reference to PricingService and delegates pricing calls (e.g., total_for) to it.\"\n    },\n    {\n      \"title\": \"Extract audit functionality into an AuditLog component\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.4\n        }\n      ],\n      \"sketch\": \"Introduce class AuditLog with methods log, history, last_entry, audit_size, clear_audit. It owns the internal list of entries. OrderService receives an AuditLog instance (or creates one) and forwards audit calls. Remove the _audit attribute and related methods from OrderService.\"\n    }\n  ],\n  \"risk_notes\": \"Splitting the class changes the public API; callers that previously used OrderService for pricing or audit must be updated to use the new services, which may be a breaking change. The new classes increase the overall DCC because they each depend on internal types (Customer, DiscountPolicy, etc.). Care must be taken to preserve transactionality—e.g., placing an order and then logging/auditing should remain atomic, possibly requiring coordination or a higher‑level façade that composes the extracted services.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "24c98fd18a9cbffabc57d8902ad6ab93587bad269a13f0cf8a754076d024f0a8",
+      "from_cache": false
+    }
+  ],
+  "condition": "plain",
+  "arch_context": false,
+  "metric_rules": false
+}
