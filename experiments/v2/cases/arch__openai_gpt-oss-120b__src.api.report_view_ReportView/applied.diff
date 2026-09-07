@@ -1,0 +1,74 @@
+--- a/src/api/report_view.py
++++ b/src/api/report_view.py
+@@ -7,14 +7,12 @@
+ 
+ from __future__ import annotations
+ 
+-from infra.email_client import EmailClient
+-from infra.order_repository import OrderRepository
++from services.order_report_service import OrderReportService
+ 
+ 
+ class ReportView:
+-    def __init__(self, repository: OrderRepository, mailer: EmailClient) -> None:
+-        self._repository = repository
+-        self._mailer = mailer
++    def __init__(self, service: OrderReportService) -> None:
++        self._service = service
+         self._width = 40
+ 
+     def title(self) -> str:
+@@ -31,7 +29,7 @@
+         return " | ".join(parts).ljust(self._width)
+ 
+     def order_count(self) -> int:
+-        return self._repository.count()
++        return self._service.order_count()
+ 
+     def mail_summary(self, address: str) -> dict[str, str]:
+-        return self._mailer.send(address, f"{self._repository.count()} orders")
++        return self._service.mail_summary(address)
+--- a/src/services/order_report_service.py
++++ b/src/services/order_report_service.py
+@@ -0,0 +1,22 @@
++"""Application katmanı: rapor için altyapı erişimini toplar.
++
++`arch` koşulunda `openai/gpt-oss-120b`'nin önerdiği sınıf, taslakta verildiği
++gibi uygulanmıştır.
++"""
++
++from __future__ import annotations
++
++from infra.email_client import EmailClient
++from infra.order_repository import OrderRepository
++
++
++class OrderReportService:
++    def __init__(self, repository: OrderRepository, mailer: EmailClient) -> None:
++        self._repository = repository
++        self._mailer = mailer
++
++    def order_count(self) -> int:
++        return self._repository.count()
++
++    def mail_summary(self, address: str) -> dict[str, str]:
++        return self._mailer.send(address, f"{self._repository.count()} orders")
+--- a/tests/test_api_and_shared.py
++++ b/tests/test_api_and_shared.py
+@@ -6,6 +6,7 @@
+ from domain.entities import Customer, OrderLine
+ from infra.email_client import EmailClient
+ from infra.order_repository import OrderRepository
++from services.order_report_service import OrderReportService
+ from services.order_service import OrderService
+ from shared.helpers import normalise, registry_size
+ from shared.registry import Registry
+@@ -39,7 +40,7 @@
+ class TestReportView:
+     @pytest.fixture
+     def view(self, repository):
+-        return ReportView(repository, EmailClient())
++        return ReportView(OrderReportService(repository, EmailClient()))
+ 
+     def test_title_is_padded(self, view):
+         assert len(view.title()) == 40
