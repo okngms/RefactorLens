@@ -1,0 +1,95 @@
+--- a/src/api/report_view.py
++++ b/src/api/report_view.py
+@@ -23,10 +23,10 @@
+     def describe_customer(self, customer) -> str:
+         """Feature envy: dört erişim Customer'a, bir tanesi kendi durumuna."""
+         parts = [
+-            str(customer.customer_id()),
+-            customer.name(),
+-            customer.email(),
+-            customer.tier(),
++            str(customer.customer_id),
++            customer.name,
++            customer.email,
++            customer.tier,
+         ]
+         return " | ".join(parts).ljust(self._width)
+ 
+--- a/src/domain/entities.py
++++ b/src/domain/entities.py
+@@ -17,15 +17,19 @@
+         self._email = email
+         self._tier = tier
+ 
++    @property
+     def customer_id(self) -> int:
+         return self._customer_id
+ 
++    @property
+     def name(self) -> str:
+         return self._name
+ 
++    @property
+     def email(self) -> str:
+         return self._email
+ 
++    @property
+     def tier(self) -> str:
+         return self._tier
+ 
+--- a/src/domain/policies.py
++++ b/src/domain/policies.py
+@@ -23,6 +23,6 @@
+         orders = [
+             order
+             for order in self._repository.all_orders()
+-            if order.customer.customer_id() == customer_id
++            if order.customer.customer_id == customer_id
+         ]
+         return 0.05 if len(orders) >= 3 else 0.0
+--- a/src/services/order_service.py
++++ b/src/services/order_service.py
+@@ -78,7 +78,7 @@
+     def orders_for(self, customer_id):
+         found = []
+         for order in self._repository.all_orders():
+-            if order.customer.customer_id() == customer_id:
++            if order.customer.customer_id == customer_id:
+                 found.append(order)
+         return found
+ 
+@@ -103,7 +103,7 @@
+     def tier_summary(self):
+         counts = {}
+         for order in self._repository.all_orders():
+-            tier = order.customer.tier()
++            tier = order.customer.tier
+             if tier in counts:
+                 counts[tier] += 1
+             else:
+@@ -175,7 +175,7 @@
+     # -- Bileşen 4: bildirim --------------------------------------------------
+ 
+     def notify(self, customer, subject):
+-        result = self._notifier.send(customer.email(), subject)
++        result = self._notifier.send(customer.email, subject)
+         self._sent += 1
+         return result
+ 
+--- a/tests/test_domain.py
++++ b/tests/test_domain.py
+@@ -18,10 +18,10 @@
+ 
+ class TestCustomer:
+     def test_accessors(self, customer):
+-        assert customer.customer_id() == 1
+-        assert customer.name() == "Ada"
+-        assert customer.email() == "ada@example.com"
+-        assert customer.tier() == "premium"
++        assert customer.customer_id == 1
++        assert customer.name == "Ada"
++        assert customer.email == "ada@example.com"
++        assert customer.tier == "premium"
+ 
+     def test_is_premium(self, customer):
+         assert customer.is_premium() is True
