@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:52:27+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The Customer class is a classic data holder with many trivial accessor methods, leading to a high LCOM4 of 4 and a low cohesion metric. Its design is intentionally a data class, but the current implementation inflates the number of methods (NOM=5) and cyclomatic complexity (WMC=5) without providing additional behavior. The class references no other internal classes (DCC=0) and has a high private attribute ratio (DAM=1.0), reinforcing its role as a pure data container.",
+      "suggestions": [
+        {
+          "title": "Convert to a frozen dataclass and expose attributes directly",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.9
+            }
+          ],
+          "sketch": "```python\nfrom dataclasses import dataclass\n\n@dataclass(frozen=True)\nclass Customer:\n    customer_id: int\n    name: str\n    email: str\n    tier: str = \"standard\"\n\n    def is_premium(self) -> bool:\n        return self.tier == \"premium\"\n```\nRemove the explicit getter methods; consumers can access attributes directly.",
+          "status": "linked",
+          "addresses_smells": [
+            "data_class"
+          ],
+          "target_layer_after": "domain",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "This change removes the explicit accessor methods, which may break existing code that calls them. It also exposes the attributes publicly, potentially violating encapsulation if future requirements need validation or transformation. However, as the class is intended to be a simple data holder, these trade‑offs are acceptable.",
+      "tags": [],
+      "raw_reply": "{\"target\":\"module:Customer\",\"diagnosis\":\"The Customer class is a classic data holder with many trivial accessor methods, leading to a high LCOM4 of 4 and a low cohesion metric. Its design is intentionally a data class, but the current implementation inflates the number of methods (NOM=5) and cyclomatic complexity (WMC=5) without providing additional behavior. The class references no other internal classes (DCC=0) and has a high private attribute ratio (DAM=1.0), reinforcing its role as a pure data container.\",\"suggestions\":[{\"title\":\"Convert to a frozen dataclass and expose attributes directly\",\"rationale_metric_link\":[\"LCOM4\",\"NOM\",\"WMC\"],\"expected_effect\":[{\"metric\":\"LCOM4\",\"direction\":\"down\",\"confidence\":0.9},{\"metric\":\"NOM\",\"direction\":\"down\",\"confidence\":0.9},{\"metric\":\"WMC\",\"direction\":\"down\",\"confidence\":0.9}],\"sketch\":\"```python\\nfrom dataclasses import dataclass\\n\\n@dataclass(frozen=True)\\nclass Customer:\\n    customer_id: int\\n    name: str\\n    email: str\\n    tier: str = \\\"standard\\\"\\n\\n    def is_premium(self) -> bool:\\n        return self.tier == \\\"premium\\\"\\n```\\nRemove the explicit getter methods; consumers can access attributes directly.\",\"addresses_smells\":[\"data_class\"],\"target_layer_after\":\"domain\",\"constraints_respected\":true}],\"risk_notes\":\"This change removes the explicit accessor methods, which may break existing code that calls them. It also exposes the attributes publicly, potentially violating encapsulation if future requirements need validation or transformation. However, as the class is intended to be a simple data holder, these trade‑offs are acceptable.\"}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:Customer'; using 'src.domain.entities:Customer' instead"
+      ],
+      "prompt_hash": "6f415a104dc3f24015f494c5299eebc7d2e2465524ee250894a9f08fb34fd3e0",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch",
+  "arch_context": true,
+  "metric_rules": false
+}

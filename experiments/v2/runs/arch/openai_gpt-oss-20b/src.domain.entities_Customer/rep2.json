@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:51:03+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The Customer class is a classic data holder with five accessor methods and a single boolean helper. Its high LCOM4 (4) indicates that the methods are largely independent of the attributes, which is typical for a data class. The other metrics (NOM, WMC, DAM, DCC) are within acceptable ranges, and the class does not reference any other internal classes, keeping DCC at zero.",
+      "suggestions": [
+        {
+          "title": "Add a composite accessor to connect attributes",
+          "rationale_metric_link": [
+            "LCOM4"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "same",
+              "confidence": 1.0
+            }
+          ],
+          "sketch": "```python\ndef to_dict(self) -> dict:\n    \"\"\"Return a dictionary of all attributes, linking them in one method.\"\"\"\n    return {\n        \"customer_id\": self._customer_id,\n        \"name\": self._name,\n        \"email\": self._email,\n        \"tier\": self._tier,\n    }\n```",
+          "status": "linked",
+          "addresses_smells": [
+            "data_class"
+          ],
+          "target_layer_after": "domain",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Adding a composite accessor slightly increases the class’s responsibilities, which may be undesirable if the class is intended to be a pure data holder. However, the change is minimal and does not introduce new dependencies or significantly alter the class’s interface.",
+      "tags": [],
+      "raw_reply": "{\"target\":\"module:Customer\",\"diagnosis\":\"The Customer class is a classic data holder with five accessor methods and a single boolean helper. Its high LCOM4 (4) indicates that the methods are largely independent of the attributes, which is typical for a data class. The other metrics (NOM, WMC, DAM, DCC) are within acceptable ranges, and the class does not reference any other internal classes, keeping DCC at zero.\",\"suggestions\":[{\"title\":\"Add a composite accessor to connect attributes\",\"rationale_metric_link\":[\"LCOM4\"],\"expected_effect\":[{\"metric\":\"LCOM4\",\"direction\":\"down\",\"confidence\":0.9},{\"metric\":\"DCC\",\"direction\":\"same\",\"confidence\":1.0}],\"sketch\":\"```python\\ndef to_dict(self) -> dict:\\n    \\\"\\\"\\\"Return a dictionary of all attributes, linking them in one method.\\\"\\\"\\\"\\n    return {\\n        \\\"customer_id\\\": self._customer_id,\\n        \\\"name\\\": self._name,\\n        \\\"email\\\": self._email,\\n        \\\"tier\\\": self._tier,\\n    }\\n```\",\"addresses_smells\":[\"data_class\"],\"target_layer_after\":\"domain\",\"constraints_respected\":true}],\"risk_notes\":\"Adding a composite accessor slightly increases the class’s responsibilities, which may be undesirable if the class is intended to be a pure data holder. However, the change is minimal and does not introduce new dependencies or significantly alter the class’s interface.\"}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:Customer'; using 'src.domain.entities:Customer' instead"
+      ],
+      "prompt_hash": "fcb7b85c0bc0d5d4be7df323797798c9bfc0f29049a51d6c970331d0f616446b",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch",
+  "arch_context": true,
+  "metric_rules": false
+}

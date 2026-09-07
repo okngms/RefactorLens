@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:58:28+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.services.order_service:OrderService",
+      "diagnosis": "The OrderService class is a classic god class: it has 26 public methods, a cyclomatic complexity of 56, and a cohesion of 5 components, indicating that its responsibilities are scattered across order lifecycle, pricing, audit, and notification. The high LCOM4 and NOM metrics show that the class is handling many unrelated concerns, while the DCC of 4 shows it is tightly coupled to several domain collaborators. This design violates the Single Responsibility Principle and makes the class hard to maintain, test, and evolve.",
+      "suggestions": [
+        {
+          "title": "Extract domain concerns into dedicated services",
+          "rationale_metric_link": [
+            "NOM",
+            "WMC",
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.95
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Create four new classes in the application layer:\n\n```python\nclass OrderLifecycleService:\n    def __init__(self, repository):\n        self._repository = repository\n    # move place, fetch, cancel, close, order_count, orders_for, open_orders, line_count\n\nclass PricingService:\n    def __init__(self, repository, tax_rate=0.18, discounts=None):\n        self._repository = repository\n        self._tax_rate = tax_rate\n        self._discounts = discounts or {}\n    # move set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_for, policy_rate, is_priced\n\nclass AuditService:\n    def __init__(self):\n        self._audit = []\n    # move log, history, last_entry, audit_size, clear_audit\n\nclass NotificationService:\n    def __init__(self, notifier):\n        self._notifier = notifier\n        self._sent = 0\n    # move notify, sent_count, reset_sent\n```\n\nUpdate OrderService to delegate to these collaborators:\n\n```python\nclass OrderService:\n    def __init__(self, repo, notifier):\n        self._lifecycle = OrderLifecycleService(repo)\n        self._pricing = PricingService(repo)\n        self._audit = AuditService()\n        self._notification = NotificationService(notifier)\n    # expose thin wrappers or remove if not needed\n```\n\nAll new classes remain in the application layer and only import domain classes, satisfying the architectural constraints.",
+          "status": "linked",
+          "addresses_smells": [
+            "god_class"
+          ],
+          "target_layer_after": "application",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Splitting the class increases the number of types in the module, which may raise the overall project DCC if the wiring code is duplicated. Care must be taken to avoid re‑introducing shared state (e.g., the audit log) across services. The refactor also requires updating all call sites and tests, which can be error‑prone. If the application is heavily coupled to the original OrderService API, the migration cost may outweigh the cohesion benefits.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:OrderService\",\n  \"diagnosis\": \"The OrderService class is a classic god class: it has 26 public methods, a cyclomatic complexity of 56, and a cohesion of 5 components, indicating that its responsibilities are scattered across order lifecycle, pricing, audit, and notification. The high LCOM4 and NOM metrics show that the class is handling many unrelated concerns, while the DCC of 4 shows it is tightly coupled to several domain collaborators. This design violates the Single Responsibility Principle and makes the class hard to maintain, test, and evolve.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract domain concerns into dedicated services\",\n      \"rationale_metric_link\": [\n        \"NOM\",\n        \"WMC\",\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.95\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Create four new classes in the application layer:\\n\\n```python\\nclass OrderLifecycleService:\\n    def __init__(self, repository):\\n        self._repository = repository\\n    # move place, fetch, cancel, close, order_count, orders_for, open_orders, line_count\\n\\nclass PricingService:\\n    def __init__(self, repository, tax_rate=0.18, discounts=None):\\n        self._repository = repository\\n        self._tax_rate = tax_rate\\n        self._discounts = discounts or {}\\n    # move set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_for, policy_rate, is_priced\\n\\nclass AuditService:\\n    def __init__(self):\\n        self._audit = []\\n    # move log, history, last_entry, audit_size, clear_audit\\n\\nclass NotificationService:\\n    def __init__(self, notifier):\\n        self._notifier = notifier\\n        self._sent = 0\\n    # move notify, sent_count, reset_sent\\n```\\n\\nUpdate OrderService to delegate to these collaborators:\\n\\n```python\\nclass OrderService:\\n    def __init__(self, repo, notifier):\\n        self._lifecycle = OrderLifecycleService(repo)\\n        self._pricing = PricingService(repo)\\n        self._audit = AuditService()\\n        self._notification = NotificationService(notifier)\\n    # expose thin wrappers or remove if not needed\\n```\\n\\nAll new classes remain in the application layer and only import domain classes, satisfying the architectural constraints.\",\n      \"addresses_smells\": [\n        \"god_class\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"Splitting the class increases the number of types in the module, which may raise the overall project DCC if the wiring code is duplicated. Care must be taken to avoid re‑introducing shared state (e.g., the audit log) across services. The refactor also requires updating all call sites and tests, which can be error‑prone. If the application is heavily coupled to the original OrderService API, the migration cost may outweigh the cohesion benefits.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:OrderService'; using 'src.services.order_service:OrderService' instead"
+      ],
+      "prompt_hash": "d22de1aa673dd085ea3f7ad0c7623b4730a7123657f7c93a3e71c7ad8c665b0c",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch_rules",
+  "arch_context": true,
+  "metric_rules": true
+}

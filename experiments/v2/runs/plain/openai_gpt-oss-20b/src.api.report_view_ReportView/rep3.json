@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:49:07+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class has a high LCOM4 (2) indicating low cohesion among its methods, and it references two distinct project-internal classes (DCC = 2). The methods are simple (WMC = 4) and all attributes are private (DAM = 1.0). The design suggests that responsibilities are mixed: customer description logic and mail sending logic are embedded in the view class, leading to feature envy and coupling to external services.",
+      "suggestions": [
+        {
+          "title": "Extract helper classes for customer description and mail summary",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "Create a new class CustomerDescriptionBuilder that takes a Customer and returns the formatted string. Move the describe_customer method into it. Create a new class MailSummaryService that takes an EmailClient and an OrderRepository and implements mail_summary. In ReportView, keep only title() and order_count(), delegating the other responsibilities to the helper classes. Example:\n\nclass CustomerDescriptionBuilder:\n    def __init__(self, width: int = 40):\n        self._width = width\n    def build(self, customer) -> str:\n        parts = [str(customer.customer_id()), customer.name(), customer.email(), customer.tier()]\n        return \" | \".join(parts).ljust(self._width)\n\nclass MailSummaryService:\n    def __init__(self, repository: OrderRepository, mailer: EmailClient):\n        self._repository = repository\n        self._mailer = mailer\n    def send_summary(self, address: str) -> dict[str, str]:\n        return self._mailer.send(address, f\"{self._repository.count()} orders\")\n\nclass ReportView:\n    def __init__(self, repository: OrderRepository, mailer: EmailClient) -> None:\n        self._repository = repository\n        self._mailer = mailer\n        self._width = 40\n        self._desc_builder = CustomerDescriptionBuilder(self._width)\n        self._mail_service = MailSummaryService(repository, mailer)\n    def title(self) -> str:\n        return \"Orders\".center(self._width, \"-\")\n    def describe_customer(self, customer) -> str:\n        return self._desc_builder.build(customer)\n    def order_count(self) -> int:\n        return self._repository.count()\n    def mail_summary(self, address: str) -> dict[str, str]:\n        return self._mail_service.send_summary(address)",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Splitting responsibilities increases the number of classes and may introduce wiring complexity if dependency injection is not used. If the application is small, the added indirection might outweigh the cohesion benefits. Ensure that the new helper classes are not duplicated elsewhere, otherwise the overall DCC could remain unchanged.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:src.api.report_view:ReportView\",\n  \"diagnosis\": \"The class has a high LCOM4 (2) indicating low cohesion among its methods, and it references two distinct project-internal classes (DCC = 2). The methods are simple (WMC = 4) and all attributes are private (DAM = 1.0). The design suggests that responsibilities are mixed: customer description logic and mail sending logic are embedded in the view class, leading to feature envy and coupling to external services.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract helper classes for customer description and mail summary\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        }\n      ],\n      \"sketch\": \"Create a new class CustomerDescriptionBuilder that takes a Customer and returns the formatted string. Move the describe_customer method into it. Create a new class MailSummaryService that takes an EmailClient and an OrderRepository and implements mail_summary. In ReportView, keep only title() and order_count(), delegating the other responsibilities to the helper classes. Example:\\n\\nclass CustomerDescriptionBuilder:\\n    def __init__(self, width: int = 40):\\n        self._width = width\\n    def build(self, customer) -> str:\\n        parts = [str(customer.customer_id()), customer.name(), customer.email(), customer.tier()]\\n        return \\\" | \\\".join(parts).ljust(self._width)\\n\\nclass MailSummaryService:\\n    def __init__(self, repository: OrderRepository, mailer: EmailClient):\\n        self._repository = repository\\n        self._mailer = mailer\\n    def send_summary(self, address: str) -> dict[str, str]:\\n        return self._mailer.send(address, f\\\"{self._repository.count()} orders\\\")\\n\\nclass ReportView:\\n    def __init__(self, repository: OrderRepository, mailer: EmailClient) -> None:\\n        self._repository = repository\\n        self._mailer = mailer\\n        self._width = 40\\n        self._desc_builder = CustomerDescriptionBuilder(self._width)\\n        self._mail_service = MailSummaryService(repository, mailer)\\n    def title(self) -> str:\\n        return \\\"Orders\\\".center(self._width, \\\"-\\\")\\n    def describe_customer(self, customer) -> str:\\n        return self._desc_builder.build(customer)\\n    def order_count(self) -> int:\\n        return self._repository.count()\\n    def mail_summary(self, address: str) -> dict[str, str]:\\n        return self._mail_service.send_summary(address)\"\n    }\n  ],\n  \"risk_notes\": \"Splitting responsibilities increases the number of classes and may introduce wiring complexity if dependency injection is not used. If the application is small, the added indirection might outweigh the cohesion benefits. Ensure that the new helper classes are not duplicated elsewhere, otherwise the overall DCC could remain unchanged.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:src.api.report_view:ReportView'; using 'src.api.report_view:ReportView' instead"
+      ],
+      "prompt_hash": "c61342a0c60f337cb274e61268ecf7a77bca66ec1b3dcd6da2a0ce74626c0818",
+      "from_cache": false
+    }
+  ],
+  "condition": "plain",
+  "arch_context": false,
+  "metric_rules": false
+}

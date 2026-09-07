@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:59:37+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "",
+      "suggestions": [],
+      "risk_notes": "",
+      "tags": [
+        "unstructured"
+      ],
+      "raw_reply": "{\n  \"target\": \"module:ReportView\",\n  \"diagnosis\": \"The class has a low cohesion score (LCOM4=2) and is tightly coupled to two infrastructure classes (DCC=2). It also exhibits a feature‑envy candidate: the describe_customer method accesses Customer attributes far more than its own state. These metrics suggest that ReportView is doing too much and should be split or refactored to move responsibilities to the appropriate layers.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract ReportService to reduce coupling and cohesion issues\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\",\n        \"WMC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Create a new class in the application layer:\\n\\n```python\\nclass ReportService:\\n    def __init__(self, repository: OrderRepository, mailer: EmailClient) -> None:\\n        self._repository = repository\\n        self._mailer = mailer\\n        self._width = 40\\n\\n    def title(self) -> str:\\n        return \\\"Orders\\\".center(self._width, \\\"-\\\")\\n\\n    def order_count(self) -> int:\\n        return self._repository.count()\\n\\n    def mail_summary(self, address: str) -> dict[str, str]:\\n        return self._mailer.send(address, f\\\"{self._repository.count()} orders\\\")\\n```\\nThen modify ReportView to delegate to this service:\\n\\n```python\\nclass ReportView:\\n    def __init__(self, service: ReportService) -> None:\\n        self._service = service\\n\\n    def title(self) -> str: return self._service.title()\\n    def order_count(self) -> int: return self._service.order_count()\\n    def mail_summary(self, address: str) -> dict[str, str]:\\n        return self._service.mail_summary(address)\\n```\\nThis keeps ReportView thin, removes direct infra imports, and reduces LCOM4 to 1.\",\n      \"addresses_smells\": [\n        \"low_cohesion\",\n        \"god_class\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    },\n    {\n      \"title\": \"Move customer description logic to the domain layer\",\n      \"rationale_metric_link\": [\n        \"feature_envy_candidate\",\n        \"LCOM4\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"feature_envy_candidate\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        }\n      ],\n      \"sketch\": \"Add a method or helper in the Customer domain model:\\n\\n```python\\nclass Customer:\\n    ...\\n    def describe(self, width: int = 40) -> str:\\n        parts = [str(self.customer_id()), self.name(), self.email(), self.tier()]\\n        return \\\" | \\\".join(parts).ljust(width)\\n```\\nOr create a separate formatter in the domain layer:\\n\\n```python\\nclass CustomerFormatter:\\n    def __init__(self, width: int = 40):\\n        self._width = width\\n\\n    def format(self, customer: Customer) -> str:\\n        parts = [str(customer.customer_id()), customer.name(), customer.email(), customer.tier()]\\n        return \\\" | \\\".join(parts).ljust(self._width)\\n```\\nReportView then uses this formatter instead of its own describe_customer method.\",\n      \"addresses_smells\": [\n        \"feature_envy_candidate\"\n      ],\n      \"target_layer_after\": \"domain\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"Both changes require updating all call sites and tests that reference ReportView directly. Extracting ReportService introduces a new dependency that must be wired in the application layer",
+      "truncation_notes": [],
+      "repaired": true,
+      "warnings": [
+        "could not parse the reply even after repair: Unbalanced braces in the reply."
+      ],
+      "prompt_hash": "eeb0eec1023d5e86b9722b1773fc74ceffe71811c93448c70c497be61df3c7a7",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch_rules",
+  "arch_context": true,
+  "metric_rules": true
+}

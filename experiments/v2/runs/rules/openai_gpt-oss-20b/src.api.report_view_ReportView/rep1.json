@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:54:15+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class has a high LCOM4 (2), indicating that its methods are split into two disconnected groups: one that deals with formatting (title) and another that deals with data access and mailing (order_count, mail_summary). DCC is 2, meaning the class references two other project classes, which is acceptable but could be reduced by separating concerns. DAM is 1.0, so all attributes are private, which is fine. NOM and WMC are low, so the class is not large or complex, but its cohesion is poor.",
+      "suggestions": [
+        {
+          "title": "Extract formatting and mailing responsibilities into separate classes",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "```python\nclass ReportFormatter:\n    def __init__(self, width: int = 40) -> None:\n        self._width = width\n\n    def title(self) -> str:\n        return \"Orders\".center(self._width, \"-\")\n\n    def describe_customer(self, customer) -> str:\n        parts = [\n            str(customer.customer_id()),\n            customer.name(),\n            customer.email(),\n            customer.tier(),\n        ]\n        return \" | \".join(parts).ljust(self._width)\n\nclass ReportMailer:\n    def __init__(self, repository: OrderRepository, mailer: EmailClient) -> None:\n        self._repository = repository\n        self._mailer = mailer\n\n    def order_count(self) -> int:\n        return self._repository.count()\n\n    def mail_summary(self, address: str) -> dict[str, str]:\n        return self._mailer.send(address, f\"{self._repository.count()} orders\")\n```\nThe original `ReportView` can be removed or kept as a thin facade that delegates to these two classes if backward compatibility is required.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "The refactor introduces new classes and removes the original `ReportView`. All call sites, tests, and documentation must be updated accordingly. If the project relies on `ReportView` being a single class for dependency injection, a wrapper may be needed, which could reintroduce some coupling.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:ReportView\",\n  \"diagnosis\": \"The class has a high LCOM4 (2), indicating that its methods are split into two disconnected groups: one that deals with formatting (title) and another that deals with data access and mailing (order_count, mail_summary). DCC is 2, meaning the class references two other project classes, which is acceptable but could be reduced by separating concerns. DAM is 1.0, so all attributes are private, which is fine. NOM and WMC are low, so the class is not large or complex, but its cohesion is poor.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract formatting and mailing responsibilities into separate classes\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"```python\\nclass ReportFormatter:\\n    def __init__(self, width: int = 40) -> None:\\n        self._width = width\\n\\n    def title(self) -> str:\\n        return \\\"Orders\\\".center(self._width, \\\"-\\\")\\n\\n    def describe_customer(self, customer) -> str:\\n        parts = [\\n            str(customer.customer_id()),\\n            customer.name(),\\n            customer.email(),\\n            customer.tier(),\\n        ]\\n        return \\\" | \\\".join(parts).ljust(self._width)\\n\\nclass ReportMailer:\\n    def __init__(self, repository: OrderRepository, mailer: EmailClient) -> None:\\n        self._repository = repository\\n        self._mailer = mailer\\n\\n    def order_count(self) -> int:\\n        return self._repository.count()\\n\\n    def mail_summary(self, address: str) -> dict[str, str]:\\n        return self._mailer.send(address, f\\\"{self._repository.count()} orders\\\")\\n```\\nThe original `ReportView` can be removed or kept as a thin facade that delegates to these two classes if backward compatibility is required.\",\n      \"risk_notes\": \"Existing code that imports `ReportView` and calls `mail_summary` or `title` will break unless a facade is provided. Tests must be updated to use the new classes. The split increases the number of classes in the module, which may affect navigation for developers unfamiliar with the new structure.\"\n    }\n  ],\n  \"risk_notes\": \"The refactor introduces new classes and removes the original `ReportView`. All call sites, tests, and documentation must be updated accordingly. If the project relies on `ReportView` being a single class for dependency injection, a wrapper may be needed, which could reintroduce some coupling.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:ReportView'; using 'src.api.report_view:ReportView' instead"
+      ],
+      "prompt_hash": "52cb2a83835784c27c7ed157b85a47e677cbd3a06dd87d183d6c9be9c5ab3a7d",
+      "from_cache": false
+    }
+  ],
+  "condition": "rules",
+  "arch_context": false,
+  "metric_rules": true
+}

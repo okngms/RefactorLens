@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:47:36+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "LCOM4=2 signals that ReportView is not cohesive; its methods touch unrelated concerns (report formatting, customer data formatting, and mail sending). DCC=2 shows it couples two internal classes (OrderRepository and EmailClient), which is acceptable but could be reduced by separating responsibilities. The high DAM is fine, but the class mixes data access, presentation, and communication logic.",
+      "suggestions": [
+        {
+          "title": "Extract responsibilities into dedicated classes",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "Create a CustomerFormatter with a method describe_customer(customer) that returns the formatted string. Create a ReportMailer with a method mail_summary(address, count) that delegates to EmailClient.send. Refactor ReportView to:\n\n```python\nclass ReportView:\n    def __init__(self, repository: OrderRepository, mailer: ReportMailer, formatter: CustomerFormatter) -> None:\n        self._repository = repository\n        self._mailer = mailer\n        self._formatter = formatter\n        self._width = 40\n\n    def title(self) -> str:\n        return \"Orders\".center(self._width, \"-\")\n\n    def describe_customer(self, customer) -> str:\n        return self._formatter.describe_customer(customer)\n\n    def order_count(self) -> int:\n        return self._repository.count()\n\n    def mail_summary(self, address: str) -> dict[str, str]:\n        return self._mailer.mail_summary(address, self._repository.count())\n```\n\nThis isolates formatting and mailing logic, improving cohesion and reducing coupling.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Tests that directly call ReportView.describe_customer or mail_summary may fail if the new classes are not injected correctly. Ensure that the new ReportMailer and CustomerFormatter are properly instantiated and passed to ReportView. The change increases the number of classes, which could slightly raise maintenance overhead, but the benefits in cohesion and reduced coupling outweigh this cost.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:src.api.report_view:ReportView\",\n  \"diagnosis\": \"LCOM4=2 signals that ReportView is not cohesive; its methods touch unrelated concerns (report formatting, customer data formatting, and mail sending). DCC=2 shows it couples two internal classes (OrderRepository and EmailClient), which is acceptable but could be reduced by separating responsibilities. The high DAM is fine, but the class mixes data access, presentation, and communication logic.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract responsibilities into dedicated classes\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        }\n      ],\n      \"sketch\": \"Create a CustomerFormatter with a method describe_customer(customer) that returns the formatted string. Create a ReportMailer with a method mail_summary(address, count) that delegates to EmailClient.send. Refactor ReportView to:\\n\\n```python\\nclass ReportView:\\n    def __init__(self, repository: OrderRepository, mailer: ReportMailer, formatter: CustomerFormatter) -> None:\\n        self._repository = repository\\n        self._mailer = mailer\\n        self._formatter = formatter\\n        self._width = 40\\n\\n    def title(self) -> str:\\n        return \\\"Orders\\\".center(self._width, \\\"-\\\")\\n\\n    def describe_customer(self, customer) -> str:\\n        return self._formatter.describe_customer(customer)\\n\\n    def order_count(self) -> int:\\n        return self._repository.count()\\n\\n    def mail_summary(self, address: str) -> dict[str, str]:\\n        return self._mailer.mail_summary(address, self._repository.count())\\n```\\n\\nThis isolates formatting and mailing logic, improving cohesion and reducing coupling.\"\n    }\n  ],\n  \"risk_notes\": \"Tests that directly call ReportView.describe_customer or mail_summary may fail if the new classes are not injected correctly. Ensure that the new ReportMailer and CustomerFormatter are properly instantiated and passed to ReportView. The change increases the number of classes, which could slightly raise maintenance overhead, but the benefits in cohesion and reduced coupling outweigh this cost.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:src.api.report_view:ReportView'; using 'src.api.report_view:ReportView' instead"
+      ],
+      "prompt_hash": "1e15f84be063bd70a26737217298f869f5a67df58b866448ee5ad9c1708f3462",
+      "from_cache": false
+    }
+  ],
+  "condition": "plain",
+  "arch_context": false,
+  "metric_rules": false
+}

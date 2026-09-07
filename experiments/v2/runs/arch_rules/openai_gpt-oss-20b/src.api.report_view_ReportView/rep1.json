@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:57:57+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class has a low cohesion score (LCOM4 = 2) and references two infrastructure classes (DCC = 2), violating the presentation layer contract. It also exhibits a feature‑envy candidate smell because it accesses many Customer attributes directly. The metrics indicate that the class mixes formatting logic with data‑access and mailing responsibilities.",
+      "suggestions": [
+        {
+          "title": "Split responsibilities: separate formatting from data access",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "Create a new `ReportService` in the application layer that holds the `OrderRepository` and `EmailClient` dependencies and implements `order_count()` and `mail_summary()`. Keep `ReportView` in the presentation layer with only formatting methods (`title()` and `describe_customer()`). The view will now depend on the service via an interface or a simple wrapper, eliminating direct imports of infrastructure classes.\n\n```python\n# src.application.report_service.py\nclass ReportService:\n    def __init__(self, repository: OrderRepository, mailer: EmailClient):\n        self._repository = repository\n        self._mailer = mailer\n    def order_count(self) -> int:\n        return self._repository.count()\n    def mail_summary(self, address: str) -> dict[str, str]:\n        return self._mailer.send(address, f\"{self._repository.count()} orders\")\n\n# src.api.report_view.py\nclass ReportView:\n    def __init__(self, service: ReportService, width: int = 40):\n        self._service = service\n        self._width = width\n    def title(self) -> str:\n        return \"Orders\".center(self._width, \"-\")\n    def describe_customer(self, customer) -> str:\n        parts = [str(customer.customer_id()), customer.name(), customer.email(), customer.tier()]\n        return \" | \".join(parts).ljust(self._width)\n    def order_count(self) -> int:\n        return self._service.order_count()\n    def mail_summary(self, address: str) -> dict[str, str]:\n        return self._service.mail_summary(address)\n```",
+          "status": "linked",
+          "addresses_smells": [
+            "feature_envy_candidate",
+            "low_cohesion"
+          ],
+          "target_layer_after": "application",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [
+            "addresses_smells names labels the target does not carry: low_cohesion"
+          ],
+          "tags": []
+        }
+      ],
+      "risk_notes": "The refactor introduces a new class and changes the public API of ReportView, which may break existing callers and tests. The service must be instantiated with concrete infrastructure objects or their adapters, so dependency injection wiring needs to be updated. If the application layer is not yet fully defined, creating the service may require additional scaffolding.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:src.api.report_view:ReportView\",\n  \"diagnosis\": \"The class has a low cohesion score (LCOM4 = 2) and references two infrastructure classes (DCC = 2), violating the presentation layer contract. It also exhibits a feature‑envy candidate smell because it accesses many Customer attributes directly. The metrics indicate that the class mixes formatting logic with data‑access and mailing responsibilities.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Split responsibilities: separate formatting from data access\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        }\n      ],\n      \"sketch\": \"Create a new `ReportService` in the application layer that holds the `OrderRepository` and `EmailClient` dependencies and implements `order_count()` and `mail_summary()`. Keep `ReportView` in the presentation layer with only formatting methods (`title()` and `describe_customer()`). The view will now depend on the service via an interface or a simple wrapper, eliminating direct imports of infrastructure classes.\\n\\n```python\\n# src.application.report_service.py\\nclass ReportService:\\n    def __init__(self, repository: OrderRepository, mailer: EmailClient):\\n        self._repository = repository\\n        self._mailer = mailer\\n    def order_count(self) -> int:\\n        return self._repository.count()\\n    def mail_summary(self, address: str) -> dict[str, str]:\\n        return self._mailer.send(address, f\\\"{self._repository.count()} orders\\\")\\n\\n# src.api.report_view.py\\nclass ReportView:\\n    def __init__(self, service: ReportService, width: int = 40):\\n        self._service = service\\n        self._width = width\\n    def title(self) -> str:\\n        return \\\"Orders\\\".center(self._width, \\\"-\\\")\\n    def describe_customer(self, customer) -> str:\\n        parts = [str(customer.customer_id()), customer.name(), customer.email(), customer.tier()]\\n        return \\\" | \\\".join(parts).ljust(self._width)\\n    def order_count(self) -> int:\\n        return self._service.order_count()\\n    def mail_summary(self, address: str) -> dict[str, str]:\\n        return self._service.mail_summary(address)\\n```\\n\",\n      \"addresses_smells\": [\n        \"feature_envy_candidate\",\n        \"low_cohesion\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"The refactor introduces a new class and changes the public API of ReportView, which may break existing callers and tests. The service must be instantiated with concrete infrastructure objects or their adapters, so dependency injection wiring needs to be updated. If the application layer is not yet fully defined, creating the service may require additional scaffolding.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:src.api.report_view:ReportView'; using 'src.api.report_view:ReportView' instead"
+      ],
+      "prompt_hash": "f782b179f3eeabcc142872776cc014f071d9ffe230e80831bc25eda5dbc55d81",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch_rules",
+  "arch_context": true,
+  "metric_rules": true
+}

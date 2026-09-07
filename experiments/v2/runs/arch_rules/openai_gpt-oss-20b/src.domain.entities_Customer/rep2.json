@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:58:51+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The class is a classic data holder with five accessor methods and a simple predicate. Its high LCOM4 (4) indicates that each method touches a different private attribute, which is typical for a data class. NOM and WMC are low, and DCC is zero, so the class is tightly focused. The data_class smell is expected, but the LCOM4 value is flagged as critical by the tool, suggesting that the class could be simplified further.",
+      "suggestions": [
+        {
+          "title": "Convert to a dataclass and remove explicit getters",
+          "rationale_metric_link": [
+            "NOM",
+            "WMC",
+            "LCOM4"
+          ],
+          "expected_effect": [
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            }
+          ],
+          "sketch": "```python\nfrom dataclasses import dataclass\n\n@dataclass(frozen=True)\nclass Customer:\n    _customer_id: int\n    _name: str\n    _email: str\n    _tier: str = \"standard\"\n\n    def is_premium(self) -> bool:\n        return self._tier == \"premium\"\n```\nThe dataclass generates an __init__ and __repr__, eliminating the five accessor methods. The only remaining method, is_premium, touches a single attribute, so LCOM4 collapses to 1. No new classes are referenced, so DCC stays at 0.",
+          "status": "linked",
+          "addresses_smells": [
+            "data_class"
+          ],
+          "target_layer_after": "domain",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "External code that relied on the explicit accessor methods will need to be updated to use the public attributes or property access. The private attributes are still present, but the dataclass will expose them directly; if strict encapsulation is required, additional @property wrappers could be added, which would reintroduce a few methods and slightly raise NOM/WMC.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:src.domain.entities.Customer\",\n  \"diagnosis\": \"The class is a classic data holder with five accessor methods and a simple predicate. Its high LCOM4 (4) indicates that each method touches a different private attribute, which is typical for a data class. NOM and WMC are low, and DCC is zero, so the class is tightly focused. The data_class smell is expected, but the LCOM4 value is flagged as critical by the tool, suggesting that the class could be simplified further.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Convert to a dataclass and remove explicit getters\",\n      \"rationale_metric_link\": [\n        \"NOM\",\n        \"WMC\",\n        \"LCOM4\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        }\n      ],\n      \"sketch\": \"```python\\nfrom dataclasses import dataclass\\n\\n@dataclass(frozen=True)\\nclass Customer:\\n    _customer_id: int\\n    _name: str\\n    _email: str\\n    _tier: str = \\\"standard\\\"\\n\\n    def is_premium(self) -> bool:\\n        return self._tier == \\\"premium\\\"\\n```\\nThe dataclass generates an __init__ and __repr__, eliminating the five accessor methods. The only remaining method, is_premium, touches a single attribute, so LCOM4 collapses to 1. No new classes are referenced, so DCC stays at 0.\",\n      \"addresses_smells\": [\n        \"data_class\"\n      ],\n      \"target_layer_after\": \"domain\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"External code that relied on the explicit accessor methods will need to be updated to use the public attributes or property access. The private attributes are still present, but the dataclass will expose them directly; if strict encapsulation is required, additional @property wrappers could be added, which would reintroduce a few methods and slightly raise NOM/WMC.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:src.domain.entities.Customer'; using 'src.domain.entities:Customer' instead"
+      ],
+      "prompt_hash": "826ff66fe84472446215c9f9cbe1594271f6a9d5abb9a00e427d34375a92b8de",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch_rules",
+  "arch_context": true,
+  "metric_rules": true
+}

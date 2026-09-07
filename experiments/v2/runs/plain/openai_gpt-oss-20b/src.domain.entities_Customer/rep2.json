@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:48:10+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The Customer class has a high LCOM4 of 4, indicating low cohesion: each method accesses a distinct private attribute, so the method‑attribute graph has many disconnected components. The class has no dependencies on other internal classes (DCC=0) and all attributes are private (DAM=1.0). The design is essentially a data holder with accessor methods, which inflates the method count (NOM=5) and cyclomatic complexity (WMC=5) without providing meaningful behavior.",
+      "suggestions": [
+        {
+          "title": "Split Customer into smaller cohesive classes",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.6
+            }
+          ],
+          "sketch": "```python\n# src/domain/entities/customer_identity.py\nclass CustomerIdentity:\n    def __init__(self, customer_id: int, name: str):\n        self._customer_id = customer_id\n        self._name = name\n    @property\n    def customer_id(self) -> int: return self._customer_id\n    @property\n    def name(self) -> str: return self._name\n\n# src/domain/entities/customer_contact.py\nclass CustomerContact:\n    def __init__(self, email: str):\n        self._email = email\n    @property\n    def email(self) -> str: return self._email\n\n# src/domain/entities/customer_tier.py\nclass CustomerTier:\n    def __init__(self, tier: str = \"standard\"):\n        self._tier = tier\n    @property\n    def tier(self) -> str: return self._tier\n    def is_premium(self) -> bool: return self._tier == \"premium\"\n\n# src/domain/entities/customer.py\nfrom .customer_identity import CustomerIdentity\nfrom .customer_contact import CustomerContact\nfrom .customer_tier import CustomerTier\n\nclass Customer:\n    def __init__(self, customer_id: int, name: str, email: str, tier: str = \"standard\"):\n        self.identity = CustomerIdentity(customer_id, name)\n        self.contact = CustomerContact(email)\n        self.tier = CustomerTier(tier)\n    # delegate accessors if needed\n    @property\n    def customer_id(self): return self.identity.customer_id\n    @property\n    def name(self): return self.identity.name\n    @property\n    def email(self): return self.contact.email\n    @property\n    def tier(self): return self.tier.tier\n    def is_premium(self): return self.tier.is_premium()\n```",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Splitting the class increases the number of classes and inter‑class references, which may raise DCC further and add maintenance overhead. Existing code that expects a single Customer object will need to be updated to use the new composition, and tests may break if they rely on the original API.",
+      "tags": [],
+      "raw_reply": "{\"target\":\"src.domain.entities:Customer\",\"diagnosis\":\"The Customer class has a high LCOM4 of 4, indicating low cohesion: each method accesses a distinct private attribute, so the method‑attribute graph has many disconnected components. The class has no dependencies on other internal classes (DCC=0) and all attributes are private (DAM=1.0). The design is essentially a data holder with accessor methods, which inflates the method count (NOM=5) and cyclomatic complexity (WMC=5) without providing meaningful behavior.\",\"suggestions\":[{\"title\":\"Split Customer into smaller cohesive classes\",\"rationale_metric_link\":[\"LCOM4\",\"DCC\"],\"expected_effect\":[{\"metric\":\"LCOM4\",\"direction\":\"down\",\"confidence\":0.9},{\"metric\":\"DCC\",\"direction\":\"up\",\"confidence\":0.6}],\"sketch\":\"```python\\n# src/domain/entities/customer_identity.py\\nclass CustomerIdentity:\\n    def __init__(self, customer_id: int, name: str):\\n        self._customer_id = customer_id\\n        self._name = name\\n    @property\\n    def customer_id(self) -> int: return self._customer_id\\n    @property\\n    def name(self) -> str: return self._name\\n\\n# src/domain/entities/customer_contact.py\\nclass CustomerContact:\\n    def __init__(self, email: str):\\n        self._email = email\\n    @property\\n    def email(self) -> str: return self._email\\n\\n# src/domain/entities/customer_tier.py\\nclass CustomerTier:\\n    def __init__(self, tier: str = \\\"standard\\\"):\\n        self._tier = tier\\n    @property\\n    def tier(self) -> str: return self._tier\\n    def is_premium(self) -> bool: return self._tier == \\\"premium\\\"\\n\\n# src/domain/entities/customer.py\\nfrom .customer_identity import CustomerIdentity\\nfrom .customer_contact import CustomerContact\\nfrom .customer_tier import CustomerTier\\n\\nclass Customer:\\n    def __init__(self, customer_id: int, name: str, email: str, tier: str = \\\"standard\\\"):\\n        self.identity = CustomerIdentity(customer_id, name)\\n        self.contact = CustomerContact(email)\\n        self.tier = CustomerTier(tier)\\n    # delegate accessors if needed\\n    @property\\n    def customer_id(self): return self.identity.customer_id\\n    @property\\n    def name(self): return self.identity.name\\n    @property\\n    def email(self): return self.contact.email\\n    @property\\n    def tier(self): return self.tier.tier\\n    def is_premium(self): return self.tier.is_premium()\\n```\"}],\"risk_notes\":\"Splitting the class increases the number of classes and inter‑class references, which may raise DCC further and add maintenance overhead. Existing code that expects a single Customer object will need to be updated to use the new composition, and tests may break if they rely on the original API.\"}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "6791ed052e22705f883cfa44c764bb71b9c139084a97e59c0b43d18c1873cc4f",
+      "from_cache": false
+    }
+  ],
+  "condition": "plain",
+  "arch_context": false,
+  "metric_rules": false
+}

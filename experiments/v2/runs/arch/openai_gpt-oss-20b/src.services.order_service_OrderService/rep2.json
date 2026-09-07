@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:50:41+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.services.order_service:OrderService",
+      "diagnosis": "The OrderService class is a classic god class: it has a high number of methods (26) and a high cyclomatic complexity (56), and its internal cohesion is poor (LCOM4=5). It also couples to four distinct responsibilities (lifecycle, pricing, audit, notification) while only one repository dependency is injected. This design inflates the class size and makes maintenance difficult.",
+      "suggestions": [
+        {
+          "title": "Split OrderService into four focused services",
+          "rationale_metric_link": [
+            "NOM",
+            "WMC",
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.6
+            }
+          ],
+          "sketch": "Create four new classes:\n- OrderLifecycleService: place, fetch, cancel, close, order_count, orders_for, open_orders, line_count, revenue, tier_summary.\n- PricingService: set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_for, policy_rate, is_priced.\n- AuditService: log, history, last_entry, audit_size, clear_audit.\n- NotificationService: notify, sent_count, reset_sent.\nInject the shared repository into OrderLifecycleService and PricingService; inject the notifier into NotificationService. The original OrderService becomes a thin façade delegating to these services or can be removed. Each new class will have fewer methods, lower WMC, and higher cohesion.",
+          "status": "linked",
+          "addresses_smells": [
+            "god_class"
+          ],
+          "target_layer_after": "application",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Splitting the class will increase the number of public classes and the overall coupling (DCC) because each new service will reference the repository or notifier. Wiring these services together may require changes to the application bootstrap code and could break existing tests that rely on the monolithic OrderService. Careful refactoring and incremental integration tests are recommended to mitigate these risks.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:src.services.order_service:OrderService\",\n  \"diagnosis\": \"The OrderService class is a classic god class: it has a high number of methods (26) and a high cyclomatic complexity (56), and its internal cohesion is poor (LCOM4=5). It also couples to four distinct responsibilities (lifecycle, pricing, audit, notification) while only one repository dependency is injected. This design inflates the class size and makes maintenance difficult.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Split OrderService into four focused services\",\n      \"rationale_metric_link\": [\n        \"NOM\",\n        \"WMC\",\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.6\n        }\n      ],\n      \"sketch\": \"Create four new classes:\\n- OrderLifecycleService: place, fetch, cancel, close, order_count, orders_for, open_orders, line_count, revenue, tier_summary.\\n- PricingService: set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_for, policy_rate, is_priced.\\n- AuditService: log, history, last_entry, audit_size, clear_audit.\\n- NotificationService: notify, sent_count, reset_sent.\\nInject the shared repository into OrderLifecycleService and PricingService; inject the notifier into NotificationService. The original OrderService becomes a thin façade delegating to these services or can be removed. Each new class will have fewer methods, lower WMC, and higher cohesion.\\n\",\n      \"addresses_smells\": [\n        \"god_class\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"Splitting the class will increase the number of public classes and the overall coupling (DCC) because each new service will reference the repository or notifier. Wiring these services together may require changes to the application bootstrap code and could break existing tests that rely on the monolithic OrderService. Careful refactoring and incremental integration tests are recommended to mitigate these risks.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:src.services.order_service:OrderService'; using 'src.services.order_service:OrderService' instead"
+      ],
+      "prompt_hash": "6448f04d29e84ec31bfd9d9432deafeafdc4a3ec1d671aa9bd274fdb1f5690ff",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch",
+  "arch_context": true,
+  "metric_rules": false
+}

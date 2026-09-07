@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:47:26+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The class has a very high LCOM4 (4) because each accessor method touches a different private attribute, creating many disconnected components in the method‑attribute graph. The class also exposes a large number of trivial getter methods (NOM = 5, WMC = 5) that add no real behavior. The DAM is already maximal (1.0) and DCC is zero, so no internal class references are present. The design therefore suffers from low cohesion and unnecessary boilerplate.",
+      "suggestions": [
+        {
+          "title": "Replace explicit getters with a dataclass and a single property",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "```python\nfrom dataclasses import dataclass\n\n@dataclass\nclass Customer:\n    customer_id: int\n    name: str\n    email: str\n    tier: str = \"standard\"\n\n    @property\n    def is_premium(self) -> bool:\n        return self.tier == \"premium\"\n```\nRemove the explicit `customer_id`, `name`, `email`, and `tier` methods; consumers can access attributes directly or via the `is_premium` property.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "External code that imports and calls the old getter methods will break; tests and documentation must be updated. If the class is part of a public API, a deprecation period may be required. The change also removes the ability to enforce encapsulation via methods, but the dataclass provides the same data integrity while improving cohesion.",
+      "tags": [],
+      "raw_reply": "{\"target\":\"module:src.domain.entities:Customer\",\"diagnosis\":\"The class has a very high LCOM4 (4) because each accessor method touches a different private attribute, creating many disconnected components in the method‑attribute graph. The class also exposes a large number of trivial getter methods (NOM = 5, WMC = 5) that add no real behavior. The DAM is already maximal (1.0) and DCC is zero, so no internal class references are present. The design therefore suffers from low cohesion and unnecessary boilerplate.\",\"suggestions\":[{\"title\":\"Replace explicit getters with a dataclass and a single property\",\"rationale_metric_link\":[\"LCOM4\",\"NOM\",\"WMC\"],\"expected_effect\":[{\"metric\":\"LCOM4\",\"direction\":\"down\",\"confidence\":0.9},{\"metric\":\"NOM\",\"direction\":\"down\",\"confidence\":0.9},{\"metric\":\"WMC\",\"direction\":\"down\",\"confidence\":0.8}],\"sketch\":\"```python\\nfrom dataclasses import dataclass\\n\\n@dataclass\\nclass Customer:\\n    customer_id: int\\n    name: str\\n    email: str\\n    tier: str = \\\"standard\\\"\\n\\n    @property\\n    def is_premium(self) -> bool:\\n        return self.tier == \\\"premium\\\"\\n```\\nRemove the explicit `customer_id`, `name`, `email`, and `tier` methods; consumers can access attributes directly or via the `is_premium` property.\"}],\"risk_notes\":\"External code that imports and calls the old getter methods will break; tests and documentation must be updated. If the class is part of a public API, a deprecation period may be required. The change also removes the ability to enforce encapsulation via methods, but the dataclass provides the same data integrity while improving cohesion.\"}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:src.domain.entities:Customer'; using 'src.domain.entities:Customer' instead"
+      ],
+      "prompt_hash": "65ac067b157e041d740a5a70002c743bdec2f362898c830b9bf5bc22fb1a214d",
+      "from_cache": false
+    }
+  ],
+  "condition": "plain",
+  "arch_context": false,
+  "metric_rules": false
+}

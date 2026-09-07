@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:50:15+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class has a low cohesion score (LCOM4 = 2) and is tightly coupled to two internal classes (DCC = 2). It also exhibits a feature‑envy pattern, accessing a Customer object heavily. The small number of methods (NOM = 4) and modest cyclomatic complexity (WMC = 4) suggest the class is not overly complex, but its responsibilities are mixed: presentation, data access, and mail delivery.",
+      "suggestions": [
+        {
+          "title": "Move data access and mail logic to a dedicated service",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "Create a new class `ReportService` in the application layer:\n```python\nclass ReportService:\n    def __init__(self, repo: OrderRepository, mailer: EmailClient):\n        self._repo = repo\n        self._mailer = mailer\n\n    def order_count(self) -> int:\n        return self._repo.count()\n\n    def mail_summary(self, address: str) -> dict[str, str]:\n        return self._mailer.send(address, f\"{self._repo.count()} orders\")\n```\nRefactor `ReportView` to depend only on the service for data and mail, keeping only formatting methods (`title`, `describe_customer`).",
+          "status": "linked",
+          "addresses_smells": [
+            "feature_envy_candidate",
+            "god_class"
+          ],
+          "target_layer_after": "application",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [
+            "addresses_smells names labels the target does not carry: god_class"
+          ],
+          "tags": []
+        },
+        {
+          "title": "Extract customer formatting into a separate formatter",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Create `CustomerFormatter` in the application layer:\n```python\nclass CustomerFormatter:\n    def __init__(self, width: int = 40):\n        self._width = width\n\n    def format(self, customer) -> str:\n        parts = [\n            str(customer.customer_id()),\n            customer.name(),\n            customer.email(),\n            customer.tier(),\n        ]\n        return \" | \".join(parts).ljust(self._width)\n```\nReplace `ReportView.describe_customer` with a call to this formatter, or remove the method entirely and let callers use the formatter directly.",
+          "status": "linked",
+          "addresses_smells": [
+            "feature_envy_candidate"
+          ],
+          "target_layer_after": "application",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "These changes alter the public API of `ReportView`; callers that invoke `order_count` or `mail_summary` directly will need to be updated to use `ReportService`. The formatter may need to be injected into the view if the view is instantiated elsewhere. Ensure that the new service and formatter are registered in the dependency injection container (if used) to avoid runtime errors.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:src.api.report_view:ReportView\",\n  \"diagnosis\": \"The class has a low cohesion score (LCOM4 = 2) and is tightly coupled to two internal classes (DCC = 2). It also exhibits a feature‑envy pattern, accessing a Customer object heavily. The small number of methods (NOM = 4) and modest cyclomatic complexity (WMC = 4) suggest the class is not overly complex, but its responsibilities are mixed: presentation, data access, and mail delivery.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Move data access and mail logic to a dedicated service\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        }\n      ],\n      \"sketch\": \"Create a new class `ReportService` in the application layer:\\n```python\\nclass ReportService:\\n    def __init__(self, repo: OrderRepository, mailer: EmailClient):\\n        self._repo = repo\\n        self._mailer = mailer\\n\\n    def order_count(self) -> int:\\n        return self._repo.count()\\n\\n    def mail_summary(self, address: str) -> dict[str, str]:\\n        return self._mailer.send(address, f\\\"{self._repo.count()} orders\\\")\\n```\\nRefactor `ReportView` to depend only on the service for data and mail, keeping only formatting methods (`title`, `describe_customer`).\",\n      \"addresses_smells\": [\n        \"feature_envy_candidate\",\n        \"god_class\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    },\n    {\n      \"title\": \"Extract customer formatting into a separate formatter\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Create `CustomerFormatter` in the application layer:\\n```python\\nclass CustomerFormatter:\\n    def __init__(self, width: int = 40):\\n        self._width = width\\n\\n    def format(self, customer) -> str:\\n        parts = [\\n            str(customer.customer_id()),\\n            customer.name(),\\n            customer.email(),\\n            customer.tier(),\\n        ]\\n        return \\\" | \\\".join(parts).ljust(self._width)\\n```\\nReplace `ReportView.describe_customer` with a call to this formatter, or remove the method entirely and let callers use the formatter directly.\",\n      \"addresses_smells\": [\n        \"feature_envy_candidate\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"These changes alter the public API of `ReportView`; callers that invoke `order_count` or `mail_summary` directly will need to be updated to use `ReportService`. The formatter may need to be injected into the view if the view is instantiated elsewhere. Ensure that the new service and formatter are registered in the dependency injection container (if used) to avoid runtime errors.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:src.api.report_view:ReportView'; using 'src.api.report_view:ReportView' instead"
+      ],
+      "prompt_hash": "5d57fb0a589d3e02ade400b54889668067d3e91155e55f61110b02d799d22bd7",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch",
+  "arch_context": true,
+  "metric_rules": false
+}

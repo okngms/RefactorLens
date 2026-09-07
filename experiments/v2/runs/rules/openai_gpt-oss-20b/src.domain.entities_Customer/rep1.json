@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:53:54+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The Customer class is essentially a data holder with five accessor methods. Its LCOM4 of 4 shows that each method touches a distinct private attribute, yielding a fragmented method‑attribute graph. NOM and WMC are modest but still non‑zero for a simple DTO. DAM is 1.0, meaning all attributes are private, which is unnecessary for a plain data object. DCC is zero, indicating no external class dependencies. The high LCOM4 is the primary design concern, signalling low cohesion and an over‑encapsulated structure.",
+      "suggestions": [
+        {
+          "title": "Convert to a plain dataclass and expose attributes directly",
+          "rationale_metric_link": [
+            "NOM",
+            "WMC",
+            "LCOM4",
+            "DAM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.95
+            },
+            {
+              "metric": "DAM",
+              "direction": "down",
+              "confidence": 0.9
+            }
+          ],
+          "sketch": "Replace the class with a dataclass:\n\n```python\nfrom dataclasses import dataclass\n\n@dataclass\nclass Customer:\n    customer_id: int\n    name: str\n    email: str\n    tier: str = \"standard\"\n\n    def is_premium(self) -> bool:\n        return self.tier == \"premium\"\n```\n\nAll attributes become public, eliminating the getter methods. The `is_premium` method remains to preserve behaviour. This removes the private attributes, reduces the method count to one, and collapses the method‑attribute graph into a single component.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "The refactor removes all accessor methods, which may affect external code that relies on them. If the project uses these methods for validation, logging, or future extension, a more nuanced approach (e.g., using @property with minimal logic) might be preferable. The change also alters the public API, so thorough regression testing is required.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:src.domain.entities:Customer\",\n  \"diagnosis\": \"The Customer class is essentially a data holder with five accessor methods. Its LCOM4 of 4 shows that each method touches a distinct private attribute, yielding a fragmented method‑attribute graph. NOM and WMC are modest but still non‑zero for a simple DTO. DAM is 1.0, meaning all attributes are private, which is unnecessary for a plain data object. DCC is zero, indicating no external class dependencies. The high LCOM4 is the primary design concern, signalling low cohesion and an over‑encapsulated structure.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Convert to a plain dataclass and expose attributes directly\",\n      \"rationale_metric_link\": [\n        \"NOM\",\n        \"WMC\",\n        \"LCOM4\",\n        \"DAM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.95\n        },\n        {\n          \"metric\": \"DAM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        }\n      ],\n      \"sketch\": \"Replace the class with a dataclass:\\n\\n```python\\nfrom dataclasses import dataclass\\n\\n@dataclass\\nclass Customer:\\n    customer_id: int\\n    name: str\\n    email: str\\n    tier: str = \\\"standard\\\"\\n\\n    def is_premium(self) -> bool:\\n        return self.tier == \\\"premium\\\"\\n```\\n\\nAll attributes become public, eliminating the getter methods. The `is_premium` method remains to preserve behaviour. This removes the private attributes, reduces the method count to one, and collapses the method‑attribute graph into a single component.\",\n      \"risk_notes\": \"Existing code that calls `customer.customer_id()`, `customer.name()`, etc. will break; callers must be updated to access attributes directly. If the domain requires strict encapsulation for future validation or lazy loading, this change may be too aggressive. The `is_premium` method remains, so behaviour is largely preserved.\"\n    }\n  ],\n  \"risk_notes\": \"The refactor removes all accessor methods, which may affect external code that relies on them. If the project uses these methods for validation, logging, or future extension, a more nuanced approach (e.g., using @property with minimal logic) might be preferable. The change also alters the public API, so thorough regression testing is required.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:src.domain.entities:Customer'; using 'src.domain.entities:Customer' instead"
+      ],
+      "prompt_hash": "0fd30eb1ff14a70c0dd318d3f3d6ff388736f569a7f9bd6392047d64da088ed5",
+      "from_cache": false
+    }
+  ],
+  "condition": "rules",
+  "arch_context": false,
+  "metric_rules": true
+}

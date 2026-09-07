@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:52:37+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The ReportView class has a low cohesion score (LCOM4=2) and references two internal classes (DCC=2), indicating that it mixes presentation logic with data access and mail delivery responsibilities. The class also exhibits a feature‑envy candidate smell in describe_customer, but the primary design issue is the coupling between presentation and application layers.",
+      "suggestions": [
+        {
+          "title": "Extract mail delivery into a dedicated service",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "Create a new class in the application layer, e.g. `ReportMailer`, that takes an `EmailClient` and an `OrderRepository` in its constructor and exposes a method `send_summary(address: str)`. Move the current `mail_summary` implementation into this class. In `ReportView`, remove the `_mailer` attribute and replace calls to `mail_summary` with a call to `ReportMailer.send_summary`. This keeps `ReportView` focused on formatting and presentation only.",
+          "status": "linked",
+          "addresses_smells": [
+            "god_class",
+            "feature_envy_candidate"
+          ],
+          "target_layer_after": "application",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [
+            "addresses_smells names labels the target does not carry: god_class"
+          ],
+          "tags": []
+        }
+      ],
+      "risk_notes": "The refactor introduces a new dependency on the application layer, so any existing code that instantiated `ReportView` with an `EmailClient` must be updated to provide a `ReportMailer` instead. If the mail sending logic is heavily used elsewhere, the new service may become a new point of failure. Additionally, if `ReportView` is used in tests that mock the mailer, the test setup will need to be adjusted.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:src.api.report_view\",\n  \"diagnosis\": \"The ReportView class has a low cohesion score (LCOM4=2) and references two internal classes (DCC=2), indicating that it mixes presentation logic with data access and mail delivery responsibilities. The class also exhibits a feature‑envy candidate smell in describe_customer, but the primary design issue is the coupling between presentation and application layers.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract mail delivery into a dedicated service\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        }\n      ],\n      \"sketch\": \"Create a new class in the application layer, e.g. `ReportMailer`, that takes an `EmailClient` and an `OrderRepository` in its constructor and exposes a method `send_summary(address: str)`. Move the current `mail_summary` implementation into this class. In `ReportView`, remove the `_mailer` attribute and replace calls to `mail_summary` with a call to `ReportMailer.send_summary`. This keeps `ReportView` focused on formatting and presentation only.\",\n      \"addresses_smells\": [\n        \"god_class\",\n        \"feature_envy_candidate\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"The refactor introduces a new dependency on the application layer, so any existing code that instantiated `ReportView` with an `EmailClient` must be updated to provide a `ReportMailer` instead. If the mail sending logic is heavily used elsewhere, the new service may become a new point of failure. Additionally, if `ReportView` is used in tests that mock the mailer, the test setup will need to be adjusted.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:src.api.report_view'; using 'src.api.report_view:ReportView' instead"
+      ],
+      "prompt_hash": "2052ef63d08524a9393f2bc1601d70252a53e3d1e74eff5d081dffd68837fafb",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch",
+  "arch_context": true,
+  "metric_rules": false
+}

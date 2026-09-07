@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:55:22+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class has a warning on LCOM4 (2), indicating that its methods are split into two disconnected groups: formatting (title, describe_customer) and data/mailing (order_count, mail_summary). DCC is 2, meaning it directly depends on both OrderRepository and EmailClient. DAM is 1.0, so all attributes are private, which is fine. The metrics suggest low cohesion and multiple external collaborators.",
+      "suggestions": [
+        {
+          "title": "Extract formatting and mailing into dedicated classes",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Create a ReportFormatter that owns the _width attribute and implements title() and describe_customer(). Create a MailerService that owns an EmailClient and implements mail_summary(). ReportView then holds only an OrderRepository and delegates formatting to ReportFormatter and mailing to MailerService. This splits the responsibilities, reducing the method‑attribute graph to a single component and removing the direct reference to EmailClient from ReportView.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Introducing new classes increases the overall module count and may require changes to dependency injection or test fixtures. The new classes will have their own metrics to monitor, and if they are used elsewhere the refactor could ripple. Care must be taken to preserve the public API of ReportView so existing callers are not broken.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:ReportView\",\n  \"diagnosis\": \"The class has a warning on LCOM4 (2), indicating that its methods are split into two disconnected groups: formatting (title, describe_customer) and data/mailing (order_count, mail_summary). DCC is 2, meaning it directly depends on both OrderRepository and EmailClient. DAM is 1.0, so all attributes are private, which is fine. The metrics suggest low cohesion and multiple external collaborators.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract formatting and mailing into dedicated classes\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Create a ReportFormatter that owns the _width attribute and implements title() and describe_customer(). Create a MailerService that owns an EmailClient and implements mail_summary(). ReportView then holds only an OrderRepository and delegates formatting to ReportFormatter and mailing to MailerService. This splits the responsibilities, reducing the method‑attribute graph to a single component and removing the direct reference to EmailClient from ReportView.\"\n    }\n  ],\n  \"risk_notes\": \"Introducing new classes increases the overall module count and may require changes to dependency injection or test fixtures. The new classes will have their own metrics to monitor, and if they are used elsewhere the refactor could ripple. Care must be taken to preserve the public API of ReportView so existing callers are not broken.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:ReportView'; using 'src.api.report_view:ReportView' instead"
+      ],
+      "prompt_hash": "3b50b5c6eef625de253f835c2b9d12afc51e8f71605b1c24c20b624b78b9225c",
+      "from_cache": false
+    }
+  ],
+  "condition": "rules",
+  "arch_context": false,
+  "metric_rules": true
+}

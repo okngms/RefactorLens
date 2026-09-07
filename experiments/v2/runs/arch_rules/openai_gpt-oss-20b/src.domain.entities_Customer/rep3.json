@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T19:00:33+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The class is a pure data holder with five trivial accessor methods, all touching distinct private attributes. This results in a very high LCOM4 (4) indicating low cohesion, while DCC is 0 and DAM is 1.0. The metrics confirm the data_class smell: many getters, no behavior, and all attributes are private.",
+      "suggestions": [
+        {
+          "title": "Add an aggregate method to connect accessors",
+          "rationale_metric_link": [
+            "LCOM4"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "up",
+              "confidence": 0.6
+            }
+          ],
+          "sketch": "```python\n    def to_dict(self) -> dict:\n        \"\"\"Return all customer data as a dictionary.\"\"\"\n        return {\n            'customer_id': self._customer_id,\n            'name': self._name,\n            'email': self._email,\n            'tier': self._tier,\n        }\n```",
+          "status": "linked",
+          "addresses_smells": [
+            "data_class"
+          ],
+          "target_layer_after": "domain",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Adding the method increases WMC slightly and introduces a new public API that callers may need to adapt to. If the class is used extensively as a simple data holder, the new method may be unnecessary and could be omitted. The change does not affect DCC or DAM.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:Customer\",\n  \"diagnosis\": \"The class is a pure data holder with five trivial accessor methods, all touching distinct private attributes. This results in a very high LCOM4 (4) indicating low cohesion, while DCC is 0 and DAM is 1.0. The metrics confirm the data_class smell: many getters, no behavior, and all attributes are private.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Add an aggregate method to connect accessors\",\n      \"rationale_metric_link\": [\n        \"LCOM4\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.6\n        }\n      ],\n      \"sketch\": \"```python\\n    def to_dict(self) -> dict:\\n        \\\"\\\"\\\"Return all customer data as a dictionary.\\\"\\\"\\\"\\n        return {\\n            'customer_id': self._customer_id,\\n            'name': self._name,\\n            'email': self._email,\\n            'tier': self._tier,\\n        }\\n```\",\n      \"addresses_smells\": [\n        \"data_class\"\n      ],\n      \"target_layer_after\": \"domain\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"Adding the method increases WMC slightly and introduces a new public API that callers may need to adapt to. If the class is used extensively as a simple data holder, the new method may be unnecessary and could be omitted. The change does not affect DCC or DAM.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:Customer'; using 'src.domain.entities:Customer' instead"
+      ],
+      "prompt_hash": "da13d96bcf6af2ed1d1c7b1f2d4c07c651635c27ea49b20cad3fa56add7a8e5a",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch_rules",
+  "arch_context": true,
+  "metric_rules": true
+}

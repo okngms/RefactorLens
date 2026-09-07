@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:55:09+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The class has a very high LCOM4 (4), meaning its methods are largely independent because each getter touches a different private attribute. DAM is 1.0, so all attributes are private, and DCC is 0, indicating no external class references. The high LCOM4 signals low cohesion, while the other metrics are within acceptable ranges.",
+      "suggestions": [
+        {
+          "title": "Add a hub method that touches all attributes",
+          "rationale_metric_link": [
+            "LCOM4"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "same",
+              "confidence": 1.0
+            }
+          ],
+          "sketch": "```python\n    def all_attributes(self):\n        \"\"\"Return a tuple of all internal attributes.\n        This method touches every private field, creating a single connected component in the method‑attribute graph.\n        \"\"\"\n        return (self._customer_id, self._name, self._email, self._tier)\n```",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "The new method exposes the internal state of the object, which may violate encapsulation if used externally. If the class is intended to be immutable or a pure data holder, consider returning a copy or using a dataclass instead. This change does not affect external dependencies (DCC stays 0).",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.domain.entities:Customer\",\n  \"diagnosis\": \"The class has a very high LCOM4 (4), meaning its methods are largely independent because each getter touches a different private attribute. DAM is 1.0, so all attributes are private, and DCC is 0, indicating no external class references. The high LCOM4 signals low cohesion, while the other metrics are within acceptable ranges.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Add a hub method that touches all attributes\",\n      \"rationale_metric_link\": [\n        \"LCOM4\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"same\",\n          \"confidence\": 1.0\n        }\n      ],\n      \"sketch\": \"```python\\n    def all_attributes(self):\\n        \\\"\\\"\\\"Return a tuple of all internal attributes.\\n        This method touches every private field, creating a single connected component in the method‑attribute graph.\\n        \\\"\\\"\\\"\\n        return (self._customer_id, self._name, self._email, self._tier)\\n```\"\n    }\n  ],\n  \"risk_notes\": \"The new method exposes the internal state of the object, which may violate encapsulation if used externally. If the class is intended to be immutable or a pure data holder, consider returning a copy or using a dataclass instead. This change does not affect external dependencies (DCC stays 0).\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "dfe8754a4dcdcaed1f4ecb4592423c73a1441623f1126989c359b80d5dd9a08e",
+      "from_cache": false
+    }
+  ],
+  "condition": "rules",
+  "arch_context": false,
+  "metric_rules": true
+}

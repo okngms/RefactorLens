@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:48:52+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The Customer class has a very high LCOM4 (4), indicating that its methods are not sharing attributes and thus the class is not cohesive. The DCC is 0, meaning it does not reference any other internal classes, which is fine but the high LCOM4 suggests the design is suboptimal for a data holder. The class essentially provides only trivial getters and a simple predicate, so its responsibilities are minimal and could be expressed more naturally with a data class.",
+      "suggestions": [
+        {
+          "title": "Convert to a dataclass and remove trivial getters",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "Replace the class with a @dataclass:\n\n```python\nfrom dataclasses import dataclass\n\n@dataclass\nclass Customer:\n    customer_id: int\n    name: str\n    email: str\n    tier: str = \"standard\"\n\n    def is_premium(self) -> bool:\n        return self.tier == \"premium\"\n```\n\nThe public attributes replace the getter methods, eliminating the need for separate accessor methods. The only remaining method (`is_premium`) uses the `tier` attribute, so the method-attribute graph now has a single component, driving LCOM4 toward 0. The DCC remains unchanged because no new internal class references are introduced.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Existing code that calls the getter methods (`customer_id()`, `name()`, etc.) will break; these calls must be updated to use the public attributes (`customer.customer_id`, `customer.name`, etc.). If the class is part of a public API, changing attribute visibility may affect external consumers. Additionally, if future behavior is added that requires encapsulation, the design may need to revert to explicit getters or property methods.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:src.domain.entities:Customer\",\n  \"diagnosis\": \"The Customer class has a very high LCOM4 (4), indicating that its methods are not sharing attributes and thus the class is not cohesive. The DCC is 0, meaning it does not reference any other internal classes, which is fine but the high LCOM4 suggests the design is suboptimal for a data holder. The class essentially provides only trivial getters and a simple predicate, so its responsibilities are minimal and could be expressed more naturally with a data class.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Convert to a dataclass and remove trivial getters\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        }\n      ],\n      \"sketch\": \"Replace the class with a @dataclass:\\n\\n```python\\nfrom dataclasses import dataclass\\n\\n@dataclass\\nclass Customer:\\n    customer_id: int\\n    name: str\\n    email: str\\n    tier: str = \\\"standard\\\"\\n\\n    def is_premium(self) -> bool:\\n        return self.tier == \\\"premium\\\"\\n```\\n\\nThe public attributes replace the getter methods, eliminating the need for separate accessor methods. The only remaining method (`is_premium`) uses the `tier` attribute, so the method-attribute graph now has a single component, driving LCOM4 toward 0. The DCC remains unchanged because no new internal class references are introduced.\"\n    }\n  ],\n  \"risk_notes\": \"Existing code that calls the getter methods (`customer_id()`, `name()`, etc.) will break; these calls must be updated to use the public attributes (`customer.customer_id`, `customer.name`, etc.). If the class is part of a public API, changing attribute visibility may affect external consumers. Additionally, if future behavior is added that requires encapsulation, the design may need to revert to explicit getters or property methods.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:src.domain.entities:Customer'; using 'src.domain.entities:Customer' instead"
+      ],
+      "prompt_hash": "c8656135f70227ac6c2074ea1efab208146beb21ac303e694274a997626961a6",
+      "from_cache": false
+    }
+  ],
+  "condition": "plain",
+  "arch_context": false,
+  "metric_rules": false
+}

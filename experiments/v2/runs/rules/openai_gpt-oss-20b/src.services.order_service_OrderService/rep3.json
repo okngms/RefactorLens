@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:55:54+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.services.order_service:OrderService",
+      "diagnosis": "OrderService is a classic God object: it implements order lifecycle, pricing, audit, and notification in a single class. The metrics confirm this: a high number of methods (NOM=26) and cyclomatic complexity (WMC=56) indicate a heavy workload per class, while the critical LCOM4 score of 5 shows low cohesion. The class also references four distinct internal collaborators (DCC=4), further evidencing a tangled design.",
+      "suggestions": [
+        {
+          "title": "Extract Audit into separate AuditLog class",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.7
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.6
+            }
+          ],
+          "sketch": "Create a new class `AuditLog` that owns the audit list and exposes methods `log`, `history`, `last_entry`, `audit_size`, and `clear_audit`. In `OrderService.__init__` replace `self._audit` with `self._audit_log = AuditLog()`. Delegate all audit-related calls to `self._audit_log`.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Move notification logic to dedicated NotifierService",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.7
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.6
+            }
+          ],
+          "sketch": "Define a `NotifierService` that holds the notifier and sent counter. In `OrderService.__init__` replace `self._notifier` and `self._sent` with `self._notifier_service = NotifierService(notifier)`. Delegate `notify`, `sent_count`, and `reset_sent` to this service.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Delegate pricing to PricingService",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.7
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.6
+            }
+          ],
+          "sketch": "Create a `PricingService` that owns tax rate, discounts, and related calculations. In `OrderService.__init__` replace tax and discount attributes with `self._pricing = PricingService(tax_rate, discounts)`. Delegate methods like `set_discount`, `discount_for`, `bulk_discount`, `set_tax_rate`, `apply_tax`, `total_for`, `policy_rate`, and `is_priced` to this service.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "These refactorings will change the public API of OrderService; tests and callers must be updated to use the new services or to keep thin delegation wrappers. Care must be taken to preserve shared state (e.g., next_order_id) and to avoid duplicating logic across services. Dependency injection should be used to keep the services loosely coupled.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:OrderService\",\n  \"diagnosis\": \"OrderService is a classic God object: it implements order lifecycle, pricing, audit, and notification in a single class. The metrics confirm this: a high number of methods (NOM=26) and cyclomatic complexity (WMC=56) indicate a heavy workload per class, while the critical LCOM4 score of 5 shows low cohesion. The class also references four distinct internal collaborators (DCC=4), further evidencing a tangled design.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract Audit into separate AuditLog class\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\",\n        \"WMC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.6\n        }\n      ],\n      \"sketch\": \"Create a new class `AuditLog` that owns the audit list and exposes methods `log`, `history`, `last_entry`, `audit_size`, and `clear_audit`. In `OrderService.__init__` replace `self._audit` with `self._audit_log = AuditLog()`. Delegate all audit-related calls to `self._audit_log`.\"\n    },\n    {\n      \"title\": \"Move notification logic to dedicated NotifierService\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\",\n        \"WMC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.6\n        }\n      ],\n      \"sketch\": \"Define a `NotifierService` that holds the notifier and sent counter. In `OrderService.__init__` replace `self._notifier` and `self._sent` with `self._notifier_service = NotifierService(notifier)`. Delegate `notify`, `sent_count`, and `reset_sent` to this service.\"\n    },\n    {\n      \"title\": \"Delegate pricing to PricingService\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\",\n        \"WMC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.6\n        }\n      ],\n      \"sketch\": \"Create a `PricingService` that owns tax rate, discounts, and related calculations. In `OrderService.__init__` replace tax and discount attributes with `self._pricing = PricingService(tax_rate, discounts)`. Delegate methods like `set_discount`, `discount_for`, `bulk_discount`, `set_tax_rate`, `apply_tax`, `total_for`, `policy_rate`, and `is_priced` to this service.\"\n    }\n  ],\n  \"risk_notes\": \"These refactorings will change the public API of OrderService; tests and callers must be updated to use the new services or to keep thin delegation wrappers. Care must be taken to preserve shared state (e.g., next_order_id) and to avoid duplicating logic across services. Dependency injection should be used to keep the services loosely coupled.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:OrderService'; using 'src.services.order_service:OrderService' instead"
+      ],
+      "prompt_hash": "56a8365a9da12912a7631ea66b411d39b355914a2966a6c51510c99c666daea6",
+      "from_cache": false
+    }
+  ],
+  "condition": "rules",
+  "arch_context": false,
+  "metric_rules": true
+}

@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T19:00:54+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The ReportView class has a high LCOM4 (2) indicating low cohesion: its methods touch different collaborators (OrderRepository and EmailClient) and the describe_customer method heavily accesses Customer attributes, a classic feature‑envy candidate. DCC is 2, meaning it references two distinct internal classes, which could be reduced by separating responsibilities. DAM is 1.0 (all attributes private) and WMC is low, so the main design issue is cohesion and coupling rather than complexity.",
+      "suggestions": [
+        {
+          "title": "Extract CustomerReportView and MailSummaryService",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "Create a new CustomerReportView class that owns the describe_customer logic and a MailSummaryService that takes both OrderRepository and EmailClient to send summaries. The original ReportView then only needs OrderRepository for title and order_count, reducing its attribute usage. Update imports and tests accordingly.",
+          "status": "linked",
+          "addresses_smells": [
+            "feature_envy_candidate"
+          ],
+          "target_layer_after": "presentation",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Splitting the class will increase the number of modules and require updating all call sites and tests. If the application layer already contains a mail service, duplicating logic could lead to maintenance overhead. Ensure that the new classes are properly documented and that the public API of ReportView remains stable for backward compatibility.",
+      "tags": [],
+      "raw_reply": "{\"target\":\"module:ReportView\",\"diagnosis\":\"The ReportView class has a high LCOM4 (2) indicating low cohesion: its methods touch different collaborators (OrderRepository and EmailClient) and the describe_customer method heavily accesses Customer attributes, a classic feature‑envy candidate. DCC is 2, meaning it references two distinct internal classes, which could be reduced by separating responsibilities. DAM is 1.0 (all attributes private) and WMC is low, so the main design issue is cohesion and coupling rather than complexity.\",\"suggestions\":[{\"title\":\"Extract CustomerReportView and MailSummaryService\",\"rationale_metric_link\":[\"LCOM4\",\"DCC\"],\"expected_effect\":[{\"metric\":\"LCOM4\",\"direction\":\"down\",\"confidence\":0.9},{\"metric\":\"DCC\",\"direction\":\"down\",\"confidence\":0.8}],\"sketch\":\"Create a new CustomerReportView class that owns the describe_customer logic and a MailSummaryService that takes both OrderRepository and EmailClient to send summaries. The original ReportView then only needs OrderRepository for title and order_count, reducing its attribute usage. Update imports and tests accordingly.\",\"addresses_smells\":[\"feature_envy_candidate\"],\"target_layer_after\":\"presentation\",\"constraints_respected\":true}],\"risk_notes\":\"Splitting the class will increase the number of modules and require updating all call sites and tests. If the application layer already contains a mail service, duplicating logic could lead to maintenance overhead. Ensure that the new classes are properly documented and that the public API of ReportView remains stable for backward compatibility.\"}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:ReportView'; using 'src.api.report_view:ReportView' instead"
+      ],
+      "prompt_hash": "4cc484ca7b1497839786d70d2602076fb6eb6f1accbc7c9440e6e472c7e91c2a",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch_rules",
+  "arch_context": true,
+  "metric_rules": true
+}

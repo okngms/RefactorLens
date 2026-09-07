@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:56:18+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The Customer class is a classic data holder with five accessor methods, each touching a distinct private attribute. This results in a very high LCOM4 (4) because the method‑attribute graph is fragmented into four isolated components. The class has no external collaborators (DCC = 0) and all attributes are private (DAM = 1.0). The high LCOM4 indicates low cohesion and suggests that the class is over‑encapsulated for its purpose.",
+      "suggestions": [
+        {
+          "title": "Convert to a dataclass and expose attributes directly",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC",
+            "DAM"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DAM",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "same",
+              "confidence": 1.0
+            }
+          ],
+          "sketch": "```python\nfrom dataclasses import dataclass\n\n@dataclass(frozen=True)\nclass Customer:\n    customer_id: int\n    name: str\n    email: str\n    tier: str = \"standard\"\n\n    def is_premium(self) -> bool:\n        return self.tier == \"premium\"\n```\nThis removes the explicit getters, making the attributes public and immutable. The only remaining method is `is_premium`, which keeps the business logic while drastically reducing the class’s method count and cohesion issues.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Changing the API from accessor methods to public attributes will break any code that relies on the original method names. Tests and external consumers must be updated accordingly. If the domain layer expects encapsulation for future validation or side‑effects, this refactor may need to be accompanied by additional safeguards or a deprecation period.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:src.domain.entities.Customer\",\n  \"diagnosis\": \"The Customer class is a classic data holder with five accessor methods, each touching a distinct private attribute. This results in a very high LCOM4 (4) because the method‑attribute graph is fragmented into four isolated components. The class has no external collaborators (DCC = 0) and all attributes are private (DAM = 1.0). The high LCOM4 indicates low cohesion and suggests that the class is over‑encapsulated for its purpose.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Convert to a dataclass and expose attributes directly\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\",\n        \"DAM\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DAM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"same\",\n          \"confidence\": 1.0\n        }\n      ],\n      \"sketch\": \"```python\\nfrom dataclasses import dataclass\\n\\n@dataclass(frozen=True)\\nclass Customer:\\n    customer_id: int\\n    name: str\\n    email: str\\n    tier: str = \\\"standard\\\"\\n\\n    def is_premium(self) -> bool:\\n        return self.tier == \\\"premium\\\"\\n```\\nThis removes the explicit getters, making the attributes public and immutable. The only remaining method is `is_premium`, which keeps the business logic while drastically reducing the class’s method count and cohesion issues.\"\n    }\n  ],\n  \"risk_notes\": \"Changing the API from accessor methods to public attributes will break any code that relies on the original method names. Tests and external consumers must be updated accordingly. If the domain layer expects encapsulation for future validation or side‑effects, this refactor may need to be accompanied by additional safeguards or a deprecation period.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:src.domain.entities.Customer'; using 'src.domain.entities:Customer' instead"
+      ],
+      "prompt_hash": "bb21e1d45792b017cf17aa89741ec2a5cb31c777695b8978e12ac33b92fcafa3",
+      "from_cache": false
+    }
+  ],
+  "condition": "rules",
+  "arch_context": false,
+  "metric_rules": true
+}

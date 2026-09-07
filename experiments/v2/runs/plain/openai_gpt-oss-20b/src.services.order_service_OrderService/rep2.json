@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:47:47+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.services.order_service:OrderService",
+      "diagnosis": "The metrics show that OrderService is a classic God‑object: it has 26 public methods (NOM) and a cyclomatic complexity of 56 (WMC), indicating many branching paths. The LCOM4 value of 5 signals that the class is composed of several disconnected components, each handling a different concern (lifecycle, pricing, audit, notification). The high cohesion deficit is the primary design problem, while the moderate DCC (4) suggests the class already depends on several other project classes, which will likely increase if responsibilities are split.",
+      "suggestions": [
+        {
+          "title": "Split OrderService into dedicated services",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.4
+            }
+          ],
+          "sketch": "Create four new classes:\n\n```python\nclass OrderLifecycleService:\n    def __init__(self, repository):\n        self._repo = repository\n    # move place, fetch, cancel, close, order_count, orders_for, open_orders, line_count, revenue, tier_summary\n\nclass PricingService:\n    def __init__(self, tax_rate=0.18, discounts=None):\n        self._tax_rate = tax_rate\n        self._discounts = discounts or {}\n    # move set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_for, policy_rate, is_priced\n\nclass AuditService:\n    def __init__(self):\n        self._audit = []\n    # move log, history, last_entry, audit_size, clear_audit\n\nclass NotificationService:\n    def __init__(self, notifier):\n        self._notifier = notifier\n        self._sent = 0\n    # move notify, sent_count, reset_sent\n```\n\nOrderService becomes a thin façade delegating to these services, reducing its own responsibilities.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Extract validation logic into OrderValidator",
+          "rationale_metric_link": [
+            "WMC",
+            "NOM",
+            "LCOM4"
+          ],
+          "expected_effect": [
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.7
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.6
+            },
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.5
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.3
+            }
+          ],
+          "sketch": "Create a helper class:\n\n```python\nclass OrderValidator:\n    @staticmethod\n    def validate_customer(customer):\n        if not isinstance(customer, Customer):\n            raise TypeError(\"customer must be a Customer\")\n\n    @staticmethod\n    def validate_lines(lines):\n        if not lines:\n            raise ValueError(\"an order needs at least one line\")\n        for line in lines:\n            if not isinstance(line, OrderLine):\n                raise TypeError(\"lines must contain OrderLine objects\")\n            if line.quantity < 0:\n                raise ValueError(\"a line quantity cannot be negative\")\n            if line.unit_price < 0:\n                raise ValueError(\"a unit price cannot be negative\")\n```\n\nMove the validation code in `place` to calls to `OrderValidator`.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Introduce a PricingPolicy interface for discounts",
+          "rationale_metric_link": [
+            "DCC",
+            "LCOM4"
+          ],
+          "expected_effect": [
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.4
+            },
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.5
+            }
+          ],
+          "sketch": "Define:\n\n```python\nclass PricingPolicy:\n    def discount_for(self, tier: str) -> float: ...\n    def bulk_discount(self, quantity: int) -> float: ...\n```\n\nImplement concrete policies (e.g., `StandardPricingPolicy`, `BulkPricingPolicy`) and inject into `PricingService`. This decouples discount logic from the service and reduces its method count.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Refactoring a large, monolithic service can break existing integration tests and client code. Incremental changes with thorough regression testing are recommended. The increased number of classes may raise the overall DCC, but the trade‑off is improved cohesion and maintainability.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:OrderService\",\n  \"diagnosis\": \"The metrics show that OrderService is a classic God‑object: it has 26 public methods (NOM) and a cyclomatic complexity of 56 (WMC), indicating many branching paths. The LCOM4 value of 5 signals that the class is composed of several disconnected components, each handling a different concern (lifecycle, pricing, audit, notification). The high cohesion deficit is the primary design problem, while the moderate DCC (4) suggests the class already depends on several other project classes, which will likely increase if responsibilities are split.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Split OrderService into dedicated services\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.4\n        }\n      ],\n      \"sketch\": \"Create four new classes:\\n\\n```python\\nclass OrderLifecycleService:\\n    def __init__(self, repository):\\n        self._repo = repository\\n    # move place, fetch, cancel, close, order_count, orders_for, open_orders, line_count, revenue, tier_summary\\n\\nclass PricingService:\\n    def __init__(self, tax_rate=0.18, discounts=None):\\n        self._tax_rate = tax_rate\\n        self._discounts = discounts or {}\\n    # move set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_for, policy_rate, is_priced\\n\\nclass AuditService:\\n    def __init__(self):\\n        self._audit = []\\n    # move log, history, last_entry, audit_size, clear_audit\\n\\nclass NotificationService:\\n    def __init__(self, notifier):\\n        self._notifier = notifier\\n        self._sent = 0\\n    # move notify, sent_count, reset_sent\\n```\\n\\nOrderService becomes a thin façade delegating to these services, reducing its own responsibilities.\",\n      \"risk_notes\": \"Splitting introduces more classes and interfaces, which may increase the surface area for bugs and require refactoring of existing tests. Care must be taken to preserve the original public API or provide adapters.\"\n    },\n    {\n      \"title\": \"Extract validation logic into OrderValidator\",\n      \"rationale_metric_link\": [\n        \"WMC\",\n        \"NOM\",\n        \"LCOM4\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.6\n        },\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.5\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.3\n        }\n      ],\n      \"sketch\": \"Create a helper class:\\n\\n```python\\nclass OrderValidator:\\n    @staticmethod\\n    def validate_customer(customer):\\n        if not isinstance(customer, Customer):\\n            raise TypeError(\\\"customer must be a Customer\\\")\\n\\n    @staticmethod\\n    def validate_lines(lines):\\n        if not lines:\\n            raise ValueError(\\\"an order needs at least one line\\\")\\n        for line in lines:\\n            if not isinstance(line, OrderLine):\\n                raise TypeError(\\\"lines must contain OrderLine objects\\\")\\n            if line.quantity < 0:\\n                raise ValueError(\\\"a line quantity cannot be negative\\\")\\n            if line.unit_price < 0:\\n                raise ValueError(\\\"a unit price cannot be negative\\\")\\n```\\n\\nMove the validation code in `place` to calls to `OrderValidator`.\",\n      \"risk_notes\": \"Adding a new class increases coupling if not used only by OrderService. Tests that previously exercised inline validation will need to be updated to use the validator.\"\n    },\n    {\n      \"title\": \"Introduce a PricingPolicy interface for discounts\",\n      \"rationale_metric_link\": [\n        \"DCC\",\n        \"LCOM4\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.4\n        },\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.5\n        }\n      ],\n      \"sketch\": \"Define:\\n\\n```python\\nclass PricingPolicy:\\n    def discount_for(self, tier: str) -> float: ...\\n    def bulk_discount(self, quantity: int) -> float: ...\\n```\\n\\nImplement concrete policies (e.g., `StandardPricingPolicy`, `BulkPricingPolicy`) and inject into `PricingService`. This decouples discount logic from the service and reduces its method count.\",\n      \"risk_notes\": \"Polymorphism adds indirection; if the policy is simple, the extra abstraction may not justify the complexity. Ensure tests cover the new policy implementations.\"\n    }\n  ],\n  \"risk_notes\": \"Refactoring a large, monolithic service can break existing integration tests and client code. Incremental changes with thorough regression testing are recommended. The increased number of classes may raise the overall DCC, but the trade‑off is improved cohesion and maintainability.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:OrderService'; using 'src.services.order_service:OrderService' instead"
+      ],
+      "prompt_hash": "b22478028dafd470e68cea435f42ef2af2f6a4a0ab4085ea5e31fde05abab00f",
+      "from_cache": false
+    }
+  ],
+  "condition": "plain",
+  "arch_context": false,
+  "metric_rules": false
+}

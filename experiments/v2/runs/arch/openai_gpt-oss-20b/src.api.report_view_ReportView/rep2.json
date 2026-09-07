@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:51:13+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The ReportView class shows low cohesion (LCOM4 = 2) and a high dependency count (DCC = 2), indicating that it mixes responsibilities of presentation, data access, and email sending. The feature‑envy smell is also evident: the class accesses Customer attributes far more than its own state. This violates the presentation layer’s contract of not importing infrastructure components directly.",
+      "suggestions": [
+        {
+          "title": "Introduce an OrderReportService in the application layer",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "Create a new class in the application layer:\n\n```python\nclass OrderReportService:\n    def __init__(self, repo: OrderRepository, mailer: EmailClient):\n        self._repo = repo\n        self._mailer = mailer\n\n    def count_orders(self) -> int:\n        return self._repo.count()\n\n    def send_summary(self, address: str) -> dict[str, str]:\n        return self._mailer.send(address, f\"{self._repo.count()} orders\")\n```\nThen refactor ReportView to depend only on this service:\n\n```python\nclass ReportView:\n    def __init__(self, service: OrderReportService) -> None:\n        self._service = service\n        self._width = 40\n\n    def title(self) -> str:\n        return \"Orders\".center(self._width, \"-\")\n\n    def describe_customer(self, customer) -> str:\n        parts = [str(customer.customer_id()), customer.name(), customer.email(), customer.tier()]\n        return \" | \".join(parts).ljust(self._width)\n\n    def order_count(self) -> int:\n        return self._service.count_orders()\n\n    def mail_summary(self, address: str) -> dict[str, str]:\n        return self._service.send_summary(address)\n```\nThis keeps ReportView focused on formatting, while the service handles data access and email logic, satisfying the presentation layer’s import constraints.",
+          "status": "linked",
+          "addresses_smells": [
+            "feature_envy_candidate",
+            "low_cohesion"
+          ],
+          "target_layer_after": "application",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [
+            "addresses_smells names labels the target does not carry: low_cohesion"
+          ],
+          "tags": []
+        }
+      ],
+      "risk_notes": "The refactor requires updating all call sites to pass an OrderReportService instance instead of separate repository and mailer objects. Tests that mock the repository or mailer directly will need adjustment. If the application layer already contains a suitable service, this change may duplicate functionality; otherwise, creating the service adds a new dependency that must be wired in the composition root.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:src.api.report_view\",\n  \"diagnosis\": \"The ReportView class shows low cohesion (LCOM4 = 2) and a high dependency count (DCC = 2), indicating that it mixes responsibilities of presentation, data access, and email sending. The feature‑envy smell is also evident: the class accesses Customer attributes far more than its own state. This violates the presentation layer’s contract of not importing infrastructure components directly.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Introduce an OrderReportService in the application layer\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\",\n        \"feature_envy_candidate\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"feature_envy_candidate\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        }\n      ],\n      \"sketch\": \"Create a new class in the application layer:\\n\\n```python\\nclass OrderReportService:\\n    def __init__(self, repo: OrderRepository, mailer: EmailClient):\\n        self._repo = repo\\n        self._mailer = mailer\\n\\n    def count_orders(self) -> int:\\n        return self._repo.count()\\n\\n    def send_summary(self, address: str) -> dict[str, str]:\\n        return self._mailer.send(address, f\\\"{self._repo.count()} orders\\\")\\n```\\nThen refactor ReportView to depend only on this service:\\n\\n```python\\nclass ReportView:\\n    def __init__(self, service: OrderReportService) -> None:\\n        self._service = service\\n        self._width = 40\\n\\n    def title(self) -> str:\\n        return \\\"Orders\\\".center(self._width, \\\"-\\\")\\n\\n    def describe_customer(self, customer) -> str:\\n        parts = [str(customer.customer_id()), customer.name(), customer.email(), customer.tier()]\\n        return \\\" | \\\".join(parts).ljust(self._width)\\n\\n    def order_count(self) -> int:\\n        return self._service.count_orders()\\n\\n    def mail_summary(self, address: str) -> dict[str, str]:\\n        return self._service.send_summary(address)\\n```\\nThis keeps ReportView focused on formatting, while the service handles data access and email logic, satisfying the presentation layer’s import constraints.\",\n      \"addresses_smells\": [\n        \"feature_envy_candidate\",\n        \"low_cohesion\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"The refactor requires updating all call sites to pass an OrderReportService instance instead of separate repository and mailer objects. Tests that mock the repository or mailer directly will need adjustment. If the application layer already contains a suitable service, this change may duplicate functionality; otherwise, creating the service adds a new dependency that must be wired in the composition root.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "unknown metric in expected_effect: FEATURE_ENVY_CANDIDATE",
+        "model reported target 'module:src.api.report_view'; using 'src.api.report_view:ReportView' instead"
+      ],
+      "prompt_hash": "8b20701453ec699018c561c7272c85dc0f2ac9b27e04ba972e7d090a3576244f",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch",
+  "arch_context": true,
+  "metric_rules": false
+}

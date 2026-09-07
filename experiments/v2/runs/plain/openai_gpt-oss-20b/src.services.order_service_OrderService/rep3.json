@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:48:30+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.services.order_service:OrderService",
+      "diagnosis": "The class has a very high number of methods (NOM=26) and a high cumulative cyclomatic complexity (WMC=56), indicating a single class is doing too much. The LCOM4 value of 5 shows the method‑attribute graph has many disconnected components, meaning the class is not cohesive. All attributes are private (DAM=1.0), but the class still couples to four distinct responsibilities (order lifecycle, pricing, audit, notification) and references four other project classes (DCC=4). This violates the Single Responsibility Principle and makes the class hard to maintain and test.",
+      "suggestions": [
+        {
+          "title": "Split OrderService into dedicated component services",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.5
+            }
+          ],
+          "sketch": "Create four small services:\n\n```python\nclass OrderLifecycleService:\n    def __init__(self, repository):\n        self._repo = repository\n    def place(self, customer, lines):\n        # validation and creation logic\n    def fetch(self, order_id):\n        return self._repo.get(order_id)\n    ...\n```\n\n```python\nclass PricingService:\n    def __init__(self, tax_rate=0.18, discounts=None):\n        self._tax_rate = tax_rate\n        self._discounts = discounts or {}\n    def set_discount(self, tier, rate):\n        ...\n    def total_for(self, subtotal, tier):\n        ...\n```\n\n```python\nclass AuditService:\n    def __init__(self):\n        self._audit = []\n    def log(self, message, level=\"info\"):\n        entry = f\"[{level}] {message}\"\n        self._audit.append(entry)\n        return entry\n    def history(self):\n        return list(self._audit)\n    ...\n```\n\n```python\nclass NotificationService:\n    def __init__(self, notifier):\n        self._notifier = notifier\n        self._sent = 0\n    def notify(self, customer, subject):\n        result = self._notifier.send(customer.email(), subject)\n        self._sent += 1\n        return result\n    def sent_count(self):\n        return self._sent\n    def reset_sent(self):\n        prev = self._sent\n        self._sent = 0\n        return prev\n```\n\nOrderService becomes a thin orchestrator that delegates to these services. Each new class has a focused responsibility, reducing internal cohesion issues and lowering method counts and complexity per class.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "The refactor will increase the number of classes and may raise the DCC metric. It also introduces more moving parts, which could complicate testing and deployment if not managed carefully.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.services.order_service:OrderService\",\n  \"diagnosis\": \"The class has a very high number of methods (NOM=26) and a high cumulative cyclomatic complexity (WMC=56), indicating a single class is doing too much. The LCOM4 value of 5 shows the method‑attribute graph has many disconnected components, meaning the class is not cohesive. All attributes are private (DAM=1.0), but the class still couples to four distinct responsibilities (order lifecycle, pricing, audit, notification) and references four other project classes (DCC=4). This violates the Single Responsibility Principle and makes the class hard to maintain and test.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Split OrderService into dedicated component services\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.5\n        }\n      ],\n      \"sketch\": \"Create four small services:\\n\\n```python\\nclass OrderLifecycleService:\\n    def __init__(self, repository):\\n        self._repo = repository\\n    def place(self, customer, lines):\\n        # validation and creation logic\\n    def fetch(self, order_id):\\n        return self._repo.get(order_id)\\n    ...\\n```\\n\\n```python\\nclass PricingService:\\n    def __init__(self, tax_rate=0.18, discounts=None):\\n        self._tax_rate = tax_rate\\n        self._discounts = discounts or {}\\n    def set_discount(self, tier, rate):\\n        ...\\n    def total_for(self, subtotal, tier):\\n        ...\\n```\\n\\n```python\\nclass AuditService:\\n    def __init__(self):\\n        self._audit = []\\n    def log(self, message, level=\\\"info\\\"):\\n        entry = f\\\"[{level}] {message}\\\"\\n        self._audit.append(entry)\\n        return entry\\n    def history(self):\\n        return list(self._audit)\\n    ...\\n```\\n\\n```python\\nclass NotificationService:\\n    def __init__(self, notifier):\\n        self._notifier = notifier\\n        self._sent = 0\\n    def notify(self, customer, subject):\\n        result = self._notifier.send(customer.email(), subject)\\n        self._sent += 1\\n        return result\\n    def sent_count(self):\\n        return self._sent\\n    def reset_sent(self):\\n        prev = self._sent\\n        self._sent = 0\\n        return prev\\n```\\n\\nOrderService becomes a thin orchestrator that delegates to these services. Each new class has a focused responsibility, reducing internal cohesion issues and lowering method counts and complexity per class.\",\n      \"risk_notes\": \"Splitting the class increases the number of public classes, which may raise the DCC metric and add more points of failure if the orchestrator is not carefully designed. It also requires refactoring all callers to use the new services, which can be a significant change effort. If the system is small or the services are only used internally, the added indirection might not be worth the maintenance cost.\"\n    }\n  ],\n  \"risk_notes\": \"The refactor will increase the number of classes and may raise the DCC metric. It also introduces more moving parts, which could complicate testing and deployment if not managed carefully.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "a7b44351c97a8ec4de8b60d4c65bc61955b91b2dd15f76c0ce94c9dddb10665c",
+      "from_cache": false
+    }
+  ],
+  "condition": "plain",
+  "arch_context": false,
+  "metric_rules": false
+}

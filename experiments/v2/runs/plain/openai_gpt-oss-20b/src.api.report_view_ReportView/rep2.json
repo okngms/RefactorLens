@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:48:20+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.api.report_view:ReportView",
+      "diagnosis": "The class has a high LCOM4 value, indicating low cohesion because it mixes reporting, customer description, and mailing responsibilities. It also references two internal classes (OrderRepository and EmailClient), which is acceptable but could be simplified by separating concerns. The WMC is low and DAM is perfect, so those are not problematic.",
+      "suggestions": [
+        {
+          "title": "Split ReportView into ReportFormatter and MailerService, and extract customer description",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "same",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Create a new class ReportFormatter that takes OrderRepository and implements title(), describe_customer(), and order_count(). Create a new class MailerService that takes EmailClient and implements mail_summary(). In ReportView, keep only a thin façade that delegates to these two classes or remove ReportView entirely if not needed. Optionally, move the describe_customer logic into a separate CustomerDescription helper if Customer is an internal class, which would further reduce LCOM4 without affecting DCC.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Refactoring will change the public API; callers expecting a ReportView instance must be updated. Tests and any code that constructs ReportView directly will need adjustment. If Customer is an internal class, extracting its description may increase DCC slightly, but the trade‑off for cohesion is usually worth it.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:ReportView\",\n  \"diagnosis\": \"The class has a high LCOM4 value, indicating low cohesion because it mixes reporting, customer description, and mailing responsibilities. It also references two internal classes (OrderRepository and EmailClient), which is acceptable but could be simplified by separating concerns. The WMC is low and DAM is perfect, so those are not problematic.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Split ReportView into ReportFormatter and MailerService, and extract customer description\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"same\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Create a new class ReportFormatter that takes OrderRepository and implements title(), describe_customer(), and order_count(). Create a new class MailerService that takes EmailClient and implements mail_summary(). In ReportView, keep only a thin façade that delegates to these two classes or remove ReportView entirely if not needed. Optionally, move the describe_customer logic into a separate CustomerDescription helper if Customer is an internal class, which would further reduce LCOM4 without affecting DCC.\"\n    }\n  ],\n  \"risk_notes\": \"Refactoring will change the public API; callers expecting a ReportView instance must be updated. Tests and any code that constructs ReportView directly will need adjustment. If Customer is an internal class, extracting its description may increase DCC slightly, but the trade‑off for cohesion is usually worth it.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:ReportView'; using 'src.api.report_view:ReportView' instead"
+      ],
+      "prompt_hash": "f2549e7db1eb6afe67ae0b4d418e8ea298a7dbb19d34e3510443a3dfade80087",
+      "from_cache": false
+    }
+  ],
+  "condition": "plain",
+  "arch_context": false,
+  "metric_rules": false
+}

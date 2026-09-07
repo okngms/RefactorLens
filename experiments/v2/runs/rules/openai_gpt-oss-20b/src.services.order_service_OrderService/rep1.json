@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:53:32+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.services.order_service:OrderService",
+      "diagnosis": "",
+      "suggestions": [],
+      "risk_notes": "",
+      "tags": [
+        "unstructured"
+      ],
+      "raw_reply": "{\n  \"target\": \"src.services.order_service:OrderService\",\n  \"diagnosis\": \"The OrderService class is a classic God‑object: it has a high number of public methods (NOM=26) and a very high cyclomatic complexity (WMC=56), indicating many decision points. Its LCOM4 score of 5 shows that the class is split into several disconnected components (order lifecycle, pricing, audit, notification). The class also depends on four distinct internal collaborators (DCC=4). All attributes are private (DAM=1.0), which is good, but the cohesion is low and the class is hard to test or evolve.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Split OrderService into focused services\",\n      \"rationale_metric_link\": [\n        \"NOM\",\n        \"WMC\",\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Create four new classes:\\n\\n```python\\nclass OrderLifecycleService:\\n    def __init__(self, repository):\\n        self._repo = repository\\n    def place(...):\\n        ...  # same logic, but no pricing or audit code\\n    def fetch(...):\\n        ...\\n    def cancel(...):\\n        ...\\n    def close(...):\\n        ...\\n    def order_count(...):\\n        ...\\n    def orders_for(...):\\n        ...\\n    def open_orders(...):\\n        ...\\n    def line_count(...):\\n        ...\\n    def revenue(...):\\n        ...\\n    def tier_summary(...):\\n        ...\\n\\nclass PricingService:\\n    def __init__(self, tax_rate=0.18, discounts=None):\\n        self._tax_rate = tax_rate\\n        self._discounts = discounts or {}\\n    def set_discount(...):\\n        ...\\n    def discount_for(...):\\n        ...\\n    def bulk_discount(...):\\n        ...\\n    def set_tax_rate(...):\\n        ...\\n    def apply_tax(...):\\n        ...\\n    def total_for(...):\\n        ...\\n    def policy_rate(...):\\n        ...\\n    def is_priced(...):\\n        ...\\n\\nclass AuditService:\\n    def __init__(self):\\n        self._audit = []\\n    def log(...):\\n        ...\\n    def history(...):\\n        ...\\n    def last_entry(...):\\n        ...\\n    def audit_size(...):\\n        ...\\n    def clear_audit(...):\\n        ...\\n\\nclass NotificationService:\\n    def __init__(self, notifier):\\n        self._notifier = notifier\\n        self._sent = 0\\n    def notify(...):\\n        ...\\n    def sent_count(...):\\n        ...\\n    def reset_sent(...):\\n        ...\\n```\\nThe original OrderService becomes a thin façade that delegates to these services, keeping its own NOM and WMC low.\",\n      \"risk_notes\": \"Splitting the class introduces more moving parts and requires updating all call sites. If the services are not properly unit‑tested, the refactor could hide bugs. The overall system complexity may increase temporarily while the new classes are wired together.\"\n    },\n    {\n      \"title\": \"Extract validation logic from place() into OrderValidator\",\n      \"rationale_metric_link\": [\n        \"WMC\",\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.6\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.4\n        }\n      ],\n      \"sketch\": \"Create a helper class:\\n\\n```python\\nclass OrderValidator:\\n    def __init__(self, customer_cls, line_cls):\\n        self._customer_cls = customer_cls\\n        self._line_cls = line_cls\\n    def validate(self, customer, lines):\\n        if not isinstance(customer, self._customer_cls):\\n            raise TypeError(\\\"customer must be a Customer\\\")\\n        if not lines:\\n            raise ValueError(\\\"an order needs at least one line\\\")\\n        for line in lines:\\n            if not isinstance(line, self._line_cls):\\n                raise TypeError(\\\"lines must contain OrderLine objects\\\")\\n            if line.quantity < 0:\\n                raise ValueError(\\\"a line quantity cannot be negative\\\")\\n            if line.unit_price < 0:\\n                raise ValueError(\\\"a unit price cannot be negative\\\")\\n```\\nThen modify OrderService.place():\\n\\n```python\\n    def __init__(self, repository, notifier, validator=None):\\n        self._validator = validator or OrderValidator(Customer, OrderLine)\\n        ...\\n    def place(self, customer, lines):\\n        self._validator.validate(customer, lines)\\",
+      "truncation_notes": [],
+      "repaired": true,
+      "warnings": [
+        "could not parse the reply even after repair: Unbalanced braces in the reply."
+      ],
+      "prompt_hash": "1cdae726c9115b64961b56ee8ad029bc589ddb16e0a4f7929fe5423098d66ffd",
+      "from_cache": false
+    }
+  ],
+  "condition": "rules",
+  "arch_context": false,
+  "metric_rules": true
+}
