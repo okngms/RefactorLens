@@ -1,0 +1,285 @@
+--- a/src/services/order_service.py
++++ b/src/services/order_service.py
+@@ -18,21 +18,10 @@
+ from domain.policies import DiscountPolicy
+ 
+ 
+-class OrderService:
+-    def __init__(self, repository, notifier) -> None:
+-        # Bileşen 1 — sipariş yaşam döngüsü
++class OrderLifecycleService:
++    def __init__(self, repository):
+         self._repository = repository
+         self._next_order_id = 1
+-        # Bileşen 2 — fiyatlandırma
+-        self._tax_rate = 0.18
+-        self._discounts: dict[str, float] = {}
+-        # Bileşen 3 — denetim
+-        self._audit: list[str] = []
+-        # Bileşen 4 — bildirim
+-        self._notifier = notifier
+-        self._sent = 0
+-
+-    # -- Bileşen 1: sipariş yaşam döngüsü -------------------------------------
+ 
+     def place(self, customer, lines):
+         if not isinstance(customer, Customer):
+@@ -93,6 +82,177 @@
+                 total += 1
+         return total
+ 
++
++class PricingService:
++    def __init__(self, tax_rate=0.18, discounts=None):
++        self._tax_rate = tax_rate
++        self._discounts = discounts or {}
++
++    def set_discount(self, tier, rate):
++        if rate < 0 or rate > 1:
++            raise ValueError("a discount rate must be between 0 and 1")
++        self._discounts[tier] = rate
++
++    def discount_for(self, tier):
++        if tier in self._discounts:
++            return self._discounts[tier]
++        return 0.0
++
++    def bulk_discount(self, quantity):
++        if quantity >= 100:
++            return self._discounts.get("bulk_large", 0.2)
++        if quantity >= 20:
++            return self._discounts.get("bulk_small", 0.1)
++        return 0.0
++
++    def set_tax_rate(self, rate):
++        if rate < 0:
++            raise ValueError("a tax rate cannot be negative")
++        self._tax_rate = rate
++
++    def apply_tax(self, amount):
++        return round(amount * (1 + self._tax_rate), 2)
++
++    def total_for(self, subtotal, tier):
++        discounted = subtotal * (1 - self.discount_for(tier))
++        return self.apply_tax(discounted)
++
++    def policy_rate(self, policy, tier):
++        if not isinstance(policy, DiscountPolicy):
++            raise TypeError("policy must be a DiscountPolicy")
++        return policy.rate_for(tier)
++
++    def is_priced(self, tier):
++        return tier in self._discounts and self._discounts[tier] > 0 and self._tax_rate > 0
++
++
++class AuditService:
++    def __init__(self):
++        self._audit = []
++
++    def log(self, message, level="info"):
++        entry = f"[{level}] {message}"
++        self._audit.append(entry)
++        return entry
++
++    def history(self):
++        return list(self._audit)
++
++    def last_entry(self):
++        if not self._audit:
++            return None
++        return self._audit[-1]
++
++    def audit_size(self):
++        return len(self._audit)
++
++    def clear_audit(self):
++        removed = len(self._audit)
++        self._audit = []
++        return removed
++
++
++class NotificationService:
++    def __init__(self, notifier):
++        self._notifier = notifier
++        self._sent = 0
++
++    def notify(self, customer, subject):
++        result = self._notifier.send(customer.email(), subject)
++        self._sent += 1
++        return result
++
++    def sent_count(self):
++        return self._sent
++
++    def reset_sent(self):
++        previous = self._sent
++        self._sent = 0
++        return previous
++
++
++class OrderService:
++    def __init__(self, repository, notifier) -> None:
++        # `revenue` ve `tier_summary` öneride hiçbir servise atanmadı;
++        # yerinde kaldıkları için depo referansı da burada kalmak zorunda.
++        self._repository = repository
++        self._lifecycle = OrderLifecycleService(repository)
++        self._pricing = PricingService()
++        self._audit_service = AuditService()
++        self._notification = NotificationService(notifier)
++
++    def place(self, customer, lines):
++        return self._lifecycle.place(customer, lines)
++
++    def fetch(self, order_id):
++        return self._lifecycle.fetch(order_id)
++
++    def cancel(self, order_id):
++        return self._lifecycle.cancel(order_id)
++
++    def close(self, order_id):
++        return self._lifecycle.close(order_id)
++
++    def order_count(self):
++        return self._lifecycle.order_count()
++
++    def orders_for(self, customer_id):
++        return self._lifecycle.orders_for(customer_id)
++
++    def open_orders(self):
++        return self._lifecycle.open_orders()
++
++    def line_count(self, order_id):
++        return self._lifecycle.line_count(order_id)
++
++    def set_discount(self, tier, rate):
++        return self._pricing.set_discount(tier, rate)
++
++    def discount_for(self, tier):
++        return self._pricing.discount_for(tier)
++
++    def bulk_discount(self, quantity):
++        return self._pricing.bulk_discount(quantity)
++
++    def set_tax_rate(self, rate):
++        return self._pricing.set_tax_rate(rate)
++
++    def apply_tax(self, amount):
++        return self._pricing.apply_tax(amount)
++
++    def total_for(self, subtotal, tier):
++        return self._pricing.total_for(subtotal, tier)
++
++    def policy_rate(self, policy, tier):
++        return self._pricing.policy_rate(policy, tier)
++
++    def is_priced(self, tier):
++        return self._pricing.is_priced(tier)
++
++    def log(self, message, level='info'):
++        return self._audit_service.log(message, level)
++
++    def history(self):
++        return self._audit_service.history()
++
++    def last_entry(self):
++        return self._audit_service.last_entry()
++
++    def audit_size(self):
++        return self._audit_service.audit_size()
++
++    def clear_audit(self):
++        return self._audit_service.clear_audit()
++
++    def notify(self, customer, subject):
++        return self._notification.notify(customer, subject)
++
++    def sent_count(self):
++        return self._notification.sent_count()
++
++    def reset_sent(self):
++        return self._notification.reset_sent()
++
+     def revenue(self):
+         total = 0.0
+         for order in self._repository.all_orders():
+@@ -109,80 +269,3 @@
+             else:
+                 counts[tier] = 1
+         return counts
+-
+-    # -- Bileşen 2: fiyatlandırma ---------------------------------------------
+-
+-    def set_discount(self, tier, rate):
+-        if rate < 0 or rate > 1:
+-            raise ValueError("a discount rate must be between 0 and 1")
+-        self._discounts[tier] = rate
+-
+-    def discount_for(self, tier):
+-        if tier in self._discounts:
+-            return self._discounts[tier]
+-        return 0.0
+-
+-    def bulk_discount(self, quantity):
+-        if quantity >= 100:
+-            return self._discounts.get("bulk_large", 0.2)
+-        if quantity >= 20:
+-            return self._discounts.get("bulk_small", 0.1)
+-        return 0.0
+-
+-    def set_tax_rate(self, rate):
+-        if rate < 0:
+-            raise ValueError("a tax rate cannot be negative")
+-        self._tax_rate = rate
+-
+-    def apply_tax(self, amount):
+-        return round(amount * (1 + self._tax_rate), 2)
+-
+-    def total_for(self, subtotal, tier):
+-        discounted = subtotal * (1 - self.discount_for(tier))
+-        return self.apply_tax(discounted)
+-
+-    def policy_rate(self, policy, tier):
+-        if not isinstance(policy, DiscountPolicy):
+-            raise TypeError("policy must be a DiscountPolicy")
+-        return policy.rate_for(tier)
+-
+-    def is_priced(self, tier):
+-        return tier in self._discounts and self._discounts[tier] > 0 and self._tax_rate > 0
+-
+-    # -- Bileşen 3: denetim ---------------------------------------------------
+-
+-    def log(self, message, level="info"):
+-        entry = f"[{level}] {message}"
+-        self._audit.append(entry)
+-        return entry
+-
+-    def history(self):
+-        return list(self._audit)
+-
+-    def last_entry(self):
+-        if not self._audit:
+-            return None
+-        return self._audit[-1]
+-
+-    def audit_size(self):
+-        return len(self._audit)
+-
+-    def clear_audit(self):
+-        removed = len(self._audit)
+-        self._audit = []
+-        return removed
+-
+-    # -- Bileşen 4: bildirim --------------------------------------------------
+-
+-    def notify(self, customer, subject):
+-        result = self._notifier.send(customer.email(), subject)
+-        self._sent += 1
+-        return result
+-
+-    def sent_count(self):
+-        return self._sent
+-
+-    def reset_sent(self):
+-        previous = self._sent
+-        self._sent = 0
+-        return previous
