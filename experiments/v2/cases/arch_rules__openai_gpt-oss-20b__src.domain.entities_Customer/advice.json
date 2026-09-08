@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:57:33+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.domain.entities:Customer",
+      "diagnosis": "The class is a classic data holder with five trivial accessor methods. Its high LCOM4 (4) reflects that each method touches only one private attribute, creating many disconnected components in the method‑attribute graph. NOM and WMC are also high for a class that essentially only stores data. The DCC is zero, indicating no external collaborators, which is expected for a data class. The metrics suggest that the class is overly verbose for its purpose.",
+      "suggestions": [
+        {
+          "title": "Replace explicit getters with a dataclass",
+          "rationale_metric_link": [
+            "NOM",
+            "WMC",
+            "LCOM4"
+          ],
+          "expected_effect": [
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.8
+            }
+          ],
+          "sketch": "```python\nfrom dataclasses import dataclass\n\n@dataclass\nclass Customer:\n    _customer_id: int\n    _name: str\n    _email: str\n    _tier: str = \"standard\"\n\n    def is_premium(self) -> bool:\n        return self._tier == \"premium\"\n```\nThis removes the four trivial accessor methods and the custom `__init__`, letting the dataclass generate them. The `is_premium` method remains, preserving business logic.",
+          "status": "linked",
+          "addresses_smells": [
+            "data_class",
+            "boilerplate"
+          ],
+          "target_layer_after": "domain",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [
+            "addresses_smells names labels the target does not carry: boilerplate"
+          ],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Removing explicit getters exposes the private attributes directly, which may violate encapsulation expectations in tests or other layers. If external code relies on the accessor methods, those calls will fail. Additionally, the dataclass will generate a public `__init__`, so any custom validation logic in the original constructor would be lost unless re‑implemented.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"module:Customer\",\n  \"diagnosis\": \"The class is a classic data holder with five trivial accessor methods. Its high LCOM4 (4) reflects that each method touches only one private attribute, creating many disconnected components in the method‑attribute graph. NOM and WMC are also high for a class that essentially only stores data. The DCC is zero, indicating no external collaborators, which is expected for a data class. The metrics suggest that the class is overly verbose for its purpose.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Replace explicit getters with a dataclass\",\n      \"rationale_metric_link\": [\n        \"NOM\",\n        \"WMC\",\n        \"LCOM4\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        }\n      ],\n      \"sketch\": \"```python\\nfrom dataclasses import dataclass\\n\\n@dataclass\\nclass Customer:\\n    _customer_id: int\\n    _name: str\\n    _email: str\\n    _tier: str = \\\"standard\\\"\\n\\n    def is_premium(self) -> bool:\\n        return self._tier == \\\"premium\\\"\\n```\\nThis removes the four trivial accessor methods and the custom `__init__`, letting the dataclass generate them. The `is_premium` method remains, preserving business logic.\",\n      \"addresses_smells\": [\n        \"data_class\",\n        \"boilerplate\"\n      ],\n      \"target_layer_after\": \"domain\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"Removing explicit getters exposes the private attributes directly, which may violate encapsulation expectations in tests or other layers. If external code relies on the accessor methods, those calls will fail. Additionally, the dataclass will generate a public `__init__`, so any custom validation logic in the original constructor would be lost unless re‑implemented.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [
+        "model reported target 'module:Customer'; using 'src.domain.entities:Customer' instead"
+      ],
+      "prompt_hash": "bf7413641130233cac5542bbf60ec58a20780205976e85abe89388a5d0513932",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch_rules",
+  "arch_context": true,
+  "metric_rules": true
+}

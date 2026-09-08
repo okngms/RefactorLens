@@ -1,0 +1,1106 @@
+{
+  "root": "C:\\myProjects\\RefactorLens\\experiments\\v2\\cases\\arch_rules__openai_gpt-oss-20b__src.domain.entities_Customer\\project",
+  "generated_at": "2026-09-08T17:20:54+00:00",
+  "rlens_version": "1.0.0",
+  "schema_version": 2,
+  "modules": [
+    {
+      "path": "src/api/order_controller.py",
+      "module": "src.api.order_controller",
+      "classes": [
+        {
+          "name": "OrderController",
+          "module": "src.api.order_controller",
+          "lineno": 15,
+          "nom": 3,
+          "wmc": 3,
+          "lcom4": 2,
+          "dam": 1.0,
+          "dam_strict": 0.0,
+          "dcc": 2,
+          "cam": null,
+          "cam_skipped_reason": "insufficient_annotations",
+          "methods": [
+            {
+              "name": "create",
+              "lineno": 20,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 2,
+              "max_nesting": 0
+            },
+            {
+              "name": "cancel",
+              "lineno": 23,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 1,
+              "max_nesting": 0
+            },
+            {
+              "name": "repository",
+              "lineno": 26,
+              "cyclomatic_complexity": 1,
+              "loc": 3,
+              "param_count": 0,
+              "max_nesting": 0
+            }
+          ],
+          "layer": "presentation",
+          "layer_source": "declared",
+          "layer_confidence": 1.0,
+          "smells": [],
+          "public_interface": {
+            "methods": [
+              "cancel",
+              "create",
+              "repository"
+            ],
+            "attributes": [],
+            "accessors": [
+              "repository"
+            ],
+            "size": 3
+          }
+        }
+      ],
+      "functions": [],
+      "layer": "presentation",
+      "ca": 0,
+      "ce": 2,
+      "instability": 1.0,
+      "smells": []
+    },
+    {
+      "path": "src/api/report_view.py",
+      "module": "src.api.report_view",
+      "classes": [
+        {
+          "name": "ReportView",
+          "module": "src.api.report_view",
+          "lineno": 14,
+          "nom": 4,
+          "wmc": 4,
+          "lcom4": 2,
+          "dam": 1.0,
+          "dam_strict": 0.0,
+          "dcc": 2,
+          "cam": null,
+          "cam_skipped_reason": "insufficient_annotations",
+          "methods": [
+            {
+              "name": "title",
+              "lineno": 20,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "describe_customer",
+              "lineno": 23,
+              "cyclomatic_complexity": 1,
+              "loc": 9,
+              "param_count": 1,
+              "max_nesting": 0
+            },
+            {
+              "name": "order_count",
+              "lineno": 33,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "mail_summary",
+              "lineno": 36,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 1,
+              "max_nesting": 0
+            }
+          ],
+          "layer": "presentation",
+          "layer_source": "declared",
+          "layer_confidence": 1.0,
+          "smells": [
+            {
+              "label": "feature_envy_candidate",
+              "target": "src.api.report_view:ReportView.describe_customer",
+              "evidence": {
+                "envied": "customer",
+                "accesses_to_other": 4,
+                "accesses_to_self": 1,
+                "ratio": 4.0,
+                "thresholds": {
+                  "ratio": 2.0,
+                  "min_accesses": 3
+                }
+              },
+              "note": "name-based; always a candidate, never a confirmed smell"
+            }
+          ],
+          "public_interface": {
+            "methods": [
+              "describe_customer",
+              "mail_summary",
+              "order_count",
+              "title"
+            ],
+            "attributes": [],
+            "accessors": [],
+            "size": 4
+          }
+        }
+      ],
+      "functions": [],
+      "layer": "presentation",
+      "ca": 0,
+      "ce": 2,
+      "instability": 1.0,
+      "smells": []
+    },
+    {
+      "path": "src/domain/entities.py",
+      "module": "src.domain.entities",
+      "classes": [
+        {
+          "name": "Customer",
+          "module": "src.domain.entities",
+          "lineno": 6,
+          "nom": 5,
+          "wmc": 5,
+          "lcom4": 4,
+          "dam": 1.0,
+          "dam_strict": 0.0,
+          "dcc": 0,
+          "cam": null,
+          "cam_skipped_reason": "no_annotated_parameters",
+          "methods": [
+            {
+              "name": "customer_id",
+              "lineno": 20,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "name",
+              "lineno": 23,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "email",
+              "lineno": 26,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "tier",
+              "lineno": 29,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "is_premium",
+              "lineno": 32,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            }
+          ],
+          "layer": "domain",
+          "layer_source": "declared",
+          "layer_confidence": 1.0,
+          "smells": [
+            {
+              "label": "data_class",
+              "target": "src.domain.entities:Customer",
+              "evidence": {
+                "nom": 5,
+                "wmc": 5,
+                "dam": 1.0,
+                "accessor_ratio": 0.8,
+                "accessors": [
+                  "customer_id",
+                  "email",
+                  "name",
+                  "tier"
+                ],
+                "lcom4": 4
+              },
+              "note": "a data holder; a high LCOM4 here is expected and not a defect"
+            }
+          ],
+          "public_interface": {
+            "methods": [
+              "customer_id",
+              "email",
+              "is_premium",
+              "name",
+              "tier"
+            ],
+            "attributes": [],
+            "accessors": [
+              "customer_id",
+              "email",
+              "name",
+              "tier"
+            ],
+            "size": 5
+          }
+        },
+        {
+          "name": "OrderLine",
+          "module": "src.domain.entities",
+          "lineno": 36,
+          "nom": 1,
+          "wmc": 1,
+          "lcom4": 1,
+          "dam": 0.0,
+          "dam_strict": 0.0,
+          "dcc": 0,
+          "cam": null,
+          "cam_skipped_reason": "no_annotated_parameters",
+          "methods": [
+            {
+              "name": "subtotal",
+              "lineno": 42,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            }
+          ],
+          "layer": "domain",
+          "layer_source": "declared",
+          "layer_confidence": 1.0,
+          "smells": [],
+          "public_interface": {
+            "methods": [
+              "subtotal"
+            ],
+            "attributes": [
+              "quantity",
+              "sku",
+              "unit_price"
+            ],
+            "accessors": [],
+            "size": 4
+          }
+        },
+        {
+          "name": "Order",
+          "module": "src.domain.entities",
+          "lineno": 46,
+          "nom": 3,
+          "wmc": 5,
+          "lcom4": 2,
+          "dam": 0.0,
+          "dam_strict": 0.0,
+          "dcc": 2,
+          "cam": null,
+          "cam_skipped_reason": "no_annotated_parameters",
+          "methods": [
+            {
+              "name": "subtotal",
+              "lineno": 53,
+              "cyclomatic_complexity": 2,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "item_count",
+              "lineno": 56,
+              "cyclomatic_complexity": 2,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "close",
+              "lineno": 59,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            }
+          ],
+          "layer": "domain",
+          "layer_source": "declared",
+          "layer_confidence": 1.0,
+          "smells": [],
+          "public_interface": {
+            "methods": [
+              "close",
+              "item_count",
+              "subtotal"
+            ],
+            "attributes": [
+              "customer",
+              "lines",
+              "order_id",
+              "status"
+            ],
+            "accessors": [],
+            "size": 7
+          }
+        }
+      ],
+      "functions": [],
+      "layer": "domain",
+      "ca": 2,
+      "ce": 0,
+      "instability": 0.0,
+      "smells": []
+    },
+    {
+      "path": "src/domain/policies.py",
+      "module": "src.domain.policies",
+      "classes": [
+        {
+          "name": "DiscountPolicy",
+          "module": "src.domain.policies",
+          "lineno": 13,
+          "nom": 2,
+          "wmc": 5,
+          "lcom4": 2,
+          "dam": 1.0,
+          "dam_strict": 0.0,
+          "dcc": 1,
+          "cam": 0.5,
+          "cam_skipped_reason": null,
+          "methods": [
+            {
+              "name": "rate_for",
+              "lineno": 18,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 1,
+              "max_nesting": 0
+            },
+            {
+              "name": "loyalty_bonus",
+              "lineno": 21,
+              "cyclomatic_complexity": 4,
+              "loc": 8,
+              "param_count": 1,
+              "max_nesting": 0
+            }
+          ],
+          "layer": "domain",
+          "layer_source": "declared",
+          "layer_confidence": 1.0,
+          "smells": [],
+          "public_interface": {
+            "methods": [
+              "loyalty_bonus",
+              "rate_for"
+            ],
+            "attributes": [],
+            "accessors": [],
+            "size": 2
+          }
+        }
+      ],
+      "functions": [],
+      "layer": "domain",
+      "ca": 2,
+      "ce": 1,
+      "instability": 0.3333,
+      "smells": []
+    },
+    {
+      "path": "src/infra/email_client.py",
+      "module": "src.infra.email_client",
+      "classes": [
+        {
+          "name": "EmailClient",
+          "module": "src.infra.email_client",
+          "lineno": 6,
+          "nom": 2,
+          "wmc": 2,
+          "lcom4": 1,
+          "dam": 0.5,
+          "dam_strict": 0.0,
+          "dcc": 0,
+          "cam": 1.0,
+          "cam_skipped_reason": null,
+          "methods": [
+            {
+              "name": "send",
+              "lineno": 11,
+              "cyclomatic_complexity": 1,
+              "loc": 4,
+              "param_count": 2,
+              "max_nesting": 0
+            },
+            {
+              "name": "outbox",
+              "lineno": 16,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            }
+          ],
+          "layer": "infrastructure",
+          "layer_source": "declared",
+          "layer_confidence": 1.0,
+          "smells": [],
+          "public_interface": {
+            "methods": [
+              "outbox",
+              "send"
+            ],
+            "attributes": [
+              "host"
+            ],
+            "accessors": [],
+            "size": 3
+          }
+        }
+      ],
+      "functions": [],
+      "layer": "infrastructure",
+      "ca": 1,
+      "ce": 0,
+      "instability": 0.0,
+      "smells": []
+    },
+    {
+      "path": "src/infra/order_repository.py",
+      "module": "src.infra.order_repository",
+      "classes": [
+        {
+          "name": "OrderRepository",
+          "module": "src.infra.order_repository",
+          "lineno": 8,
+          "nom": 4,
+          "wmc": 5,
+          "lcom4": 1,
+          "dam": 1.0,
+          "dam_strict": 0.0,
+          "dcc": 1,
+          "cam": 0.5,
+          "cam_skipped_reason": null,
+          "methods": [
+            {
+              "name": "save",
+              "lineno": 13,
+              "cyclomatic_complexity": 1,
+              "loc": 5,
+              "param_count": 1,
+              "max_nesting": 0
+            },
+            {
+              "name": "get",
+              "lineno": 19,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 1,
+              "max_nesting": 0
+            },
+            {
+              "name": "all_orders",
+              "lineno": 22,
+              "cyclomatic_complexity": 2,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "count",
+              "lineno": 25,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            }
+          ],
+          "layer": "infrastructure",
+          "layer_source": "declared",
+          "layer_confidence": 1.0,
+          "smells": [],
+          "public_interface": {
+            "methods": [
+              "all_orders",
+              "count",
+              "get",
+              "save"
+            ],
+            "attributes": [],
+            "accessors": [],
+            "size": 4
+          }
+        }
+      ],
+      "functions": [],
+      "layer": "infrastructure",
+      "ca": 3,
+      "ce": 1,
+      "instability": 0.25,
+      "smells": []
+    },
+    {
+      "path": "src/services/order_service.py",
+      "module": "src.services.order_service",
+      "classes": [
+        {
+          "name": "OrderService",
+          "module": "src.services.order_service",
+          "lineno": 21,
+          "nom": 26,
+          "wmc": 56,
+          "lcom4": 5,
+          "dam": 1.0,
+          "dam_strict": 0.0,
+          "dcc": 4,
+          "cam": null,
+          "cam_skipped_reason": "no_annotated_parameters",
+          "methods": [
+            {
+              "name": "place",
+              "lineno": 37,
+              "cyclomatic_complexity": 7,
+              "loc": 15,
+              "param_count": 2,
+              "max_nesting": 2
+            },
+            {
+              "name": "fetch",
+              "lineno": 53,
+              "cyclomatic_complexity": 2,
+              "loc": 5,
+              "param_count": 1,
+              "max_nesting": 1
+            },
+            {
+              "name": "cancel",
+              "lineno": 59,
+              "cyclomatic_complexity": 3,
+              "loc": 8,
+              "param_count": 1,
+              "max_nesting": 1
+            },
+            {
+              "name": "close",
+              "lineno": 68,
+              "cyclomatic_complexity": 2,
+              "loc": 6,
+              "param_count": 1,
+              "max_nesting": 1
+            },
+            {
+              "name": "order_count",
+              "lineno": 75,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "orders_for",
+              "lineno": 78,
+              "cyclomatic_complexity": 3,
+              "loc": 6,
+              "param_count": 1,
+              "max_nesting": 2
+            },
+            {
+              "name": "open_orders",
+              "lineno": 85,
+              "cyclomatic_complexity": 3,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "line_count",
+              "lineno": 88,
+              "cyclomatic_complexity": 3,
+              "loc": 7,
+              "param_count": 1,
+              "max_nesting": 2
+            },
+            {
+              "name": "revenue",
+              "lineno": 96,
+              "cyclomatic_complexity": 3,
+              "loc": 6,
+              "param_count": 0,
+              "max_nesting": 2
+            },
+            {
+              "name": "tier_summary",
+              "lineno": 103,
+              "cyclomatic_complexity": 3,
+              "loc": 9,
+              "param_count": 0,
+              "max_nesting": 2
+            },
+            {
+              "name": "set_discount",
+              "lineno": 115,
+              "cyclomatic_complexity": 3,
+              "loc": 4,
+              "param_count": 2,
+              "max_nesting": 1
+            },
+            {
+              "name": "discount_for",
+              "lineno": 120,
+              "cyclomatic_complexity": 2,
+              "loc": 4,
+              "param_count": 1,
+              "max_nesting": 1
+            },
+            {
+              "name": "bulk_discount",
+              "lineno": 125,
+              "cyclomatic_complexity": 3,
+              "loc": 6,
+              "param_count": 1,
+              "max_nesting": 1
+            },
+            {
+              "name": "set_tax_rate",
+              "lineno": 132,
+              "cyclomatic_complexity": 2,
+              "loc": 4,
+              "param_count": 1,
+              "max_nesting": 1
+            },
+            {
+              "name": "apply_tax",
+              "lineno": 137,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 1,
+              "max_nesting": 0
+            },
+            {
+              "name": "total_for",
+              "lineno": 140,
+              "cyclomatic_complexity": 1,
+              "loc": 3,
+              "param_count": 2,
+              "max_nesting": 0
+            },
+            {
+              "name": "policy_rate",
+              "lineno": 144,
+              "cyclomatic_complexity": 2,
+              "loc": 4,
+              "param_count": 2,
+              "max_nesting": 1
+            },
+            {
+              "name": "is_priced",
+              "lineno": 149,
+              "cyclomatic_complexity": 3,
+              "loc": 2,
+              "param_count": 1,
+              "max_nesting": 0
+            },
+            {
+              "name": "log",
+              "lineno": 154,
+              "cyclomatic_complexity": 1,
+              "loc": 4,
+              "param_count": 2,
+              "max_nesting": 0
+            },
+            {
+              "name": "history",
+              "lineno": 159,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "last_entry",
+              "lineno": 162,
+              "cyclomatic_complexity": 2,
+              "loc": 4,
+              "param_count": 0,
+              "max_nesting": 1
+            },
+            {
+              "name": "audit_size",
+              "lineno": 167,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "clear_audit",
+              "lineno": 170,
+              "cyclomatic_complexity": 1,
+              "loc": 4,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "notify",
+              "lineno": 177,
+              "cyclomatic_complexity": 1,
+              "loc": 4,
+              "param_count": 2,
+              "max_nesting": 0
+            },
+            {
+              "name": "sent_count",
+              "lineno": 182,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            },
+            {
+              "name": "reset_sent",
+              "lineno": 185,
+              "cyclomatic_complexity": 1,
+              "loc": 4,
+              "param_count": 0,
+              "max_nesting": 0
+            }
+          ],
+          "layer": "application",
+          "layer_source": "declared",
+          "layer_confidence": 1.0,
+          "smells": [
+            {
+              "label": "god_class",
+              "target": "src.services.order_service:OrderService",
+              "evidence": {
+                "nom": 26,
+                "wmc": 56,
+                "lcom4": 5,
+                "thresholds": {
+                  "nom": 20,
+                  "wmc": 50,
+                  "lcom4": 3
+                }
+              },
+              "note": "all three conditions hold; one high metric alone is not enough"
+            },
+            {
+              "label": "feature_envy_candidate",
+              "target": "src.services.order_service:OrderService.close",
+              "evidence": {
+                "envied": "order",
+                "accesses_to_other": 3,
+                "accesses_to_self": 1,
+                "ratio": 3.0,
+                "thresholds": {
+                  "ratio": 2.0,
+                  "min_accesses": 3
+                }
+              },
+              "note": "name-based; always a candidate, never a confirmed smell"
+            }
+          ],
+          "public_interface": {
+            "methods": [
+              "apply_tax",
+              "audit_size",
+              "bulk_discount",
+              "cancel",
+              "clear_audit",
+              "close",
+              "discount_for",
+              "fetch",
+              "history",
+              "is_priced",
+              "last_entry",
+              "line_count",
+              "log",
+              "notify",
+              "open_orders",
+              "order_count",
+              "orders_for",
+              "place",
+              "policy_rate",
+              "reset_sent",
+              "revenue",
+              "sent_count",
+              "set_discount",
+              "set_tax_rate",
+              "tier_summary",
+              "total_for"
+            ],
+            "attributes": [],
+            "accessors": [
+              "sent_count"
+            ],
+            "size": 26
+          }
+        }
+      ],
+      "functions": [],
+      "layer": "application",
+      "ca": 1,
+      "ce": 2,
+      "instability": 0.6667,
+      "smells": []
+    },
+    {
+      "path": "src/services/pricing_service.py",
+      "module": "src.services.pricing_service",
+      "classes": [
+        {
+          "name": "PricingService",
+          "module": "src.services.pricing_service",
+          "lineno": 8,
+          "nom": 2,
+          "wmc": 2,
+          "lcom4": 1,
+          "dam": 1.0,
+          "dam_strict": 0.0,
+          "dcc": 1,
+          "cam": 1.0,
+          "cam_skipped_reason": null,
+          "methods": [
+            {
+              "name": "net",
+              "lineno": 13,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 2,
+              "max_nesting": 0
+            },
+            {
+              "name": "gross",
+              "lineno": 16,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 2,
+              "max_nesting": 0
+            }
+          ],
+          "layer": "application",
+          "layer_source": "declared",
+          "layer_confidence": 1.0,
+          "smells": [],
+          "public_interface": {
+            "methods": [
+              "gross",
+              "net"
+            ],
+            "attributes": [],
+            "accessors": [],
+            "size": 2
+          }
+        }
+      ],
+      "functions": [],
+      "layer": "application",
+      "ca": 0,
+      "ce": 1,
+      "instability": 1.0,
+      "smells": []
+    },
+    {
+      "path": "src/shared/helpers.py",
+      "module": "src.shared.helpers",
+      "classes": [],
+      "functions": [
+        {
+          "name": "normalise",
+          "lineno": 12,
+          "cyclomatic_complexity": 1,
+          "loc": 2,
+          "param_count": 1,
+          "max_nesting": 0
+        },
+        {
+          "name": "registry_size",
+          "lineno": 16,
+          "cyclomatic_complexity": 2,
+          "loc": 4,
+          "param_count": 1,
+          "max_nesting": 1
+        }
+      ],
+      "layer": null,
+      "ca": 1,
+      "ce": 1,
+      "instability": 0.5,
+      "smells": []
+    },
+    {
+      "path": "src/shared/registry.py",
+      "module": "src.shared.registry",
+      "classes": [
+        {
+          "name": "Registry",
+          "module": "src.shared.registry",
+          "lineno": 15,
+          "nom": 3,
+          "wmc": 3,
+          "lcom4": 1,
+          "dam": 1.0,
+          "dam_strict": 0.0,
+          "dcc": 0,
+          "cam": 1.0,
+          "cam_skipped_reason": null,
+          "methods": [
+            {
+              "name": "put",
+              "lineno": 19,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 2,
+              "max_nesting": 0
+            },
+            {
+              "name": "get",
+              "lineno": 22,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 1,
+              "max_nesting": 0
+            },
+            {
+              "name": "size",
+              "lineno": 25,
+              "cyclomatic_complexity": 1,
+              "loc": 2,
+              "param_count": 0,
+              "max_nesting": 0
+            }
+          ],
+          "layer": null,
+          "layer_source": "unknown",
+          "layer_confidence": 0.0,
+          "smells": [],
+          "public_interface": {
+            "methods": [
+              "get",
+              "put",
+              "size"
+            ],
+            "attributes": [],
+            "accessors": [],
+            "size": 3
+          }
+        }
+      ],
+      "functions": [],
+      "layer": null,
+      "ca": 1,
+      "ce": 1,
+      "instability": 0.5,
+      "smells": []
+    }
+  ],
+  "skipped_files": [],
+  "violations": [
+    {
+      "code": "LV-CYCLE",
+      "alias": "cyclic",
+      "source": "src.shared.helpers",
+      "target": "src.shared.registry",
+      "layers": [
+        "unknown",
+        "unknown"
+      ],
+      "detail": "import cycle of 2 modules: src.shared.helpers → src.shared.registry",
+      "lineno": null,
+      "tentative": false,
+      "members": [
+        "src.shared.helpers",
+        "src.shared.registry"
+      ]
+    },
+    {
+      "code": "LV-DIR",
+      "alias": "back-call",
+      "source": "src.domain.policies",
+      "target": "src.infra.order_repository",
+      "layers": [
+        "domain",
+        "infrastructure"
+      ],
+      "detail": "domain must not import infrastructure",
+      "lineno": 10,
+      "tentative": false,
+      "members": []
+    },
+    {
+      "code": "LV-LEAK",
+      "alias": "leak",
+      "source": "src.api.order_controller:OrderController.repository",
+      "target": "src.infra.order_repository:OrderRepository",
+      "layers": [
+        "presentation",
+        "infrastructure"
+      ],
+      "detail": "`OrderRepository` is a infrastructure type appearing in a public presentation signature",
+      "lineno": 26,
+      "tentative": false,
+      "members": []
+    },
+    {
+      "code": "LV-SKIP",
+      "alias": "skip-call",
+      "source": "src.api.order_controller",
+      "target": "src.infra.order_repository",
+      "layers": [
+        "presentation",
+        "infrastructure"
+      ],
+      "detail": "presentation must not import infrastructure",
+      "lineno": 11,
+      "tentative": false,
+      "members": []
+    },
+    {
+      "code": "LV-SKIP",
+      "alias": "skip-call",
+      "source": "src.api.report_view",
+      "target": "src.infra.email_client",
+      "layers": [
+        "presentation",
+        "infrastructure"
+      ],
+      "detail": "presentation must not import infrastructure",
+      "lineno": 10,
+      "tentative": false,
+      "members": []
+    },
+    {
+      "code": "LV-SKIP",
+      "alias": "skip-call",
+      "source": "src.api.report_view",
+      "target": "src.infra.order_repository",
+      "layers": [
+        "presentation",
+        "infrastructure"
+      ],
+      "detail": "presentation must not import infrastructure",
+      "lineno": 11,
+      "tentative": false,
+      "members": []
+    }
+  ],
+  "arch_notes": [
+    "2 module(s) match no declared prefix and stay unknown; violations involving them are not reported",
+    "1 class(es) have no annotated public signature; interface leaks cannot be detected there"
+  ],
+  "arch_enabled": true
+}

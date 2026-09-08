@@ -1,0 +1,41 @@
+--- a/src/domain/entities.py
++++ b/src/domain/entities.py
+@@ -2,7 +2,10 @@
+ 
+ from __future__ import annotations
+ 
++from dataclasses import dataclass
+ 
++
++@dataclass
+ class Customer:
+     """Kasıtlı `data_class`: neredeyse tamamen erişimci.
+ 
+@@ -11,23 +14,10 @@
+     pozitifi nötrleyip nötrlemediğini ölçer.
+     """
+ 
+-    def __init__(self, customer_id: int, name: str, email: str, tier: str = "standard") -> None:
+-        self._customer_id = customer_id
+-        self._name = name
+-        self._email = email
+-        self._tier = tier
+-
+-    def customer_id(self) -> int:
+-        return self._customer_id
+-
+-    def name(self) -> str:
+-        return self._name
+-
+-    def email(self) -> str:
+-        return self._email
+-
+-    def tier(self) -> str:
+-        return self._tier
++    _customer_id: int
++    _name: str
++    _email: str
++    _tier: str = "standard"
+ 
+     def is_premium(self) -> bool:
+         return self._tier == "premium"
