@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T18:57:10+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.services.order_service:OrderService",
+      "diagnosis": "The metrics show that OrderService has a very high number of methods (NOM=26) and a high cumulative cyclomatic complexity (WMC=56), indicating that it is doing too much. The LCOM4 value of 5 signals low cohesion: the class is composed of several unrelated responsibilities (order lifecycle, pricing, audit, notification). The DCC of 4 shows that the class is tightly coupled to many other project classes. Together these metrics confirm the \"god_class\" smell.",
+      "suggestions": [
+        {
+          "title": "Extract responsibilities into dedicated services",
+          "rationale_metric_link": [
+            "NOM",
+            "WMC",
+            "LCOM4",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Create four new classes in the application layer:\n\n```python\nclass OrderLifecycleService:\n    def __init__(self, repository):\n        self._repository = repository\n    # place, fetch, cancel, close, order_count, orders_for, open_orders, line_count, revenue, tier_summary\n\nclass PricingService:\n    def __init__(self):\n        self._tax_rate = 0.18\n        self._discounts: dict[str, float] = {}\n    # set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_for, policy_rate, is_priced\n\nclass AuditService:\n    def __init__(self):\n        self._audit: list[str] = []\n    # log, history, last_entry, audit_size, clear_audit\n\nclass NotificationService:\n    def __init__(self, notifier):\n        self._notifier = notifier\n        self._sent = 0\n    # notify, sent_count, reset_sent\n```\nThen refactor OrderService to become a thin façade that holds references to these services and delegates:\n\n```python\nclass OrderService:\n    def __init__(self, repository, notifier):\n        self._lifecycle = OrderLifecycleService(repository)\n        self._pricing = PricingService()\n        self._audit = AuditService()\n        self._notification = NotificationService(notifier)\n    # each public method simply forwards to the appropriate service\n```\nThis keeps all classes within the application layer and removes direct imports of presentation or infrastructure.",
+          "status": "linked",
+          "addresses_smells": [
+            "god_class"
+          ],
+          "target_layer_after": "application",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Splitting the class will require updating all callers to use the new services or the façade, which may break existing tests. The new services introduce more classes, potentially increasing maintenance overhead. Care must be taken to avoid duplicating logic (e.g., repository access) across services. If the application already has a dependency injection framework, wiring the new services may need adjustments.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.services.order_service:OrderService\",\n  \"diagnosis\": \"The metrics show that OrderService has a very high number of methods (NOM=26) and a high cumulative cyclomatic complexity (WMC=56), indicating that it is doing too much. The LCOM4 value of 5 signals low cohesion: the class is composed of several unrelated responsibilities (order lifecycle, pricing, audit, notification). The DCC of 4 shows that the class is tightly coupled to many other project classes. Together these metrics confirm the \\\"god_class\\\" smell.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract responsibilities into dedicated services\",\n      \"rationale_metric_link\": [\n        \"NOM\",\n        \"WMC\",\n        \"LCOM4\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Create four new classes in the application layer:\\n\\n```python\\nclass OrderLifecycleService:\\n    def __init__(self, repository):\\n        self._repository = repository\\n    # place, fetch, cancel, close, order_count, orders_for, open_orders, line_count, revenue, tier_summary\\n\\nclass PricingService:\\n    def __init__(self):\\n        self._tax_rate = 0.18\\n        self._discounts: dict[str, float] = {}\\n    # set_discount, discount_for, bulk_discount, set_tax_rate, apply_tax, total_for, policy_rate, is_priced\\n\\nclass AuditService:\\n    def __init__(self):\\n        self._audit: list[str] = []\\n    # log, history, last_entry, audit_size, clear_audit\\n\\nclass NotificationService:\\n    def __init__(self, notifier):\\n        self._notifier = notifier\\n        self._sent = 0\\n    # notify, sent_count, reset_sent\\n```\\nThen refactor OrderService to become a thin façade that holds references to these services and delegates:\\n\\n```python\\nclass OrderService:\\n    def __init__(self, repository, notifier):\\n        self._lifecycle = OrderLifecycleService(repository)\\n        self._pricing = PricingService()\\n        self._audit = AuditService()\\n        self._notification = NotificationService(notifier)\\n    # each public method simply forwards to the appropriate service\\n```\\nThis keeps all classes within the application layer and removes direct imports of presentation or infrastructure.\",\n      \"addresses_smells\": [\n        \"god_class\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"Splitting the class will require updating all callers to use the new services or the façade, which may break existing tests. The new services introduce more classes, potentially increasing maintenance overhead. Care must be taken to avoid duplicating logic (e.g., repository access) across services. If the application already has a dependency injection framework, wiring the new services may need adjustments.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "31d7ca60cf54a2eef6588c909b7269a0fd68e094e92df574f8c885a293dd8edf",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch_rules",
+  "arch_context": true,
+  "metric_rules": true
+}

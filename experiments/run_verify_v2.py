@@ -336,6 +336,42 @@ def load_results() -> list[dict]:
     ]
 
 
+def collect_calibration(results: list[dict], condition: str | None):
+    """Ölçülmüş vakalardan kalibrasyon noktalarını yeniden kurar.
+
+    Vaka başına saklanan Brier'ları ortalamak yanlış olurdu: kovalar vaka
+    sınırında sıfırlanır ve ECE hesaplanamaz. Ham `(güven, sonuç)` çiftleri
+    havuzlanır.
+
+    `broken` vakalar dışarıdadır — metrik deltası geçersizse tahminin doğru
+    sayılması da geçersizdir.
+    """
+    from rlens.verify.calibration import CalibrationPoint, calibrate
+
+    points, missing = [], 0
+    for result in results:
+        if result["status"] != "ok":
+            continue
+        if condition is not None and result["condition"] != condition:
+            continue
+        for score in result["predictions"]["suggestions"]:
+            for check in score["checks"]:
+                if check["outcome"] not in ("hit", "miss"):
+                    continue
+                if check.get("confidence") is None:
+                    missing += 1
+                    continue
+                points.append(
+                    CalibrationPoint(
+                        confidence=check["confidence"],
+                        correct=check["outcome"] == "hit",
+                        metric=check["metric"],
+                        target=result["target"],
+                    )
+                )
+    return calibrate(points, without_confidence=missing)
+
+
 def summarise(out: Path | None) -> int:
     results = load_results()
     if not results:
@@ -439,10 +475,17 @@ def summarise(out: Path | None) -> int:
         ]
         for result, violations in closed:
             short = result["target"].split(":")[-1]
+            model = result["model"].split("/")[-1]
+            label = f"`{short}` — {model}, {result['condition']}"
+            lines.append(f"**{label}**")
             for item in violations["removed"]:
-                lines.append(f"- `{short}` ({result['condition']}) **closed** {item}")
+                lines.append(f"- closed: {item}")
             for item in violations["added"]:
-                lines.append(f"- `{short}` ({result['condition']}) **opened** {item}")
+                lines.append(f"- opened: {item}")
+            net = len(violations["added"]) - len(violations["removed"])
+            verdict = "no net change" if net == 0 else f"net {net:+d}"
+            lines.append(f"- **{verdict}**")
+            lines.append("")
 
     suspicious = [r for r in results if r["goodhart"]["suspicious_count"]]
     broken = [r for r in results if r["status"] != "ok"]
@@ -463,23 +506,47 @@ def summarise(out: Path | None) -> int:
         "",
         "## Calibration",
         "",
-        "| Condition | Predictions | Brier | ECE | Stated | Actual |",
-        "|---|---|---|---|---|---|",
+        "Brier is the mean squared error of the stated confidence: 0 is "
+        "perfect, **0.25 is what a coin flip scores**, and above that the "
+        "confidence is worse than useless. ECE averages the gap between "
+        "stated and actual over confidence buckets.",
+        "",
+        "| Condition | Predictions | Brier | ECE | Stated | Actual | Gap |",
+        "|---|---|---|---|---|---|---|",
     ]
-    for condition in CONDITIONS:
-        points = [
-            r["calibration"] for r in results if r["condition"] == condition and r["status"] == "ok"
-        ]
-        counted = sum(p["count"] for p in points)
-        if not counted:
+    for condition in (*CONDITIONS, "all"):
+        report = collect_calibration(results, None if condition == "all" else condition)
+        if not report.points:
             continue
-        brier = sum(p["brier"] * p["count"] for p in points if p["brier"] is not None)
-        stated = sum(p["mean_confidence"] * p["count"] for p in points if p["mean_confidence"])
-        actual = sum(p["accuracy"] * p["count"] for p in points if p["accuracy"] is not None)
         lines.append(
-            f"| {condition} | {counted} | {brier / counted:.3f} | — | "
-            f"{stated / counted:.2f} | {actual / counted:.2f} |"
+            f"| {condition} | {report.count} | {report.brier:.3f} | "
+            f"{report.ece:.3f} | {report.mean_confidence:.2f} | "
+            f"{report.accuracy:.2f} | {report.overconfidence:+.2f} |"
         )
+
+    pooled = collect_calibration(results, None)
+    if pooled.points:
+        lines += [
+            "",
+            "Where the confidence sits, and whether it is earned.",
+            "",
+            "| Confidence | Predictions | Stated | Actual | Gap |",
+            "|---|---|---|---|---|",
+        ]
+        for bucket in pooled.bins:
+            if not bucket.count:
+                continue
+            lines.append(
+                f"| {bucket.low:.1f}–{bucket.high:.1f} | {bucket.count} | "
+                f"{bucket.mean_confidence:.2f} | {bucket.accuracy:.2f} | "
+                f"{bucket.gap:+.2f} |"
+            )
+        if pooled.without_confidence:
+            lines.append("")
+            lines.append(
+                f"{pooled.without_confidence} prediction(s) came without a "
+                f"confidence and are excluded."
+            )
 
     report = "\n".join(lines) + "\n"
     print(report)

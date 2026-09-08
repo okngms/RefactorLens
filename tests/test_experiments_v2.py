@@ -414,3 +414,102 @@ class TestPerTarget:
         predictions = per_target(runs, {})[0]["predictions"]
         assert predictions["LCOM4 down"] == 2
         assert predictions["DAM down"] == 1
+
+
+class TestCalibrationAggregation:
+    """Vaka başına Brier'ları ortalamak yanlış olurdu; ham çiftler havuzlanır."""
+
+    def results(self):
+        def case(condition, status, checks):
+            return {
+                "status": status,
+                "condition": condition,
+                "target": "m:C",
+                "model": "m",
+                "predictions": {
+                    "suggestions": [
+                        {
+                            "checks": [
+                                {
+                                    "outcome": "hit" if ok else "miss",
+                                    "confidence": confidence,
+                                    "metric": "LCOM4",
+                                }
+                                for confidence, ok in checks
+                            ]
+                        }
+                    ]
+                },
+            }
+
+        return [
+            case("arch", "ok", [(0.9, False), (0.9, True)]),
+            case("arch_rules", "ok", [(0.5, True)]),
+            case("arch_rules", "broken", [(1.0, True), (1.0, True)]),
+        ]
+
+    def test_broken_cases_are_excluded(self):
+        """Delta geçersizse tahminin doğru sayılması da geçersizdir."""
+        import sys
+
+        sys.path.insert(0, str(REPO_ROOT / "experiments"))
+        from run_verify_v2 import collect_calibration
+
+        assert collect_calibration(self.results(), None).count == 3
+
+    def test_condition_filter(self):
+        from run_verify_v2 import collect_calibration
+
+        assert collect_calibration(self.results(), "arch").count == 2
+
+    def test_ece_is_computed(self):
+        """Boş bırakılmış bir sütun rapor değildir."""
+        from run_verify_v2 import collect_calibration
+
+        assert collect_calibration(self.results(), None).ece is not None
+
+    def test_overconfidence_is_signed(self):
+        from run_verify_v2 import collect_calibration
+
+        report = collect_calibration(self.results(), "arch")
+        assert report.mean_confidence == 0.9
+        assert report.accuracy == 0.5
+        assert report.overconfidence == pytest.approx(0.4)
+
+    def test_unverifiable_checks_are_skipped(self):
+        from run_verify_v2 import collect_calibration
+
+        results = [
+            {
+                "status": "ok",
+                "condition": "arch",
+                "target": "t",
+                "model": "m",
+                "predictions": {
+                    "suggestions": [
+                        {
+                            "checks": [
+                                {"outcome": "unverifiable", "confidence": 0.9, "metric": "CAM"}
+                            ]
+                        }
+                    ]
+                },
+            }
+        ]
+        assert collect_calibration(results, None).count == 0
+
+    def test_missing_confidence_is_counted_separately(self):
+        from run_verify_v2 import collect_calibration
+
+        results = [
+            {
+                "status": "ok",
+                "condition": "arch",
+                "target": "t",
+                "model": "m",
+                "predictions": {"suggestions": [{"checks": [{"outcome": "hit", "metric": "NOM"}]}]},
+            }
+        ]
+        report = collect_calibration(results, None)
+        assert report.count == 0
+        assert report.without_confidence == 1
