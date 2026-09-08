@@ -1,5 +1,12 @@
 # DÜZELTME — `04-ortak-spesifikasyon.md` § 2.5
 
+> **Bu belge geçersiz kılındı: `docs/SPEC-duzeltme-2.5-v2.md`.**
+>
+> Aşağıdaki sınıflandırma kendi çürütme koşulunu yazmıştı ve koşul 5b verisiyle
+> tetiklendi: `DCC` ve `LCOM4` v1'de 0/2 iken v2'de %56 ve %45 çıktı. Belge
+> tarihsel kayıt olarak duruyor — bir hipotezin nasıl kurulduğu ve neyle
+> çürütüldüğü, çürütülmüş hâlinin kendisi kadar önemlidir.
+
 `§ 2.5 Metrik sınıfları` bölümünün tamamını aşağıdakiyle değiştirin. Dosyanın
 başka hiçbir yeri değişmiyor. `schema_version` artmaz: bu bir rapor alanı değil,
 analiz sözleşmesidir.

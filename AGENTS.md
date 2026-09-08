@@ -258,6 +258,13 @@ split cleanly — 6/6 on **subtractive** metrics (CC, WMC, PARAMS), 0/7 on
 **residue-dependent** ones (NOM, LCOM4, DCC, LOC). One case predicted every
 metric correctly while breaking 42 behaviour tests.
 
+**The grouping was refined in v2 and the metric is not the determinant.**
+5b measured DCC at 56% and LCOM4 at 45%, against 0/2 each in v1. What decides
+predictability is whether the change leaves **residue** in the target: a
+delegating wrapper keeps NOM and LCOM4 exactly where they were, and models
+almost never predict that. The same metric is predictable when the methods
+genuinely leave. See `docs/SPEC-duzeltme-2.5-v2.md`.
+
 **Do not relabel these groups "arithmetic" and "structural".** That naming was
 tried and is wrong: NOM is literally a count, yet it was mispredicted every
 time. What separates the groups is whether the change leaves a replacement
