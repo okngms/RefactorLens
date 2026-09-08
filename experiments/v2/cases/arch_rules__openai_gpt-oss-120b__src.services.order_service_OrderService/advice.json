@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "rlens_version": "1.0.0",
+  "generated_at": "2026-09-07T17:46:05+00:00",
+  "root": "C:\\myProjects\\RefactorLens\\examples\\layered_project",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {},
+  "cache": {},
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.services.order_service:OrderService",
+      "diagnosis": "The OrderService class aggregates four distinct concerns (order lifecycle, pricing, audit, and notification) resulting in a very high method count (NOM=26) and cyclomatic complexity (WMC=56). The method‑attribute graph is fragmented (LCOM4=5), indicating poor cohesion, while all attributes are private (DAM=1.0). It also references four internal classes (DCC=4). These measurements together confirm the god‑class smell and hint at feature‑envy in the notification methods.",
+      "suggestions": [
+        {
+          "title": "Extract Notification responsibilities to a dedicated NotificationService",
+          "rationale_metric_link": [
+            "LCOM4",
+            "DCC",
+            "NOM",
+            "WMC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.4
+            }
+          ],
+          "sketch": "Create a new class NotificationService in the same application package:\n```python\nclass NotificationService:\n    def __init__(self, notifier):\n        self._notifier = notifier\n        self._sent = 0\n\n    def notify(self, customer, subject):\n        result = self._notifier.send(customer.email(), subject)\n        self._sent += 1\n        return result\n\n    def sent_count(self):\n        return self._sent\n\n    def reset_sent(self):\n        previous = self._sent\n        self._sent = 0\n        return previous\n```\nInject NotificationService into OrderService (or have OrderService call it via composition) and remove the original `notify`, `sent_count`, and `reset_sent` methods. The original class now no longer touches the notifier directly, reducing its cohesion fragmentation.",
+          "status": "linked",
+          "addresses_smells": [
+            "god_class",
+            "feature_envy_candidate"
+          ],
+          "target_layer_after": "application",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        },
+        {
+          "title": "Extract Pricing logic into a PricingService",
+          "rationale_metric_link": [
+            "LCOM4",
+            "NOM",
+            "WMC",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "LCOM4",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NOM",
+              "direction": "down",
+              "confidence": 0.95
+            },
+            {
+              "metric": "WMC",
+              "direction": "down",
+              "confidence": 0.95
+            },
+            {
+              "metric": "DCC",
+              "direction": "down",
+              "confidence": 0.6
+            }
+          ],
+          "sketch": "Introduce a PricingService that owns `_tax_rate`, `_discounts` and all related methods:\n```python\nclass PricingService:\n    def __init__(self, tax_rate: float = 0.18):\n        self._tax_rate = tax_rate\n        self._discounts: dict[str, float] = {}\n\n    # discount management\n    def set_discount(self, tier, rate): ...\n    def discount_for(self, tier): ...\n    def bulk_discount(self, quantity): ...\n    def set_tax_rate(self, rate): ...\n    def apply_tax(self, amount): ...\n    def total_for(self, subtotal, tier): ...\n    def policy_rate(self, policy, tier): ...\n    def is_priced(self, tier): ...\n```\nOrderService receives a PricingService instance (e.g., via its constructor) and delegates pricing calls. The original tax‑rate and discount attributes are removed from OrderService, shrinking its attribute set and improving cohesion.",
+          "status": "linked",
+          "addresses_smells": [
+            "god_class"
+          ],
+          "target_layer_after": "application",
+          "claims_constraints_respected": true,
+          "constraint_agreement": true,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Splitting the class introduces new public interfaces; existing code that directly accessed OrderService's notification or pricing methods must be updated to use the new services, which may cause runtime errors if not refactored consistently. The added indirection could slightly increase overall call depth and may raise DCC for OrderService (it now references the new services). Careful integration testing is required to ensure that repository interactions and audit logging remain unchanged.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.services.order_service:OrderService\",\n  \"diagnosis\": \"The OrderService class aggregates four distinct concerns (order lifecycle, pricing, audit, and notification) resulting in a very high method count (NOM=26) and cyclomatic complexity (WMC=56). The method‑attribute graph is fragmented (LCOM4=5), indicating poor cohesion, while all attributes are private (DAM=1.0). It also references four internal classes (DCC=4). These measurements together confirm the god‑class smell and hint at feature‑envy in the notification methods.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract Notification responsibilities to a dedicated NotificationService\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"DCC\",\n        \"NOM\",\n        \"WMC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.4\n        }\n      ],\n      \"sketch\": \"Create a new class NotificationService in the same application package:\\n```python\\nclass NotificationService:\\n    def __init__(self, notifier):\\n        self._notifier = notifier\\n        self._sent = 0\\n\\n    def notify(self, customer, subject):\\n        result = self._notifier.send(customer.email(), subject)\\n        self._sent += 1\\n        return result\\n\\n    def sent_count(self):\\n        return self._sent\\n\\n    def reset_sent(self):\\n        previous = self._sent\\n        self._sent = 0\\n        return previous\\n```\\nInject NotificationService into OrderService (or have OrderService call it via composition) and remove the original `notify`, `sent_count`, and `reset_sent` methods. The original class now no longer touches the notifier directly, reducing its cohesion fragmentation.\",\n      \"addresses_smells\": [\n        \"god_class\",\n        \"feature_envy_candidate\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    },\n    {\n      \"title\": \"Extract Pricing logic into a PricingService\",\n      \"rationale_metric_link\": [\n        \"LCOM4\",\n        \"NOM\",\n        \"WMC\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"LCOM4\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NOM\",\n          \"direction\": \"down\",\n          \"confidence\": 0.95\n        },\n        {\n          \"metric\": \"WMC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.95\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.6\n        }\n      ],\n      \"sketch\": \"Introduce a PricingService that owns `_tax_rate`, `_discounts` and all related methods:\\n```python\\nclass PricingService:\\n    def __init__(self, tax_rate: float = 0.18):\\n        self._tax_rate = tax_rate\\n        self._discounts: dict[str, float] = {}\\n\\n    # discount management\\n    def set_discount(self, tier, rate): ...\\n    def discount_for(self, tier): ...\\n    def bulk_discount(self, quantity): ...\\n    def set_tax_rate(self, rate): ...\\n    def apply_tax(self, amount): ...\\n    def total_for(self, subtotal, tier): ...\\n    def policy_rate(self, policy, tier): ...\\n    def is_priced(self, tier): ...\\n```\\nOrderService receives a PricingService instance (e.g., via its constructor) and delegates pricing calls. The original tax‑rate and discount attributes are removed from OrderService, shrinking its attribute set and improving cohesion.\",\n      \"addresses_smells\": [\n        \"god_class\"\n      ],\n      \"target_layer_after\": \"application\",\n      \"constraints_respected\": true\n    }\n  ],\n  \"risk_notes\": \"Splitting the class introduces new public interfaces; existing code that directly accessed OrderService's notification or pricing methods must be updated to use the new services, which may cause runtime errors if not refactored consistently. The added indirection could slightly increase overall call depth and may raise DCC for OrderService (it now references the new services). Careful integration testing is required to ensure that repository interactions and audit logging remain unchanged.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "4ee81b05904f6d6ec664a57442f1030c43f044e7856e4015b77ac68c1b154c54",
+      "from_cache": false
+    }
+  ],
+  "condition": "arch_rules",
+  "arch_context": true,
+  "metric_rules": true
+}
