@@ -22,3 +22,5 @@ Deney protokolü: docs/v2-duzeltme-asama5.md. Metrik sınıfları: docs/SPEC-duz
 - `tests/test_cli.py::test_without_a_baseline_it_says_what_to_do` terminal genişliğine bağımlı (flaky).
 - 4 fikstür test dosyası `ruff format` dışında.
 - README, `__version__`, `<user>` placeholder v2.0.0 yayın listesinde.
+
+"Sıradaki iş: 5b ve FINDINGS-2 tamamlandıysa `docs/v2-sertlestirme.md` Blok 1'den başla; v3'e bu doküman kapanmadan geçilmez."
