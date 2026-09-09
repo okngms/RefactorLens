@@ -25,8 +25,11 @@ Class metrics
 8 items over threshold.
 ```
 
-> **Status: v1.0.0.** All three commands work, and the experiment they were
-> built for is done — see [FINDINGS.md](FINDINGS.md).
+> **Status: v1.0.0 released; v2 in progress.** Four commands: `scan` measures,
+> `arch` maps layers and violations, `advise` asks an LLM for advice grounded in
+> both, and `verify` checks whether the model's own prediction came true.
+> Two experiments are done — [FINDINGS.md](FINDINGS.md) and
+> [FINDINGS-2.md](FINDINGS-2.md).
 
 ## Why this exists
 
@@ -57,6 +60,19 @@ dependency — they were wrong every time (NOM, LCOM4, DCC, LOC — 0 of 7).
 In one case a model predicted all four of its metrics correctly by producing a
 change that deleted the class's entire public interface. Only the behaviour
 tests caught it. Full report: [FINDINGS.md](FINDINGS.md).
+
+**v2 asked what changes that.** Giving the model its architectural context works:
+without it, 1 of 24 suggestions on a class with a layer violation mentions the
+problem; with it, 13 of 25 do. Telling it how the metrics are computed does not:
+accuracy moved from 50% to 53% while stated confidence rose from 0.76 to 0.83.
+
+The confidence turns out to be unusable. Between 0.6 and 0.8 the models are
+almost perfectly calibrated; above 0.8, where most predictions sit, they are
+worse than chance — stated 0.89, actual 0.44.
+
+And four suggestions across two models claimed to restore a layer boundary.
+All four closed the violation on the target and opened the same one on the new
+class. Full report: [FINDINGS-2.md](FINDINGS-2.md).
 
 ## Install
 

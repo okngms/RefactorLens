@@ -46,6 +46,7 @@ structural effect of their own refactoring suggestions?**
 | 3 | AI advisor (`advise`) | done |
 | 4 | Verification loop (`verify`) | done, released as v0.2.0 |
 | 5 | Experiment and `FINDINGS.md` | done, released as v1.0.0 |
+| v2 | Architecture, smells, calibration, `FINDINGS-2.md` | experiment done, release pending |
 
 488 package tests, 91 fixture behaviour tests, ruff clean. Published on PyPI as
 `refactorlens`. All three commands work end to end against a real provider.
