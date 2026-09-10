@@ -110,9 +110,7 @@ class TestPricing:
         with pytest.raises(ValueError):
             service.set_discount("premium", rate)
 
-    @pytest.mark.parametrize(
-        ("quantity", "expected"), [(1, 0.0), (20, 0.1), (100, 0.2)]
-    )
+    @pytest.mark.parametrize(("quantity", "expected"), [(1, 0.0), (20, 0.1), (100, 0.2)])
     def test_bulk_discount_tiers(self, service, quantity, expected):
         assert service.bulk_discount(quantity) == expected
 
