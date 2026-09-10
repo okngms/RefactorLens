@@ -6,7 +6,8 @@ how a command flows through them.
 For *why* the code is shaped this way — the locked decisions, the invariants that
 must not break, and the traps already hit — see [AGENTS.md](AGENTS.md).
 
-69 files. ~4,600 lines of source, ~3,800 lines of tests.
+~8,900 lines of source, ~8,500 lines of tests (1052 of them), plus the
+fixture's own 91 behaviour tests.
 
 ---
 
@@ -42,14 +43,19 @@ Two things are easy to confuse:
 ```
 src/rlens/
 ├── __init__.py             __version__ — the single source of the version number
-├── cli.py                  The three commands: scan, advise, verify
+├── cli.py                  The four commands: scan, arch, advise, verify
 ├── config.py               rlens.yaml loading, merging and validation
 │
 ├── analysis/               Measurement. No network, no LLM.
-│   ├── model.py            Report dataclasses + SCHEMA_VERSION
+│   ├── model.py            Report dataclasses + the three schema versions
 │   ├── parser.py           File discovery and ast parsing
 │   ├── func_metrics.py     CC, LOC, parameter count, nesting depth
 │   ├── class_metrics.py    NOM, WMC, DAM, LCOM4, DCC, CAM
+│   ├── imports.py          Import extraction; module → module edges
+│   ├── graph.py            Ca, Ce, instability, cycles
+│   ├── architecture.py     Layer assignment and violations → ArchReport
+│   ├── interface.py        Public interface of a class (Goodhart check input)
+│   ├── smells.py           god_class, data_class, feature_envy, long_method, …
 │   └── scanner.py          Orchestration: sources → ProjectReport
 │
 ├── advise/                 Deciding what to ask and understanding the answer
@@ -58,18 +64,28 @@ src/rlens/
 │   ├── prompts.py          System instruction, evidence block, output schema
 │   └── advisor.py          Call, parse, validate, one repair attempt
 │
+├── llm/                    Cost control around the provider call
+│   ├── budget.py           Per-run call and token budget; partial reports
+│   └── cache.py            Prompt-hash keyed response cache
+│
 ├── providers/              Talking to LLMs
 │   ├── base.py             Contract, error types, retry with backoff, .env
 │   ├── groq.py             Cloud provider
 │   ├── ollama.py           Local provider
 │   └── __init__.py         Name → adapter lookup
 │
+├── integrations/           Reading other tools' configuration
+│   └── importlinter.py     Layer contracts from an existing import-linter setup
+│
 ├── verify/                 Measuring what actually happened
 │   ├── diff.py             Metric deltas between two scan reports
-│   └── prediction.py       expected_effect vs measured delta; hit rate
+│   ├── prediction.py       Predictions vs measured delta; hit rate
+│   ├── calibration.py      Brier score and ECE over stated confidence
+│   └── goodhart.py         Metrics improved while the interface shrank
 │
 └── report/                 Everything the user sees or reads later
     ├── terminal.py         scan tables
+    ├── architecture.py     arch output, terminal and markdown
     ├── advice.py           advise output, terminal and markdown
     ├── verify.py           verify output, terminal and markdown
     └── files.py            Writing and reading JSON/markdown reports
@@ -160,7 +176,7 @@ tests/
 ├── test_diff.py            Metric deltas
 ├── test_prediction.py      Prediction scoring
 ├── test_verify_report.py   verify output
-└── test_cli.py             All three commands end to end
+└── test_cli.py             All four commands end to end
 ```
 
 488 tests. None of them touch the network: providers are faked and backoff

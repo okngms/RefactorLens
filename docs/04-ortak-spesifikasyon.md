@@ -10,6 +10,21 @@
 - Yeni alan eklemek sürüm artırmaz; alan anlamı değiştirmek ya da alan kaldırmak artırır.
 - Rapor okuyucu, bilmediği alanları yok sayar; eksik alanları `null` kabul eder.
 
+**v2.0.0'da yayınlanan sürümler:**
+
+| Rapor | Sabit | Sürüm | v2'de değişen |
+|---|---|---|---|
+| scan | `SCHEMA_VERSION` | 2 | sınıfa `layer`/`smells`/`public_interface`, modüle `ca`/`ce`/`instability`, rapora `violations` |
+| arch | `ARCH_SCHEMA_VERSION` | 1 | v2'de doğdu |
+| advice | `ADVICE_SCHEMA_VERSION` | 2 | `target_layer`, `addresses_smells`, `confidence`, `status: rejected` |
+| verify | `SCHEMA_VERSION` (scan ile ortak) | 2 | gövdesi scan deltalarından oluşur; ayrı sayaç yok |
+
+advice sürümünün artması salt alan eklemekten değil, **tüketim tarafından**
+gelir: kalibrasyon `confidence` alanına dayanır, v1 raporlarında bu alan yoktur
+ve sürüm etiketi olmadan "güven verilmemiş" ile "eski format" ayırt edilemez.
+`experiments/v2/` altındaki ham advise raporları, sürüm artırılmadan önce
+toplandıkları için 1 taşır; format v2'nindir, etiket geçmişe dönük düzeltilmez.
+
 ## 2. Metrik tanımları
 
 ### 2.1 Ortak kural: hangi metotlar sayılır

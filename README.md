@@ -25,11 +25,11 @@ Class metrics
 8 items over threshold.
 ```
 
-> **Status: v1.0.0 released; v2 in progress.** Four commands: `scan` measures,
+> **Status: v2.0.0 released.** Four commands: `scan` measures,
 > `arch` maps layers and violations, `advise` asks an LLM for advice grounded in
 > both, and `verify` checks whether the model's own prediction came true.
-> Two experiments are done — [FINDINGS.md](FINDINGS.md) and
-> [FINDINGS-2.md](FINDINGS-2.md).
+> Two experiments are done — [FINDINGS.md](https://github.com/okngms/RefactorLens/blob/main/FINDINGS.md) and
+> [FINDINGS-2.md](https://github.com/okngms/RefactorLens/blob/main/FINDINGS-2.md).
 
 ## Why this exists
 
@@ -59,7 +59,7 @@ dependency — they were wrong every time (NOM, LCOM4, DCC, LOC — 0 of 7).
 
 In one case a model predicted all four of its metrics correctly by producing a
 change that deleted the class's entire public interface. Only the behaviour
-tests caught it. Full report: [FINDINGS.md](FINDINGS.md).
+tests caught it. Full report: [FINDINGS.md](https://github.com/okngms/RefactorLens/blob/main/FINDINGS.md).
 
 **v2 asked what changes that.** Giving the model its architectural context works:
 without it, 1 of 24 suggestions on a class with a layer violation mentions the
@@ -72,7 +72,7 @@ worse than chance — stated 0.89, actual 0.44.
 
 And four suggestions across two models claimed to restore a layer boundary.
 All four closed the violation on the target and opened the same one on the new
-class. Full report: [FINDINGS-2.md](FINDINGS-2.md).
+class. Full report: [FINDINGS-2.md](https://github.com/okngms/RefactorLens/blob/main/FINDINGS-2.md).
 
 ## Install
 
@@ -301,7 +301,9 @@ does not inherit the closure's complexity.
 ## What RefactorLens does not do
 
 - **It does not run your code.** Files are parsed with `ast`, never executed.
-- **It does not fix anything.** `scan` measures; future versions will suggest.
+- **It does not fix anything.** `advise` suggests and `verify` checks; applying
+  a suggestion is a human's job, on purpose. Automatic application would make
+  the behaviour-test rule below unenforceable.
 - **`scan` and `verify` send nothing anywhere.** They are entirely local.
   `advise` sends the selected class or function, plus the signatures of the
   project classes it depends on, to whichever provider you configure. Use
@@ -318,19 +320,25 @@ does not inherit the closure's complexity.
 | 2 | First PyPI release | v0.1.0 |
 | 3 | AI advisor (`advise`) | — |
 | 4 | Verification loop (`verify`) | v0.2.0 |
-| **5** | **Experiment and findings** | **v1.0.0** |
+| 5 | Experiment and findings | v1.0.0 |
+| **v2** | **`arch`, smells, architectural context, calibration, second experiment** | **v2.0.0** |
 
-Phases 3 and 4 shipped together in v0.2.0. The phase 5 experiment lives in
-[`experiments/`](experiments/), with the raw data committed alongside it.
+Phases 3 and 4 shipped together in v0.2.0. Both experiments live in
+[`experiments/`](https://github.com/okngms/RefactorLens/tree/main/experiments), with the raw data committed alongside them.
 
-Ideas deliberately out of scope live in [FUTURE.md](FUTURE.md).
-[STRUCTURE.md](STRUCTURE.md) maps the codebase file by file, and
-[AGENTS.md](AGENTS.md) records the locked decisions and invariants behind it.
+Next: **v2.1** infers layers instead of requiring them to be declared — v2.0
+reads them from your config or from an existing `import-linter` contract, and
+reports `unknown` when neither is present. **v3** closes the loop (`apply`, a
+feedback round, a benchmark); **v4** adds history and other languages.
+
+Ideas deliberately out of scope live in [FUTURE.md](https://github.com/okngms/RefactorLens/blob/main/FUTURE.md).
+[STRUCTURE.md](https://github.com/okngms/RefactorLens/blob/main/STRUCTURE.md) maps the codebase file by file, and
+[AGENTS.md](https://github.com/okngms/RefactorLens/blob/main/AGENTS.md) records the locked decisions and invariants behind it.
 
 ## Development
 
 ```bash
-git clone https://github.com/<user>/refactorlens
+git clone https://github.com/okngms/RefactorLens
 cd refactorlens
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
@@ -342,7 +350,7 @@ ruff check . && ruff format --check .
 
 `examples/messy_project` is a deliberately badly designed sample project used as
 the test fixture; every metric is verified against hand-computed gold values on
-it. See [SMELLS.md](examples/messy_project/SMELLS.md) for the inventory of
+it. See [SMELLS.md](https://github.com/okngms/RefactorLens/blob/main/examples/messy_project/SMELLS.md) for the inventory of
 intentional smells and the reasoning behind each.
 
 Its behaviour test suite exists for a specific reason: from phase 4 onward,

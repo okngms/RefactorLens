@@ -46,10 +46,10 @@ structural effect of their own refactoring suggestions?**
 | 3 | AI advisor (`advise`) | done |
 | 4 | Verification loop (`verify`) | done, released as v0.2.0 |
 | 5 | Experiment and `FINDINGS.md` | done, released as v1.0.0 |
-| v2 | Architecture, smells, calibration, `FINDINGS-2.md` | experiment done, release pending |
+| v2 | Architecture, smells, calibration, `FINDINGS-2.md` | done, released as v2.0.0 |
 
-488 package tests, 91 fixture behaviour tests, ruff clean. Published on PyPI as
-`refactorlens`. All three commands work end to end against a real provider.
+1052 package tests, 91 fixture behaviour tests, ruff clean. Published on PyPI as
+`refactorlens`. All four commands work end to end against a real provider.
 
 ---
 
@@ -76,6 +76,27 @@ when it is missing explains why.
 **Two core providers: Groq and Ollama.** Cloud with a free tier, and local for
 code that must not leave the machine. Gemini and Anthropic adapters are optional
 future work — about thirty lines each against `providers/base.py`.
+
+**Inference never overrides a declaration.** When a layer is declared — in
+`rlens.yaml` or in an existing `import-linter` contract — that declaration is
+the answer. Convention-based inference (v2.1) may only fill gaps. A tool that
+silently disagrees with the config it was handed cannot be trusted to report a
+violation, and the user has no way to correct it.
+
+**`confidence` is optional and its absence never downgrades a suggestion.** A
+model that omits the field is not less right; it is less talkative. Missing
+confidence is excluded from the Brier/ECE computation and reported as a coverage
+number, exactly like an unverifiable prediction. Treating absence as low
+confidence would let the calibration numbers be moved by prompt formatting.
+
+**`suspicious` does not substitute for the behaviour gate.** The Goodhart check
+reads the public interface; it cannot see a broken call site, a changed return
+value, or a member that moved somewhere it no longer works. The audit-log
+extraction under *No metric delta counts unless the behaviour tests pass* is
+exactly that case: the vanished members were found in the
+new class, so they are `moved` and nothing is flagged suspicious — and six
+behaviour tests still failed. `suspicious` narrows where to look; only the
+tests decide whether a delta counts.
 
 ---
 

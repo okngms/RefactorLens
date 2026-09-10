@@ -1,0 +1,81 @@
+name: test and publish
+
+# Yayın yolu: `git tag v2.0.0 && git push --tags`.
+#
+# Neden token yok: PyPI Trusted Publishing (OIDC) kullanılıyor. API token'ı bir
+# repo secret'ında tutmak, sızdığında geri alınana kadar herkesin `refactorlens`
+# adına paket yayınlayabilmesi demektir. OIDC'de kimlik bu workflow dosyasının
+# kendisidir; kopyalanacak bir sır yoktur.
+#
+# Test işi tag'de de koşar ve yayın ona bağlıdır: yeşil olmayan bir ağaç
+# PyPI'ya çıkamaz.
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Lint
+        run: |
+          ruff check .
+          ruff format --check .
+
+      - name: Package tests
+        # COLUMNS sabit: bazı CLI testleri rich'in sardığı satırı okur ve
+        # runner'ın terminal genişliği yerel makineninkiyle aynı değildir.
+        env:
+          COLUMNS: "100"
+        run: pytest tests -q
+
+      - name: Fixture behaviour tests
+        run: pytest examples/messy_project/tests -q
+
+  publish:
+    # Yalnızca tag'de ve testler geçtiyse.
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: test
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      # OIDC token'ı bu izinle alınır; parola/token gerekmez.
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build
+
+      - name: Check metadata
+        run: |
+          pip install twine
+          twine check dist/*
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

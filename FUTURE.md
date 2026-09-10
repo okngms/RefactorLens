@@ -28,7 +28,12 @@ eklenmez; amaç fikri kaybetmemek ama kapsamı şişirmemektir.
   üçüncü parti bir araca bağımlılık gerektirir; M1'in "yalnızca `ast`" kararına
   aykırıdır.
 - Kalıtım hiyerarşisi metrikleri (DIT, NOC).
-- Modül/paket düzeyi coupling metrikleri.
+- Python'a özgü çok düzeyli kalite modeli: metrikleri ve kokuları tek tek
+  raporlamak yerine, Python'un kendi tasarım deyimlerine (duck typing,
+  `@property`, dataclass, modül düzeyi fonksiyon) göre ağırlıklandırılmış bir
+  kalite modeli tanımlamak ve doğrulamak. Java için kalibre edilmiş eşiklerin
+  Python'a taşınması v1/v2'nin bilinen sınırlılığı; bunu düzeltmek ayrı bir
+  araştırma sorusu ve v3 çerçevesine aittir.
 
 ## Sağlayıcılar
 - Çekirdek Groq + Ollama'dır. Gemini ve Anthropic adapter'ları opsiyoneldir

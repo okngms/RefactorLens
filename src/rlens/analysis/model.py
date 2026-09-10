@@ -33,7 +33,18 @@ ARCH_SCHEMA_VERSION = 1
 #: Öneri raporu formatı sürümü. Taramadan **ayrıdır**: metrik kuralları
 #: değişmeden öneri formatı değişebilir, ya da tersi. Tek bir sayı kullanılsaydı
 #: birinin değişmesi diğerinin geçmiş raporlarını gereksiz yere geçersiz kılardı.
-ADVICE_SCHEMA_VERSION = 1
+#:
+#: v2: önerilere `target_layer`, `addresses_smells`, tahminlere `confidence`,
+#: `status`a `rejected`. Salt alan eklemek `04 §1`'e göre sürüm artırmaz; burada
+#: artıran şey **tüketim tarafı**: `verify` kalibrasyonu (Brier/ECE) `confidence`
+#: alanına dayanır ve v1 öneri raporlarında bu alan hiç yoktur. Sürüm olmasaydı
+#: kalibrasyon, "modelin güveni yok" ile "rapor eski format" arasındaki farkı
+#: göremez, sessizce boş bir Brier skoru üretirdi.
+#:
+#: `experiments/v2/` altındaki ham advise raporları 1 taşır: veri, sürüm
+#: artırılmadan önce toplandı. Format v2'nin formatıdır; etiket geçmişe dönük
+#: düzeltilmez, çünkü ham deney verisi yeniden yazılmaz.
+ADVICE_SCHEMA_VERSION = 2
 
 
 @dataclass

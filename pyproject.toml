@@ -12,7 +12,7 @@ authors = [{ name = "Okan GUMUS", email = "okanngumus4@gmail.com" }]
 dynamic = ["version"]
 keywords = ["static-analysis", "code-quality", "refactoring", "llm", "metrics"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Environment :: Console",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
@@ -30,9 +30,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/okngms/refactorlens"
-Source = "https://github.com/okngms/refactorlens"
-Issues = "https://github.com/okngms/refactorlens/issues"
+Homepage = "https://github.com/okngms/RefactorLens"
+Source = "https://github.com/okngms/RefactorLens"
+Issues = "https://github.com/okngms/RefactorLens/issues"
 
 [project.optional-dependencies]
 dev = [
@@ -50,11 +50,29 @@ path = "src/rlens/__init__.py"
 [tool.hatch.build.targets.wheel]
 packages = ["src/rlens"]
 
+[tool.hatch.build.targets.sdist]
+# Ham deney verisi sdist'e girmez. `experiments/` altındaki betikler kalır —
+# `tests/test_experiments_v2.py` onları import eder, dolayısıyla sdist açılıp
+# test koşulabilir olmalıdır. Giren şey kod, girmeyen şey model transkriptleri:
+# 255 dosyalık ham kayıt paketi üç katına çıkarıyordu ve okunacağı yer PyPI
+# değil, README'nin mutlak linkle gösterdiği depodur.
+exclude = [
+    "experiments/cases",
+    "experiments/runs",
+    "experiments/*/cases",
+    "experiments/*/runs",
+]
+
 [tool.ruff]
 line-length = 100
 target-version = "py311"
 # messy_project BİLEREK kötü koddur; lint'ten muaf tutulur.
-extend-exclude = ["examples/messy_project"]
+#
+# experiments/**/cases: ham deney verisi. SUGGESTION.md dosyaları modelin
+# ürettiği metnin birebir kaydıdır; ruff bunların içindeki kod bloklarını
+# biçimlendirirse rapor edilen veri ile diskteki veri ayrışır. Deney kaydı
+# yeniden biçimlendirilmez.
+extend-exclude = ["examples/messy_project", "experiments/*/cases", "experiments/cases"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
