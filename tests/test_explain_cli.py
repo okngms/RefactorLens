@@ -179,6 +179,17 @@ class TestEndToEnd:
         assert payload["unlinked_count"] == 1
         assert payload["graded_count"] == 0
 
+    def test_the_json_records_which_version_produced_it(self, project, fake):
+        # Şema sürümü formatı söyler, araç sürümü metrik kurallarını. İkisi de
+        # olmadan eski bir rapor okunabilir ama yorumlanamaz.
+        from rlens import __version__
+
+        runner.invoke(app, ["explain", str(project)])
+        payload = json.loads(
+            next((project / "out").glob("explain-*.json")).read_text(encoding="utf-8")
+        )
+        assert payload["rlens_version"] == __version__
+
     def test_an_existing_report_can_be_reused(self, project, fake):
         runner.invoke(app, ["scan", str(project)])
         report = next((project / "out").glob("scan-*.json"))

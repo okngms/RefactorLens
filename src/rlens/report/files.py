@@ -168,9 +168,16 @@ def write_explain(
     json_path = output_dir / f"{EXPLAIN_PREFIX}{stamp}.json"
     markdown_path = output_dir / f"{EXPLAIN_PREFIX}{stamp}.md"
 
+    # `rlens_version` scan ve advise raporlarında da var. Şema sürümü formatı
+    # söyler, araç sürümü **kuralları** söyler: metrik hesabı sürümler arasında
+    # değişebilir ve eski bir yorumu okuyan kişi hangi kurallarla ölçüldüğünü
+    # bilmelidir.
+    from rlens import __version__
+
     payload = explanation.to_dict()
     payload["root"] = root
     payload["generated_at"] = generated_at
+    payload["rlens_version"] = __version__
 
     try:
         json_path.write_text(

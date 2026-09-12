@@ -11,6 +11,7 @@ from __future__ import annotations
 from rich.console import Console
 from rich.markup import escape
 
+from rlens import __version__
 from rlens.explain.explainer import UNLINKED, Explanation
 
 
@@ -98,6 +99,7 @@ def explanation_markdown(explanation: Explanation, *, root: str, generated_at: s
         "",
         f"- Project: `{root}`",
         f"- Generated: {generated_at}",
+        f"- rlens: {__version__}",
         f"- Model: {explanation.model or 'unknown'}",
         f"- Prompt hash: `{explanation.prompt_hash}`",
         "",
