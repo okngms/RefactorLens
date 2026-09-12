@@ -30,6 +30,34 @@ Publishing (OIDC) ile yayınlandı; API token kullanılmadı. CI matrisi
     sdist dışına (387 → 143 girdi). Açılmış sdist'te iki suite de yeşil.
 - Durum: 1059 paket testi, 91 fikstür testi, ruff temiz.
 
+## İlk dogfooding verisi (kendi deposu, 66 sınıf, 361 fonksiyon)
+
+`docs/v2-sertlestirme.md` Blok 1'in sorusu — metrikler gerçek Python kodunda
+nerede sapıyor — kısmen cevaplandı. Sonuç tek cümleyle: **sınıf metrikleri bu
+kod tabanında sessiz, fonksiyon metrikleri gürültülü, gürültünün çoğu bir
+framework deyiminden geliyor.**
+
+- **Sınıf düzeyi hiçbir şey bulmadı.** `god_class` yok, `data_class` yok, LCOM4
+  tamamı 1-3. Eşiği aşan 60 öğenin 51'i fonksiyon düzeyi (32 `long_method`,
+  19 `too_many_params`).
+- **DAM ölü.** 66 sınıfın neredeyse hepsinde 0.00 — dataclass'lar public
+  attribute kullanır. Metrik Java'nın `private` alan geleneğini varsayıyor;
+  Python'da ölçtüğü şey yok.
+- **CAM 53 sınıfta (%80) hesaplanamadı.** Bilinen sınırlılık ama oran, metriğin
+  pratikte kullanılamaz olduğunu gösteriyor.
+- **`too_many_params` sistematik yanlış pozitif üretiyor.** 19 vakanın büyük
+  kısmı typer komutları: `cli.advise` 11, `cli.explain` 10, `cli.verify` 8
+  parametre. Bunlar CLI seçenekleri, kötü tasarım değil. `GroqProvider.generate`
+  ve `OllamaProvider.generate` de 5 ile tam sınırda etiketleniyor.
+  Blok 1'de eşik kalibre edilirken **dekoratörle tanımlanan giriş noktaları**
+  ayrı ele alınmalı, yoksa metrik her CLI projesinde aynı gürültüyü üretir.
+- **Araç kendi hakkında haklı olduğu yer:** `report.verify.verify_markdown`
+  CC=30 / LOC=124, `cli.advise` CC=23 / LOC=195, `analysis.interface.public_interface`
+  CC=27 / NESTING=5. Bunlar gerçekten büyük ve bilerek ertelenmiş değil.
+- `rlens.cli` I=1.00 (Ce=25, Ca=0) — beklenen, giriş noktası.
+  `analysis.scanner` I=0.86 ve `explain.explainer` I=0.80 de ağırlıklı olarak
+  orkestrasyon modülleri.
+
 ## Sıradaki iş
 **`docs/v2.1-explain.md` Blok 2** (şablon katmanı). Blok 1 bitti ve
 sonucu olumsuz: yukarıdaki iki koşuya bak.
