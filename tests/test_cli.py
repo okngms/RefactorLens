@@ -16,6 +16,17 @@ from rlens.cli import app
 
 runner = CliRunner()
 
+
+def flat(text: str) -> str:
+    """Satır sarmasını düzler.
+
+    rich terminal genişliğine göre sarar ve runner'ın genişliği makineden
+    makineye değişir; `rlens scan` tam ortasından bölündüğünde alt dize araması
+    kodla ilgisi olmayan bir sebeple başarısız olur. Aynı desen
+    `tests/test_explain_cli.py`'de de var.
+    """
+    return " ".join(text.split())
+
 USAGE_ERROR = 2  # click/typer'a ayrılmış
 
 
@@ -234,7 +245,7 @@ class TestVerifyCommand:
     def test_without_a_baseline_it_says_what_to_do(self, project):
         result = runner.invoke(app, ["verify", str(project)])
         assert result.exit_code == 1
-        assert "rlens scan" in result.output
+        assert "rlens scan" in flat(result.output)
 
     def test_baseline_is_picked_automatically(self, project):
         runner.invoke(app, ["scan", str(project)])

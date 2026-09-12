@@ -29,17 +29,22 @@ from rlens.analysis.architecture import analyse_project
 from rlens.analysis.model import SCHEMA_VERSION
 from rlens.analysis.scanner import scan_project, scan_project_with_sources
 from rlens.config import ConfigError, load_config
+from rlens.explain.explainer import request_explanation
+from rlens.explain.prompts import SYSTEM_INSTRUCTION as EXPLAIN_SYSTEM_INSTRUCTION
+from rlens.explain.prompts import build_user_prompt as build_explain_prompt
 from rlens.llm.budget import Budget, BudgetExceeded
 from rlens.llm.cache import ResponseCache, prompt_hash
 from rlens.providers import PROVIDERS, ProviderError, get_provider, load_env_file
 from rlens.report.advice import render_advice
 from rlens.report.architecture import render_architecture
+from rlens.report.explain import render_explanation
 from rlens.report.files import (
     ReportError,
     latest_report,
     read_report,
     write_advice,
     write_arch,
+    write_explain,
     write_report,
     write_verify,
 )
@@ -415,6 +420,154 @@ def advise(
         target_dir = Path(output_dir) if output_dir else path / cfg.scan.output_dir
         try:
             json_path, markdown_path = write_advice(document, target_dir)
+        except ReportError as exc:
+            raise _fail(str(exc)) from exc
+        console.print(f"[dim]Report: {markdown_path}[/dim]")
+        console.print(f"[dim]Machine-readable: {json_path}[/dim]")
+
+
+@app.command()
+def explain(
+    path: Annotated[
+        Path,
+        typer.Argument(
+            exists=True,
+            file_okay=False,
+            dir_okay=True,
+            readable=True,
+            help="Project directory to read measurements from.",
+        ),
+    ],
+    config: Annotated[
+        Path | None,
+        typer.Option(
+            "--config",
+            "-c",
+            exists=True,
+            dir_okay=False,
+            help="Path to rlens.yaml. If omitted, searched upward from the target directory.",
+        ),
+    ] = None,
+    report: Annotated[
+        Path | None,
+        typer.Option(
+            "--report",
+            "-r",
+            exists=True,
+            dir_okay=False,
+            help="Scan report to interpret. If omitted, the project is measured now.",
+        ),
+    ] = None,
+    provider: Annotated[
+        str | None,
+        typer.Option("--provider", "-p", help="Override the configured provider."),
+    ] = None,
+    model: Annotated[
+        str | None,
+        typer.Option("--model", "-m", help="Override the configured model name."),
+    ] = None,
+    max_classes: Annotated[
+        int,
+        typer.Option("--max-classes", min=1, help="How many classes to put in the prompt."),
+    ] = 25,
+    output_dir: Annotated[
+        Path | None,
+        typer.Option("--output-dir", "-o", help="Report directory (overrides the config)."),
+    ] = None,
+    no_report: Annotated[
+        bool,
+        typer.Option("--no-report", help="Skip the report files and only print to the terminal."),
+    ] = False,
+    no_cache: Annotated[
+        bool,
+        typer.Option("--no-cache", help="Ignore the response cache and always call."),
+    ] = False,
+    dry_run: Annotated[
+        bool,
+        typer.Option(
+            "--dry-run",
+            help="Print the prompt that would be sent and stop. Needs no API key.",
+        ),
+    ] = False,
+) -> None:
+    """Read the measurements back: what the metrics describe, with no advice."""
+    try:
+        cfg = load_config(config, search_from=path)
+    except ConfigError as exc:
+        raise _fail(str(exc)) from exc
+
+    if provider is not None:
+        if provider not in PROVIDERS:
+            raise _fail(
+                f"Unknown provider '{provider}'. Available: {', '.join(sorted(PROVIDERS))}."
+            )
+        cfg = replace(cfg, provider=replace(cfg.provider, name=provider))
+    if model is not None:
+        cfg = replace(cfg, provider=replace(cfg.provider, model=model))
+
+    if report is not None:
+        try:
+            payload = read_report(Path(report))
+        except ReportError as exc:
+            raise _fail(str(exc)) from exc
+    else:
+        payload = scan_project_with_sources(path, cfg).report.to_dict()
+
+    if not any(module.get("classes") for module in payload.get("modules", [])):
+        console.print(
+            "[yellow]No classes were measured.[/] "
+            "There is nothing to read back — check `scan.include` or run `rlens scan` first."
+        )
+        return
+
+    if dry_run:
+        # markup=False zorunlu: rich köşeli parantezi biçim etiketi sanar ve
+        # gösterilen prompt gönderilenden farklı olur. --dry-run'ın tek amacı
+        # ikisinin aynı olduğunu göstermek.
+        console.print("[dim]--- system ---[/dim]")
+        console.print(EXPLAIN_SYSTEM_INSTRUCTION, markup=False, highlight=False)
+        console.print("[dim]--- user ---[/dim]")
+        console.print(
+            build_explain_prompt(payload, max_classes=max_classes),
+            markup=False,
+            highlight=False,
+        )
+        return
+
+    # `.env` yalnızca gerçekten çağrı yapılacaksa okunur; --dry-run anahtarsız çalışır.
+    load_env_file(path)
+
+    try:
+        adapter = get_provider(cfg.provider)
+    except ProviderError as exc:
+        raise _fail(str(exc)) from exc
+
+    cache = _build_cache(cfg, path, disabled=no_cache)
+    budget = Budget(cfg.budget)
+
+    try:
+        explanation, warnings = request_explanation(
+            adapter, payload, cfg, cache=cache, budget=budget, max_classes=max_classes
+        )
+    except BudgetExceeded as exc:
+        raise _fail(str(exc)) from exc
+    except ProviderError as exc:
+        raise _fail(str(exc)) from exc
+
+    console.print()
+    render_explanation(explanation, console)
+    for warning in warnings:
+        err_console.print(f"[yellow]{warning}[/]")
+
+    if not no_report:
+        target_dir = Path(output_dir) if output_dir else path / cfg.scan.output_dir
+        try:
+            json_path, markdown_path = write_explain(
+                explanation,
+                target_dir,
+                root=str(Path(path).resolve()),
+                generated_at=datetime.now(UTC).isoformat(timespec="seconds"),
+            )
         except ReportError as exc:
             raise _fail(str(exc)) from exc
         console.print(f"[dim]Report: {markdown_path}[/dim]")

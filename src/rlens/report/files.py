@@ -23,6 +23,7 @@ REPORT_SUFFIX = ".json"
 ADVICE_PREFIX = "advice-"
 VERIFY_PREFIX = "verify-"
 ARCH_PREFIX = "arch-"
+EXPLAIN_PREFIX = "explain-"
 TIMESTAMP_FORMAT = "%Y%m%d-%H%M%S"
 
 
@@ -138,6 +139,49 @@ def write_advice(document, output_dir: Path) -> tuple[Path, Path]:
         markdown_path.write_text(advice_markdown(document), encoding="utf-8")
     except OSError as exc:
         raise ReportError(f"Could not write advice report: {exc}") from exc
+
+    return json_path, markdown_path
+
+
+def write_explain(
+    explanation, output_dir: Path, *, root: str, generated_at: str
+) -> tuple[Path, Path]:
+    """Yorum raporunu JSON ve Markdown olarak yazar.
+
+    JSON, `advise`ınkinin aksine makine tarafından **okunmaz** — `verify` bu
+    dosyaya bakmaz ve bakmamalı (`docs/v2.1-explain.md` §3). Yine de yazılır:
+    hangi modelin hangi prompt hash'iyle ne dediği, çıktı puanlanmasa da
+    yeniden üretilebilir olmalıdır.
+
+    Returns:
+        (json_path, markdown_path)
+    """
+    from rlens.report.explain import explanation_markdown
+
+    output_dir = Path(output_dir)
+    try:
+        output_dir.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise ReportError(f"Could not create report directory: {output_dir} ({exc})") from exc
+
+    stamp = datetime.now(UTC).strftime(TIMESTAMP_FORMAT)
+    json_path = output_dir / f"{EXPLAIN_PREFIX}{stamp}.json"
+    markdown_path = output_dir / f"{EXPLAIN_PREFIX}{stamp}.md"
+
+    payload = explanation.to_dict()
+    payload["root"] = root
+    payload["generated_at"] = generated_at
+
+    try:
+        json_path.write_text(
+            json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        )
+        markdown_path.write_text(
+            explanation_markdown(explanation, root=root, generated_at=generated_at),
+            encoding="utf-8",
+        )
+    except OSError as exc:
+        raise ReportError(f"Could not write explanation report: {exc}") from exc
 
     return json_path, markdown_path
 

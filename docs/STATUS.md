@@ -1,9 +1,9 @@
 # STATUS — 2026-09-09
 
 ## Sürüm
-v1.0.0 PyPI'da. v2.0.0 yayına hazır: sürüm, README, şema sürümleri ve
-Trusted Publishing workflow'u yerinde, `dist/` yerelde `twine check`'ten geçti.
-**Tag atılmadı, PyPI'a yüklenmedi.**
+**v2.0.0 PyPI'da.** `v2.0.0` tag'i ile GitHub Actions üzerinden, Trusted
+Publishing (OIDC) ile yayınlandı; API token kullanılmadı. CI matrisi
+(3.11/3.12/3.13) ilk kez bu sürümde koştu.
 
 ## Bitenler
 - v2 Aşama 0, 1, 1b, 3, 4; 5a toplama, 5b (12 vaka), FINDINGS-2.
@@ -31,29 +31,65 @@ Trusted Publishing workflow'u yerinde, `dist/` yerelde `twine check`'ten geçti.
 - Durum: 1059 paket testi, 91 fikstür testi, ruff temiz.
 
 ## Sıradaki iş
-1. **PyPI'da Trusted Publisher tanımla** (elle, bir kez): owner `okngms`,
-   repo `RefactorLens`, workflow `publish.yml`, environment `pypi`; GitHub'da
-   aynı adla environment.
-2. `git tag v2.0.0 && git push origin main --tags` → workflow yayınlar.
-3. Yayın doğrulaması: temiz ortamda `pipx install refactorlens`,
-   `rlens --version` 2.0.0 demeli; PyPI sayfasındaki linkler açılmalı.
-4. Sonra `docs/v2-sertlestirme.md` Blok 1'den devam.
+**`docs/v2.1-explain.md` Blok 2** (şablon katmanı). Blok 1 bitti ve
+sonucu olumsuz: yukarıdaki iki koşuya bak.
+
+Sertleştirme (`docs/v2-sertlestirme.md`) bunun arkasına alındı — sıra bilerek
+değiştirildi, riski aşağıda ve o dokümanın §6'sında yazılı.
 
 ## Okunacak dokümanlar (sırayla)
-AGENTS.md → bu dosya → docs/v2-sertlestirme.md
+AGENTS.md → bu dosya → docs/v2.1-explain.md → docs/v2-sertlestirme.md
 Deney protokolü: docs/v2-duzeltme-asama5.md. Metrik sınıfları:
 docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.
 
 ## Açık kararlar / bilinen sorunlar
+- **`explain`, sertleştirmenin önüne alındı.** Bilinen bedeli: metriklerin
+  gerçek Python kodunda nerede saptığı henüz ölçülmedi, sapan bir ölçümün
+  üstüne yorum katmanı koymak hatayı görünmez yapar. Azaltma olarak şablon
+  katmanı yalnızca raporda yazan sayıyı aktarır; "iyi/kötü/yüksek" gibi
+  kalibrasyona dayalı sıfatlar sertleştirme Blok 1 bitmeden kullanılmaz
+  (sertleştirme Blok 1, explain Blok 1 değil).
+  Ayrıntı: `docs/v2.1-explain.md` §6.
 - **Sertleştirme yayından sonraya kaldı.** `docs/v2-sertlestirme.md` v2.0.0'ı
   beş bloğun sonrasına koyuyordu; sıra bilerek değiştirildi. Sonucu: Blok 1'in
   "metrikler gerçek projelerde nerede sapıyor" tablosu olmadan çıkıyoruz,
   README'nin Limitations bölümü hâlâ yalnızca fikstüre dayanıyor. Bloklar
   v2.1'e taşındı; kabul kriterleri değişmedi.
 - Katman çıkarımı v2.1'de (beyan + import-linter ile çıkıyoruz).
-- `tests/test_cli.py::test_without_a_baseline_it_says_what_to_do` terminal
-  genişliğine bağımlı; workflow `COLUMNS=100` sabitliyor, testin kendisi hâlâ
-  kırılgan (Blok 4).
+- ~~Terminal genişliğine bağımlı testler.~~ Çözüldü: çıktı `flat()` ile
+  düzleniyor (`tests/test_cli.py` ve `tests/test_explain_cli.py`), proje yolunu
+  basan bölüm karşılaştırmaya girmiyor. 60-200 sütun arasında doğrulandı.
+  `tmp_path` dizin adına testin kendi adını koyduğu için `..._thresholds_...`
+  adlı bir testin kendi adı yüzünden düştüğünü unutma.
+- **`explain` iki koşu sonucu: LLM katmanı sentez üretmedi.**
+
+  1\. koşu (7 tespit): hepsi tabloyu cümleye çevirdi, dördü talimatta birebir
+  yasak sıfat kullandı, `DAM=0.0` "all attributes are private" diye **ters
+  okundu** (0.0 hiçbiri private değil demek).
+
+  Şema `findings` şekline geçirildi, talimata karşı örnek eklendi,
+  derecelendirme `graded_terms` ile etiketlenir oldu, kesme kokulu sınıfları
+  öncelemeye başladı, DAM sözlüğüne yön eklendi.
+
+  2\. koşu (4 tespit): **4/4 yine derecelendirdi** ("high", "low", "moderate").
+  `single_metric_count` 7→0 düştü ama bu bir kazanım değil, **oyunlandı**:
+  model "iki özne" şartını, aynı sınıfın on kopyasını listeleyerek karşıladı.
+  Cümleler hâlâ tablo + sıfat.
+
+  İki sonuç ayrılmalı:
+  - **Derecelendirme talimatı tutmuyor.** 11 tespitin 11'i sıfat kullandı.
+    Girdi kalitesinden bağımsız, sağlam bir bulgu.
+  - **Sentez ölçülemiyor.** Özne/metrik saymak sentezi ölçmez; şeklin kendisi
+    oyunlanabilir. Mekanik bir sentez ölçüsü tasarlanamadı, bu da bir bulgu.
+
+  Karar: Blok 2 (deterministik şablon). LLM katmanı, şablona üstünlüğünü
+  gösteremedi.
+- **Depoya `rlens.yaml` eklendi (dogfooding).** Araç kendi deposunda
+  koşturulduğunda fikstürleri ve `experiments/*/cases/*/project/` altındaki
+  deney kopyalarını ölçüyordu. O kopyalar git'e girmez ama diskte durur; 2.
+  koşudaki sahte gruplamanın sebebi buydu. `include: ["src/"]` ile temiz tarama
+  66 sınıf veriyor, üçünde koku var: `ImportGraph`, `GroqProvider`,
+  `OllamaProvider`. Bunlar Blok 3'ün ilk gerçek dogfooding verisi.
 - CI matrisi hiç koşmadı; ilk push'ta 3.11 ve 3.13'te sürpriz çıkabilir.
   Yerelde yalnızca 3.12 denendi.
 - `pyproject.toml` 3.14 classifier'ı taşıyor ama matriste 3.14 yok — ya matrise

@@ -1,0 +1,14 @@
+# RefactorLens'in kendini taraması için.
+#
+# Bu dosya dogfooding'in ilk adımı: araç kendi deposunda koşturulduğunda
+# fikstürleri ve deney kopyalarını ölçüyordu, kendi kodunu değil.
+#
+# `experiments/*/cases/*/project/` altında deney koşusunun ürettiği fikstür
+# kopyaları yaşar. Git'e girmezler ama diskte dururlar; taramaya dahil
+# olduklarında aynı sınıf onlarca kez sayılır ve ölçüm anlamsızlaşır.
+scan:
+  include: ["src/"]
+  exclude:
+    - "examples/"
+    - "experiments/"
+    - "tests/"

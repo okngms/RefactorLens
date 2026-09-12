@@ -46,6 +46,13 @@ ARCH_SCHEMA_VERSION = 1
 #: düzeltilmez, çünkü ham deney verisi yeniden yazılmaz.
 ADVICE_SCHEMA_VERSION = 2
 
+#: Yorum (`explain`) raporu formatı sürümü.
+#:
+#: Öneri şemasından **ayrı** sürümlenir: `explain` teşhis üretir, `advise` öneri
+#: üretir ve ikisi farklı hızda değişecek. Ortak sayı kullanılsaydı öneri
+#: şemasındaki her değişiklik, ilgisiz yorum raporlarını da eskitirdi.
+EXPLAIN_SCHEMA_VERSION = 1
+
 
 @dataclass
 class FunctionReport:
