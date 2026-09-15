@@ -30,6 +30,41 @@
 
 ---
 
+## Blok 1b — Eşik kalibrasyonu ve kapsama
+
+**Neden:** Blok 1 metriğin **doğru hesaplandığını** gösterir, **ne anlama
+geldiğini** değil. `wmc: 50` ve `lcom4: 4` Java literatüründen kopyalandı;
+Python dağılımı bilinmiyor. Eşik olmadan hiçbir sıfat ("yüksek", "düşük")
+savunulamaz — `docs/v2.1-explain.md` §6'nın yasağı bu yüzden var.
+
+Dogfooding taraması (bkz. `docs/STATUS.md`) üç somut sorun gösterdi ve bu blok
+onları hedefler.
+
+**İş:**
+1. **Korpus Blok 1'in setinden geniş ve çeşitli olmalı.** Blok 1'in 10-15
+   projesi doğruluk için yeter, persentil için ince. Ayrıca liste tamamen
+   kütüphane: bir Django uygulaması, bir veri bilimi repo'su ve bir CLI aracı
+   eklenmeli. Dogfooding verisi metriklerin **deyime** göre saptığını gösterdi;
+   tek deyimden kalibre edilen eşik diğerlerinde gürültü üretir.
+2. **Dağılım tablosu** (`experiments/hardening/metric-distribution.md`): her
+   metriğin medyanı, 75/90/95/99. persentili, proje tipine göre kırılımı.
+   Eşikler bundan sonra persentil olarak ifade edilir.
+3. **Kapsama tablosu:** her metrik kaç sınıfta hesaplanabiliyor ve kaçında
+   anlamlı ayrım yapıyor. Kendi deposunda DAM 66 sınıfın hepsinde `0.00`,
+   CAM %80'inde hesaplanamıyor. Korpusta da böyleyse ikisi de düşer ya da
+   yeniden tanımlanır.
+4. **Framework giriş noktaları:** dekoratörle tanımlanan fonksiyonlar
+   (`@app.command`, `@app.route`, `@pytest.fixture`) parametre sayımında ayrı
+   ele alınır. `too_many_params`'ın 19 vakasının çoğu typer komutuydu;
+   parametreler CLI seçenekleri, kötü tasarım değil.
+
+**Kabul:** Dağılım ve kapsama tabloları commit'li; varsayılan eşikler
+persentilden türetilmiş ve `docs/04`'te kaynağı yazılı; ayrım yapmayan metrik
+düşürülmüş ya da gerekçesiyle tutulmuş; framework giriş noktası kuralının testi
+var.
+
+---
+
 ## Blok 2 — Gerçek projede dayanıklılık ve hız
 
 **Neden:** Fikstürler küçük; gerçek projelerde parse hataları, süre ve boş-katman senaryosu görülmedi.
@@ -86,7 +121,7 @@
 ## Sıralama, süre, çıkış
 
 ```
-Blok 1 (2-3 oturum) → Blok 3 (1-2) → Blok 2 (1-2) → Blok 4 (1-2) → Blok 5 (1)
+Blok 1 (2-3 oturum) → Blok 1b (2) → Blok 3 (1-2) → Blok 2 (1-2) → Blok 4 (1-2) → Blok 5 (1)
 → v2.0.0 yayını → docs/02 (v3) FINDINGS-2 bulgularına göre revize → v3 başlar
 ```
 - Blok 3, Blok 2/4/5'in pürüzlerini doğal yoldan çıkardığı için 1'den hemen sonra gelir.

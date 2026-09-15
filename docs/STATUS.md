@@ -59,14 +59,30 @@ framework deyiminden geliyor.**
   orkestrasyon modülleri.
 
 ## Sıradaki iş
-**`docs/v2.1-explain.md` Blok 2** (şablon katmanı). Blok 1 bitti ve
-sonucu olumsuz: yukarıdaki iki koşuya bak.
+**`docs/v2-sertlestirme.md` Blok 1** (metrik doğruluğu). Üçüncü kez
+ertelenmesin — bundan sonraki her karar buna bağlı.
+
+Kararlaştırılan sıra:
+
+```
+sertleştirme Blok 1  → metrik gerçekten doğru mu (radon/cohesion çapraz doğrulama)
+sertleştirme Blok 1b → eşikler ne olmalı (persentil), hangi metrik ölü
+v2.2 python metrikleri → PySmell'in altısı + tasarlanacak dördü
+v2.1-explain Blok 2   → şablon katmanı, yeni girdi şekli üzerine
+```
+
+`explain` Blok 2 bilerek en sona alındı. İki koşuda başarısız olma sebebi
+söyleyecek bir şeyinin olmamasıydı: girdi "NOM=26, WMC=56" idi ve bundan
+çıkarılabilecek tek cümle tablonun kendisiydi. Python'a özgü kokular yapısal
+olgu verir ve kalibrasyon gerektirmeyen cümleler kurulabilir hale gelir.
+Önce yazılırsa cümle kalıpları ve testleri iki kez yazılır.
 
 Sertleştirme (`docs/v2-sertlestirme.md`) bunun arkasına alındı — sıra bilerek
 değiştirildi, riski aşağıda ve o dokümanın §6'sında yazılı.
 
 ## Okunacak dokümanlar (sırayla)
-AGENTS.md → bu dosya → docs/v2.1-explain.md → docs/v2-sertlestirme.md
+AGENTS.md → bu dosya → docs/v2-sertlestirme.md (Blok 1, 1b)
+Sonraki fazlar: docs/v2.2-python-metrikleri.md → docs/v2.1-explain.md
 Deney protokolü: docs/v2-duzeltme-asama5.md. Metrik sınıfları:
 docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.
 

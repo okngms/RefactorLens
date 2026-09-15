@@ -48,8 +48,14 @@ structural effect of their own refactoring suggestions?**
 | 5 | Experiment and `FINDINGS.md` | done, released as v1.0.0 |
 | v2 | Architecture, smells, calibration, `FINDINGS-2.md` | done, released as v2.0.0 |
 
-1052 package tests, 91 fixture behaviour tests, ruff clean. Published on PyPI as
-`refactorlens`. All four commands work end to end against a real provider.
+Published on PyPI as `refactorlens`. All four commands work end to end against
+a real provider. ~1100 package tests plus the fixture's 91 behaviour tests,
+ruff clean.
+
+The package figure is deliberately approximate: an exact count rots on every
+commit and nobody updates it, so it ends up lying to the next reader. The
+fixture's 91 is exact because it is a gold value — if that number moves,
+something changed in the fixture.
 
 ---
 
