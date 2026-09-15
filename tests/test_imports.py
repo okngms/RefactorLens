@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from rlens.analysis.imports import build_import_graph
+from rlens.analysis.imports import build_import_graph, root_package_name
 from rlens.analysis.parser import parse_project
 from rlens.config import load_config
 
@@ -135,6 +135,73 @@ class TestRootPackageStripping:
         )
         graph = build_import_graph(modules, root_package="myapp")
         assert graph.imports_of("a") == {"b"}
+
+
+class TestNestedRootPackage:
+    """Tarama kökü bir alt paketse (`rlens arch pandas/core`).
+
+    Kod `from pandas.core.frame import DataFrame` yazar; modül adı `frame`'dir.
+    Yalnızca kök dizinin adını (`core`) kırpmak bunu çözemez. Referans setinde
+    `pandas/core` taramasında 1182 mutlak importun 1179'u kayboluyor, import
+    grafiği **0 kenar** veriyordu: Ca, Ce, instability ve döngüler sessizce
+    boştu.
+    """
+
+    def _nested(self, tmp_path):
+        return _write(
+            tmp_path,
+            {
+                "pandas/__init__.py": "",
+                "pandas/core/__init__.py": "",
+                "pandas/core/frame.py": "from pandas.core.series import Series\n",
+                "pandas/core/series.py": "x = 1\n",
+                "pandas/core/groupby/__init__.py": "",
+                "pandas/core/groupby/ops.py": "from pandas.core.frame import DataFrame\n",
+            },
+        )
+
+    def test_root_package_name_walks_up_through_packages(self, tmp_path):
+        root = self._nested(tmp_path)
+        assert root_package_name(root / "pandas" / "core") == "pandas.core"
+        assert root_package_name(root / "pandas") == "pandas"
+
+    def test_root_without_init_keeps_directory_name(self, tmp_path):
+        """Paket olmayan kök için eski davranış: dizin adı."""
+        (tmp_path / "proj").mkdir()
+        assert root_package_name(tmp_path / "proj") == "proj"
+
+    def test_nested_root_imports_resolve(self, tmp_path):
+        root = self._nested(tmp_path) / "pandas" / "core"
+        modules, _ = parse_project(root, (".",), ())
+        graph = build_import_graph(modules, root_package=root_package_name(root))
+        assert graph.imports_of("frame") == {"series"}
+        assert graph.imports_of("groupby.ops") == {"frame"}
+
+    def test_external_package_with_the_same_last_component_is_not_stripped(self, tmp_path):
+        """`numpy.core.series` kök zinciri `pandas.core` değildir; kırpılmaz."""
+        root = self._nested(tmp_path) / "pandas" / "core"
+        (root / "uses_numpy.py").write_text("from numpy.core.series import thing\n")
+        modules, _ = parse_project(root, (".",), ())
+        graph = build_import_graph(modules, root_package=root_package_name(root))
+        assert graph.imports_of("uses_numpy") == set()
+
+    def test_scan_and_arch_use_the_package_chain(self, tmp_path):
+        from rlens.analysis.scanner import scan_project
+
+        root = self._nested(tmp_path) / "pandas" / "core"
+        (root / "rlens.yaml").write_text("arch:\n  enabled: true\n")
+        report = scan_project(root, load_config(search_from=root))
+        by_module = {module.module: module for module in report.modules}
+        assert by_module["series"].ca == 1
+        assert by_module["frame"].ce == 1
+
+    def test_analyse_project_uses_the_package_chain(self, tmp_path):
+        """`rlens arch` giriş noktası da aynı zinciri kullanmalı."""
+        from rlens.analysis.architecture import analyse_project
+
+        root = self._nested(tmp_path) / "pandas" / "core"
+        report = analyse_project(root, load_config(search_from=root))
+        assert report.metrics["series"].ca == 1
 
 
 class TestRelativeImports:

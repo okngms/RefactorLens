@@ -42,7 +42,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from rlens.analysis.graph import ModuleMetrics, cycles, module_metrics
-from rlens.analysis.imports import ImportGraph, build_import_graph
+from rlens.analysis.imports import ImportGraph, build_import_graph, root_package_name
 from rlens.analysis.model import ARCH_SCHEMA_VERSION
 from rlens.analysis.parser import ParsedModule, parse_project
 from rlens.config import ArchConfig, Config, SchemeConfig
@@ -529,7 +529,7 @@ def analyse_project(root: Path, config: Config) -> ArchitectureResult:
     root = Path(root).resolve()
     modules, skipped = parse_project(root, config.scan.include, config.scan.exclude)
     # Tarama kökü paketin kendisiyse modül adları önek taşımaz ama kod taşır.
-    graph = build_import_graph(modules, root_package=root.name)
+    graph = build_import_graph(modules, root_package=root_package_name(root))
 
     arch, linter_notes = apply_to_arch(config.arch, read_import_linter(root))
     report = analyse(modules, graph, arch)

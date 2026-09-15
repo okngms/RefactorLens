@@ -22,6 +22,7 @@ from __future__ import annotations
 import ast
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from rlens.analysis.parser import ParsedModule
 
@@ -112,7 +113,10 @@ class _Resolver:
        src/rlens`) modül adları paket önekini taşımaz (`verify.diff`) ama kod
        taşır (`rlens.verify.diff`). Bilinen kök paket adı kırpılıp yeniden
        denenir. Yalnızca **bilinen** kök adı kırpılır; rastgele önek atmak
-       `os.path` gibi importları proje modülüne eşleyebilirdi.
+       `os.path` gibi importları proje modülüne eşleyebilirdi. Kök bir alt
+       paketse (`pandas/core`) bilinen ad noktalı zincirdir (`pandas.core`,
+       bkz. `root_package_name`); önce tam zincir, sonra — eski davranış —
+       yalnızca son bileşen kırpılır.
     3. **Sonek eşleşmesi.** `src.domain.entities` gibi tek bir modül bu adla
        bitiyor mu? Birden fazla aday varsa belirsizdir ve kenar kurulmaz.
     4. **Üst paket.** `from domain import entities` biçiminde `domain.entities`
@@ -128,22 +132,52 @@ class _Resolver:
             for index in range(len(parts)):
                 self._by_suffix.setdefault(".".join(parts[index:]), []).append(module)
 
+    def _root_prefixes(self) -> list[str]:
+        """Kırpılabilecek bilinen önekler: tam zincir, sonra son bileşen."""
+        if not self._root_package:
+            return []
+        last = self._root_package.rsplit(".", 1)[-1]
+        return [self._root_package] if last == self._root_package else [self._root_package, last]
+
     def resolve(self, name: str) -> tuple[str | None, str]:
         """Returns: (modül adı ya da None, neden)."""
         if not name:
             return None, "empty import target"
         if name in self._modules:
             return name, ""
-        if self._root_package and name.startswith(self._root_package + "."):
-            stripped = name[len(self._root_package) + 1 :]
-            if stripped in self._modules:
-                return stripped, ""
+        for prefix in self._root_prefixes():
+            if name.startswith(prefix + "."):
+                stripped = name[len(prefix) + 1 :]
+                if stripped in self._modules:
+                    return stripped, ""
         candidates = self._by_suffix.get(name, [])
         if len(candidates) == 1:
             return candidates[0], ""
         if len(candidates) > 1:
             return None, f"ambiguous: matches {', '.join(sorted(candidates))}"
         return None, "not a project module"
+
+
+def root_package_name(root: Path) -> str:
+    """Tarama kökünün kodda yazıldığı haliyle paket adı.
+
+    `pandas/core` hem kendisi hem üst dizini `__init__.py` taşıdığı için
+    `pandas.core` döner: kod `from pandas.core.frame import ...` yazar. Zincir,
+    `__init__.py` taşımayan ilk üst dizinde durur.
+
+    Kök paket değilse dizin adı döner — `root.name` kullanan eski davranışla
+    aynı. Namespace paketleri (`__init__.py`'siz) zincire giremez; bu
+    en-iyi-çabadır ve bu durumda da eski davranış korunur.
+    """
+    root = root.resolve()
+    if not (root / "__init__.py").is_file():
+        return root.name
+    parts: list[str] = []
+    current = root
+    while (current / "__init__.py").is_file() and current.name:
+        parts.append(current.name)
+        current = current.parent
+    return ".".join(reversed(parts))
 
 
 def project_module_predicate(

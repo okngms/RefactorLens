@@ -24,7 +24,11 @@ from rlens.analysis.class_metrics import (
     measure_class,
 )
 from rlens.analysis.func_metrics import iter_module_functions, measure_function
-from rlens.analysis.imports import build_import_graph, project_module_predicate
+from rlens.analysis.imports import (
+    build_import_graph,
+    project_module_predicate,
+    root_package_name,
+)
 from rlens.analysis.interface import public_interface
 from rlens.analysis.model import ModuleReport, ProjectReport
 from rlens.analysis.parser import ParsedModule, parse_project
@@ -72,7 +76,7 @@ def scan_project_with_sources(root: Path, config: Config, *, no_arch: bool = Fal
     # 2. geçiş — DCC sözlüğünü kur
     project_classes = collect_class_names([module.tree for module in modules])
     is_project_module = project_module_predicate(
-        (module.module for module in modules), root_package=root.name
+        (module.module for module in modules), root_package=root_package_name(root)
     )
 
     architecture = None
@@ -183,7 +187,7 @@ def _architecture_context(
     from rlens.analysis.graph import module_metrics
     from rlens.integrations.importlinter import apply_to_arch, read_import_linter
 
-    graph = build_import_graph(modules, root_package=root.name)
+    graph = build_import_graph(modules, root_package=root_package_name(root))
     arch, notes = apply_to_arch(config.arch, read_import_linter(root))
     report = analyse(modules, graph, arch)
 
