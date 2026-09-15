@@ -20,6 +20,11 @@ eklenmez; amaç fikri kaybetmemek ama kapsamı şişirmemektir.
   `scan --compare-last` aldı. Tam sürüm için gereken tasarım kararları:
   proje kimliği, rapor isimlendirme şeması, `reports/` dizininin paylaşılabilir
   hale getirilmesi.
+- **`verify`'da `rlens_version` uyarısı.** İki rapor aynı `schema_version`'ı
+  taşıyıp farklı `rlens_version`'dan geliyorsa, uygulama düzeltmeleri (bkz.
+  sertleştirme Blok 1: `@overload`, string annotation, `@staticmethod`) kod
+  değişmeden delta üretebilir. Reddetmek değil, uyarmak. Kapsam dışı: Blok 1
+  yeni özellik eklemez.
 - HTML rapor çıktısı, web arayüzü, veritabanı.
 - IDE eklentisi.
 

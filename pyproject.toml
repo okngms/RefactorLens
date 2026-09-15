@@ -61,6 +61,7 @@ exclude = [
     "experiments/runs",
     "experiments/*/cases",
     "experiments/*/runs",
+    "experiments/hardening/.cache",
 ]
 
 [tool.ruff]
@@ -72,7 +73,12 @@ target-version = "py311"
 # ürettiği metnin birebir kaydıdır; ruff bunların içindeki kod bloklarını
 # biçimlendirirse rapor edilen veri ile diskteki veri ayrışır. Deney kaydı
 # yeniden biçimlendirilmez.
-extend-exclude = ["examples/messy_project", "experiments/*/cases", "experiments/cases"]
+extend-exclude = [
+    "examples/messy_project",
+    "experiments/*/cases",
+    "experiments/cases",
+    "experiments/hardening/.cache",
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]

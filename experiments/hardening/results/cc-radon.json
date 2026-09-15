@@ -1,0 +1,340 @@
+{
+  "radon_version": "6.0.1",
+  "projects": [
+    {
+      "name": "requests",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+      "files": 18,
+      "skipped_files": 0,
+      "functions": 233,
+      "reported_functions": 176,
+      "equal": 230,
+      "differing": 3,
+      "unclassified": 0,
+      "unmatched_radon_blocks": 0,
+      "category_functions": {
+        "assert": 2,
+        "try_else": 1
+      },
+      "category_points": {
+        "assert": 6,
+        "try_else": 2
+      },
+      "not_reported": {
+        "dunder_method": 54,
+        "not_top_level": 3
+      }
+    },
+    {
+      "name": "httpx",
+      "commit": "26d48e0634e6ee9cdc0533996db289ce4b430177",
+      "files": 23,
+      "skipped_files": 0,
+      "functions": 437,
+      "reported_functions": 309,
+      "equal": 419,
+      "differing": 18,
+      "unclassified": 0,
+      "unmatched_radon_blocks": 0,
+      "category_functions": {
+        "assert": 14,
+        "assert_contents": 1,
+        "loop_else": 2,
+        "try_else": 2
+      },
+      "category_points": {
+        "assert": 25,
+        "assert_contents": -1,
+        "loop_else": 3,
+        "try_else": 2
+      },
+      "not_reported": {
+        "dunder_method": 127,
+        "not_top_level": 1
+      }
+    },
+    {
+      "name": "rich",
+      "commit": "43d3b04725ab9731727fb1126e35980c62f32377",
+      "files": 78,
+      "skipped_files": 0,
+      "functions": 846,
+      "reported_functions": 582,
+      "equal": 807,
+      "differing": 39,
+      "unclassified": 0,
+      "unmatched_radon_blocks": 0,
+      "category_functions": {
+        "assert": 32,
+        "loop_else": 2,
+        "try_else": 7
+      },
+      "category_points": {
+        "assert": 46,
+        "loop_else": 2,
+        "try_else": 7
+      },
+      "not_reported": {
+        "dunder_method": 241,
+        "not_top_level": 9,
+        "overload_stub": 14
+      }
+    },
+    {
+      "name": "pydantic",
+      "commit": "df05e69a8a3fb37628a0e3a33518ca0425334bc9",
+      "files": 77,
+      "skipped_files": 0,
+      "functions": 1130,
+      "reported_functions": 756,
+      "equal": 1087,
+      "differing": 43,
+      "unclassified": 0,
+      "unmatched_radon_blocks": 0,
+      "category_functions": {
+        "assert": 33,
+        "assert_contents": 1,
+        "loop_else": 4,
+        "try_else": 7
+      },
+      "category_points": {
+        "assert": 39,
+        "assert_contents": -5,
+        "loop_else": 4,
+        "try_else": 8
+      },
+      "not_reported": {
+        "dunder_method": 295,
+        "nested_class": 7,
+        "not_top_level": 13,
+        "overload_stub": 59
+      }
+    },
+    {
+      "name": "fastapi",
+      "commit": "628c34e0cae200564d191c95d7edea78c88c4b5e",
+      "files": 44,
+      "skipped_files": 0,
+      "functions": 244,
+      "reported_functions": 134,
+      "equal": 220,
+      "differing": 24,
+      "unclassified": 0,
+      "unmatched_radon_blocks": 0,
+      "category_functions": {
+        "assert": 23,
+        "assert_contents": 1,
+        "try_else": 1
+      },
+      "category_points": {
+        "assert": 44,
+        "assert_contents": -4,
+        "try_else": 1
+      },
+      "not_reported": {
+        "dunder_method": 62,
+        "nested_class": 9,
+        "not_top_level": 39
+      }
+    },
+    {
+      "name": "attrs",
+      "commit": "fbff14eeaf817e4b34e9c5727c8d546dc118a346",
+      "files": 19,
+      "skipped_files": 0,
+      "functions": 166,
+      "reported_functions": 117,
+      "equal": 163,
+      "differing": 3,
+      "unclassified": 0,
+      "unmatched_radon_blocks": 0,
+      "category_functions": {
+        "try_else": 3
+      },
+      "category_points": {
+        "try_else": 3
+      },
+      "not_reported": {
+        "dunder_method": 48,
+        "not_top_level": 1
+      }
+    },
+    {
+      "name": "click",
+      "commit": "934813e4d421071a1b3db3973c02fe2721359a6e",
+      "files": 16,
+      "skipped_files": 0,
+      "functions": 479,
+      "reported_functions": 354,
+      "equal": 472,
+      "differing": 7,
+      "unclassified": 0,
+      "unmatched_radon_blocks": 0,
+      "category_functions": {
+        "assert": 6,
+        "loop_else": 1,
+        "try_else": 1
+      },
+      "category_points": {
+        "assert": 8,
+        "loop_else": 1,
+        "try_else": 2
+      },
+      "not_reported": {
+        "dunder_method": 92,
+        "not_top_level": 9,
+        "overload_stub": 24
+      }
+    },
+    {
+      "name": "flask",
+      "commit": "ab8149664182b662453a563161aa89013c806dc9",
+      "files": 24,
+      "skipped_files": 0,
+      "functions": 341,
+      "reported_functions": 290,
+      "equal": 332,
+      "differing": 9,
+      "unclassified": 0,
+      "unmatched_radon_blocks": 0,
+      "category_functions": {
+        "assert": 5,
+        "assert_contents": 1,
+        "try_else": 4
+      },
+      "category_points": {
+        "assert": 5,
+        "assert_contents": -4,
+        "try_else": 4
+      },
+      "not_reported": {
+        "dunder_method": 45,
+        "overload_stub": 6
+      }
+    },
+    {
+      "name": "sqlalchemy",
+      "commit": "23f5f3350974d9452f3b844617c31eb5b41474ae",
+      "files": 38,
+      "skipped_files": 0,
+      "functions": 2093,
+      "reported_functions": 1673,
+      "equal": 1916,
+      "differing": 177,
+      "unclassified": 0,
+      "unmatched_radon_blocks": 0,
+      "category_functions": {
+        "assert": 145,
+        "assert_contents": 4,
+        "loop_else": 26,
+        "try_else": 28
+      },
+      "category_points": {
+        "assert": 206,
+        "assert_contents": -5,
+        "loop_else": 28,
+        "try_else": 28
+      },
+      "not_reported": {
+        "dunder_method": 280,
+        "not_top_level": 37,
+        "overload_stub": 103
+      }
+    },
+    {
+      "name": "black",
+      "commit": "8a737e727ac5ab2f1d4cf5876720ed276dc8dc4b",
+      "files": 25,
+      "skipped_files": 0,
+      "functions": 377,
+      "reported_functions": 363,
+      "equal": 335,
+      "differing": 42,
+      "unclassified": 0,
+      "unmatched_radon_blocks": 0,
+      "category_functions": {
+        "assert": 31,
+        "assert_contents": 1,
+        "loop_else": 7,
+        "try_else": 6
+      },
+      "category_points": {
+        "assert": 41,
+        "assert_contents": -1,
+        "loop_else": 7,
+        "try_else": 6
+      },
+      "not_reported": {
+        "dunder_method": 14
+      }
+    },
+    {
+      "name": "mypy",
+      "commit": "9397454fb5aead107461b089e7cf190bf538d20a",
+      "files": 132,
+      "skipped_files": 0,
+      "functions": 5074,
+      "reported_functions": 4636,
+      "equal": 4469,
+      "differing": 605,
+      "unclassified": 0,
+      "unmatched_radon_blocks": 0,
+      "category_functions": {
+        "assert": 583,
+        "assert_contents": 25,
+        "loop_else": 13,
+        "try_else": 18
+      },
+      "category_points": {
+        "assert": 867,
+        "assert_contents": -26,
+        "loop_else": 17,
+        "try_else": 19
+      },
+      "not_reported": {
+        "dunder_method": 403,
+        "not_top_level": 5,
+        "overload_stub": 30
+      }
+    },
+    {
+      "name": "pandas",
+      "commit": "0691c5cf90477d3503834d983f69350f250a6ff7",
+      "files": 179,
+      "skipped_files": 0,
+      "functions": 4708,
+      "reported_functions": 3996,
+      "equal": 4485,
+      "differing": 223,
+      "unclassified": 0,
+      "unmatched_radon_blocks": 0,
+      "category_functions": {
+        "assert": 196,
+        "assert_contents": 5,
+        "loop_else": 1,
+        "try_else": 30
+      },
+      "category_points": {
+        "assert": 271,
+        "assert_contents": -6,
+        "loop_else": 1,
+        "try_else": 30
+      },
+      "not_reported": {
+        "dunder_method": 491,
+        "not_top_level": 2,
+        "overload_stub": 219
+      }
+    }
+  ],
+  "unclassified": [],
+  "totals": {
+    "files": 673,
+    "functions": 16128,
+    "reported_functions": 13386,
+    "equal": 14935,
+    "differing": 1193,
+    "unclassified": 0,
+    "unmatched_radon_blocks": 0
+  }
+}

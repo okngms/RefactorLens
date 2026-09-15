@@ -20,6 +20,7 @@ oraya konmuştur. Kenar `weak` işaretlenir; ihlal tespiti bunu dikkate alır.
 from __future__ import annotations
 
 import ast
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 
 from rlens.analysis.parser import ParsedModule
@@ -143,6 +144,19 @@ class _Resolver:
         if len(candidates) > 1:
             return None, f"ambiguous: matches {', '.join(sorted(candidates))}"
         return None, "not a project module"
+
+
+def project_module_predicate(
+    modules: Iterable[str], root_package: str | None = None
+) -> Callable[[str], bool]:
+    """Bir mutlak import adının proje modülü olup olmadığını söyleyen yüklem.
+
+    Import grafiğiyle **aynı** eşleme kuralını kullanır (`_Resolver`); DCC'nin
+    takma ad çözümü ile mimari analizi bir modülün proje içi olup olmadığında
+    ayrışmasın diye. Belirsiz sonek eşleşmesi proje modülü sayılmaz.
+    """
+    resolver = _Resolver(tuple(modules), root_package)
+    return lambda name: resolver.resolve(name)[0] is not None
 
 
 def _is_weak(node: ast.AST, strong_nodes: set[int]) -> bool:

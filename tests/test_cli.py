@@ -27,6 +27,7 @@ def flat(text: str) -> str:
     """
     return " ".join(text.split())
 
+
 USAGE_ERROR = 2  # click/typer'a ayrılmış
 
 

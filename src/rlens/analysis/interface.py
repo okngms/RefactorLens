@@ -18,6 +18,9 @@ from __future__ import annotations
 import ast
 from dataclasses import dataclass, field
 
+from rlens.analysis.class_metrics import self_parameter, walk_receiver_scope
+from rlens.analysis.func_metrics import is_overload_stub
+
 
 @dataclass(frozen=True)
 class PublicInterface:
@@ -115,6 +118,12 @@ def public_interface(node: ast.ClassDef) -> PublicInterface:
     Attribute kaynakları `class_metrics.assigned_attributes` ile aynıdır: sınıf
     düzeyi atamalar, herhangi bir metottaki `self.x = ...` ve `__slots__`.
     Burada yalnızca public olanlar tutulur.
+
+    Her public ad bir kez listelenir. Property getter/setter çifti ve
+    `@overload` taslakları aynı adı birden çok kez tanımlar; dışarıya açılan
+    ad yine tektir. Tekrar, `accessor_ratio`'nun paydasını şişirirdi.
+    İç içe sınıfların `self.x = ...` atamaları dıştaki sınıfın arayüzü
+    değildir ve alınmaz.
     """
     methods: list[str] = []
     accessors: list[str] = []
@@ -122,9 +131,10 @@ def public_interface(node: ast.ClassDef) -> PublicInterface:
 
     for item in node.body:
         if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            if is_public(item.name):
-                methods.append(item.name)
-                if _is_accessor(item):
+            if is_public(item.name) and not is_overload_stub(item):
+                if item.name not in methods:
+                    methods.append(item.name)
+                if _is_accessor(item) and item.name not in accessors:
                     accessors.append(item.name)
         elif isinstance(item, ast.Assign):
             attributes.update(
@@ -149,15 +159,21 @@ def public_interface(node: ast.ClassDef) -> PublicInterface:
                     if named and is_public(element.value):
                         attributes.add(element.value)
 
-    for child in ast.walk(node):
-        if (
-            isinstance(child, ast.Attribute)
-            and isinstance(child.value, ast.Name)
-            and child.value.id in ("self", "cls")
-            and isinstance(child.ctx, ast.Store)
-            and is_public(child.attr)
-        ):
-            attributes.add(child.attr)
+    for item in node.body:
+        if not isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        receiver = self_parameter(item)
+        if receiver is None:
+            continue
+        for child in walk_receiver_scope(item, receiver):
+            if (
+                isinstance(child, ast.Attribute)
+                and isinstance(child.value, ast.Name)
+                and child.value.id == receiver
+                and isinstance(child.ctx, ast.Store)
+                and is_public(child.attr)
+            ):
+                attributes.add(child.attr)
 
     return PublicInterface(
         methods=tuple(sorted(methods)),

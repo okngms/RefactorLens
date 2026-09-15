@@ -25,6 +25,7 @@ _NESTING_NODES = (
     ast.With,
     ast.AsyncWith,
     ast.Try,
+    ast.TryStar,
     ast.Match,
     ast.FunctionDef,
     ast.AsyncFunctionDef,
@@ -85,6 +86,15 @@ def _walk_own_scope(node: ast.AST):
         yield from _walk_own_scope(child)
 
 
+def _walk_body(node: FunctionNode):
+    """Fonksiyon gövdesindeki düğümler; imza ve dekoratörler hariç."""
+    for statement in node.body:
+        if isinstance(statement, _NESTED_DEFINITIONS):
+            continue
+        yield statement
+        yield from _walk_own_scope(statement)
+
+
 def cyclomatic_complexity(node: FunctionNode) -> int:
     """Karar noktası sayısı + 1.
 
@@ -100,6 +110,11 @@ def cyclomatic_complexity(node: FunctionNode) -> int:
 
     Sayılmayanlar: `else`, `with`, `assert`, `try` bloğunun kendisi. Bunlar
     yürütme yolu çeşitlendirmez.
+
+    **Yalnızca gövde gezilir.** Dekoratörler, varsayılan argüman değerleri ve
+    annotation'lar tanım anında bir kez değerlendirilir; fonksiyon
+    çağrıldığında açılan bir yol değildir. `@register(a or b)` fonksiyonun
+    karmaşıklığını artırmaz. radon da aynı sınırı çizer.
     """
     complexity = 1
 
@@ -113,7 +128,7 @@ def cyclomatic_complexity(node: FunctionNode) -> int:
         ast.ExceptHandler,
     )
 
-    for child in _walk_own_scope(node):
+    for child in _walk_body(node):
         if isinstance(child, single_branch):
             complexity += 1
         elif isinstance(child, ast.BoolOp):
@@ -177,13 +192,33 @@ def param_count(node: FunctionNode, *, is_method: bool = False) -> int:
     return total
 
 
-def _is_staticmethod(node: FunctionNode) -> bool:
+def _has_decorator(node: FunctionNode, name: str) -> bool:
+    """`@name` ya da `@modul.name` biçiminde dekore edilmiş mi."""
     for decorator in node.decorator_list:
-        if isinstance(decorator, ast.Name) and decorator.id == "staticmethod":
+        if isinstance(decorator, ast.Name) and decorator.id == name:
             return True
-        if isinstance(decorator, ast.Attribute) and decorator.attr == "staticmethod":
+        if isinstance(decorator, ast.Attribute) and decorator.attr == name:
             return True
     return False
+
+
+def _is_staticmethod(node: FunctionNode) -> bool:
+    return _has_decorator(node, "staticmethod")
+
+
+def is_staticmethod(node: FunctionNode) -> bool:
+    """`@staticmethod`: ilk parametresi alıcı (`self`/`cls`) değildir."""
+    return _is_staticmethod(node)
+
+
+def is_overload_stub(node: FunctionNode) -> bool:
+    """`@overload` / `@typing.overload` taslağı.
+
+    Taslaklar yalnızca tip beyanıdır; çalışma zamanında aynı adlı son tanım
+    onları ezer. Metot ya da fonksiyon olarak sayılırsa üç taslaklı bir
+    fonksiyon NOM'u üç kez artırır.
+    """
+    return _has_decorator(node, "overload")
 
 
 # --------------------------------------------------------------------------- #
@@ -253,6 +288,11 @@ def iter_module_functions(tree: ast.Module) -> list[FunctionNode]:
     """Modülün en üst düzeyindeki fonksiyonlar.
 
     Sınıf metotları buraya dahil değildir; onlar sınıfın metrikleri kapsamında
-    ayrıca ölçülür.
+    ayrıca ölçülür. `@overload` taslakları da dahil değildir (bkz.
+    `is_overload_stub`).
     """
-    return [node for node in tree.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))]
+    return [
+        node
+        for node in tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and not is_overload_stub(node)
+    ]

@@ -17,11 +17,14 @@ bırakırdı. Klasik LCOM4 tanımı da kurucuları bu sebeple dışlar.
 from __future__ import annotations
 
 import ast
+from collections.abc import Callable, Iterator, Mapping
 from dataclasses import dataclass
 
 from rlens.analysis.func_metrics import (
     FunctionNode,
     cyclomatic_complexity,
+    is_overload_stub,
+    is_staticmethod,
     measure_function,
 )
 from rlens.analysis.model import ClassReport
@@ -43,15 +46,20 @@ def class_methods(node: ast.ClassDef) -> list[FunctionNode]:
 
     Dahil: normal metotlar, `@property`, `@staticmethod`, `@classmethod`.
     Hariç: dunder metotlar (`__init__` dahil), iç içe tanımlı fonksiyonlar,
-    iç içe sınıfların metotları.
+    iç içe sınıfların metotları, `@overload` taslakları.
 
     `node.body` üzerinde doğrudan yürüdüğümüz için iç içe tanımlar zaten
     kapsam dışında kalır.
+
+    Property getter ve setter aynı adı taşır ama iki ayrı gövdedir; ikisi de
+    sayılır. Taslaklar ise gövde değil tip beyanıdır.
     """
     return [
         item
         for item in node.body
-        if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)) and not is_dunder(item.name)
+        if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and not is_dunder(item.name)
+        and not is_overload_stub(item)
     ]
 
 
@@ -89,10 +97,51 @@ def wmc(node: ast.ClassDef) -> int:
 # --------------------------------------------------------------------------- #
 
 
-def _self_parameter(method: FunctionNode) -> str | None:
-    """Metodun ilk parametresinin adı (`self` / `cls`), yoksa None."""
+def self_parameter(method: FunctionNode) -> str | None:
+    """Metodun alıcı parametresinin adı (`self` / `cls`), yoksa None.
+
+    `@staticmethod`'un alıcısı yoktur: `def from_row(row)` içindeki `row`
+    sınıfın örneği değildir. İlk parametreyi alıcı saymak `row.name`'i
+    sınıfın `name` attribute'u yapar ve LCOM4'ü sahte biçimde düşürür.
+    """
+    if is_staticmethod(method):
+        return None
     positional = method.args.posonlyargs + method.args.args
     return positional[0].arg if positional else None
+
+
+def _binds_name(node: ast.FunctionDef | ast.AsyncFunctionDef | ast.Lambda, name: str) -> bool:
+    """İç içe fonksiyon ya da lambda bu adı kendi parametresi olarak bağlıyor mu."""
+    args = node.args
+    every = args.posonlyargs + args.args + args.kwonlyargs
+    for extra in (args.vararg, args.kwarg):
+        if extra is not None:
+            every.append(extra)
+    return any(argument.arg == name for argument in every)
+
+
+def walk_receiver_scope(method: FunctionNode, receiver: str) -> Iterator[ast.AST]:
+    """Metodun içinde `receiver` adının hâlâ bu sınıfın örneği olduğu düğümler.
+
+    `ast.walk` iç içe tanımların içine iner. İki durumda bu yanlıştır:
+
+    * **İç içe sınıf.** Onun metotlarındaki `self` başka bir nesnedir.
+    * **Alıcı adını yeniden bağlayan iç fonksiyon** (`def patched(self): ...`).
+
+    Alıcıyı yakalayan kapatma (closure) ise gezilir: `def inner(): self.x`
+    gerçekten dıştaki örneğe erişir.
+    """
+    stack: list[ast.AST] = list(ast.iter_child_nodes(method))
+    while stack:
+        node = stack.pop()
+        if isinstance(node, ast.ClassDef):
+            continue
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)) and _binds_name(
+            node, receiver
+        ):
+            continue
+        yield node
+        stack.extend(ast.iter_child_nodes(node))
 
 
 def assigned_attributes(node: ast.ClassDef) -> set[str]:
@@ -127,7 +176,7 @@ def assigned_attributes(node: ast.ClassDef) -> set[str]:
 
     # 2. Metot içi self atamaları
     for method in all_methods(node):
-        receiver = _self_parameter(method)
+        receiver = self_parameter(method)
         if receiver is None:
             continue
         attributes |= _assigned_via_self(method, receiver)
@@ -172,7 +221,7 @@ def _assigned_via_self(method: FunctionNode, receiver: str) -> set[str]:
             for element in target.elts:
                 record(element)
 
-    for child in ast.walk(method):
+    for child in walk_receiver_scope(method, receiver):
         if isinstance(child, ast.Assign):
             for target in child.targets:
                 record(target)
@@ -188,13 +237,13 @@ def accessed_attributes(method: FunctionNode, known_methods: set[str]) -> set[st
     Okuma ve yazma ayrımı yapılmaz: LCOM4 açısından iki metot aynı veriye
     dokunuyorsa — ister okusun ister yazsın — ilişkilidir.
     """
-    receiver = _self_parameter(method)
+    receiver = self_parameter(method)
     if receiver is None:
         return set()
 
     return {
         child.attr
-        for child in ast.walk(method)
+        for child in walk_receiver_scope(method, receiver)
         if isinstance(child, ast.Attribute)
         and isinstance(child.value, ast.Name)
         and child.value.id == receiver
@@ -208,13 +257,13 @@ def called_methods(method: FunctionNode, known_methods: set[str]) -> set[str]:
     `self.other()` çağrısı ile `self.other` referansı aynı sayılır; ikisi de
     iki metodu birbirine bağlar.
     """
-    receiver = _self_parameter(method)
+    receiver = self_parameter(method)
     if receiver is None:
         return set()
 
     return {
         child.attr
-        for child in ast.walk(method)
+        for child in walk_receiver_scope(method, receiver)
         if isinstance(child, ast.Attribute)
         and isinstance(child.value, ast.Name)
         and child.value.id == receiver
@@ -325,7 +374,113 @@ def lcom4(node: ast.ClassDef) -> int:
 # --------------------------------------------------------------------------- #
 
 
-def dcc(node: ast.ClassDef, project_classes: frozenset[str]) -> int:
+def _annotations(node: ast.ClassDef) -> Iterator[ast.expr]:
+    """Sınıf içindeki annotation ifadeleri: parametreler, dönüşler, `x: T`."""
+    for child in ast.walk(node):
+        if isinstance(child, ast.arg) and child.annotation is not None:
+            yield child.annotation
+        elif isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)) and child.returns:
+            yield child.returns
+        elif isinstance(child, ast.AnnAssign):
+            yield child.annotation
+
+
+def _subscript_name(node: ast.Subscript) -> str | None:
+    """`Literal[...]`, `typing.Literal[...]`, `t.Annotated[...]` → son parça."""
+    if isinstance(node.value, ast.Name):
+        return node.value.id
+    if isinstance(node.value, ast.Attribute):
+        return node.value.attr
+    return None
+
+
+def _type_positions(annotation: ast.expr) -> Iterator[ast.AST]:
+    """Annotation içinde **tip** yerindeki düğümler.
+
+    İki yapı tip olmayan string taşır ve atlanır: `Literal["Order"]` bir
+    değerdir, `Annotated[T, "meta"]` içinde yalnızca `T` tiptir.
+    """
+    stack: list[ast.AST] = [annotation]
+    while stack:
+        node = stack.pop()
+        if isinstance(node, ast.Subscript):
+            name = _subscript_name(node)
+            if name == "Literal":
+                continue
+            if name == "Annotated":
+                inner = node.slice
+                first = inner.elts[0] if isinstance(inner, ast.Tuple) and inner.elts else inner
+                stack.append(first)
+                continue
+        yield node
+        stack.extend(ast.iter_child_nodes(node))
+
+
+def _names_in_string_annotations(node: ast.ClassDef) -> set[str]:
+    """İleri başvuru annotation'larındaki adlar (`"Order"`, `list["Order"]`).
+
+    Yalnızca annotation konumundaki string'ler çözülür. Gövdedeki herhangi bir
+    string'i ayrıştırmak `log("Order")` gibi metinleri sınıf referansı yapardı.
+    Ayrıştırılamayan string sessizce atlanır — geçerli bir annotation değildir.
+    """
+    names: set[str] = set()
+    for annotation in _annotations(node):
+        for part in _type_positions(annotation):
+            if not (isinstance(part, ast.Constant) and isinstance(part.value, str)):
+                continue
+            try:
+                parsed = ast.parse(part.value.strip(), mode="eval")
+            except SyntaxError:
+                continue
+            for inner in ast.walk(parsed):
+                if isinstance(inner, ast.Name):
+                    names.add(inner.id)
+                elif isinstance(inner, ast.Attribute):
+                    names.add(inner.attr)
+    return names
+
+
+def class_aliases(
+    tree: ast.Module,
+    project_classes: frozenset[str],
+    is_project_module: Callable[[str], bool] | None = None,
+) -> dict[str, str]:
+    """Modülde proje sınıflarına verilen takma adlar: `{"O": "Order"}`.
+
+    `from models import Order as O` sonrasında gövdede yalnızca `O` geçer;
+    ad eşleşmesi onu göremez. Modülün her yerindeki importlar taranır —
+    `if TYPE_CHECKING:` blokları ve fonksiyon içi importlar dahil.
+
+    **Kaynak modül proje içi olmalıdır.** Takma ad çoğu zaman tam da bir ad
+    çakışmasını önlemek için kullanılır: `from urllib3.exceptions import
+    HTTPError as BaseHTTPError`, projede de bir `HTTPError` olduğu için
+    yazılmıştır. Yalnızca ada bakmak bunu tersine çevirirdi. Göreli importlar
+    her zaman proje içidir; mutlak importlar `is_project_module` onayı ister
+    (bkz. `imports.project_module_predicate`). Onaylayan yoksa mutlak takma ad
+    sayılmaz — doğrulanamayan referansı saymamak, yanlış saymaktan iyidir.
+
+    `import models as m` burada yer almaz: `m.Order` nitelikli erişimi zaten
+    son parçadan çözülür.
+    """
+    aliases: dict[str, str] = {}
+    for child in ast.walk(tree):
+        if not isinstance(child, ast.ImportFrom):
+            continue
+        if child.level == 0 and not (
+            is_project_module is not None and child.module and is_project_module(child.module)
+        ):
+            continue
+        for alias in child.names:
+            if alias.asname and alias.asname != alias.name and alias.name in project_classes:
+                aliases[alias.asname] = alias.name
+    return aliases
+
+
+def dcc(
+    node: ast.ClassDef,
+    project_classes: frozenset[str],
+    aliases: Mapping[str, str] | None = None,
+) -> int:
     """Sınıfın referans verdiği farklı proje-içi sınıf sayısı.
 
     Taban sınıflar, annotation'lar, atamalar ve çağrılar taranır. Standart
@@ -336,6 +491,10 @@ def dcc(node: ast.ClassDef, project_classes: frozenset[str]) -> int:
     dayanılır: gövdede geçen bir ad, projede tanımlı bir sınıf adıyla aynıysa
     referans sayılır. Bunun bilinen bedeli, bir sınıfla aynı adı taşıyan
     değişkenin yanlış sayılmasıdır. Bu sınırlılık README'de belgelenir.
+
+    İki ek kaynak ad eşleşmesinin göremediği referansları kapatır: string
+    annotation'lar ve modülün import takma adları (`aliases`, bkz.
+    `class_aliases`).
     """
     referenced: set[str] = set()
 
@@ -345,6 +504,11 @@ def dcc(node: ast.ClassDef, project_classes: frozenset[str]) -> int:
         elif isinstance(child, ast.Attribute):
             # `models.Customer` gibi nitelikli erişimlerde son parça
             referenced.add(child.attr)
+
+    referenced |= _names_in_string_annotations(node)
+
+    if aliases:
+        referenced |= {aliases[name] for name in referenced if name in aliases}
 
     referenced &= set(project_classes)
     referenced.discard(node.name)
@@ -408,7 +572,7 @@ def cam(node: ast.ClassDef, min_annotation_coverage: float = 0.7) -> CamResult:
     per_method_types: list[set[str]] = []
 
     for method in methods:
-        receiver = _self_parameter(method)
+        receiver = self_parameter(method)
         arguments = method.args.posonlyargs + method.args.args + method.args.kwonlyargs
         if receiver in ("self", "cls") and arguments:
             arguments = arguments[1:]
@@ -457,8 +621,13 @@ def measure_class(
     module: str,
     project_classes: frozenset[str] = frozenset(),
     cam_min_annotation_coverage: float = 0.7,
+    aliases: Mapping[str, str] | None = None,
 ) -> ClassReport:
-    """Bir sınıfın tüm sınıf düzeyi metriklerini hesaplar."""
+    """Bir sınıfın tüm sınıf düzeyi metriklerini hesaplar.
+
+    `aliases`, sınıfın bulunduğu modülün import takma adlarıdır
+    (`class_aliases`); verilmezse DCC takma adları çözemez.
+    """
     loose_dam, strict_dam = dam(node)
     cam_result = cam(node, cam_min_annotation_coverage)
 
@@ -471,7 +640,7 @@ def measure_class(
         lcom4=lcom4(node),
         dam=loose_dam,
         dam_strict=strict_dam,
-        dcc=dcc(node, project_classes),
+        dcc=dcc(node, project_classes, aliases),
         cam=cam_result.value,
         cam_skipped_reason=cam_result.skipped_reason,
         methods=[measure_function(method, is_method=True) for method in class_methods(node)],

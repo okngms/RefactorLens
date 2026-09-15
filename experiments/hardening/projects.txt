@@ -1,0 +1,44 @@
+# Sertleştirme Blok 1 — referans proje seti
+#
+# Metrik doğruluğu bu projelerde ölçülür. Her satır bir commit hash'ine
+# dondurulmuştur: tag taşınabilir, hash taşınamaz. Sonuçlar bu hash'ler için
+# geçerlidir; set değişirse `metric-accuracy.md` yeniden üretilir.
+#
+# Biçim (boşlukla ayrılmış):
+#   ad  github-deposu  tag  commit  kapsam-dizini  [dışlanan-dizin ...]
+#
+# Kapsam dizini, taramanın başladığı yerdir (`rlens scan <kapsam>` gibi).
+# Dışlananlar kapsama göre görelidir. Test dizinleri dışlanır: ölçmek
+# istediğimiz ürün kodudur, test kodu farklı bir deyimle yazılır.
+#
+# Seçim kriterleri — tek eksende değil, üç eksende çeşitlilik:
+#
+#   Boyut:  requests, click (küçük) → rich, flask, attrs (orta)
+#           → sqlalchemy/orm, mypy, pandas/core (büyük)
+#   Stil:   annotation'sız eski kod (requests) → yoğun annotation (httpx,
+#           pydantic, black, mypy); dekoratör ağırlıklı (click, attrs,
+#           fastapi); metaclass ve descriptor (sqlalchemy, pydantic);
+#           `@overload` yoğun (sqlalchemy, pandas, pydantic)
+#   Deyim:  HTTP istemcisi, terminal çıktısı, doğrulama, web çatısı, sınıf
+#           üreteci, CLI, ORM, biçimlendirici, tip denetleyici, veri çerçevesi
+#
+# `pandas/core` doküman önerisindeki "frame.py çevresi"nin dizin karşılığıdır:
+# tek dosya CC için yeter ama kohezyon ve DCC için sınıf sayısı ince kalır.
+# `pydantic/v1` eski sürümün gömülü kopyasıdır ve dışlanır; aynı kodu iki kez
+# saymak dağılımı eğer. mypy'nin kendi test paketi `mypy/test` altındadır.
+#
+# Blok 1b bu listeyi genişletir (Django uygulaması, veri bilimi deposu, CLI
+# aracı); doğruluk için bu set, persentil için yetmez.
+
+requests    psf/requests          v2.32.3     0e322af87745eff34caffe4df68456ebc20d9068  src/requests
+httpx       encode/httpx          0.28.1      26d48e0634e6ee9cdc0533996db289ce4b430177  httpx
+rich        Textualize/rich       v13.9.4     43d3b04725ab9731727fb1126e35980c62f32377  rich
+pydantic    pydantic/pydantic     v2.10.6     df05e69a8a3fb37628a0e3a33518ca0425334bc9  pydantic  v1
+fastapi     fastapi/fastapi       0.115.12    628c34e0cae200564d191c95d7edea78c88c4b5e  fastapi
+attrs       python-attrs/attrs    25.1.0      fbff14eeaf817e4b34e9c5727c8d546dc118a346  src
+click       pallets/click         8.1.8       934813e4d421071a1b3db3973c02fe2721359a6e  src/click
+flask       pallets/flask         3.1.0       ab8149664182b662453a563161aa89013c806dc9  src/flask
+sqlalchemy  sqlalchemy/sqlalchemy rel_2_0_38  23f5f3350974d9452f3b844617c31eb5b41474ae  lib/sqlalchemy/orm
+black       psf/black             25.1.0      8a737e727ac5ab2f1d4cf5876720ed276dc8dc4b  src/black
+mypy        python/mypy           v1.15.0     9397454fb5aead107461b089e7cf190bf538d20a  mypy  test typeshed
+pandas      pandas-dev/pandas     v2.2.3      0691c5cf90477d3503834d983f69350f250a6ff7  pandas/core

@@ -25,6 +25,7 @@ refactorlens/
 ├── .gitignore
 ├── src/rlens/              The package pip installs
 ├── examples/               Test fixture and sample output
+├── experiments/            Research scripts and data; import rlens, never ship to users
 └── tests/                  The package's own tests
 ```
 
@@ -176,7 +177,20 @@ tests/
 ├── test_diff.py            Metric deltas
 ├── test_prediction.py      Prediction scoring
 ├── test_verify_report.py   verify output
+├── test_metric_edges.py    Real-world idioms: decorators, @overload, except*, string annotations
+├── test_hardening_compare.py  The radon cross-check classifier (radon optional)
 └── test_cli.py             All four commands end to end
+```
+
+### `experiments/hardening/` — metric accuracy on real code
+
+```
+experiments/hardening/
+├── projects.txt            12 reference projects, frozen by commit hash
+├── compare_radon.py        CC vs radon per function; classifies every difference
+├── metric-accuracy.md      The difference table: definition gaps, fixes, open decisions
+├── results/cc-radon.json   Raw comparison output
+└── .cache/                 Checked-out reference projects (gitignored, not in sdist)
 ```
 
 488 tests. None of them touch the network: providers are faked and backoff
