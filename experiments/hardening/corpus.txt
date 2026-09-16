@@ -1,0 +1,72 @@
+# Sertleştirme Blok 1b — kalibrasyon korpusu
+#
+# Eşikler bu korpusun dağılımından türetilecek. `projects.txt` (Blok 1 doğruluk
+# seti) değişmez ve bu dosyanın alt kümesidir: ortak satırların repo, tag,
+# commit, kapsam ve dışlamaları birebir aynı olmalıdır
+# (`tests/test_hardening_corpus.py` sınar).
+#
+# Biçim (boşlukla ayrılmış):
+#   ad  tür  github-deposu  tag  commit  kapsam-dizini  [ek-dışlama ...]
+#
+# Türler — metrikler kod deyimine göre saptığı için (dogfooding: typer komutları
+# `too_many_params`'ı şişirdi) dağılım tür bazında da raporlanır:
+#
+#   library      yeniden kullanılmak üzere yazılmış paket
+#   cli          son kullanıcının komut satırından çalıştırdığı araç
+#   web_app      bir framework üzerinde yazılmış uygulama (Django/Flask/FastAPI)
+#   ml_research  model eğitimi/çıkarımı için araştırma kodu
+#
+# black ve mypy Blok 1'de kütüphanelerle birlikte seçildi ama birincil rolleri
+# komut satırı aracı olduğu için burada `cli`.
+#
+# **Kapsam kullanıcının varsayılan taramasıdır.** `rlens scan` varsayılan
+# config'i `tests/`, `migrations/`, `venv/`, `build/`, `dist/` dışlar; korpus
+# da aynısını yapar, çünkü buradan çıkan eşik kullanıcının varsayılan
+# taramasına uygulanacaktır. Ek dışlama yalnızca varsayılanın kaçırdığı
+# üretilmiş ya da kopya kod içindir:
+#
+#   mealie  alembic    Alembic migration'ları (Django'nun migrations/'ı gibi)
+#   pydantic v1        v1'in gömülü kopyası; aynı kodu iki kez sayar
+#   mypy    test typeshed  mypy'nin kendi test paketi; stub kopyaları
+#
+# Tag kuralı: en son kararlı sürüm tag'i; kararlı tag yoksa (nanoGPT,
+# segment-anything) çözümleme günündeki HEAD (2026-09-16). yolov5 v7.0
+# (2022) ve detectron2 v0.6 (2021) son kararlı tag'leridir; eskidir ama
+# araştırma kodunun tipik yaşam döngüsünü temsil ederler.
+#
+# Stability-AI/stablediffusion aday listesindeydi; depo artık erişilebilir
+# değil, yerine aynı türden segment-anything alındı.
+
+# --- library ---
+requests          library      psf/requests                      v2.32.3     0e322af87745eff34caffe4df68456ebc20d9068  src/requests
+httpx             library      encode/httpx                      0.28.1      26d48e0634e6ee9cdc0533996db289ce4b430177  httpx
+rich              library      Textualize/rich                   v13.9.4     43d3b04725ab9731727fb1126e35980c62f32377  rich
+pydantic          library      pydantic/pydantic                 v2.10.6     df05e69a8a3fb37628a0e3a33518ca0425334bc9  pydantic  v1
+fastapi           library      fastapi/fastapi                   0.115.12    628c34e0cae200564d191c95d7edea78c88c4b5e  fastapi
+attrs             library      python-attrs/attrs                25.1.0      fbff14eeaf817e4b34e9c5727c8d546dc118a346  src
+click             library      pallets/click                     8.1.8       934813e4d421071a1b3db3973c02fe2721359a6e  src/click
+flask             library      pallets/flask                     3.1.0       ab8149664182b662453a563161aa89013c806dc9  src/flask
+sqlalchemy        library      sqlalchemy/sqlalchemy             rel_2_0_38  23f5f3350974d9452f3b844617c31eb5b41474ae  lib/sqlalchemy/orm
+pandas            library      pandas-dev/pandas                 v2.2.3      0691c5cf90477d3503834d983f69350f250a6ff7  pandas/core
+
+# --- cli ---
+black             cli          psf/black                         25.1.0      8a737e727ac5ab2f1d4cf5876720ed276dc8dc4b  src/black
+mypy              cli          python/mypy                       v1.15.0     9397454fb5aead107461b089e7cf190bf538d20a  mypy  test typeshed
+httpie            cli          httpie/cli                        3.2.4       2105caa49bae87c5809c274e407619a0de2639d1  httpie
+yt-dlp            cli          yt-dlp/yt-dlp                     2026.08.19  3a08beaf031ab68f966401ead017ac81fe8486cf  yt_dlp
+awscli            cli          aws/aws-cli                       2.36.46     09233359a65586adf3d78d2d50d8b93092ba1c9b  awscli
+pipx              cli          pypa/pipx                         1.17.3      7248f7651d692b0f9e36db5f444e11cf382b82da  src/pipx
+
+# --- web_app ---
+healthchecks      web_app      healthchecks/healthchecks         v4.4        49924faadf0f24a846abc3acf3014b396fdc1f29  hc
+netbox            web_app      netbox-community/netbox           v4.7.1      abccf4e03650fecd366e676b392729320258c49e  netbox
+saleor            web_app      saleor/saleor                     3.23.34     ce7f6c4dd53d5d9cc236224cc07d6fad9f715076  saleor
+redash            web_app      getredash/redash                  v26.3.0     87af4dc6b39915a70edb14d12b35f2907d4f8b27  redash
+mealie            web_app      mealie-recipes/mealie             v3.26.0     84b2677f76069a6fb2bac6e2c633c9dbe7379ce4  mealie  alembic
+
+# --- ml_research ---
+nanogpt           ml_research  karpathy/nanoGPT                  HEAD        3adf61e154c3fe3fca428ad6bc3818b27a3b8291  .
+yolov5            ml_research  ultralytics/yolov5                v7.0        915bbf294bb74c859f0b41f1c23bc395014ea679  .
+detectron2        ml_research  facebookresearch/detectron2       v0.6        d1e04565d3bec8719335b88be9e9b961bf3ec464  detectron2
+whisper           ml_research  openai/whisper                    v20250625   31243bad24cc746f07d4c8bfdd2d974872cb1803  whisper
+segment-anything  ml_research  facebookresearch/segment-anything HEAD        dca509fe793f601edb92606367a655c15ac00fdf  segment_anything

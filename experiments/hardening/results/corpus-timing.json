@@ -1,0 +1,31 @@
+{
+  "note": "wall-clock seconds; environment-dependent",
+  "projects": {
+    "requests": 0.2,
+    "httpx": 0.3,
+    "rich": 0.9,
+    "pydantic": 0.9,
+    "fastapi": 0.4,
+    "attrs": 0.1,
+    "click": 0.4,
+    "flask": 0.3,
+    "sqlalchemy": 1.8,
+    "pandas": 5.0,
+    "black": 0.4,
+    "mypy": 5.3,
+    "httpie": 0.4,
+    "yt-dlp": 12.0,
+    "awscli": 5.2,
+    "pipx": 0.7,
+    "healthchecks": 0.7,
+    "netbox": 8.3,
+    "saleor": 10.9,
+    "redash": 1.2,
+    "mealie": 1.5,
+    "nanogpt": 0.1,
+    "yolov5": 0.8,
+    "detectron2": 1.6,
+    "whisper": 0.3,
+    "segment-anything": 0.1
+  }
+}

@@ -181,6 +181,7 @@ tests/
 ├── test_hardening_compare.py  The radon cross-check classifier (radon optional)
 ├── test_hardening_dcc.py   DCC manual-count sampling, hints, verdict enforcement
 ├── test_hardening_cohesion_cam.py  CAM coverage split, Spearman, deviation categories
+├── test_hardening_corpus.py  Corpus file, accuracy-set subset, config trap, logic-line rule
 └── test_cli.py             All four commands end to end
 ```
 
@@ -188,7 +189,10 @@ tests/
 
 ```
 experiments/hardening/
-├── projects.txt            12 reference projects, frozen by commit hash
+├── projects.txt            12 reference projects, frozen by commit hash (block 1 accuracy)
+├── corpus.txt              26 calibration projects in four types; superset of projects.txt
+├── corpus.py               Corpus fetch and inventory: counts, measured logic share
+├── corpus.md               What the corpus is and how much of it RefactorLens sees
 ├── compare_radon.py        CC vs radon per function; classifies every difference
 ├── dcc_sample.py           DCC manual count: stratified sample, worksheet, summary
 ├── cam_coverage.py         How often CAM is computable, and informative
@@ -198,6 +202,7 @@ experiments/hardening/
 ├── results/cc-radon.json   Raw comparison output
 ├── results/dcc-*.{json,csv}  DCC sample, per-reference rows, summary
 ├── results/cam-coverage.json, cohesion-spearman.json
+├── results/corpus-inventory.json  Reproducible counts; corpus-timing.json is not
 └── .cache/                 Checked-out reference projects (gitignored, not in sdist)
 ```
 

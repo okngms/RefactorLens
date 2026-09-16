@@ -1,0 +1,502 @@
+{
+  "projects": {
+    "requests": {
+      "type": "library",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+      "modules": 18,
+      "classes": 44,
+      "module_functions": 72,
+      "methods": 104,
+      "skipped_files": {},
+      "smells": {
+        "feature_envy_candidate": 11,
+        "long_method": 12,
+        "too_many_params": 6
+      },
+      "arch_enabled": true,
+      "logic_lines": 4686,
+      "measured_logic_share": 0.9639
+    },
+    "httpx": {
+      "type": "library",
+      "commit": "26d48e0634e6ee9cdc0533996db289ce4b430177",
+      "modules": 23,
+      "classes": 85,
+      "module_functions": 67,
+      "methods": 242,
+      "skipped_files": {},
+      "smells": {
+        "feature_envy_candidate": 17,
+        "god_class": 2,
+        "long_method": 4,
+        "too_many_params": 34
+      },
+      "arch_enabled": true,
+      "logic_lines": 7757,
+      "measured_logic_share": 0.9715
+    },
+    "rich": {
+      "type": "library",
+      "commit": "43d3b04725ab9731727fb1126e35980c62f32377",
+      "modules": 78,
+      "classes": 170,
+      "module_functions": 86,
+      "methods": 496,
+      "skipped_files": {},
+      "smells": {
+        "feature_envy_candidate": 39,
+        "god_class": 4,
+        "long_method": 30,
+        "too_many_params": 54
+      },
+      "arch_enabled": true,
+      "logic_lines": 19658,
+      "measured_logic_share": 0.8736
+    },
+    "pydantic": {
+      "type": "library",
+      "commit": "df05e69a8a3fb37628a0e3a33518ca0425334bc9",
+      "modules": 77,
+      "classes": 179,
+      "module_functions": 299,
+      "methods": 457,
+      "skipped_files": {},
+      "smells": {
+        "data_class": 1,
+        "feature_envy_candidate": 42,
+        "god_class": 2,
+        "long_method": 51,
+        "too_many_params": 50
+      },
+      "arch_enabled": true,
+      "logic_lines": 25628,
+      "measured_logic_share": 0.9189
+    },
+    "fastapi": {
+      "type": "library",
+      "commit": "628c34e0cae200564d191c95d7edea78c88c4b5e",
+      "modules": 44,
+      "classes": 89,
+      "module_functions": 85,
+      "methods": 49,
+      "skipped_files": {},
+      "smells": {
+        "data_class": 1,
+        "feature_envy_candidate": 2,
+        "long_method": 13,
+        "too_many_params": 42
+      },
+      "arch_enabled": true,
+      "logic_lines": 16796,
+      "measured_logic_share": 0.9685
+    },
+    "attrs": {
+      "type": "library",
+      "commit": "fbff14eeaf817e4b34e9c5727c8d546dc118a346",
+      "modules": 19,
+      "classes": 33,
+      "module_functions": 90,
+      "methods": 27,
+      "skipped_files": {},
+      "smells": {
+        "feature_envy_candidate": 1,
+        "long_method": 9,
+        "too_many_params": 15
+      },
+      "arch_enabled": true,
+      "logic_lines": 5168,
+      "measured_logic_share": 0.9807
+    },
+    "click": {
+      "type": "library",
+      "commit": "934813e4d421071a1b3db3973c02fe2721359a6e",
+      "modules": 16,
+      "classes": 66,
+      "module_functions": 111,
+      "methods": 243,
+      "skipped_files": {},
+      "smells": {
+        "data_class": 1,
+        "feature_envy_candidate": 32,
+        "long_method": 18,
+        "too_many_params": 18
+      },
+      "arch_enabled": true,
+      "logic_lines": 9190,
+      "measured_logic_share": 0.9674
+    },
+    "flask": {
+      "type": "library",
+      "commit": "ab8149664182b662453a563161aa89013c806dc9",
+      "modules": 24,
+      "classes": 46,
+      "module_functions": 65,
+      "methods": 225,
+      "skipped_files": {},
+      "smells": {
+        "feature_envy_candidate": 17,
+        "god_class": 2,
+        "long_method": 11,
+        "too_many_params": 8
+      },
+      "arch_enabled": true,
+      "logic_lines": 8358,
+      "measured_logic_share": 0.9707
+    },
+    "sqlalchemy": {
+      "type": "library",
+      "commit": "23f5f3350974d9452f3b844617c31eb5b41474ae",
+      "modules": 38,
+      "classes": 256,
+      "module_functions": 227,
+      "methods": 1446,
+      "skipped_files": {},
+      "smells": {
+        "feature_envy_candidate": 130,
+        "god_class": 8,
+        "long_method": 120,
+        "too_many_params": 202
+      },
+      "arch_enabled": true,
+      "logic_lines": 59324,
+      "measured_logic_share": 0.9888
+    },
+    "pandas": {
+      "type": "library",
+      "commit": "0691c5cf90477d3503834d983f69350f250a6ff7",
+      "modules": 179,
+      "classes": 246,
+      "module_functions": 853,
+      "methods": 3143,
+      "skipped_files": {},
+      "smells": {
+        "feature_envy_candidate": 201,
+        "god_class": 34,
+        "long_method": 341,
+        "too_many_params": 371
+      },
+      "arch_enabled": true,
+      "logic_lines": 145998,
+      "measured_logic_share": 0.9848
+    },
+    "black": {
+      "type": "cli",
+      "commit": "8a737e727ac5ab2f1d4cf5876720ed276dc8dc4b",
+      "modules": 25,
+      "classes": 44,
+      "module_functions": 231,
+      "methods": 132,
+      "skipped_files": {},
+      "smells": {
+        "data_class": 2,
+        "feature_envy_candidate": 24,
+        "long_method": 54,
+        "too_many_params": 12
+      },
+      "arch_enabled": true,
+      "logic_lines": 10832,
+      "measured_logic_share": 0.9693
+    },
+    "mypy": {
+      "type": "cli",
+      "commit": "9397454fb5aead107461b089e7cf190bf538d20a",
+      "modules": 132,
+      "classes": 420,
+      "module_functions": 965,
+      "methods": 3671,
+      "skipped_files": {},
+      "smells": {
+        "feature_envy_candidate": 447,
+        "god_class": 19,
+        "long_method": 373,
+        "too_many_params": 193
+      },
+      "arch_enabled": true,
+      "logic_lines": 88789,
+      "measured_logic_share": 0.9839
+    },
+    "httpie": {
+      "type": "cli",
+      "commit": "2105caa49bae87c5809c274e407619a0de2639d1",
+      "modules": 78,
+      "classes": 105,
+      "module_functions": 174,
+      "methods": 201,
+      "skipped_files": {},
+      "smells": {
+        "data_class": 1,
+        "feature_envy_candidate": 8,
+        "long_method": 15,
+        "too_many_params": 7
+      },
+      "arch_enabled": true,
+      "logic_lines": 8056,
+      "measured_logic_share": 0.8255
+    },
+    "yt-dlp": {
+      "type": "cli",
+      "commit": "3a08beaf031ab68f966401ead017ac81fe8486cf",
+      "modules": 1045,
+      "classes": 2323,
+      "module_functions": 458,
+      "methods": 4329,
+      "skipped_files": {},
+      "smells": {
+        "feature_envy_candidate": 225,
+        "god_class": 6,
+        "long_method": 400,
+        "too_many_params": 179
+      },
+      "arch_enabled": true,
+      "logic_lines": 204527,
+      "measured_logic_share": 0.9945
+    },
+    "awscli": {
+      "type": "cli",
+      "commit": "09233359a65586adf3d78d2d50d8b93092ba1c9b",
+      "modules": 426,
+      "classes": 1394,
+      "module_functions": 961,
+      "methods": 4626,
+      "skipped_files": {},
+      "smells": {
+        "data_class": 6,
+        "feature_envy_candidate": 296,
+        "god_class": 6,
+        "long_method": 67,
+        "too_many_params": 155
+      },
+      "arch_enabled": true,
+      "logic_lines": 93369,
+      "measured_logic_share": 0.971
+    },
+    "pipx": {
+      "type": "cli",
+      "commit": "7248f7651d692b0f9e36db5f444e11cf382b82da",
+      "modules": 49,
+      "classes": 91,
+      "module_functions": 442,
+      "methods": 125,
+      "skipped_files": {},
+      "smells": {
+        "feature_envy_candidate": 4,
+        "long_method": 40,
+        "too_many_params": 66
+      },
+      "arch_enabled": true,
+      "logic_lines": 11796,
+      "measured_logic_share": 0.9653
+    },
+    "healthchecks": {
+      "type": "web_app",
+      "commit": "49924faadf0f24a846abc3acf3014b396fdc1f29",
+      "modules": 225,
+      "classes": 214,
+      "module_functions": 300,
+      "methods": 410,
+      "skipped_files": {},
+      "smells": {
+        "feature_envy_candidate": 55,
+        "long_method": 23,
+        "too_many_params": 14
+      },
+      "arch_enabled": true,
+      "logic_lines": 12837,
+      "measured_logic_share": 0.9505
+    },
+    "netbox": {
+      "type": "web_app",
+      "commit": "abccf4e03650fecd366e676b392729320258c49e",
+      "modules": 777,
+      "classes": 4116,
+      "module_functions": 541,
+      "methods": 2610,
+      "skipped_files": {},
+      "smells": {
+        "feature_envy_candidate": 243,
+        "god_class": 3,
+        "long_method": 137,
+        "too_many_params": 33
+      },
+      "arch_enabled": true,
+      "logic_lines": 125008,
+      "measured_logic_share": 0.9742
+    },
+    "saleor": {
+      "type": "web_app",
+      "commit": "ce7f6c4dd53d5d9cc236224cc07d6fad9f715076",
+      "modules": 1164,
+      "classes": 2535,
+      "module_functions": 2665,
+      "methods": 3957,
+      "skipped_files": {},
+      "smells": {
+        "feature_envy_candidate": 429,
+        "god_class": 7,
+        "long_method": 178,
+        "too_many_params": 567
+      },
+      "arch_enabled": true,
+      "logic_lines": 170426,
+      "measured_logic_share": 0.9773
+    },
+    "redash": {
+      "type": "web_app",
+      "commit": "87af4dc6b39915a70edb14d12b35f2907d4f8b27",
+      "modules": 167,
+      "classes": 247,
+      "module_functions": 409,
+      "methods": 937,
+      "skipped_files": {},
+      "smells": {
+        "feature_envy_candidate": 75,
+        "god_class": 1,
+        "long_method": 27,
+        "too_many_params": 37
+      },
+      "arch_enabled": true,
+      "logic_lines": 22522,
+      "measured_logic_share": 0.9344
+    },
+    "mealie": {
+      "type": "web_app",
+      "commit": "84b2677f76069a6fb2bac6e2c633c9dbe7379ce4",
+      "modules": 395,
+      "classes": 662,
+      "module_functions": 279,
+      "methods": 1092,
+      "skipped_files": {},
+      "smells": {
+        "feature_envy_candidate": 107,
+        "god_class": 1,
+        "long_method": 38,
+        "too_many_params": 29
+      },
+      "arch_enabled": true,
+      "logic_lines": 25914,
+      "measured_logic_share": 0.9781
+    },
+    "nanogpt": {
+      "type": "ml_research",
+      "commit": "3adf61e154c3fe3fca428ad6bc3818b27a3b8291",
+      "modules": 15,
+      "classes": 6,
+      "module_functions": 5,
+      "methods": 12,
+      "skipped_files": {},
+      "smells": {
+        "feature_envy_candidate": 5,
+        "long_method": 1
+      },
+      "arch_enabled": true,
+      "logic_lines": 801,
+      "measured_logic_share": 0.4407
+    },
+    "yolov5": {
+      "type": "ml_research",
+      "commit": "915bbf294bb74c859f0b41f1c23bc395014ea679",
+      "modules": 53,
+      "classes": 99,
+      "module_functions": 266,
+      "methods": 206,
+      "skipped_files": {},
+      "smells": {
+        "feature_envy_candidate": 21,
+        "god_class": 1,
+        "long_method": 40,
+        "too_many_params": 78
+      },
+      "arch_enabled": true,
+      "logic_lines": 12656,
+      "measured_logic_share": 0.9652
+    },
+    "detectron2": {
+      "type": "ml_research",
+      "commit": "d1e04565d3bec8719335b88be9e9b961bf3ec464",
+      "modules": 141,
+      "classes": 213,
+      "module_functions": 321,
+      "methods": 580,
+      "skipped_files": {},
+      "smells": {
+        "feature_envy_candidate": 61,
+        "long_method": 42,
+        "too_many_params": 57
+      },
+      "arch_enabled": true,
+      "logic_lines": 29047,
+      "measured_logic_share": 0.9863
+    },
+    "whisper": {
+      "type": "ml_research",
+      "commit": "31243bad24cc746f07d4c8bfdd2d974872cb1803",
+      "modules": 14,
+      "classes": 36,
+      "module_functions": 37,
+      "methods": 75,
+      "skipped_files": {},
+      "smells": {
+        "feature_envy_candidate": 3,
+        "long_method": 10,
+        "too_many_params": 5
+      },
+      "arch_enabled": true,
+      "logic_lines": 3497,
+      "measured_logic_share": 0.9871
+    },
+    "segment-anything": {
+      "type": "ml_research",
+      "commit": "dca509fe793f601edb92606367a655c15ac00fdf",
+      "modules": 15,
+      "classes": 19,
+      "module_functions": 24,
+      "methods": 57,
+      "skipped_files": {},
+      "smells": {
+        "feature_envy_candidate": 10,
+        "too_many_params": 6
+      },
+      "arch_enabled": true,
+      "logic_lines": 2309,
+      "measured_logic_share": 0.997
+    }
+  },
+  "by_type": {
+    "library": {
+      "projects": 10,
+      "modules": 516,
+      "classes": 1214,
+      "module_functions": 1955,
+      "methods": 6432,
+      "logic_lines": 302563,
+      "measured_logic_share": 0.9702
+    },
+    "cli": {
+      "projects": 6,
+      "modules": 1755,
+      "classes": 4377,
+      "module_functions": 3231,
+      "methods": 13084,
+      "logic_lines": 417369,
+      "measured_logic_share": 0.9822
+    },
+    "web_app": {
+      "projects": 5,
+      "modules": 2728,
+      "classes": 7774,
+      "module_functions": 4194,
+      "methods": 9006,
+      "logic_lines": 356707,
+      "measured_logic_share": 0.9726
+    },
+    "ml_research": {
+      "projects": 5,
+      "modules": 238,
+      "classes": 373,
+      "module_functions": 653,
+      "methods": 930,
+      "logic_lines": 48310,
+      "measured_logic_share": 0.9723
+    }
+  }
+}

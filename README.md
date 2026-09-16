@@ -343,6 +343,15 @@ does not inherit the closure's complexity.
   `--dry-run` to see exactly what would go out, or the Ollama provider to keep
   everything on your machine.
 - **Python only.** No Java or C#.
+- **It does not measure code outside functions and classes.** Every metric
+  works on a function or a class defined at the top of a module. Script-style
+  code written at module level (a training loop in `train.py`), module-level
+  calls (a CLI built with hundreds of `parser.add_argument(...)`), and
+  functions or classes defined under `if`/`try` (`if TYPE_CHECKING:`) leave no
+  trace in the report. On a 26-project corpus this is under 7% of logic lines
+  for 22 projects, 8-13% for pydantic and rich, 18% for httpie and 56% for
+  nanoGPT. Constant data tables are not counted as logic. Measurement:
+  [corpus.md](https://github.com/okngms/RefactorLens/blob/main/experiments/hardening/corpus.md).
 
 ## Roadmap
 

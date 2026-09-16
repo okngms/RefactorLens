@@ -6,7 +6,38 @@ Publishing (OIDC) ile yayınlandı; API token kullanılmadı. CI matrisi
 (3.11/3.12/3.13) ilk kez bu sürümde koştu.
 
 ## Bitenler
-- **Sertleştirme Blok 1, 3. oturum — Blok 1 kapandı** (bu oturum). Ayrıntı:
+- **Sertleştirme Blok 1b, 1. oturum — korpus** (bu oturum). Ayrıntı:
+  `experiments/hardening/corpus.md`. Aracın koduna dokunulmadı.
+  - **Korpus** (`corpus.txt`): 26 proje, dört tür — library 10, cli 6
+    (black, mypy, httpie, yt-dlp, aws-cli, pipx), web_app 5 (healthchecks,
+    netbox, saleor, redash, mealie), ml_research 5 (nanoGPT, yolov5,
+    detectron2, whisper, segment-anything). Commit hash'iyle dondurulmuş.
+    Blok 1'in `projects.txt`'i değişmedi ve korpusun birebir alt kümesi
+    (testle). Stability-AI/stablediffusion erişilemez olduğu için
+    segment-anything alındı.
+  - **Kapsam = kullanıcının varsayılan taraması.** Varsayılan config zaten
+    `migrations/` dışlıyor (saleor 1452, netbox 309 dosya); ek dışlama yalnızca
+    mealie `alembic/`, pydantic `v1/`, mypy `test/ typeshed/`. "generated"
+    başlıklı dosyalar okundu; çoğu elle yazılmış, dışlanmadı.
+  - **Envanter** (`corpus.py inventory`): 5 237 modül, 13 738 sınıf, 39 485
+    fonksiyon+metot, 1.12 milyon mantık satırı; ayrıştırılamayan dosya 0; tam
+    tarama tek çekirdekte 60 s.
+  - **Bulgu — ağırlıklandırma:** sınıfların %47'si iki projede (netbox 4 116,
+    yt-dlp 2 323), ikisi de tek deyimin binlerce tekrarı. Havuzlanmış persentil
+    eşiği bu deyime kalibre eder. Öneri: persentil proje başına, tür/genel
+    değer projelerin medyanı.
+  - **Bulgu — ölçülmeyen kod:** raporun birimleri mantık satırlarının genelde
+    %87-99'unu kapsıyor; nanoGPT %44 (betik tarzı eğitim döngüsü), httpie %83
+    (modül düzeyinde CLI tanımı). Tür öngörmüyor, deyim öngörüyor. README "What
+    RefactorLens does not do"a yazıldı.
+  - **Config tuzağı** yakalandı: `.cache/` depo içinde olduğu için config araması
+    RefactorLens'in `rlens.yaml`'ını (`include: ["src/"]`) bulup taramayı
+    boşaltırdı; betik config'i proje başına açıkça yazıyor, testli.
+  - Ölçü tanımı iki kez düzeltildi (veri tabloları ve attribute docstring'leri
+    mantık sayılıyordu; netbox yanlışlıkla %48 görünüyordu), testle sabit.
+  - `tests/test_hardening_corpus.py`, 19 test. Durum: 1260 paket testi, 91
+    fikstür testi, ruff temiz.
+- **Sertleştirme Blok 1, 3. oturum — Blok 1 kapandı.** Ayrıntı:
   `experiments/hardening/metric-accuracy.md` §5-§6. Kod değişikliği yok;
   yalnızca ölçüm, doküman ve test.
   - **CAM kapsamı** (`cam_coverage.py`): 1 678 sınıfın %47'sinde hesaplanıyor
@@ -31,8 +62,8 @@ Publishing (OIDC) ile yayınlandı; API token kullanılmadı. CI matrisi
     iki durum için de doğru ve fikstürde belgeli. Kod değişmedi.
   - `docs/v2-sertlestirme.md` sıra satırı `docs/v2.2-python-metrikleri.md` ile
     hizalandı: Blok 1 → 1b → v2.2 → explain Blok 2 → Blok 3/2/4/5.
-  - `tests/test_hardening_cohesion_cam.py`, 22 test. Durum: 1241 paket testi,
-    91 fikstür testi, ruff temiz.
+  - `tests/test_hardening_cohesion_cam.py`, 22 test. Durum (o oturum sonu):
+    1241 paket testi, 91 fikstür testi, ruff temiz.
 - **Sertleştirme Blok 1, 2. oturum.** Ayrıntı:
   `experiments/hardening/metric-accuracy.md` §4.
   - **DCC elle sayım — kabul kriteri sağlandı.** 36 sınıf (12 proje × düşük/
@@ -143,39 +174,37 @@ framework deyiminden geliyor.**
   orkestrasyon modülleri.
 
 ## Sıradaki iş
-**`docs/v2-sertlestirme.md` Blok 1b** (eşik kalibrasyonu ve kapsama). Blok 1
-kapandı. Sıra (`docs/v2.2-python-metrikleri.md` §4): Blok 1b → v2.2 →
-`explain` Blok 2.
+**Blok 1b devam.** Korpus (madde 1) bitti. Sıradaki iki iş birbirinden
+bağımsız; hangisinin önce yapılacağı tanım kararlarının gelip gelmediğine bağlı.
 
-1b'nin dört işi bağımsız değil; önerilen sıra:
+**A. Tanım kararları geldiyse → dağılım tablosu** (`metric-distribution.md`).
+Kararlar dördü birlikte, tek `schema_version` artışıyla uygulanır:
+- LOC: boş satır/yorum dahil mi (uygulama) hariç mi (`docs/04`)?
+- Metotsuz sınıfta LCOM4: `0` mı `null` mı?
+- DCC: sınıfın kendi iç içe sınıfı sayılır mı?
+- `god_class` kapısı: LCOM4 kalıp eşik mi değişir, yoksa çağrısız bileşen
+  sayısı / TCC gibi yoğunluk ölçüsüne mi geçilir? (metric-accuracy §6)
+Sonra tablo: proje başına persentil (medyan, 75/90/95/99), tür ve genel değer
+projelerin medyanı, havuzlanmış değer karşılaştırma için (corpus.md Bulgu 1).
 
-1. **Korpus genişletme** — tanım kararlarını beklemez, hemen başlanabilir.
-   Blok 1'in 12 kütüphanesine bir Django uygulaması, bir veri bilimi deposu ve
-   bir CLI aracı; `projects.txt` biçimi ve `compare_radon.py fetch` altyapısı
-   yeniden kullanılır. Persentil için sınıf sayısı artmalı.
-2. **Tanım kararları — kullanıcıdan bekleniyor.** Dağılım tablosundan **önce**
-   verilmeli, yoksa tablo iki kez üretilir. Dördü birlikte, tek `schema_version`
-   artışıyla:
-   - LOC: boş satır/yorum dahil mi (uygulama) hariç mi (`docs/04`)?
-   - Metotsuz sınıfta LCOM4: `0` mı `null` mı?
-   - DCC: sınıfın kendi iç içe sınıfı sayılır mı?
-   - **`god_class` kapısı:** LCOM4 bağlantı ölçer; kapı yoğunluğa mı bakmalı
-     (ör. çağrısız bileşen sayısı ya da TCC), yoksa LCOM4 kalıp eşik mi
-     değişmeli? Veri: metric-accuracy §6 (107 büyük sınıfın 34'ü yalnızca
-     çağrı kenarı yüzünden kaçıyor).
-3. **Dağılım tablosu** (`metric-distribution.md`): medyan, 75/90/95/99.
-   persentil, proje tipi kırılımı.
-4. **Kapsama tablosu** — CAM verisi hazır (§5, "ayırt edici" oranı esas);
-   DAM eklenecek. **Framework giriş noktaları** kuralı (`too_many_params`) testiyle.
+**B. Kararlar gelmediyse → framework giriş noktaları** (madde 4). Tanım
+kararlarından bağımsız. Korpusta artık 5 web uygulaması ve 6 CLI var:
+`too_many_params` vakalarının kaçının dekoratörle tanımlı giriş noktası
+(`@app.command`, `@app.route`, `@router.get`, `@click.option`, Django view
+dekoratörleri) olduğu ölçülür, kural tasarlanır, testle uygulanır. Bu bir
+koku kuralı değişikliği; `smells.py` kanıt alanları değişmez.
 
-Referans projeleri yerelde yoksa: `python experiments/hardening/compare_radon.py
-fetch` (~250 MB, `.cache/`). Kohezyon betiği ayrıca `pip install cohesion==1.2.0`
-ister; radon gibi paket bağımlılığı değildir.
+**Kapsama kararına girdi** (madde 3): `if`/`try` altındaki tanımlar raporda
+yok — Blok 1'de 135 fonksiyon, korpusta pydantic'in ölçülmeyen kodunun %37'si.
+Tanım kararlarıyla birlikte ele alınmalı: bu birimler raporlanacak mı?
+
+Projeler yerelde yoksa: `python experiments/hardening/corpus.py fetch`
+(~850 MB). Kohezyon betiği ayrıca `pip install cohesion==1.2.0` ister.
 
 ## Okunacak dokümanlar (sırayla)
 AGENTS.md → bu dosya → docs/v2-sertlestirme.md (Blok 1, 1b) →
-experiments/hardening/metric-accuracy.md (§3 açık kararlar, §5-6) →
-docs/v2.2-python-metrikleri.md (1b'nin neden önce geldiği)
+experiments/hardening/metric-accuracy.md (§3 açık kararlar, §6) →
+experiments/hardening/corpus.md
 Sonraki fazlar: docs/v2.2-python-metrikleri.md → docs/v2.1-explain.md
 Deney protokolü: docs/v2-duzeltme-asama5.md. Metrik sınıfları:
 docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.
@@ -206,6 +235,10 @@ docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.
 - **`match` ve `except*` CC farkları yalnızca sentetik testle doğrulandı.**
   Referans setinin tag'leri 3.8/3.9 destekliyor, iki deyim de sette yok.
   Blok 1b korpusu en az bir 3.10+ proje içermeli.
+- **Betik tarzı ve modül düzeyi kod ölçülmüyor.** nanoGPT'nin mantığının %56'sı,
+  httpie'nin %18'i hiçbir metriğe görünmüyor (corpus.md Bulgu 2). README'de
+  yazılı. Kapsam genişletmesi (modül düzeyi kod için bir birim) v2.2'nin
+  "modül düzeyi kohezyon" ölçüsüyle birlikte düşünülmeli.
 - **`god_class` LCOM4 kapısı büyük sınıfların üçte birini kaçırıyor.** Ortak
   yardımcı metodu olan sınıflarda çağrı kenarları LCOM4'ü 1-2'ye indiriyor;
   boyut koşulunu geçen 107 sınıfın 34'ü yalnızca bu yüzden elenir. Tanım
