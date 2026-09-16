@@ -6,7 +6,30 @@ Publishing (OIDC) ile yayınlandı; API token kullanılmadı. CI matrisi
 (3.11/3.12/3.13) ilk kez bu sürümde koştu.
 
 ## Bitenler
-- **Sertleştirme Blok 1, 1. oturum** (bu oturum). Ayrıntı ve tüm sayılar:
+- **Sertleştirme Blok 1, 2. oturum** (bu oturum). Ayrıntı:
+  `experiments/hardening/metric-accuracy.md` §4.
+  - **DCC elle sayım — kabul kriteri sağlandı.** 36 sınıf (12 proje × düşük/
+    orta/yüksek DCC bandı, sabit tohum), 154 referans. **Kesinlik %96.1,
+    duyarlılık %96.1**, 30/36 sınıf birebir doğru. Hatalar yüksek bantta
+    (8/12 birebir) ama örneklemde hiçbir sınıf `dcc` eşiğini (7) geçmedi ya
+    da altına inmedi. FP: kendi iç içe sınıfı 2, harici aynı ad 2, yerel ad
+    1, modül aynı ad 1. FN: tip takma adı 5 (tek sınıf), aynı adlı iki sınıf
+    1. README "DCC resolution" bölümü ölçülen oranlarla yeniden yazıldı —
+    eski "third-party classes are not counted" iddiası ölçümle çelişiyordu.
+  - Yöntem: `dcc_sample.py` ipucu üretir, karar vermez. Şüpheli her referans
+    ve her FN adayı `dcc-verdicts.json`'a satır numarasıyla yazıldı;
+    `summary` kararı eksik ya da bayat girdi görürse sonuç üretmez. Örneklem
+    `--force` olmadan yeniden yazılamaz (bu oturumda yanlışlıkla yeniden
+    üretildi; tohum sayesinde birebir aynı çıktığı doğrulandı, koruma sonra
+    eklendi). `tests/test_hardening_dcc.py`, 26 test.
+  - **Elle sayımın yakaladığı hata — ayrı commit:** tarama kökü alt paket
+    olduğunda (`pandas/core`) import çözücüsü `pandas.core.` önekini
+    kırpamıyordu; `pandas/core` import grafiği **0 kenar** veriyordu (1182
+    mutlak importun 1179'u kayıp), Ca/Ce/instability/döngüler sessizce boştu.
+    `root_package_name` artık `__init__.py` taşıyan dizin zincirini kullanıyor.
+    pandas/core 0 → 1189 kenar; diğer 11 projede kenar sayısı aynı.
+  - Durum: 1219 paket testi, 91 fikstür testi, ruff temiz.
+- **Sertleştirme Blok 1, 1. oturum.** Ayrıntı ve tüm sayılar:
   `experiments/hardening/metric-accuracy.md`.
   - **Madde 1 — referans seti:** `experiments/hardening/projects.txt`, 12
     proje, commit hash'iyle dondurulmuş, seçim gerekçesiyle. Kapsam: 673
@@ -39,7 +62,7 @@ Publishing (OIDC) ile yayınlandı; API token kullanılmadı. CI matrisi
   - Hijyen: `tests/test_cli.py` format hatası (başlangıçta
     `ruff format --check` kırmızıydı); `.cache/` git, ruff ve sdist dışında
     (sdist 337 KB doğrulandı); STRUCTURE.md yeni dosyalarla güncellendi.
-  - Durum: 1187 paket testi, 91 fikstür testi, ruff temiz.
+  - Durum (o oturum sonu): 1187 paket testi, 91 fikstür testi, ruff temiz.
 - v2 Aşama 0, 1, 1b, 3, 4; 5a toplama, 5b (12 vaka), FINDINGS-2.
 - v2 düzeltme listesi ve `docs/SPEC-duzeltme-2.5*`; metrik sınıflandırması
   kendi koşuluyla çürütüldü, gruplama "kalıntı bırakıyor mu"ya çevrildi.
@@ -93,45 +116,28 @@ framework deyiminden geliyor.**
   orkestrasyon modülleri.
 
 ## Sıradaki iş
-**`docs/v2-sertlestirme.md` Blok 1'in kalanı** (metrik doğruluğu). CC ve uç
-nokta testleri bitti; kabul kriterinin kalan üç parçası:
+**`docs/v2-sertlestirme.md` Blok 1'in kalanı.** CC (§1), uç nokta testleri
+(§2) ve DCC elle sayımı (§4) bitti. Kalan iki parça:
 
-1. **DCC elle sayım** — her projeden 3-4 sınıf, toplam 30-50; yanlış
-   pozitif/negatif kategorileri ve oranı. Kabul kriteri bunun **README
-   "Limitations"a işlenmesini** de istiyor. Önce bu: DCC bu oturumda en çok
-   değişen metrik oldu (91 sınıf) ve düz ad eşleşmesinin üçüncü parti
-   sınıflarla çakışma oranı henüz bilinmiyor.
-2. **Kohezyon** — `cohesion` aracı ile sınıf bazında Spearman; büyük sapmalar
-   elle. `cohesion` farklı bir LCOM tanımı kullanır; mutlak değer değil sıra
-   karşılaştırılır.
-3. **CAM annotation kapsamı** — projelerin yüzde kaçında hesaplanabiliyor.
-   Ölçüm altyapısı hazır: `compare_radon.py`'nin proje yükleyicisi ve
-   önbelleği yeniden kullanılabilir.
+1. **Kohezyon** — `cohesion` aracı ile sınıf bazında Spearman sıralama
+   korelasyonu; büyük sapmalar elle incelenir. `cohesion` farklı bir LCOM
+   tanımı kullanır; mutlak değer değil sıra karşılaştırılır. Önce `cohesion`'ın
+   bu referans setinde çalışıp çalışmadığı ve sınıf eşlemesinin (modül + ad +
+   satır) nasıl kurulacağı kontrol edilmeli.
+2. **CAM annotation kapsamı** — referans setinde sınıfların yüzde kaçında
+   `cam_min_annotation_coverage` (0.7) aşılıyor; proje bazında dağılım.
+   Küçük iş; kohezyondan önce yapılabilir.
+
+Bunlardan sonra Blok 1 kapanır ve **açık kararlar** (aşağıda LOC, boş sınıf
+LCOM4, kendi iç içe sınıfı) tek bir tanım kararı oturumunda ele alınmalı:
+üçü de `schema_version` gerektirir, ayrı ayrı sürüm artırmak yerine birlikte.
 
 Referans projeleri yerelde yoksa: `python experiments/hardening/compare_radon.py
 fetch` (~250 MB, `.cache/`).
 
-Kararlaştırılan sıra:
-
-```
-sertleştirme Blok 1  → metrik gerçekten doğru mu (radon/cohesion çapraz doğrulama)
-sertleştirme Blok 1b → eşikler ne olmalı (persentil), hangi metrik ölü
-v2.2 python metrikleri → PySmell'in altısı + tasarlanacak dördü
-v2.1-explain Blok 2   → şablon katmanı, yeni girdi şekli üzerine
-```
-
-`explain` Blok 2 bilerek en sona alındı. İki koşuda başarısız olma sebebi
-söyleyecek bir şeyinin olmamasıydı: girdi "NOM=26, WMC=56" idi ve bundan
-çıkarılabilecek tek cümle tablonun kendisiydi. Python'a özgü kokular yapısal
-olgu verir ve kalibrasyon gerektirmeyen cümleler kurulabilir hale gelir.
-Önce yazılırsa cümle kalıpları ve testleri iki kez yazılır.
-
-Sertleştirme (`docs/v2-sertlestirme.md`) bunun arkasına alındı — sıra bilerek
-değiştirildi, riski aşağıda ve o dokümanın §6'sında yazılı.
-
 ## Okunacak dokümanlar (sırayla)
 AGENTS.md → bu dosya → docs/v2-sertlestirme.md (Blok 1, 1b) →
-experiments/hardening/metric-accuracy.md (§3 kalanlar)
+experiments/hardening/metric-accuracy.md (§3 kalanlar, §4 yöntem)
 Sonraki fazlar: docs/v2.2-python-metrikleri.md → docs/v2.1-explain.md
 Deney protokolü: docs/v2-duzeltme-asama5.md. Metrik sınıfları:
 docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.
@@ -162,10 +168,15 @@ docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.
 - **`match` ve `except*` CC farkları yalnızca sentetik testle doğrulandı.**
   Referans setinin tag'leri 3.8/3.9 destekliyor, iki deyim de sette yok.
   Blok 1b korpusu en az bir 3.10+ proje içermeli.
-- **Düz ad eşleşmesinde üçüncü parti çakışması kalıyor.** Takma adda
-  kapatıldı; `from urllib3.exceptions import HTTPError` sonrası düz
-  `HTTPError` kullanımı hâlâ proje sınıfı sayılır. Oranı DCC elle sayımında
-  ölçülecek.
+- **DCC: sınıfın kendi iç içe sınıfı referans sayılıyor** (elle sayımda 2/154
+  yanlış pozitif). `docs/04 §2.2` "farklı proje-içi sınıf" diyor; kendi iç
+  içe sınıfının "farklı" olup olmadığı tanımda belirsiz. `node.name` gibi
+  dışlamak doğal görünüyor ama tanım kararıdır (`schema_version`).
+- **DCC: harici aynı ad yanlış pozitifi bilinçli olarak kalıyor** (2/154).
+  Adın modülde yalnızca harici importa bağlandığı durumda saymamak bunu
+  kapatır ama DCC'yi import çözücüsünün doğruluğuna bağlar; çözücü
+  düzeltmesinden önce aynı kural örneklemde 11 doğru pozitifi düşürürdü.
+  Blok 1b korpusu genişleyince yeniden tartılacak. Gerekçe: metric-accuracy §4.
 - STRUCTURE.md'deki test sayıları (488, 1052) bayat; AGENTS.md "Before every
   commit" bloğundaki `# 488` de öyle. Blok 5'e bırakıldı.
 - **`explain`, sertleştirmenin önüne alındı.** Bilinen bedeli: metriklerin

@@ -1,0 +1,207 @@
+{
+  "classes": 36,
+  "counted_references": 154,
+  "true_positives": 148,
+  "false_positives": 6,
+  "false_negatives": 6,
+  "precision": 0.961,
+  "recall": 0.961,
+  "classes_exact": 30,
+  "fp_categories": {
+    "external_same_name": 2,
+    "local_name": 1,
+    "module_same_name": 1,
+    "own_local_class": 2
+  },
+  "fn_categories": {
+    "same_name_merged": 1,
+    "type_alias": 5
+  },
+  "tp_categories": {
+    "direct": 127,
+    "masked_external_attribute": 2,
+    "module_attribute": 19
+  },
+  "per_class": {
+    "requests:models:RequestHooksMixin": {
+      "band": "low",
+      "measured": 0,
+      "true": 0
+    },
+    "requests:sessions:SessionRedirectMixin": {
+      "band": "mid",
+      "measured": 3,
+      "true": 3
+    },
+    "requests:models:PreparedRequest": {
+      "band": "high",
+      "measured": 7,
+      "true": 7
+    },
+    "httpx:_decoders:BrotliDecoder": {
+      "band": "low",
+      "measured": 2,
+      "true": 2
+    },
+    "httpx:_exceptions:HTTPStatusError": {
+      "band": "mid",
+      "measured": 3,
+      "true": 3
+    },
+    "httpx:_transports.default:AsyncHTTPTransport": {
+      "band": "high",
+      "measured": 8,
+      "true": 8
+    },
+    "rich:_stack:Stack": {
+      "band": "low",
+      "measured": 0,
+      "true": 0
+    },
+    "rich:segment:Segments": {
+      "band": "mid",
+      "measured": 3,
+      "true": 3
+    },
+    "rich:markdown:ListItem": {
+      "band": "high",
+      "measured": 7,
+      "true": 7
+    },
+    "pydantic:experimental.pipeline:_ValidateAsDefer": {
+      "band": "low",
+      "measured": 0,
+      "true": 0
+    },
+    "pydantic:deprecated.decorator:ValidatedFunction": {
+      "band": "mid",
+      "measured": 4,
+      "true": 3
+    },
+    "pydantic:type_adapter:TypeAdapter": {
+      "band": "high",
+      "measured": 13,
+      "true": 13
+    },
+    "fastapi:openapi.models:OAuthFlowImplicit": {
+      "band": "low",
+      "measured": 1,
+      "true": 1
+    },
+    "fastapi:security.http:HTTPDigest": {
+      "band": "mid",
+      "measured": 3,
+      "true": 4
+    },
+    "fastapi:openapi.models:Components": {
+      "band": "high",
+      "measured": 10,
+      "true": 15
+    },
+    "attrs:attr._make:Converter": {
+      "band": "low",
+      "measured": 1,
+      "true": 1
+    },
+    "attrs:attr._make:_CountingAttr": {
+      "band": "mid",
+      "measured": 3,
+      "true": 3
+    },
+    "attrs:attr._make:_AndValidator": {
+      "band": "high",
+      "measured": 0,
+      "true": 0
+    },
+    "click:_winconsole:_WindowsConsoleWriter": {
+      "band": "low",
+      "measured": 1,
+      "true": 1
+    },
+    "click:exceptions:BadParameter": {
+      "band": "mid",
+      "measured": 3,
+      "true": 3
+    },
+    "click:core:Option": {
+      "band": "high",
+      "measured": 9,
+      "true": 8
+    },
+    "flask:blueprints:Blueprint": {
+      "band": "low",
+      "measured": 2,
+      "true": 2
+    },
+    "flask:sansio.blueprints:Blueprint": {
+      "band": "mid",
+      "measured": 3,
+      "true": 3
+    },
+    "flask:sansio.app:App": {
+      "band": "high",
+      "measured": 12,
+      "true": 11
+    },
+    "sqlalchemy:unitofwork:ProcessState": {
+      "band": "low",
+      "measured": 1,
+      "true": 1
+    },
+    "sqlalchemy:strategies:PostLoader": {
+      "band": "mid",
+      "measured": 3,
+      "true": 3
+    },
+    "sqlalchemy:strategies:SubqueryLoader": {
+      "band": "high",
+      "measured": 11,
+      "true": 8
+    },
+    "black:handle_ipynb_magics:OffsetAndMagic": {
+      "band": "low",
+      "measured": 0,
+      "true": 0
+    },
+    "black:trans:StringParenStripper": {
+      "band": "mid",
+      "measured": 6,
+      "true": 6
+    },
+    "black:trans:StringMerger": {
+      "band": "high",
+      "measured": 7,
+      "true": 7
+    },
+    "mypy:partially_defined:BranchState": {
+      "band": "low",
+      "measured": 0,
+      "true": 0
+    },
+    "mypy:plugins.proper_plugin:ProperTypePlugin": {
+      "band": "mid",
+      "measured": 3,
+      "true": 3
+    },
+    "mypy:join:InstanceJoiner": {
+      "band": "high",
+      "measured": 11,
+      "true": 11
+    },
+    "pandas:indexers.objects:BaseIndexer": {
+      "band": "low",
+      "measured": 0,
+      "true": 0
+    },
+    "pandas:window.rolling:RollingGroupby": {
+      "band": "mid",
+      "measured": 6,
+      "true": 6
+    },
+    "pandas:groupby.generic:DataFrameGroupBy": {
+      "band": "high",
+      "measured": 8,
+      "true": 8
+    }
+  }
+}

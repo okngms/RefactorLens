@@ -263,8 +263,26 @@ not attributes.
 
 **DCC resolution is best-effort.** Python has no static type information, so a
 name appearing in a class body is counted as a reference if it matches a class
-defined anywhere in the project. A local variable that shares a name with a
-class will be counted. Standard-library and third-party classes are not counted.
+defined anywhere in the project. String annotations (`"Order"`) and import
+aliases from project modules (`from models import Order as O`) are resolved;
+`Literal[...]` values are not references.
+
+Measured by hand on 36 classes (154 references) from 12 open-source projects:
+**96.1% precision and 96.1% recall**, with 30 of 36 classes exactly right. The
+errors cluster in high-coupling classes, but none moved a class across the
+`dcc` threshold. What goes wrong:
+
+- **Name collisions count.** A third-party class, local variable or module
+  with the same name as a project class is counted — `typing.Tuple` when the
+  project defines `Tuple`, werkzeug's `Response` when the project defines its
+  own.
+- **A class's own nested classes count** as external references.
+- **Type aliases are not followed.** `Scheme = Union[APIKey, OAuth2]` used in
+  an annotation contributes nothing.
+- **Two project classes with the same name count once.**
+
+Method, per-reference verdicts and the full breakdown:
+[metric-accuracy.md](https://github.com/okngms/RefactorLens/blob/main/experiments/hardening/metric-accuracy.md).
 
 **CAM is conditional.** The classic definition uses parameter *types*. Parameter
 *names* measure something else entirely and would make the result incomparable

@@ -1,0 +1,182 @@
+[
+  {
+    "class": "requests:models:RequestHooksMixin",
+    "band": "low",
+    "drawn_from": "low"
+  },
+  {
+    "class": "requests:sessions:SessionRedirectMixin",
+    "band": "mid",
+    "drawn_from": "mid"
+  },
+  {
+    "class": "requests:models:PreparedRequest",
+    "band": "high",
+    "drawn_from": "high"
+  },
+  {
+    "class": "httpx:_decoders:BrotliDecoder",
+    "band": "low",
+    "drawn_from": "low"
+  },
+  {
+    "class": "httpx:_exceptions:HTTPStatusError",
+    "band": "mid",
+    "drawn_from": "mid"
+  },
+  {
+    "class": "httpx:_transports.default:AsyncHTTPTransport",
+    "band": "high",
+    "drawn_from": "high"
+  },
+  {
+    "class": "rich:_stack:Stack",
+    "band": "low",
+    "drawn_from": "low"
+  },
+  {
+    "class": "rich:segment:Segments",
+    "band": "mid",
+    "drawn_from": "mid"
+  },
+  {
+    "class": "rich:markdown:ListItem",
+    "band": "high",
+    "drawn_from": "high"
+  },
+  {
+    "class": "pydantic:experimental.pipeline:_ValidateAsDefer",
+    "band": "low",
+    "drawn_from": "low"
+  },
+  {
+    "class": "pydantic:deprecated.decorator:ValidatedFunction",
+    "band": "mid",
+    "drawn_from": "mid"
+  },
+  {
+    "class": "pydantic:type_adapter:TypeAdapter",
+    "band": "high",
+    "drawn_from": "high"
+  },
+  {
+    "class": "fastapi:openapi.models:OAuthFlowImplicit",
+    "band": "low",
+    "drawn_from": "low"
+  },
+  {
+    "class": "fastapi:security.http:HTTPDigest",
+    "band": "mid",
+    "drawn_from": "mid"
+  },
+  {
+    "class": "fastapi:openapi.models:Components",
+    "band": "high",
+    "drawn_from": "high"
+  },
+  {
+    "class": "attrs:attr._make:Converter",
+    "band": "low",
+    "drawn_from": "low"
+  },
+  {
+    "class": "attrs:attr._make:_CountingAttr",
+    "band": "mid",
+    "drawn_from": "mid"
+  },
+  {
+    "class": "attrs:attr._make:_AndValidator",
+    "band": "high",
+    "drawn_from": "low"
+  },
+  {
+    "class": "click:_winconsole:_WindowsConsoleWriter",
+    "band": "low",
+    "drawn_from": "low"
+  },
+  {
+    "class": "click:exceptions:BadParameter",
+    "band": "mid",
+    "drawn_from": "mid"
+  },
+  {
+    "class": "click:core:Option",
+    "band": "high",
+    "drawn_from": "high"
+  },
+  {
+    "class": "flask:blueprints:Blueprint",
+    "band": "low",
+    "drawn_from": "low"
+  },
+  {
+    "class": "flask:sansio.blueprints:Blueprint",
+    "band": "mid",
+    "drawn_from": "mid"
+  },
+  {
+    "class": "flask:sansio.app:App",
+    "band": "high",
+    "drawn_from": "high"
+  },
+  {
+    "class": "sqlalchemy:unitofwork:ProcessState",
+    "band": "low",
+    "drawn_from": "low"
+  },
+  {
+    "class": "sqlalchemy:strategies:PostLoader",
+    "band": "mid",
+    "drawn_from": "mid"
+  },
+  {
+    "class": "sqlalchemy:strategies:SubqueryLoader",
+    "band": "high",
+    "drawn_from": "high"
+  },
+  {
+    "class": "black:handle_ipynb_magics:OffsetAndMagic",
+    "band": "low",
+    "drawn_from": "low"
+  },
+  {
+    "class": "black:trans:StringParenStripper",
+    "band": "mid",
+    "drawn_from": "mid"
+  },
+  {
+    "class": "black:trans:StringMerger",
+    "band": "high",
+    "drawn_from": "high"
+  },
+  {
+    "class": "mypy:partially_defined:BranchState",
+    "band": "low",
+    "drawn_from": "low"
+  },
+  {
+    "class": "mypy:plugins.proper_plugin:ProperTypePlugin",
+    "band": "mid",
+    "drawn_from": "mid"
+  },
+  {
+    "class": "mypy:join:InstanceJoiner",
+    "band": "high",
+    "drawn_from": "high"
+  },
+  {
+    "class": "pandas:indexers.objects:BaseIndexer",
+    "band": "low",
+    "drawn_from": "low"
+  },
+  {
+    "class": "pandas:window.rolling:RollingGroupby",
+    "band": "mid",
+    "drawn_from": "mid"
+  },
+  {
+    "class": "pandas:groupby.generic:DataFrameGroupBy",
+    "band": "high",
+    "drawn_from": "high"
+  }
+]

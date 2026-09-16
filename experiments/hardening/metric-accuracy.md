@@ -4,9 +4,9 @@ Sertleştirme Blok 1 (`docs/v2-sertlestirme.md`). Bu dosya metrik × hata
 kategorisi × sıklık tablosudur: hangi farkların tanım gereği olduğu, hangilerinin
 düzeltildiği, hangilerinin bilinen sınırlılık olarak kaldığı.
 
-**Durum:** CC tamam. Uç nokta testleri ve düzeltmeler tamam. Kohezyon (Spearman,
-`cohesion` aracı), DCC elle sayımı (30-50 sınıf) ve CAM annotation kapsamı
-**henüz yapılmadı** — bkz. son bölüm.
+**Durum:** CC tamam (§1). Uç nokta testleri ve düzeltmeler tamam (§2). DCC elle
+sayımı tamam (§4). Kohezyon (Spearman, `cohesion` aracı) ve CAM annotation
+kapsamı **henüz yapılmadı** — bkz. §3.
 
 Referans seti: `projects.txt`, 12 proje, commit hash'iyle dondurulmuş. Tarama
 kapsamı her projenin ürün kodu; `tests/` dizinleri dışlanır.
@@ -174,7 +174,117 @@ Mevcut davranış testle sabitlendi.
 
 - **Kohezyon:** `cohesion` aracı ile sınıf bazında Spearman sıralama
   korelasyonu; büyük sapmalar elle.
-- **DCC elle sayım:** her projeden 3-4 sınıf, toplam 30-50; yanlış
-  pozitif/negatif kategorileri ve oranı. README "Limitations"a işlenir.
 - **CAM:** annotation kapsamı dağılımı (projelerin yüzde kaçında hesaplanabiliyor).
 - LOC ve boş sınıf LCOM4 kararları (§2).
+
+---
+
+## 4. DCC — elle sayım
+
+Üretmek için (önce `compare_radon.py fetch`):
+
+```bash
+python experiments/hardening/dcc_sample.py worksheet   # okuma için ipuçları
+python experiments/hardening/dcc_sample.py summary     # kararları uygular
+```
+
+Girdi: `results/dcc-sample.json` (örneklem), `dcc-verdicts.json` (kararlar).
+Çıktı: `results/dcc-manual.csv` (referans başına bir satır),
+`results/dcc-manual-summary.json`.
+
+### Yöntem
+
+**Örneklem.** Her projeden üç sınıf, sabit tohumla (`SEED = 20260915`),
+katmanlı: düşük (DCC 0-2), orta (3-6), yüksek (7+) banttan birer tane. Toplam
+36 sınıf, 154 sayılan referans. attrs'ta yüksek bant boş (sette 7+ DCC'li
+sınıfı yok); o yuva düşük banttan dolduruldu ve aşağıda "yüksek" satırında
+sayılıyor. Örneklem dosyası `--force` olmadan yeniden yazılamaz: kararlar
+sınıflara bağlıdır.
+
+**Karar.** Betik her sayılan ad için bağlanma kaynağını çıkarır (aynı
+modülde sınıf, proje importu, harici import, yerel ad) ve bir ipucu verir.
+İpucu karar değildir. Kural:
+
+- İpucu `likely_tp` olan referans — adın bağlandığı satır bir proje importu ya
+  da aynı modüldeki sınıf tanımıdır — doğru pozitif kabul edilir; örneklemden
+  kontrol edildi.
+- İpucu başka herhangi bir şey olan **her** referans (24 adet; çözücü
+  düzeltmesinden önce pandas'ın 11 referansı da buradaydı ve onlar da okundu,
+  toplam 35) ve betiğin ürettiği **her** yanlış negatif adayı (11 adet) kodda okunup
+  `dcc-verdicts.json`'a gerekçesi ve satır numarasıyla yazıldı.
+- `summary`, kararı eksik bir şüpheli ya da örneklemde karşılığı olmayan
+  bayat bir karar görürse sonuç üretmeyi reddeder
+  (`tests/test_hardening_dcc.py`).
+
+Yanlış negatif aramak için üç aday türü tarandı: annotation dışı string'ler
+(`cast("X")`, `TypeVar(bound="X")`), modül düzeyi tip takma adı üzerinden
+dolaylı referans, ve aynı adı taşıyan iki proje sınıfının tek sayılması. Bu
+üç türün dışındaki bir yanlış negatif (ör. `# type:` yorumu, `getattr` ile
+string'den sınıf) aranmadı; duyarlılık bu türlerle sınırlıdır.
+
+**Sınırlılık.** Kararları aracı geliştiren taraf verdi — FINDINGS-1'deki
+"deneyi tasarlayan uyguladı" sınırlılığıyla aynı. Azaltma: her karar
+dosya ve satırla yazılı, bağımsız biri `worksheet` çıktısıyla yeniden
+denetleyebilir.
+
+### Sonuç
+
+| | |
+|---|---:|
+| Sayılan referans | 154 |
+| Doğru pozitif | 148 |
+| Yanlış pozitif | 6 |
+| Yanlış negatif | 6 |
+| **Kesinlik** (TP / sayılan) | **%96.1** |
+| **Duyarlılık** (TP / gerçek) | **%96.1** |
+| DCC'si birebir doğru sınıf | 30 / 36 |
+
+| Bant | Sınıf | TP | FP | FN | Birebir doğru |
+|---|---:|---:|---:|---:|---:|
+| düşük (0-2) | 12 | 8 | 0 | 0 | 12 |
+| orta (3-6) | 12 | 42 | 1 | 1 | 10 |
+| yüksek (7+) | 12 | 98 | 5 | 5 | 8 |
+
+**Hatalar yüksek DCC'de toplanıyor** — ama örneklemde hiçbiri `dcc` eşiğini
+(7) geçirmiyor ya da altına indirmiyor: yanlış ölçülen dört yüksek sınıf
+10→15, 9→8, 12→11, 11→8. Koku kararı değişmezdi. Toplam ölçülen (154) ve
+gerçek (154) tesadüfen eşit: yanlış pozitif ve negatifler birbirini
+götürüyor, bu bir doğruluk göstergesi değildir.
+
+### Kategoriler
+
+| Tür | Kategori | Adet | Örnek | Durum |
+|---|---|---:|---|---|
+| FP | `own_local_class` | 2 | `SubqueryLoader._SubqCollections`: sınıfın kendi iç içe sınıfı; `ValidatedFunction` metodu içinde tanımlı `DecoratorBaseModel` | tanım belirsiz — açık karar |
+| FP | `external_same_name` | 2 | `flask.sansio.App`: werkzeug `Response`; `click.Option`: `t.Tuple` (typing) ile `click.types.Tuple` | isim tabanlı çözüm sınırlılığı |
+| FP | `local_name` | 1 | `SubqueryLoader`: yerel değişken `collection` ile `collections.collection` sınıfı | isim tabanlı çözüm sınırlılığı |
+| FP | `module_same_name` | 1 | `SubqueryLoader`: `query` modülü ile metot içi `class query` | isim tabanlı çözüm sınırlılığı |
+| FN | `type_alias` | 5 | `fastapi.Components`: `SecurityScheme = Union[APIKey, HTTPBase, ...]` — tek sınıf | sınırlılık |
+| FN | `same_name_merged` | 1 | `fastapi.HTTPDigest`: iki farklı `HTTPBase` tek sayılıyor | sınırlılık |
+
+Yanlış negatiflerin 5'i tek sınıftan; sınıf bazında FN yalnızca 2/36 sınıfta
+görülüyor. Doğru pozitiflerin 19'u modül üzerinden nitelikli erişim
+(`orm_util.PathRegistry`), 2'si maskelenmiş harici erişim (httpx sınıfı hem
+`httpcore.Request` hem kendi `Request`'ini kullanıyor; ad bir kez sayıldığı
+için sonuç değişmiyor).
+
+### Elle sayımın yakaladığı uygulama hatası
+
+Çalışma kâğıdı pandas referanslarını "harici import" diye işaretledi. Sebep
+DCC değil, import çözücüsüydü: tarama kökü `pandas/core` iken kod
+`pandas.core.frame` yazar ve çözücü yalnızca `core`'u kırpıyordu. Etkisi DCC'den
+büyüktü: `pandas/core` taramasında import grafiği **0 kenar** veriyordu (1182
+mutlak importun 1179'u kayıp), yani Ca, Ce, instability ve döngüler sessizce
+boştu. Düzeltildi (`root_package_name`, ayrı commit): pandas/core 0 → 1189 kenar,
+diğer 11 projede kenar sayısı birebir aynı.
+
+### Neden `external_same_name` şimdi düzeltilmedi
+
+Adın modülde yalnızca harici bir importa bağlandığı durumda saymamak iki
+yanlış pozitifi kapatır. Ama bu, çözücünün proje importunu tanımasına tam
+bağımlı hale getirir: çözücü düzeltmesinden önce aynı kural bu örneklemde 11
+doğru pozitifi (pandas) yanlış negatife çevirirdi. Düzeltmeden sonra da
+namespace paketleri, `sys.path` hileleri ve vendored kopyalar çözücünün
+göremediği yerlerdir. 154'te 2'lik bir kazanç için DCC'yi çözücünün
+hatalarına bağlamak şu an iyi bir takas değil; ölçüm korpusu (Blok 1b)
+genişleyince yeniden tartılır.

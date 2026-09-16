@@ -1,0 +1,161 @@
+class,band,name,kind,hint,verdict,category,note
+requests:sessions:SessionRedirectMixin,mid,ChunkedEncodingError,counted,likely_tp,tp,direct,
+requests:sessions:SessionRedirectMixin,mid,ContentDecodingError,counted,likely_tp,tp,direct,
+requests:sessions:SessionRedirectMixin,mid,TooManyRedirects,counted,likely_tp,tp,direct,
+requests:models:PreparedRequest,high,CaseInsensitiveDict,counted,likely_tp,tp,direct,
+requests:models:PreparedRequest,high,HTTPBasicAuth,counted,likely_tp,tp,direct,
+requests:models:PreparedRequest,high,InvalidJSONError,counted,likely_tp,tp,direct,
+requests:models:PreparedRequest,high,InvalidURL,counted,likely_tp,tp,direct,
+requests:models:PreparedRequest,high,MissingSchema,counted,likely_tp,tp,direct,
+requests:models:PreparedRequest,high,RequestEncodingMixin,counted,likely_tp,tp,direct,
+requests:models:PreparedRequest,high,RequestHooksMixin,counted,likely_tp,tp,direct,
+httpx:_decoders:BrotliDecoder,low,ContentDecoder,counted,likely_tp,tp,direct,
+httpx:_decoders:BrotliDecoder,low,DecodingError,counted,likely_tp,tp,direct,
+httpx:_exceptions:HTTPStatusError,mid,HTTPError,counted,likely_tp,tp,direct,
+httpx:_exceptions:HTTPStatusError,mid,Request,counted,likely_tp,tp,direct,
+httpx:_exceptions:HTTPStatusError,mid,Response,counted,likely_tp,tp,direct,
+httpx:_transports.default:AsyncHTTPTransport,high,AsyncBaseTransport,counted,likely_tp,tp,direct,
+httpx:_transports.default:AsyncHTTPTransport,high,AsyncByteStream,counted,likely_tp,tp,direct,
+httpx:_transports.default:AsyncHTTPTransport,high,AsyncResponseStream,counted,likely_tp,tp,direct,
+httpx:_transports.default:AsyncHTTPTransport,high,Limits,counted,likely_tp,tp,direct,
+httpx:_transports.default:AsyncHTTPTransport,high,Proxy,counted,likely_tp,tp,direct,
+httpx:_transports.default:AsyncHTTPTransport,high,Request,counted,likely_tp,tp,masked_external_attribute,"httpcore.Request harici; ama httpx Request düz adla da kullanılıyor, sayı değişmez"
+httpx:_transports.default:AsyncHTTPTransport,high,Response,counted,likely_tp,tp,direct,
+httpx:_transports.default:AsyncHTTPTransport,high,URL,counted,likely_tp,tp,masked_external_attribute,httpcore.URL harici; httpx URL düz adla da kullanılıyor
+rich:segment:Segments,mid,Console,counted,likely_tp,tp,direct,
+rich:segment:Segments,mid,ConsoleOptions,counted,likely_tp,tp,direct,
+rich:segment:Segments,mid,Segment,counted,likely_tp,tp,direct,
+rich:markdown:ListItem,high,Console,counted,likely_tp,tp,direct,
+rich:markdown:ListItem,high,ConsoleOptions,counted,likely_tp,tp,direct,
+rich:markdown:ListItem,high,MarkdownContext,counted,likely_tp,tp,direct,
+rich:markdown:ListItem,high,MarkdownElement,counted,likely_tp,tp,direct,
+rich:markdown:ListItem,high,Renderables,counted,likely_tp,tp,direct,
+rich:markdown:ListItem,high,Segment,counted,likely_tp,tp,direct,
+rich:markdown:ListItem,high,TextElement,counted,likely_tp,tp,direct,
+pydantic:deprecated.decorator:ValidatedFunction,mid,BaseModel,counted,likely_tp,tp,direct,
+pydantic:deprecated.decorator:ValidatedFunction,mid,ConfigWrapper,counted,check_attribute,tp,module_attribute,from .._internal import _config; _config.ConfigWrapper
+pydantic:deprecated.decorator:ValidatedFunction,mid,DecoratorBaseModel,counted,check_unbound,fp,own_local_class,sınıfın kendi metodu içinde tanımlı yerel sınıf (line 242)
+pydantic:deprecated.decorator:ValidatedFunction,mid,PydanticUserError,counted,likely_tp,tp,direct,
+pydantic:type_adapter:TypeAdapter,high,BaseModel,counted,likely_tp,tp,direct,
+pydantic:type_adapter:TypeAdapter,high,CollectedInvalid,counted,check_attribute,tp,module_attribute,"GenerateSchema.CollectedInvalid, örnek üzerinden erişim; proje sınıfı"
+pydantic:type_adapter:TypeAdapter,high,ConfigDict,counted,likely_tp,tp,direct,
+pydantic:type_adapter:TypeAdapter,high,ConfigWrapper,counted,check_attribute,tp,module_attribute,_config.ConfigWrapper
+pydantic:type_adapter:TypeAdapter,high,GenerateJsonSchema,counted,likely_tp,tp,direct,
+pydantic:type_adapter:TypeAdapter,high,GenerateSchema,counted,check_attribute,tp,module_attribute,_generate_schema.GenerateSchema
+pydantic:type_adapter:TypeAdapter,high,MockCoreSchema,counted,check_attribute,tp,module_attribute,_mock_val_ser
+pydantic:type_adapter:TypeAdapter,high,MockValSer,counted,check_attribute,tp,module_attribute,_mock_val_ser
+pydantic:type_adapter:TypeAdapter,high,NamespacesTuple,counted,check_attribute,tp,module_attribute,_namespace_utils
+pydantic:type_adapter:TypeAdapter,high,NsResolver,counted,check_attribute,tp,module_attribute,_namespace_utils
+pydantic:type_adapter:TypeAdapter,high,PluggableSchemaValidator,counted,likely_tp,tp,direct,
+pydantic:type_adapter:TypeAdapter,high,PydanticUndefinedAnnotation,counted,likely_tp,tp,direct,
+pydantic:type_adapter:TypeAdapter,high,PydanticUserError,counted,likely_tp,tp,direct,
+fastapi:openapi.models:OAuthFlowImplicit,low,OAuthFlow,counted,likely_tp,tp,direct,
+fastapi:security.http:HTTPDigest,mid,HTTPAuthorizationCredentials,counted,likely_tp,tp,direct,
+fastapi:security.http:HTTPDigest,mid,HTTPBase,counted,likely_tp,tp,direct,
+fastapi:security.http:HTTPDigest,mid,HTTPException,counted,likely_tp,tp,direct,
+fastapi:security.http:HTTPDigest,mid,HTTPBase,missed,,fn,same_name_merged,"security.http.HTTPBase (taban) ve openapi.models.HTTPBase (HTTPBaseModel takma adı) farklı sınıflar, tek sayılıyor"
+fastapi:openapi.models:Components,high,BaseModelWithConfig,counted,likely_tp,tp,direct,
+fastapi:openapi.models:Components,high,Example,counted,likely_tp,tp,direct,
+fastapi:openapi.models:Components,high,Header,counted,likely_tp,tp,direct,
+fastapi:openapi.models:Components,high,Link,counted,likely_tp,tp,direct,
+fastapi:openapi.models:Components,high,Parameter,counted,likely_tp,tp,direct,
+fastapi:openapi.models:Components,high,PathItem,counted,likely_tp,tp,direct,
+fastapi:openapi.models:Components,high,Reference,counted,likely_tp,tp,direct,
+fastapi:openapi.models:Components,high,RequestBody,counted,likely_tp,tp,direct,
+fastapi:openapi.models:Components,high,Response,counted,likely_tp,tp,direct,
+fastapi:openapi.models:Components,high,Schema,counted,likely_tp,tp,direct,
+fastapi:openapi.models:Components,high,APIKey,missed,,fn,type_alias,"SecurityScheme = Union[APIKey, HTTPBase, OAuth2, OpenIdConnect, HTTPBearer]"
+fastapi:openapi.models:Components,high,HTTPBase,missed,,fn,type_alias,SecurityScheme üzerinden
+fastapi:openapi.models:Components,high,OAuth2,missed,,fn,type_alias,SecurityScheme üzerinden
+fastapi:openapi.models:Components,high,OpenIdConnect,missed,,fn,type_alias,SecurityScheme üzerinden
+fastapi:openapi.models:Components,high,HTTPBearer,missed,,fn,type_alias,SecurityScheme üzerinden
+attrs:attr._make:Converter,low,_AnnotationExtractor,counted,likely_tp,tp,direct,
+attrs:attr._make:_CountingAttr,mid,Attribute,counted,likely_tp,tp,direct,
+attrs:attr._make:_CountingAttr,mid,DefaultAlreadySetError,counted,likely_tp,tp,direct,
+attrs:attr._make:_CountingAttr,mid,Factory,counted,likely_tp,tp,direct,
+click:_winconsole:_WindowsConsoleWriter,low,_WindowsConsoleRawIOBase,counted,likely_tp,tp,direct,
+click:exceptions:BadParameter,mid,Context,counted,likely_tp,tp,direct,
+click:exceptions:BadParameter,mid,Parameter,counted,likely_tp,tp,direct,
+click:exceptions:BadParameter,mid,UsageError,counted,likely_tp,tp,direct,
+click:core:Option,high,BoolParamType,counted,check_attribute,tp,module_attribute,from . import types
+click:core:Option,high,Context,counted,likely_tp,tp,direct,
+click:core:Option,high,IntRange,counted,check_attribute,tp,module_attribute,types.IntRange
+click:core:Option,high,OptionParser,counted,likely_tp,tp,direct,
+click:core:Option,high,ParamType,counted,check_attribute,tp,module_attribute,types.ParamType
+click:core:Option,high,Parameter,counted,likely_tp,tp,direct,
+click:core:Option,high,ParameterSource,counted,likely_tp,tp,direct,
+click:core:Option,high,Tuple,counted,check_attribute,fp,external_same_name,t.Tuple = typing.Tuple; click.types.Tuple ile ad çakışması
+click:core:Option,high,_NumberRangeBase,counted,check_attribute,tp,module_attribute,types._NumberRangeBase
+flask:blueprints:Blueprint,low,AppGroup,counted,likely_tp,tp,direct,
+flask:blueprints:Blueprint,low,Response,counted,likely_tp,tp,direct,
+flask:sansio.blueprints:Blueprint,mid,App,counted,likely_tp,tp,direct,
+flask:sansio.blueprints:Blueprint,mid,BlueprintSetupState,counted,likely_tp,tp,direct,
+flask:sansio.blueprints:Blueprint,mid,Scaffold,counted,likely_tp,tp,direct,
+flask:sansio.app:App,high,Blueprint,counted,likely_tp,tp,direct,
+flask:sansio.app:App,high,Config,counted,likely_tp,tp,direct,
+flask:sansio.app:App,high,ConfigAttribute,counted,likely_tp,tp,direct,
+flask:sansio.app:App,high,DefaultJSONProvider,counted,likely_tp,tp,direct,
+flask:sansio.app:App,high,DispatchingJinjaLoader,counted,likely_tp,tp,direct,
+flask:sansio.app:App,high,Environment,counted,likely_tp,tp,direct,
+flask:sansio.app:App,high,FlaskCliRunner,counted,likely_tp,tp,direct,
+flask:sansio.app:App,high,FlaskClient,counted,likely_tp,tp,direct,
+flask:sansio.app:App,high,JSONProvider,counted,likely_tp,tp,direct,
+flask:sansio.app:App,high,Response,counted,likely_fp_external,fp,external_same_name,from werkzeug.sansio.response import Response; flask.wrappers.Response değil
+flask:sansio.app:App,high,Scaffold,counted,likely_tp,tp,direct,
+flask:sansio.app:App,high,_AppCtxGlobals,counted,likely_tp,tp,direct,
+sqlalchemy:unitofwork:ProcessState,low,PostSortRec,counted,likely_tp,tp,direct,
+sqlalchemy:strategies:PostLoader,mid,AbstractRelationshipLoader,counted,likely_tp,tp,direct,
+sqlalchemy:strategies:PostLoader,mid,PathRegistry,counted,check_attribute,tp,module_attribute,orm_util.PathRegistry
+sqlalchemy:strategies:PostLoader,mid,PostLoad,counted,check_attribute,tp,module_attribute,loading.PostLoad
+sqlalchemy:strategies:SubqueryLoader,high,AliasedClass,counted,check_attribute,tp,module_attribute,orm_util.AliasedClass
+sqlalchemy:strategies:SubqueryLoader,high,LoaderCriteriaOption,counted,check_attribute,tp,module_attribute,orm_util.LoaderCriteriaOption
+sqlalchemy:strategies:SubqueryLoader,high,ORMCompileState,counted,likely_tp,tp,direct,
+sqlalchemy:strategies:SubqueryLoader,high,ORMSelectCompileState,counted,likely_tp,tp,direct,
+sqlalchemy:strategies:SubqueryLoader,high,PathRegistry,counted,check_attribute,tp,module_attribute,orm_util / path_registry
+sqlalchemy:strategies:SubqueryLoader,high,PostLoader,counted,likely_tp,tp,direct,
+sqlalchemy:strategies:SubqueryLoader,high,Query,counted,check_attribute,tp,module_attribute,query.Query
+sqlalchemy:strategies:SubqueryLoader,high,RelationshipProperty,counted,check_attribute,tp,module_attribute,relationships.RelationshipProperty
+sqlalchemy:strategies:SubqueryLoader,high,_SubqCollections,counted,check_attribute,fp,own_local_class,"SubqueryLoader'ın kendi iç içe sınıfı (line 1776), self üzerinden"
+sqlalchemy:strategies:SubqueryLoader,high,collection,counted,likely_fp_local_name,fp,local_name,yerel değişken; collections.collection sınıfıyla ad çakışması
+sqlalchemy:strategies:SubqueryLoader,high,query,counted,likely_tp,fp,module_same_name,from . import query modülü; scoping.py içindeki metot-içi class query ile çakışma
+black:trans:StringParenStripper,mid,CannotTransform,counted,likely_tp,tp,direct,
+black:trans:StringParenStripper,mid,Err,counted,likely_tp,tp,direct,
+black:trans:StringParenStripper,mid,Line,counted,likely_tp,tp,direct,
+black:trans:StringParenStripper,mid,Ok,counted,likely_tp,tp,direct,
+black:trans:StringParenStripper,mid,StringParser,counted,likely_tp,tp,direct,
+black:trans:StringParenStripper,mid,StringTransformer,counted,likely_tp,tp,direct,
+black:trans:StringMerger,high,CannotTransform,counted,likely_tp,tp,direct,
+black:trans:StringMerger,high,CustomSplit,counted,likely_tp,tp,direct,
+black:trans:StringMerger,high,CustomSplitMapMixin,counted,likely_tp,tp,direct,
+black:trans:StringMerger,high,Err,counted,likely_tp,tp,direct,
+black:trans:StringMerger,high,Line,counted,likely_tp,tp,direct,
+black:trans:StringMerger,high,Ok,counted,likely_tp,tp,direct,
+black:trans:StringMerger,high,StringTransformer,counted,likely_tp,tp,direct,
+mypy:plugins.proper_plugin:ProperTypePlugin,mid,FunctionContext,counted,likely_tp,tp,direct,
+mypy:plugins.proper_plugin:ProperTypePlugin,mid,Plugin,counted,likely_tp,tp,direct,
+mypy:plugins.proper_plugin:ProperTypePlugin,mid,Type,counted,likely_tp,tp,direct,
+mypy:join:InstanceJoiner,high,AnyType,counted,likely_tp,tp,direct,
+mypy:join:InstanceJoiner,high,Instance,counted,likely_tp,tp,direct,
+mypy:join:InstanceJoiner,high,ProperType,counted,likely_tp,tp,direct,
+mypy:join:InstanceJoiner,high,SubtypeContext,counted,likely_tp,tp,direct,
+mypy:join:InstanceJoiner,high,TupleType,counted,likely_tp,tp,direct,
+mypy:join:InstanceJoiner,high,Type,counted,likely_tp,tp,direct,
+mypy:join:InstanceJoiner,high,TypeOfAny,counted,likely_tp,tp,direct,
+mypy:join:InstanceJoiner,high,TypeVarTupleType,counted,likely_tp,tp,direct,
+mypy:join:InstanceJoiner,high,TypeVarType,counted,likely_tp,tp,direct,
+mypy:join:InstanceJoiner,high,UninhabitedType,counted,likely_tp,tp,direct,
+mypy:join:InstanceJoiner,high,UnpackType,counted,likely_tp,tp,direct,
+pandas:window.rolling:RollingGroupby,mid,BaseIndexer,counted,likely_tp,tp,direct,
+pandas:window.rolling:RollingGroupby,mid,BaseWindowGroupby,counted,likely_tp,tp,direct,
+pandas:window.rolling:RollingGroupby,mid,FixedWindowIndexer,counted,likely_tp,tp,direct,
+pandas:window.rolling:RollingGroupby,mid,GroupbyIndexer,counted,likely_tp,tp,direct,
+pandas:window.rolling:RollingGroupby,mid,Rolling,counted,likely_tp,tp,direct,
+pandas:window.rolling:RollingGroupby,mid,VariableWindowIndexer,counted,likely_tp,tp,direct,
+pandas:groupby.generic:DataFrameGroupBy,high,DataFrame,counted,likely_tp,tp,direct,
+pandas:groupby.generic:DataFrameGroupBy,high,GroupBy,counted,likely_tp,tp,direct,
+pandas:groupby.generic:DataFrameGroupBy,high,GroupByApply,counted,likely_tp,tp,direct,
+pandas:groupby.generic:DataFrameGroupBy,high,GroupByPlot,counted,likely_tp,tp,direct,
+pandas:groupby.generic:DataFrameGroupBy,high,Index,counted,likely_tp,tp,direct,
+pandas:groupby.generic:DataFrameGroupBy,high,NDFrame,counted,likely_tp,tp,direct,
+pandas:groupby.generic:DataFrameGroupBy,high,Series,counted,likely_tp,tp,direct,
+pandas:groupby.generic:DataFrameGroupBy,high,SeriesGroupBy,counted,likely_tp,tp,direct,

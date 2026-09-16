@@ -1,0 +1,207 @@
+{
+  "_readme": "DCC elle sayım kararları. Kodu okuyan kişinin kararıdır; dcc_sample.py ipucu üretir, karar vermez. 'references': DCC'nin saydığı ad için karar (tp/fp). İpucu likely_tp olan ve burada yer almayan referans, bağlanma satırı proje importu ya da aynı modüldeki sınıf olduğu için tp kabul edilir. 'false_negatives': DCC'nin saymadığı gerçek referanslar. 'rejected_candidates': otomatik FN adayı olup okunduktan sonra reddedilenler.",
+  "references": {
+    "httpx:_transports.default:AsyncHTTPTransport": {
+      "Request": {
+        "verdict": "tp",
+        "category": "masked_external_attribute",
+        "note": "httpcore.Request harici; ama httpx Request düz adla da kullanılıyor, sayı değişmez"
+      },
+      "URL": {
+        "verdict": "tp",
+        "category": "masked_external_attribute",
+        "note": "httpcore.URL harici; httpx URL düz adla da kullanılıyor"
+      }
+    },
+    "pydantic:deprecated.decorator:ValidatedFunction": {
+      "ConfigWrapper": {
+        "verdict": "tp",
+        "category": "module_attribute",
+        "note": "from .._internal import _config; _config.ConfigWrapper"
+      },
+      "DecoratorBaseModel": {
+        "verdict": "fp",
+        "category": "own_local_class",
+        "note": "sınıfın kendi metodu içinde tanımlı yerel sınıf (line 242)"
+      }
+    },
+    "pydantic:type_adapter:TypeAdapter": {
+      "CollectedInvalid": {
+        "verdict": "tp",
+        "category": "module_attribute",
+        "note": "GenerateSchema.CollectedInvalid, örnek üzerinden erişim; proje sınıfı"
+      },
+      "ConfigWrapper": {
+        "verdict": "tp",
+        "category": "module_attribute",
+        "note": "_config.ConfigWrapper"
+      },
+      "GenerateSchema": {
+        "verdict": "tp",
+        "category": "module_attribute",
+        "note": "_generate_schema.GenerateSchema"
+      },
+      "MockCoreSchema": {
+        "verdict": "tp",
+        "category": "module_attribute",
+        "note": "_mock_val_ser"
+      },
+      "MockValSer": {
+        "verdict": "tp",
+        "category": "module_attribute",
+        "note": "_mock_val_ser"
+      },
+      "NamespacesTuple": {
+        "verdict": "tp",
+        "category": "module_attribute",
+        "note": "_namespace_utils"
+      },
+      "NsResolver": {
+        "verdict": "tp",
+        "category": "module_attribute",
+        "note": "_namespace_utils"
+      }
+    },
+    "click:core:Option": {
+      "BoolParamType": {
+        "verdict": "tp",
+        "category": "module_attribute",
+        "note": "from . import types"
+      },
+      "IntRange": {
+        "verdict": "tp",
+        "category": "module_attribute",
+        "note": "types.IntRange"
+      },
+      "ParamType": {
+        "verdict": "tp",
+        "category": "module_attribute",
+        "note": "types.ParamType"
+      },
+      "_NumberRangeBase": {
+        "verdict": "tp",
+        "category": "module_attribute",
+        "note": "types._NumberRangeBase"
+      },
+      "Tuple": {
+        "verdict": "fp",
+        "category": "external_same_name",
+        "note": "t.Tuple = typing.Tuple; click.types.Tuple ile ad çakışması"
+      }
+    },
+    "flask:sansio.app:App": {
+      "Response": {
+        "verdict": "fp",
+        "category": "external_same_name",
+        "note": "from werkzeug.sansio.response import Response; flask.wrappers.Response değil"
+      }
+    },
+    "sqlalchemy:strategies:PostLoader": {
+      "PathRegistry": {
+        "verdict": "tp",
+        "category": "module_attribute",
+        "note": "orm_util.PathRegistry"
+      },
+      "PostLoad": {
+        "verdict": "tp",
+        "category": "module_attribute",
+        "note": "loading.PostLoad"
+      }
+    },
+    "sqlalchemy:strategies:SubqueryLoader": {
+      "AliasedClass": {
+        "verdict": "tp",
+        "category": "module_attribute",
+        "note": "orm_util.AliasedClass"
+      },
+      "LoaderCriteriaOption": {
+        "verdict": "tp",
+        "category": "module_attribute",
+        "note": "orm_util.LoaderCriteriaOption"
+      },
+      "PathRegistry": {
+        "verdict": "tp",
+        "category": "module_attribute",
+        "note": "orm_util / path_registry"
+      },
+      "Query": {
+        "verdict": "tp",
+        "category": "module_attribute",
+        "note": "query.Query"
+      },
+      "RelationshipProperty": {
+        "verdict": "tp",
+        "category": "module_attribute",
+        "note": "relationships.RelationshipProperty"
+      },
+      "_SubqCollections": {
+        "verdict": "fp",
+        "category": "own_local_class",
+        "note": "SubqueryLoader'ın kendi iç içe sınıfı (line 1776), self üzerinden"
+      },
+      "collection": {
+        "verdict": "fp",
+        "category": "local_name",
+        "note": "yerel değişken; collections.collection sınıfıyla ad çakışması"
+      },
+      "query": {
+        "verdict": "fp",
+        "category": "module_same_name",
+        "note": "from . import query modülü; scoping.py içindeki metot-içi class query ile çakışma"
+      }
+    }
+  },
+  "false_negatives": {
+    "fastapi:security.http:HTTPDigest": [
+      {
+        "name": "HTTPBase",
+        "category": "same_name_merged",
+        "note": "security.http.HTTPBase (taban) ve openapi.models.HTTPBase (HTTPBaseModel takma adı) farklı sınıflar, tek sayılıyor"
+      }
+    ],
+    "fastapi:openapi.models:Components": [
+      {
+        "name": "APIKey",
+        "category": "type_alias",
+        "note": "SecurityScheme = Union[APIKey, HTTPBase, OAuth2, OpenIdConnect, HTTPBearer]"
+      },
+      {
+        "name": "HTTPBase",
+        "category": "type_alias",
+        "note": "SecurityScheme üzerinden"
+      },
+      {
+        "name": "OAuth2",
+        "category": "type_alias",
+        "note": "SecurityScheme üzerinden"
+      },
+      {
+        "name": "OpenIdConnect",
+        "category": "type_alias",
+        "note": "SecurityScheme üzerinden"
+      },
+      {
+        "name": "HTTPBearer",
+        "category": "type_alias",
+        "note": "SecurityScheme üzerinden"
+      }
+    ]
+  },
+  "rejected_candidates": {
+    "attrs:attr._make:_CountingAttr": {
+      "via_alias:NOTHING->_Nothing": "NOTHING = _Nothing.NOTHING bir enum değeri; sınıf referansı değil"
+    },
+    "fastapi:openapi.models:Components": {
+      "same_name:Headerx2": "yalnızca openapi.models.Header kullanılıyor; params.Header değil"
+    },
+    "flask:sansio.app:App": {
+      "same_name:Blueprintx2": "yalnızca sansio.blueprints.Blueprint kullanılıyor"
+    },
+    "mypy:plugins.proper_plugin:ProperTypePlugin": {
+      "same_name:FunctionContextx2": "yalnızca mypy.plugin.FunctionContext; stubutil değil"
+    },
+    "pandas:groupby.generic:DataFrameGroupBy": {
+      "same_name:DataFramex2": "yalnızca core.frame.DataFrame; interchange değil"
+    }
+  }
+}
