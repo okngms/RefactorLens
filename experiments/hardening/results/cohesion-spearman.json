@@ -1,0 +1,494 @@
+{
+  "cohesion_version": "1.2.0",
+  "projects": {
+    "requests": {
+      "compared": 12,
+      "excluded": {
+        "single_method": 31,
+        "no_class_variables": 1,
+        "name_shadowed": 0
+      },
+      "spearman": -0.4168,
+      "god_class_gate": {
+        "size_qualified": 0,
+        "fired": 0,
+        "gated_by_lcom4": 0,
+        "gated_only_because_of_call_edges": 0,
+        "examples": []
+      }
+    },
+    "httpx": {
+      "compared": 30,
+      "excluded": {
+        "single_method": 50,
+        "no_class_variables": 5,
+        "name_shadowed": 0
+      },
+      "spearman": -0.7222,
+      "god_class_gate": {
+        "size_qualified": 2,
+        "fired": 2,
+        "gated_by_lcom4": 0,
+        "gated_only_because_of_call_edges": 0,
+        "examples": []
+      }
+    },
+    "rich": {
+      "compared": 54,
+      "excluded": {
+        "single_method": 109,
+        "no_class_variables": 7,
+        "name_shadowed": 0
+      },
+      "spearman": -0.5905,
+      "god_class_gate": {
+        "size_qualified": 5,
+        "fired": 4,
+        "gated_by_lcom4": 1,
+        "gated_only_because_of_call_edges": 1,
+        "examples": [
+          "progress.py:Progress nom=21 lcom4=2"
+        ]
+      }
+    },
+    "pydantic": {
+      "compared": 36,
+      "excluded": {
+        "single_method": 137,
+        "no_class_variables": 6,
+        "name_shadowed": 0
+      },
+      "spearman": -0.6192,
+      "god_class_gate": {
+        "size_qualified": 4,
+        "fired": 2,
+        "gated_by_lcom4": 2,
+        "gated_only_because_of_call_edges": 2,
+        "examples": [
+          "_internal/_core_utils.py:_WalkCoreSchema nom=27 lcom4=1",
+          "_internal/_generate_schema.py:GenerateSchema nom=62 lcom4=1"
+        ]
+      }
+    },
+    "fastapi": {
+      "compared": 3,
+      "excluded": {
+        "single_method": 85,
+        "no_class_variables": 1,
+        "name_shadowed": 0
+      },
+      "spearman": -0.5,
+      "god_class_gate": {
+        "size_qualified": 0,
+        "fired": 0,
+        "gated_by_lcom4": 0,
+        "gated_only_because_of_call_edges": 0,
+        "examples": []
+      }
+    },
+    "attrs": {
+      "compared": 6,
+      "excluded": {
+        "single_method": 27,
+        "no_class_variables": 0,
+        "name_shadowed": 0
+      },
+      "spearman": -0.6789,
+      "god_class_gate": {
+        "size_qualified": 0,
+        "fired": 0,
+        "gated_by_lcom4": 0,
+        "gated_only_because_of_call_edges": 0,
+        "examples": []
+      }
+    },
+    "click": {
+      "compared": 38,
+      "excluded": {
+        "single_method": 28,
+        "no_class_variables": 0,
+        "name_shadowed": 0
+      },
+      "spearman": -0.5174,
+      "god_class_gate": {
+        "size_qualified": 0,
+        "fired": 0,
+        "gated_by_lcom4": 0,
+        "gated_only_because_of_call_edges": 0,
+        "examples": []
+      }
+    },
+    "flask": {
+      "compared": 29,
+      "excluded": {
+        "single_method": 16,
+        "no_class_variables": 1,
+        "name_shadowed": 0
+      },
+      "spearman": -0.7111,
+      "god_class_gate": {
+        "size_qualified": 3,
+        "fired": 2,
+        "gated_by_lcom4": 1,
+        "gated_only_because_of_call_edges": 1,
+        "examples": [
+          "sansio/blueprints.py:Blueprint nom=21 lcom4=1"
+        ]
+      }
+    },
+    "sqlalchemy": {
+      "compared": 120,
+      "excluded": {
+        "single_method": 128,
+        "no_class_variables": 8,
+        "name_shadowed": 0
+      },
+      "spearman": -0.619,
+      "god_class_gate": {
+        "size_qualified": 12,
+        "fired": 8,
+        "gated_by_lcom4": 4,
+        "gated_only_because_of_call_edges": 4,
+        "examples": [
+          "relationships.py:RelationshipProperty nom=35 lcom4=2",
+          "relationships.py:JoinCondition nom=37 lcom4=1",
+          "session.py:ORMExecuteState nom=22 lcom4=2",
+          "session.py:SessionTransaction nom=20 lcom4=2"
+        ]
+      }
+    },
+    "black": {
+      "compared": 16,
+      "excluded": {
+        "single_method": 26,
+        "no_class_variables": 2,
+        "name_shadowed": 0
+      },
+      "spearman": -0.347,
+      "god_class_gate": {
+        "size_qualified": 2,
+        "fired": 0,
+        "gated_by_lcom4": 2,
+        "gated_only_because_of_call_edges": 1,
+        "examples": [
+          "linegen.py:LineGenerator nom=26 lcom4=1"
+        ]
+      }
+    },
+    "mypy": {
+      "compared": 183,
+      "excluded": {
+        "single_method": 202,
+        "no_class_variables": 35,
+        "name_shadowed": 0
+      },
+      "spearman": -0.527,
+      "god_class_gate": {
+        "size_qualified": 38,
+        "fired": 19,
+        "gated_by_lcom4": 19,
+        "gated_only_because_of_call_edges": 18,
+        "examples": [
+          "binder.py:ConditionalTypeBinder nom=24 lcom4=1",
+          "checker.py:TypeChecker nom=217 lcom4=1",
+          "checkpattern.py:PatternChecker nom=21 lcom4=1",
+          "checkstrformat.py:StringFormatterChecker nom=24 lcom4=1",
+          "dmypy_server.py:Server nom=28 lcom4=2"
+        ]
+      }
+    },
+    "pandas": {
+      "compared": 148,
+      "excluded": {
+        "single_method": 87,
+        "no_class_variables": 11,
+        "name_shadowed": 0
+      },
+      "spearman": -0.724,
+      "god_class_gate": {
+        "size_qualified": 41,
+        "fired": 34,
+        "gated_by_lcom4": 7,
+        "gated_only_because_of_call_edges": 7,
+        "examples": [
+          "computation/expr.py:BaseExprVisitor nom=26 lcom4=1",
+          "groupby/ops.py:BaseGrouper nom=28 lcom4=1",
+          "indexes/datetimelike.py:DatetimeTimedeltaMixin nom=26 lcom4=1",
+          "internals/managers.py:BaseBlockManager nom=35 lcom4=2",
+          "strings/accessor.py:StringMethods nom=50 lcom4=2"
+        ]
+      }
+    }
+  },
+  "god_class_gate": {
+    "rules": {
+      "nom": 20,
+      "wmc": 50,
+      "lcom4": 3
+    },
+    "size_qualified": 107,
+    "fired": 71,
+    "gated_by_lcom4": 36,
+    "gated_only_because_of_call_edges": 34
+  },
+  "total": {
+    "compared": 675,
+    "spearman": -0.6204
+  },
+  "top_deviations": [
+    {
+      "score": 0.7896,
+      "project": "mypy",
+      "path": "nodes.py",
+      "class": "Node",
+      "line": 168,
+      "lcom4": 1,
+      "cohesion": 0.0,
+      "category": "call_edges"
+    },
+    {
+      "score": 0.7896,
+      "project": "sqlalchemy",
+      "path": "interfaces.py",
+      "class": "MapperOption",
+      "line": 1371,
+      "lcom4": 1,
+      "cohesion": 0.0,
+      "category": "call_edges"
+    },
+    {
+      "score": 0.757,
+      "project": "mypy",
+      "path": "meet.py",
+      "class": "TypeMeetVisitor",
+      "line": 687,
+      "lcom4": 5,
+      "cohesion": 72.0,
+      "category": "isolated_methods"
+    },
+    {
+      "score": 0.737,
+      "project": "mypy",
+      "path": "fastparse.py",
+      "class": "ASTConverter",
+      "line": 356,
+      "lcom4": 1,
+      "cohesion": 4.12,
+      "category": "call_edges"
+    },
+    {
+      "score": 0.7348,
+      "project": "mypy",
+      "path": "checker.py",
+      "class": "TypeChecker",
+      "line": 274,
+      "lcom4": 1,
+      "cohesion": 4.14,
+      "category": "call_edges"
+    },
+    {
+      "score": 0.7267,
+      "project": "mypy",
+      "path": "server/subexpr.py",
+      "class": "SubexpressionFinder",
+      "line": 44,
+      "lcom4": 1,
+      "cohesion": 4.65,
+      "category": "call_edges"
+    },
+    {
+      "score": 0.7163,
+      "project": "black",
+      "path": "linegen.py",
+      "class": "LineGenerator",
+      "line": 99,
+      "lcom4": 1,
+      "cohesion": 5.51,
+      "category": "call_edges"
+    },
+    {
+      "score": 0.7119,
+      "project": "pydantic",
+      "path": "_internal/_core_utils.py",
+      "class": "_WalkCoreSchema",
+      "line": 175,
+      "lcom4": 1,
+      "cohesion": 5.95,
+      "category": "call_edges"
+    },
+    {
+      "score": 0.7,
+      "project": "flask",
+      "path": "sansio/blueprints.py",
+      "class": "Blueprint",
+      "line": 119,
+      "lcom4": 1,
+      "cohesion": 6.36,
+      "category": "call_edges"
+    },
+    {
+      "score": 0.6956,
+      "project": "mypy",
+      "path": "erasetype.py",
+      "class": "TypeVarEraser",
+      "line": 161,
+      "lcom4": 4,
+      "cohesion": 71.43,
+      "category": "isolated_methods"
+    },
+    {
+      "score": 0.6763,
+      "project": "pandas",
+      "path": "computation/expr.py",
+      "class": "BaseExprVisitor",
+      "line": 339,
+      "lcom4": 1,
+      "cohesion": 8.02,
+      "category": "call_edges"
+    },
+    {
+      "score": 0.6422,
+      "project": "pydantic",
+      "path": "_internal/_generate_schema.py",
+      "class": "GenerateSchema",
+      "line": 318,
+      "lcom4": 1,
+      "cohesion": 9.53,
+      "category": "call_edges"
+    },
+    {
+      "score": 0.6407,
+      "project": "pandas",
+      "path": "indexes/datetimelike.py",
+      "class": "DatetimeTimedeltaMixin",
+      "line": 430,
+      "lcom4": 1,
+      "cohesion": 9.62,
+      "category": "call_edges"
+    },
+    {
+      "score": 0.6341,
+      "project": "pandas",
+      "path": "groupby/ops.py",
+      "class": "BaseGrouper",
+      "line": 560,
+      "lcom4": 1,
+      "cohesion": 10.0,
+      "category": "call_edges"
+    },
+    {
+      "score": 0.6274,
+      "project": "mypy",
+      "path": "messages.py",
+      "class": "MessageBuilder",
+      "line": 154,
+      "lcom4": 1,
+      "cohesion": 10.18,
+      "category": "call_edges"
+    },
+    {
+      "score": 0.6215,
+      "project": "mypy",
+      "path": "suggestions.py",
+      "class": "SuggestionEngine",
+      "line": 232,
+      "lcom4": 1,
+      "cohesion": 10.67,
+      "category": "call_edges"
+    },
+    {
+      "score": 0.6089,
+      "project": "mypy",
+      "path": "stubgenc.py",
+      "class": "InspectionStubGenerator",
+      "line": 214,
+      "lcom4": 1,
+      "cohesion": 11.11,
+      "category": "call_edges"
+    },
+    {
+      "score": 0.6074,
+      "project": "sqlalchemy",
+      "path": "attributes.py",
+      "class": "History",
+      "line": 2310,
+      "lcom4": 4,
+      "cohesion": 54.55,
+      "category": "isolated_methods"
+    },
+    {
+      "score": 0.6015,
+      "project": "sqlalchemy",
+      "path": "scoping.py",
+      "class": "scoped_session",
+      "line": 146,
+      "lcom4": 5,
+      "cohesion": 45.83,
+      "category": "isolated_methods"
+    },
+    {
+      "score": 0.6,
+      "project": "mypy",
+      "path": "join.py",
+      "class": "TypeJoinVisitor",
+      "line": 294,
+      "lcom4": 6,
+      "cohesion": 41.67,
+      "category": "isolated_methods"
+    },
+    {
+      "score": 0.5941,
+      "project": "mypy",
+      "path": "errors.py",
+      "class": "Errors",
+      "line": 221,
+      "lcom4": 1,
+      "cohesion": 11.54,
+      "category": "call_edges"
+    },
+    {
+      "score": 0.5874,
+      "project": "sqlalchemy",
+      "path": "relationships.py",
+      "class": "JoinCondition",
+      "line": 2269,
+      "lcom4": 1,
+      "cohesion": 11.99,
+      "category": "call_edges"
+    },
+    {
+      "score": 0.58,
+      "project": "mypy",
+      "path": "inspections.py",
+      "class": "InspectionEngine",
+      "line": 192,
+      "lcom4": 1,
+      "cohesion": 12.3,
+      "category": "call_edges"
+    },
+    {
+      "score": 0.5704,
+      "project": "sqlalchemy",
+      "path": "strategies.py",
+      "class": "SubqueryLoader",
+      "line": 1466,
+      "lcom4": 1,
+      "cohesion": 12.5,
+      "category": "call_edges"
+    },
+    {
+      "score": 0.5593,
+      "project": "mypy",
+      "path": "renaming.py",
+      "class": "VariableRenameVisitor",
+      "line": 40,
+      "lcom4": 1,
+      "cohesion": 13.13,
+      "category": "call_edges"
+    }
+  ],
+  "top_deviation_categories": {
+    "call_edges": 20,
+    "isolated_methods": 5
+  }
+}

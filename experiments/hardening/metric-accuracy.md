@@ -4,9 +4,9 @@ Sertleştirme Blok 1 (`docs/v2-sertlestirme.md`). Bu dosya metrik × hata
 kategorisi × sıklık tablosudur: hangi farkların tanım gereği olduğu, hangilerinin
 düzeltildiği, hangilerinin bilinen sınırlılık olarak kaldığı.
 
-**Durum:** CC tamam (§1). Uç nokta testleri ve düzeltmeler tamam (§2). DCC elle
-sayımı tamam (§4). Kohezyon (Spearman, `cohesion` aracı) ve CAM annotation
-kapsamı **henüz yapılmadı** — bkz. §3.
+**Durum: Blok 1 tamam.** CC (§1), uç nokta testleri ve düzeltmeler (§2), DCC
+elle sayımı (§4), CAM kapsamı (§5), kohezyon karşılaştırması (§6). Açık tanım
+kararları §3'te.
 
 Referans seti: `projects.txt`, 12 proje, commit hash'iyle dondurulmuş. Tarama
 kapsamı her projenin ürün kodu; `tests/` dizinleri dışlanır.
@@ -170,12 +170,18 @@ Mevcut davranış testle sabitlendi.
 
 ---
 
-## 3. Henüz yapılmayanlar (Blok 1'in kalanı)
+## 3. Açık tanım kararları
 
-- **Kohezyon:** `cohesion` aracı ile sınıf bazında Spearman sıralama
-  korelasyonu; büyük sapmalar elle.
-- **CAM:** annotation kapsamı dağılımı (projelerin yüzde kaçında hesaplanabiliyor).
-- LOC ve boş sınıf LCOM4 kararları (§2).
+Blok 1 ölçümlerinin ortaya çıkardığı, uygulama hatası olmayan ama tanımın
+cevaplamadığı sorular. Hepsi `schema_version` gerektirir; ayrıntı
+`docs/STATUS.md`.
+
+- **LOC:** `docs/04` boş satır ve yorumları hariç tutar, uygulama dahil eder (§2).
+- **Metotsuz sınıfta LCOM4:** `docs/04` `null`, uygulama `0` (§2).
+- **DCC'de sınıfın kendi iç içe sınıfı:** dış referans sayılıyor (§4).
+- **`god_class`'ın LCOM4 kapısı:** boyut koşulunu geçen büyük sınıfların üçte
+  biri, ortak bir yardımcı metodu çağırdıkları için LCOM4 = 1-2 alıp kokudan
+  kaçıyor (§6).
 
 ---
 
@@ -288,3 +294,131 @@ namespace paketleri, `sys.path` hileleri ve vendored kopyalar çözücünün
 göremediği yerlerdir. 154'te 2'lik bir kazanç için DCC'yi çözücünün
 hatalarına bağlamak şu an iyi bir takas değil; ölçüm korpusu (Blok 1b)
 genişleyince yeniden tartılır.
+
+---
+
+## 5. CAM — annotation kapsamı
+
+Üretmek için: `python experiments/hardening/cam_coverage.py` →
+`results/cam-coverage.json`.
+
+CAM parametre **tipleri** üzerinden tanımlıdır; annotation kapsamı 0.7'nin
+altındaysa `null` döner. Rapordaki `no_annotated_parameters` sebebi iki durumu
+birleştirir — hiç parametre yok, ya da parametre var ama hiç annotation yok —
+betik bunları ayırır. (Etiket her iki durum için de doğrudur; ayrım yalnızca bu
+analiz için gerekli, uygulamada değişiklik yapılmadı.)
+
+| Durum | Sınıf | Pay |
+|---|---:|---:|
+| Hesaplandı | 786 | %46.8 |
+| — bunlardan ayırt edici (parametreli ≥ 2 metot) | 455 | %27.1 |
+| Kapsam eşiğin altında (0 < kapsam < 0.7) | 86 | %5.1 |
+| Parametre var, annotation yok | 86 | %5.1 |
+| Parametre yok | 720 | %42.9 |
+| **Toplam** | **1 678** | |
+
+| Proje | Sınıf | Hesaplandı | Ayırt edici | Medyan kapsam |
+|---|---:|---:|---:|---:|
+| requests | 44 | %0 | 0 | 0.0 |
+| attrs | 33 | %3 | 1 | 0.0 |
+| fastapi | 89 | %10 | 3 | 1.0 |
+| pandas/core | 246 | %29 | 44 | 0.64 |
+| pydantic | 179 | %32 | 33 | 1.0 |
+| sqlalchemy/orm | 256 | %33 | 67 | 1.0 |
+| httpx | 85 | %44 | 14 | 1.0 |
+| black | 44 | %45 | 18 | 1.0 |
+| rich | 170 | %55 | 43 | 1.0 |
+| click | 66 | %65 | 24 | 1.0 |
+| mypy | 420 | %79 | 181 | 1.0 |
+| flask | 46 | %83 | 27 | 1.0 |
+
+**Okuma.**
+
+- **Hesaplanan CAM'lerin %42'si hiçbir şey söylemiyor.** Parametreli tek
+  metodu olan sınıfta CAM tanım gereği 1.0'dır. 786 hesaplanmış değerin 331'i
+  bu durumda.
+- **Eşik neredeyse etkisiz.** Kapsam iki kutuplu: bir proje ya baştan sona
+  annotation'lıdır (medyan 1.0) ya da hiç değildir (requests, attrs). Eşiği
+  0.5 / 0.7 / 0.9 yapmak hesaplanan sınıf sayısını 837 / 786 / 761 yapar; fark
+  neredeyse tamamen sqlalchemy ve pandas'tan gelir. CAM'in kullanılabilirliğini
+  eşik değil **projenin annotation alışkanlığı** belirliyor.
+- **Sınıfların %43'ünde parametre yok** — çoğu istisna sınıfı, enum, veri
+  taşıyıcı. Bunlarda CAM kavramsal olarak tanımsızdır, eksik değildir.
+- **Dogfooding gözleminin sebebi annotation değil.** `docs/STATUS.md`'deki
+  "CAM kendi deposunda %80 hesaplanamıyor" gözlemi aynı betikle ölçüldü:
+  66 sınıfın 53'ünde parametre yok (veri sınıfları, rapor modelleri), annotation
+  eksikliğinden hesaplanamayan sınıf **0**; ayırt edici CAM 6 sınıfta. Yani
+  yoğun annotation'lı bir kodda bile CAM'i sınırlayan şey parametresiz sınıf
+  deyimidir.
+- Blok 1b girdisi: CAM'in kapsama tablosunda "ayırt edici" oranı (%27)
+  esas alınmalı, "hesaplanabilir" oranı (%47) değil.
+
+---
+
+## 6. Kohezyon — `cohesion` aracı ile sıralama korelasyonu
+
+Üretmek için: `pip install cohesion==1.2.0`, sonra
+`python experiments/hardening/compare_cohesion.py` →
+`results/cohesion-spearman.json`.
+
+İki araç farklı yapı ölçer, bu yüzden mutlak değer değil sıra karşılaştırılır:
+
+| | LCOM4 (bizde) | `cohesion` 1.2.0 |
+|---|---|---|
+| Ne | Metot–attribute–çağrı grafiğinin bileşen sayısı | Metotların kullandığı sınıf değişkeni yoğunluğu, % |
+| Yön | Yüksek = kötü | Yüksek = iyi |
+| Metotlar arası çağrı | Bağ sayılır | Görülmez |
+| Dunder metotlar | Hariç | `__init__` dahil |
+| Ölçtüğü | **Bağlantı** | **Yoğunluk** |
+
+Karşılaştırmaya giren: en az iki farklı adlı metodu ve en az bir sınıf
+değişkeni olan 675 sınıf. (İlk koşuda filtre NOM'a bakıyordu; property
+getter/setter NOM'da iki, LCOM4 grafiğinde tek düğüm olduğu için
+`flask.SessionMixin` gibi fiilen tek metotlu sınıflar karşılaştırmaya girip
+sahte sapma üretti. Filtre farklı metot adına çevrildi.)
+
+### Sonuç
+
+**Spearman ρ = −0.62** (675 sınıf), beklenen negatif yönde. Proje bazında
+−0.35 (black) ile −0.72 (httpx, pandas) arası; fastapi yalnızca 3 sınıfla
+anlamsız.
+
+İki tanım aynı yöne işaret ediyor ama örtüşmüyor. Soru sapmaların uygulama
+hatasından mı tanım farkından mı geldiği — en çok ayrışan **25 sınıfın 25'i**
+tanım farkıyla açıklandı, açıklanamayan 0:
+
+| Kategori | Adet | Ne oluyor | Örnek |
+|---|---:|---|---|
+| `call_edges` | 20 | Ortak bir yardımcı metot her metodu çağrıyla bağlıyor; çağrılar çıkarılınca sınıf parçalanıyor. LCOM4 = 1, yoğunluk %4-13 | `mypy.TypeChecker`: 217 metot, çağrısız grafikte 86 bileşen |
+| `isolated_methods` | 5 | Hiçbir attribute'a dokunmayan metotlar LCOM4'te ayrı bileşen; `cohesion` onları yalnızca yoğunluğu biraz düşüren metot sayar | `mypy.TypeMeetVisitor`: 24 metodun 20'si `self.s` kullanıyor, LCOM4 = 5, yoğunluk %72 |
+
+**Sınıflandırıcının kendi hatası.** İlk sürüm LCOM4 = 1 ve düşük yoğunluklu
+sınıfları "birkaç ortak attribute her şeyi bağlıyor" (`hub_attributes`) diye
+etiketliyordu — 18 sınıf. Bu bir **varsayımdı**, ölçülmemişti. Grafiğin
+çağrısız hali hesaplanınca 18'inin de parçalandığı görüldü (`SubexpressionFinder`
+42 metot, 42 bileşen: hiç ortak attribute yok). Bağlayan şey çağrılardı.
+Kategori artık ölçülerek atanıyor ve iki durum testte ayrı sınıflara düşüyor.
+
+### `god_class` için sonucu
+
+`god_class` kokusu `nom ≥ 20`, `wmc ≥ 50` **ve** `lcom4 ≥ 3` ister. Çağrı
+kenarları LCOM4'ü düşürdüğü için:
+
+| | Sınıf |
+|---|---:|
+| Boyut koşulunu geçen (NOM ve WMC) | 107 |
+| `god_class` ateşlendi | 71 |
+| LCOM4 koşulunda elendi | 36 |
+| — **yalnızca çağrı kenarları yüzünden** elendi | **34** |
+
+Referans setinin büyük sınıflarının **üçte biri** god class kokusundan
+kaçıyor ve bunun neredeyse tek sebebi ortak yardımcı metot deyimi: ziyaretçi
+(visitor) sınıfları, `self.add(...)` / `self.fail(...)` gibi bir merkezden
+dağılan sınıflar. Örnekler: `mypy.TypeChecker` (NOM 217), `pydantic.GenerateSchema`
+(62), `pandas.StringMethods` (50), `sqlalchemy.JoinCondition` (37).
+
+Bu **uygulama hatası değil**: Hitz ve Montazeri LCOM4'ü çağrıyı bağ sayarak
+tanımlar ve `docs/04` bu tanımı izler. Soru tanımın kendisinin
+`god_class` için doğru kapı olup olmadığı — ya da kapının bağlantı yerine
+yoğunluğa mı bakması gerektiği. Bu bir tanım kararıdır ve Blok 1b'nin eşik
+kalibrasyonuyla birlikte ele alınmalıdır (§3).

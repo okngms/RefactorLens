@@ -180,6 +180,7 @@ tests/
 ├── test_metric_edges.py    Real-world idioms: decorators, @overload, except*, string annotations
 ├── test_hardening_compare.py  The radon cross-check classifier (radon optional)
 ├── test_hardening_dcc.py   DCC manual-count sampling, hints, verdict enforcement
+├── test_hardening_cohesion_cam.py  CAM coverage split, Spearman, deviation categories
 └── test_cli.py             All four commands end to end
 ```
 
@@ -190,10 +191,13 @@ experiments/hardening/
 ├── projects.txt            12 reference projects, frozen by commit hash
 ├── compare_radon.py        CC vs radon per function; classifies every difference
 ├── dcc_sample.py           DCC manual count: stratified sample, worksheet, summary
+├── cam_coverage.py         How often CAM is computable, and informative
+├── compare_cohesion.py     LCOM4 vs the cohesion tool: Spearman, deviations, god_class gate
 ├── dcc-verdicts.json       Human verdicts per reference, with file and line
 ├── metric-accuracy.md      The difference table: definition gaps, fixes, open decisions
 ├── results/cc-radon.json   Raw comparison output
 ├── results/dcc-*.{json,csv}  DCC sample, per-reference rows, summary
+├── results/cam-coverage.json, cohesion-spearman.json
 └── .cache/                 Checked-out reference projects (gitignored, not in sdist)
 ```
 

@@ -121,9 +121,17 @@ var.
 ## Sıralama, süre, çıkış
 
 ```
-Blok 1 (2-3 oturum) → Blok 1b (2) → Blok 3 (1-2) → Blok 2 (1-2) → Blok 4 (1-2) → Blok 5 (1)
-→ v2.0.0 yayını → docs/02 (v3) FINDINGS-2 bulgularına göre revize → v3 başlar
+Blok 1 (2-3 oturum) → Blok 1b (2) → v2.2 Python ölçü seti → explain Blok 2
+→ Blok 3 (1-2) → Blok 2 (1-2) → Blok 4 (1-2) → Blok 5 (1)
+→ docs/02 (v3) FINDINGS-2 bulgularına göre revize → v3 başlar
 ```
+> **Hizalama (2026-09-16).** Bu satır `docs/v2.2-python-metrikleri.md`
+> yazılmadan önceki haliyle kalmıştı. O doküman sırayı açıkça koyar: Blok 1 →
+> Blok 1b → v2.2 → `explain` Blok 2. Burada ona uyuldu. v2.0.0 bu dokümandan
+> önce yayınlandığı için sıradan çıkarıldı. Blok 2-5'in v2.2'den sonraya
+> kalması, v2.2'nin gerekçesiyle (§4: korpus hazırken yeni ölçü aynı gün
+> denenir; dayanıklılık ve dokümantasyon işi yeni ölçülerle birlikte bir kez
+> yapılır) tutarlıdır.
 - Blok 3, Blok 2/4/5'in pürüzlerini doğal yoldan çıkardığı için 1'den hemen sonra gelir.
 - Toplam 6-10 yan zamanlı oturum.
 - **Çıkış kriteri:** beş bloğun kabul kriterleri sağlandı, `docs/STATUS.md` "v2.0.0 yayınlandı" diyor, FINDINGS-1/2'nin Limitations bölümleri Blok 1 tablosuna atıf veriyor.

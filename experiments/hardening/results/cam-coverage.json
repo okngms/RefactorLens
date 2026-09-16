@@ -1,0 +1,291 @@
+{
+  "threshold": 0.7,
+  "projects": {
+    "requests": {
+      "classes": 44,
+      "statuses": {
+        "computed": 0,
+        "below_threshold": 0,
+        "zero_annotations": 13,
+        "no_parameters": 31
+      },
+      "computed_share": 0.0,
+      "computed_informative": 0,
+      "classes_with_parameters": 13,
+      "coverage_quantiles": {
+        "p25": 0.0,
+        "median": 0.0,
+        "p75": 0.0
+      },
+      "computed_by_threshold": {
+        "0.5": 0,
+        "0.7": 0,
+        "0.9": 0
+      }
+    },
+    "httpx": {
+      "classes": 85,
+      "statuses": {
+        "computed": 37,
+        "below_threshold": 0,
+        "zero_annotations": 0,
+        "no_parameters": 48
+      },
+      "computed_share": 0.4353,
+      "computed_informative": 14,
+      "classes_with_parameters": 37,
+      "coverage_quantiles": {
+        "p25": 1.0,
+        "median": 1.0,
+        "p75": 1.0
+      },
+      "computed_by_threshold": {
+        "0.5": 37,
+        "0.7": 37,
+        "0.9": 37
+      }
+    },
+    "rich": {
+      "classes": 170,
+      "statuses": {
+        "computed": 93,
+        "below_threshold": 0,
+        "zero_annotations": 0,
+        "no_parameters": 77
+      },
+      "computed_share": 0.5471,
+      "computed_informative": 43,
+      "classes_with_parameters": 93,
+      "coverage_quantiles": {
+        "p25": 1.0,
+        "median": 1.0,
+        "p75": 1.0
+      },
+      "computed_by_threshold": {
+        "0.5": 93,
+        "0.7": 93,
+        "0.9": 93
+      }
+    },
+    "pydantic": {
+      "classes": 179,
+      "statuses": {
+        "computed": 58,
+        "below_threshold": 0,
+        "zero_annotations": 0,
+        "no_parameters": 121
+      },
+      "computed_share": 0.324,
+      "computed_informative": 33,
+      "classes_with_parameters": 58,
+      "coverage_quantiles": {
+        "p25": 1.0,
+        "median": 1.0,
+        "p75": 1.0
+      },
+      "computed_by_threshold": {
+        "0.5": 58,
+        "0.7": 58,
+        "0.9": 58
+      }
+    },
+    "fastapi": {
+      "classes": 89,
+      "statuses": {
+        "computed": 9,
+        "below_threshold": 0,
+        "zero_annotations": 0,
+        "no_parameters": 80
+      },
+      "computed_share": 0.1011,
+      "computed_informative": 3,
+      "classes_with_parameters": 9,
+      "coverage_quantiles": {
+        "p25": 1.0,
+        "median": 1.0,
+        "p75": 1.0
+      },
+      "computed_by_threshold": {
+        "0.5": 9,
+        "0.7": 9,
+        "0.9": 9
+      }
+    },
+    "attrs": {
+      "classes": 33,
+      "statuses": {
+        "computed": 1,
+        "below_threshold": 0,
+        "zero_annotations": 4,
+        "no_parameters": 28
+      },
+      "computed_share": 0.0303,
+      "computed_informative": 1,
+      "classes_with_parameters": 5,
+      "coverage_quantiles": {
+        "p25": 0.0,
+        "median": 0.0,
+        "p75": 0.0
+      },
+      "computed_by_threshold": {
+        "0.5": 1,
+        "0.7": 1,
+        "0.9": 1
+      }
+    },
+    "click": {
+      "classes": 66,
+      "statuses": {
+        "computed": 43,
+        "below_threshold": 0,
+        "zero_annotations": 2,
+        "no_parameters": 21
+      },
+      "computed_share": 0.6515,
+      "computed_informative": 24,
+      "classes_with_parameters": 45,
+      "coverage_quantiles": {
+        "p25": 1.0,
+        "median": 1.0,
+        "p75": 1.0
+      },
+      "computed_by_threshold": {
+        "0.5": 43,
+        "0.7": 43,
+        "0.9": 43
+      }
+    },
+    "flask": {
+      "classes": 46,
+      "statuses": {
+        "computed": 38,
+        "below_threshold": 0,
+        "zero_annotations": 0,
+        "no_parameters": 8
+      },
+      "computed_share": 0.8261,
+      "computed_informative": 27,
+      "classes_with_parameters": 38,
+      "coverage_quantiles": {
+        "p25": 1.0,
+        "median": 1.0,
+        "p75": 1.0
+      },
+      "computed_by_threshold": {
+        "0.5": 38,
+        "0.7": 38,
+        "0.9": 38
+      }
+    },
+    "sqlalchemy": {
+      "classes": 256,
+      "statuses": {
+        "computed": 85,
+        "below_threshold": 20,
+        "zero_annotations": 43,
+        "no_parameters": 108
+      },
+      "computed_share": 0.332,
+      "computed_informative": 67,
+      "classes_with_parameters": 148,
+      "coverage_quantiles": {
+        "p25": 0.0,
+        "median": 1.0,
+        "p75": 1.0
+      },
+      "computed_by_threshold": {
+        "0.5": 92,
+        "0.7": 85,
+        "0.9": 81
+      }
+    },
+    "black": {
+      "classes": 44,
+      "statuses": {
+        "computed": 20,
+        "below_threshold": 0,
+        "zero_annotations": 0,
+        "no_parameters": 24
+      },
+      "computed_share": 0.4545,
+      "computed_informative": 18,
+      "classes_with_parameters": 20,
+      "coverage_quantiles": {
+        "p25": 1.0,
+        "median": 1.0,
+        "p75": 1.0
+      },
+      "computed_by_threshold": {
+        "0.5": 20,
+        "0.7": 20,
+        "0.9": 20
+      }
+    },
+    "mypy": {
+      "classes": 420,
+      "statuses": {
+        "computed": 330,
+        "below_threshold": 0,
+        "zero_annotations": 0,
+        "no_parameters": 90
+      },
+      "computed_share": 0.7857,
+      "computed_informative": 181,
+      "classes_with_parameters": 330,
+      "coverage_quantiles": {
+        "p25": 1.0,
+        "median": 1.0,
+        "p75": 1.0
+      },
+      "computed_by_threshold": {
+        "0.5": 330,
+        "0.7": 330,
+        "0.9": 330
+      }
+    },
+    "pandas": {
+      "classes": 246,
+      "statuses": {
+        "computed": 72,
+        "below_threshold": 66,
+        "zero_annotations": 24,
+        "no_parameters": 84
+      },
+      "computed_share": 0.2927,
+      "computed_informative": 44,
+      "classes_with_parameters": 162,
+      "coverage_quantiles": {
+        "p25": 0.4381,
+        "median": 0.6443,
+        "p75": 1.0
+      },
+      "computed_by_threshold": {
+        "0.5": 116,
+        "0.7": 72,
+        "0.9": 51
+      }
+    }
+  },
+  "total": {
+    "classes": 1678,
+    "statuses": {
+      "computed": 786,
+      "below_threshold": 86,
+      "zero_annotations": 86,
+      "no_parameters": 720
+    },
+    "computed_share": 0.4684,
+    "computed_informative": 455,
+    "classes_with_parameters": 958,
+    "coverage_quantiles": {
+      "p25": 1.0,
+      "median": 1.0,
+      "p75": 1.0
+    },
+    "computed_by_threshold": {
+      "0.5": 837,
+      "0.7": 786,
+      "0.9": 761
+    }
+  }
+}

@@ -304,6 +304,21 @@ special-casing it away. When reading a report, treat a high LCOM4 on a small
 class as a question rather than a verdict; **WMC and DCC separate genuinely
 overloaded classes from plain data holders far more reliably.**
 
+### Known limitation: LCOM4 and hub methods
+
+The opposite failure also happens. LCOM4 treats a method call as a connection,
+so a large class whose methods all call one shared helper (`self.add(...)`,
+`self.fail(...)`, the visitor pattern) forms a single component and scores
+LCOM4 = 1 — "perfectly cohesive" — however many unrelated responsibilities it
+holds.
+
+Because `god_class` requires `lcom4 >= 3`, such classes escape the smell. On
+the hardening reference set, 36 of the 107 classes large enough to qualify
+were filtered out by LCOM4, 34 of them only because of call edges; mypy's
+217-method `TypeChecker` is one. When a class has very high NOM and WMC but no
+`god_class` finding, check it by hand. Measurement:
+[metric-accuracy.md §6](https://github.com/okngms/RefactorLens/blob/main/experiments/hardening/metric-accuracy.md).
+
 ### Function-level metrics
 
 Cyclomatic complexity counts `if`/`elif`, loops, `except` handlers, ternaries,
