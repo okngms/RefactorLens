@@ -190,6 +190,13 @@ that no longer exists — are counted separately and **excluded** from the ratio
 Treating "we could not measure it" as "the model was wrong" would bias every
 number.
 
+`verify` refuses to compare reports with different scan schema versions: the same
+code produces different numbers under different metric rules. After upgrading
+RefactorLens, regenerate the `before` report with the new version. Schema 3
+changed the meaning of `loc`, of `lcom4` for classes without methods (`null`,
+previously `0`) and of `dcc`; see
+[v2-tanim-kararlari.md](https://github.com/okngms/RefactorLens/blob/main/docs/v2-tanim-kararlari.md).
+
 ### Exit codes
 
 | Code | Meaning |
@@ -267,16 +274,20 @@ defined anywhere in the project. String annotations (`"Order"`) and import
 aliases from project modules (`from models import Order as O`) are resolved;
 `Literal[...]` values are not references.
 
-Measured by hand on 36 classes (154 references) from 12 open-source projects:
-**96.1% precision and 96.1% recall**, with 30 of 36 classes exactly right. The
-errors cluster in high-coupling classes, but none moved a class across the
-`dcc` threshold. What goes wrong:
+A class's own nested classes are part of the class, not dependencies, and are
+not counted. Before scan schema 3 they were: Django's
+`class Meta(BaseForm.Meta)` alone added a false dependency to hundreds of netbox
+classes.
+
+Measured by hand on 36 classes (152 references) from 12 open-source projects,
+under schema 3: **97.4% precision and 96.1% recall**, with 31 of 36 classes
+exactly right. The errors cluster in high-coupling classes, but none moved a
+class across the `dcc` threshold. What goes wrong:
 
 - **Name collisions count.** A third-party class, local variable or module
   with the same name as a project class is counted — `typing.Tuple` when the
   project defines `Tuple`, werkzeug's `Response` when the project defines its
   own.
-- **A class's own nested classes count** as external references.
 - **Type aliases are not followed.** `Scheme = Union[APIKey, OAuth2]` used in
   an annotation contributes nothing.
 - **Two project classes with the same name count once.**
@@ -330,6 +341,15 @@ levels deep.
 
 Nested function definitions are never entered. A function containing a closure
 does not inherit the closure's complexity.
+
+LOC counts lines that contain code, from the `def` line to the last line.
+Blank lines, comment-only lines and docstrings are not counted; decorators are
+excluded. A tool that reports "improved" should not reward deleting a
+function's documentation, and physical line counts do exactly that. Before scan
+schema 3 LOC counted physical lines; on the calibration corpus the median
+function is 15% shorter under the new rule, and a quarter of `long_method`
+findings disappear because docstrings, comments and blank lines were what
+carried them past 40 lines.
 
 ## What RefactorLens does not do
 

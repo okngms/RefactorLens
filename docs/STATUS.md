@@ -6,7 +6,35 @@ Publishing (OIDC) ile yayınlandı; API token kullanılmadı. CI matrisi
 (3.11/3.12/3.13) ilk kez bu sürümde koştu.
 
 ## Bitenler
-- **Sertleştirme Blok 1b, 1. oturum — korpus** (bu oturum). Ayrıntı:
+- **Sertleştirme Blok 1b, 2. oturum — tanım kararları, scan şeması 3** (bu
+  oturum). Kararlar ve gerekçeler: `docs/v2-tanim-kararlari.md`. Kararları
+  kullanıcının yetkisiyle asistan verdi; her birinin gerekçesi, maliyeti ve
+  korpustaki etkisi kayıtta.
+  - **K1 LOC:** kod token'ı içeren satır; boş, yorum ve docstring (iç içe
+    tanımlarınkiler dahil) hariç. Gerekçe Goodhart: fiziksel satırda belgeyi
+    silmek LOC'u "iyileştirir" ve hiçbir kontrol görmez. `func_metrics.code_lines`
+    `tokenize` ile kesin; kaynak metin zorunlu parametre. Korpusta medyan
+    fonksiyon %15 kısaldı, `long_method` 2 054 → 1 550.
+  - **K2 LCOM4:** metotsuz sınıfta `null` (invariant düzeltmesi). 6 294 sınıf
+    (%46) `0` → `null`; başka hiçbir LCOM4 değişmedi.
+  - **K3 DCC:** sınıfın kendi iç içe sınıfları sayılmaz. 318 sınıf, 345 referans;
+    239'u netbox'ta Django `class Meta(Base.Meta)` sahte bağımlılığıydı. DCC
+    elle sayımı kesinlik %96.1 → %97.4.
+  - **K4 `god_class` kapısı** değişmez (kanıt alanları FINDINGS için sabit; yeni
+    yoğunluk ölçüsü v2.2'de dokuz maddeyle). **K5 `if`/`try` tanımları**
+    raporlanmaz (aynı ad iki kez → `verify` kimliği; v2.2). İkisi
+    `docs/v2.2-python-metrikleri.md` §5b'ye ve AGENTS.md kilitli kararlarına
+    işlendi.
+  - `SCHEMA_VERSION` 2 → 3. `docs/04` §1: sayaç ürün sürümü değildir; v3/v4
+    plan dokümanlarındaki "şema 3/4" ifadeleri düzeltildi. README'ye LOC tanımı,
+    şema 3 DCC oranları ve `verify` şema uyarısı eklendi.
+  - **Yakalanan tutarsızlık:** DCC elle sayım çalışma kâğıdı DCC'yi kendi başına
+    hesaplıyordu; K3 ona girmediği için özet şema 3'te sessizce eski sonucu
+    üretti. Artık çalışma kâğıdı sayısı `dcc()`'ye eşit olmak zorunda.
+  - Diğer tüm sertleştirme sonuçları (CC, CAM, kohezyon) şema 3 ile yeniden
+    üretildi, değişmedi. `corpus-inventory.json`'da yalnız koku sayıları değişti.
+  - Durum: 1277 paket testi, 91 fikstür testi, ruff temiz.
+- **Sertleştirme Blok 1b, 1. oturum — korpus.** Ayrıntı:
   `experiments/hardening/corpus.md`. Aracın koduna dokunulmadı.
   - **Korpus** (`corpus.txt`): 26 proje, dört tür — library 10, cli 6
     (black, mypy, httpie, yt-dlp, aws-cli, pipx), web_app 5 (healthchecks,
@@ -35,8 +63,8 @@ Publishing (OIDC) ile yayınlandı; API token kullanılmadı. CI matrisi
     boşaltırdı; betik config'i proje başına açıkça yazıyor, testli.
   - Ölçü tanımı iki kez düzeltildi (veri tabloları ve attribute docstring'leri
     mantık sayılıyordu; netbox yanlışlıkla %48 görünüyordu), testle sabit.
-  - `tests/test_hardening_corpus.py`, 19 test. Durum: 1260 paket testi, 91
-    fikstür testi, ruff temiz.
+  - `tests/test_hardening_corpus.py`, 19 test. Durum (o oturum sonu): 1260
+    paket testi, 91 fikstür testi, ruff temiz.
 - **Sertleştirme Blok 1, 3. oturum — Blok 1 kapandı.** Ayrıntı:
   `experiments/hardening/metric-accuracy.md` §5-§6. Kod değişikliği yok;
   yalnızca ölçüm, doküman ve test.
@@ -174,48 +202,46 @@ framework deyiminden geliyor.**
   orkestrasyon modülleri.
 
 ## Sıradaki iş
-**Blok 1b devam.** Korpus (madde 1) bitti. Sıradaki iki iş birbirinden
-bağımsız; hangisinin önce yapılacağı tanım kararlarının gelip gelmediğine bağlı.
+**Blok 1b, madde 2: dağılım tablosu** (`experiments/hardening/metric-distribution.md`).
+Tanım kararları verildi ve şema 3 uygulandı; tablonun önünde engel yok.
 
-**A. Tanım kararları geldiyse → dağılım tablosu** (`metric-distribution.md`).
-Kararlar dördü birlikte, tek `schema_version` artışıyla uygulanır:
-- LOC: boş satır/yorum dahil mi (uygulama) hariç mi (`docs/04`)?
-- Metotsuz sınıfta LCOM4: `0` mı `null` mı?
-- DCC: sınıfın kendi iç içe sınıfı sayılır mı?
-- `god_class` kapısı: LCOM4 kalıp eşik mi değişir, yoksa çağrısız bileşen
-  sayısı / TCC gibi yoğunluk ölçüsüne mi geçilir? (metric-accuracy §6)
-Sonra tablo: proje başına persentil (medyan, 75/90/95/99), tür ve genel değer
-projelerin medyanı, havuzlanmış değer karşılaştırma için (corpus.md Bulgu 1).
+- **Kapsam:** korpusun 26 projesi, şema 3 metrikleri, kullanıcının varsayılan
+  taraması (`corpus.py`'nin config'i).
+- **Metrikler:** fonksiyon (CC, LOC, PARAMS, NESTING), sınıf (NOM, WMC, LCOM4,
+  DCC, DAM, CAM), modül (Ca, Ce, instability).
+- **Ağırlıklandırma (corpus.md Bulgu 1):** persentil (medyan, 75/90/95/99)
+  proje başına; tür ve genel değer projelerin medyanı; havuzlanmış persentil
+  yalnızca karşılaştırma için yanında. `null` değerler dağılıma girmez, oranı
+  ayrı sütunda (LCOM4 %46, CAM).
+- **Mevcut eşiklerle karşılaştırma:** her varsayılan eşiğin korpusun hangi
+  persentiline düştüğü (ör. `cyclomatic_complexity.warn = 10` → proje medyanı
+  kaçıncı persentil). Eşiği **değiştirmek** tablodan sonraki ayrı karardır;
+  tablo önce ne olduğunu gösterir.
+- **K4 satırı:** boyut koşulunu geçip LCOM4'te elenen sınıflar ayrı raporlanır.
 
-**B. Kararlar gelmediyse → framework giriş noktaları** (madde 4). Tanım
-kararlarından bağımsız. Korpusta artık 5 web uygulaması ve 6 CLI var:
-`too_many_params` vakalarının kaçının dekoratörle tanımlı giriş noktası
-(`@app.command`, `@app.route`, `@router.get`, `@click.option`, Django view
-dekoratörleri) olduğu ölçülür, kural tasarlanır, testle uygulanır. Bu bir
-koku kuralı değişikliği; `smells.py` kanıt alanları değişmez.
-
-**Kapsama kararına girdi** (madde 3): `if`/`try` altındaki tanımlar raporda
-yok — Blok 1'de 135 fonksiyon, korpusta pydantic'in ölçülmeyen kodunun %37'si.
-Tanım kararlarıyla birlikte ele alınmalı: bu birimler raporlanacak mı?
+Sonra madde 3 (kapsama tablosu; CAM ve ölçülen mantık payı hazır) ve madde 4
+(framework giriş noktaları, `too_many_params`).
 
 Projeler yerelde yoksa: `python experiments/hardening/corpus.py fetch`
 (~850 MB). Kohezyon betiği ayrıca `pip install cohesion==1.2.0` ister.
 
 ## Okunacak dokümanlar (sırayla)
 AGENTS.md → bu dosya → docs/v2-sertlestirme.md (Blok 1, 1b) →
-experiments/hardening/metric-accuracy.md (§3 açık kararlar, §6) →
-experiments/hardening/corpus.md
+docs/v2-tanim-kararlari.md → experiments/hardening/corpus.md
 Sonraki fazlar: docs/v2.2-python-metrikleri.md → docs/v2.1-explain.md
 Deney protokolü: docs/v2-duzeltme-asama5.md. Metrik sınıfları:
 docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.
 
 ## Açık kararlar / bilinen sorunlar
-- **LOC tanımı uygulamayla çelişiyor.** `docs/04 §2.3` "gövde satır sayısı
+- **`examples/sample_reports/` şema 1'de ve v0.2.0'dan kalma.** v2.0.0'dan beri
+  bayat, hiçbir test onlara bağlı değil; şema 3'le yeniden üretilmeli. Blok 5
+  (dokümantasyon) işi.
+- ~~**LOC tanımı uygulamayla çelişiyor.**~~ Şema 3 K1 ile karara bağlandı. `docs/04 §2.3` "gövde satır sayısı
   (boş/yorum hariç)" diyor; uygulama `def` satırından son satıra boş ve yorum
   dahil sayar. FINDINGS-1/2'nin LOC verisi uygulamanın tanımıyla toplandı.
   Hangi tarafın düzeltileceği tanım kararıdır (`schema_version`). Mevcut
   davranış `test_metric_edges.py`'de sabit.
-- **Metotsuz sınıfta LCOM4: doküman `null`, uygulama `0`.** "Hesaplanamayan
+- ~~**Metotsuz sınıfta LCOM4: doküman `null`, uygulama `0`.**~~ Şema 3 K2 ile düzeltildi. "Hesaplanamayan
   metrik `null`" invariant'ı dokümanın tarafında; ama `null`'a geçmek koku
   eşiklerinin ve delta mantığının `None` karşılaştırmasını gerektirir.
   Deney protokolü açısından `smells.py` kanıt alanlarına dokunmadan
@@ -239,11 +265,12 @@ docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.
   httpie'nin %18'i hiçbir metriğe görünmüyor (corpus.md Bulgu 2). README'de
   yazılı. Kapsam genişletmesi (modül düzeyi kod için bir birim) v2.2'nin
   "modül düzeyi kohezyon" ölçüsüyle birlikte düşünülmeli.
-- **`god_class` LCOM4 kapısı büyük sınıfların üçte birini kaçırıyor.** Ortak
+- **`god_class` LCOM4 kapısı büyük sınıfların üçte birini kaçırıyor** (K4:
+  v2.2'ye kadar bilinçli olarak açık). Ortak
   yardımcı metodu olan sınıflarda çağrı kenarları LCOM4'ü 1-2'ye indiriyor;
   boyut koşulunu geçen 107 sınıfın 34'ü yalnızca bu yüzden elenir. Tanım
   kararı; sıradaki işte 2. madde. README'de sınırlılık olarak yazılı.
-- **DCC: sınıfın kendi iç içe sınıfı referans sayılıyor** (elle sayımda 2/154
+- ~~**DCC: sınıfın kendi iç içe sınıfı referans sayılıyor**~~ Şema 3 K3 ile düzeltildi. (elle sayımda 2/154
   yanlış pozitif). `docs/04 §2.2` "farklı proje-içi sınıf" diyor; kendi iç
   içe sınıfının "farklı" olup olmadığı tanımda belirsiz. `node.name` gibi
   dışlamak doğal görünüyor ama tanım kararıdır (`schema_version`).

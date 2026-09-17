@@ -50,7 +50,7 @@ Barındırılan (hosted) servis, kullanıcı hesabı, gerçek zamanlı IDE enteg
 Tek dosya, bağımlılıksız (inline SVG/CSS); bölümler: özet kartları, zaman serileri, katman haritası (modül grafiği), ihlal listesi, hotspot tablosu, son `verify` sonuçları. LLM gerektirmez; ekip paylaşımı için tasarlanır.
 
 ## 3. Dil eklenti protokolü
-- Çekirdek (`rlens`) → eklenti keşfi: Python entry point `rlens.languages`; her eklenti `LanguageAnalyzer` arayüzünü uygular: `discover(path) → files`, `analyze(files, config) → Report(schema_version=4)`, `capabilities() → {metrics: [...], arch: bool, interface: bool}`.
+- Çekirdek (`rlens`) → eklenti keşfi: Python entry point `rlens.languages`; her eklenti `LanguageAnalyzer` arayüzünü uygular: `discover(path) → files`, `analyze(files, config) → Report(schema_version=<o günkü scan sayacı>)`, `capabilities() → {metrics: [...], arch: bool, interface: bool}`.
 - **Süreç dışı eklentiler:** Python olmayan analizörler (C#) ayrı yürütülebilir olarak çalışır ve stdout'a aynı JSON'u yazar; çekirdek `languages.external: [{name, command}]` ile bağlar.
 - Metrik tanımları ve uyarlama notları dil başına `capabilities.adaptations` alanında raporlanır (Python'da CAM koşullu; C#'ta koşulsuz gibi).
 - Çekirdek `advise/verify/diff/bench` dilden bağımsız çalışır; prompt şablonları dil adını ve uyarlama notlarını içerir.
@@ -138,4 +138,4 @@ C# analizörü **ayrı repo**da geliştirilir (ayrı doküman). Bu aşamanın kr
 | İki proje (Python + C#) paralel yükü | C# ayrı repo, ayrı doküman, ayrı zaman; protokol donduktan sonra başlar |
 
 ## 10. Devam talimatı
-Sıra: çekirdek/eklenti ayrımı (davranış sabit) → history → hotspots → report/policy → protokol doğrulaması → FINDINGS-4. `schema_version: 4`; `04` güncellenir.
+Sıra: çekirdek/eklenti ayrımı (davranış sabit) → history → hotspots → report/policy → protokol doğrulaması → FINDINGS-4. etkilenen raporların `schema_version` sayacı artar (ürün sürümü değildir, `04` §1); `04` güncellenir.

@@ -10,7 +10,7 @@
       "skipped_files": {},
       "smells": {
         "feature_envy_candidate": 11,
-        "long_method": 12,
+        "long_method": 8,
         "too_many_params": 6
       },
       "arch_enabled": true,
@@ -28,7 +28,7 @@
       "smells": {
         "feature_envy_candidate": 17,
         "god_class": 2,
-        "long_method": 4,
+        "long_method": 3,
         "too_many_params": 34
       },
       "arch_enabled": true,
@@ -46,7 +46,7 @@
       "smells": {
         "feature_envy_candidate": 39,
         "god_class": 4,
-        "long_method": 30,
+        "long_method": 26,
         "too_many_params": 54
       },
       "arch_enabled": true,
@@ -65,7 +65,7 @@
         "data_class": 1,
         "feature_envy_candidate": 42,
         "god_class": 2,
-        "long_method": 51,
+        "long_method": 35,
         "too_many_params": 50
       },
       "arch_enabled": true,
@@ -83,7 +83,7 @@
       "smells": {
         "data_class": 1,
         "feature_envy_candidate": 2,
-        "long_method": 13,
+        "long_method": 11,
         "too_many_params": 42
       },
       "arch_enabled": true,
@@ -118,7 +118,7 @@
       "smells": {
         "data_class": 1,
         "feature_envy_candidate": 32,
-        "long_method": 18,
+        "long_method": 13,
         "too_many_params": 18
       },
       "arch_enabled": true,
@@ -136,7 +136,7 @@
       "smells": {
         "feature_envy_candidate": 17,
         "god_class": 2,
-        "long_method": 11,
+        "long_method": 7,
         "too_many_params": 8
       },
       "arch_enabled": true,
@@ -154,7 +154,7 @@
       "smells": {
         "feature_envy_candidate": 130,
         "god_class": 8,
-        "long_method": 120,
+        "long_method": 107,
         "too_many_params": 202
       },
       "arch_enabled": true,
@@ -172,7 +172,7 @@
       "smells": {
         "feature_envy_candidate": 201,
         "god_class": 34,
-        "long_method": 341,
+        "long_method": 215,
         "too_many_params": 371
       },
       "arch_enabled": true,
@@ -190,7 +190,7 @@
       "smells": {
         "data_class": 2,
         "feature_envy_candidate": 24,
-        "long_method": 54,
+        "long_method": 37,
         "too_many_params": 12
       },
       "arch_enabled": true,
@@ -208,7 +208,7 @@
       "smells": {
         "feature_envy_candidate": 447,
         "god_class": 19,
-        "long_method": 373,
+        "long_method": 270,
         "too_many_params": 193
       },
       "arch_enabled": true,
@@ -226,7 +226,7 @@
       "smells": {
         "data_class": 1,
         "feature_envy_candidate": 8,
-        "long_method": 15,
+        "long_method": 10,
         "too_many_params": 7
       },
       "arch_enabled": true,
@@ -244,7 +244,7 @@
       "smells": {
         "feature_envy_candidate": 225,
         "god_class": 6,
-        "long_method": 400,
+        "long_method": 354,
         "too_many_params": 179
       },
       "arch_enabled": true,
@@ -263,7 +263,7 @@
         "data_class": 6,
         "feature_envy_candidate": 296,
         "god_class": 6,
-        "long_method": 67,
+        "long_method": 46,
         "too_many_params": 155
       },
       "arch_enabled": true,
@@ -280,7 +280,7 @@
       "skipped_files": {},
       "smells": {
         "feature_envy_candidate": 4,
-        "long_method": 40,
+        "long_method": 34,
         "too_many_params": 66
       },
       "arch_enabled": true,
@@ -297,7 +297,7 @@
       "skipped_files": {},
       "smells": {
         "feature_envy_candidate": 55,
-        "long_method": 23,
+        "long_method": 13,
         "too_many_params": 14
       },
       "arch_enabled": true,
@@ -315,7 +315,7 @@
       "smells": {
         "feature_envy_candidate": 243,
         "god_class": 3,
-        "long_method": 137,
+        "long_method": 77,
         "too_many_params": 33
       },
       "arch_enabled": true,
@@ -333,7 +333,7 @@
       "smells": {
         "feature_envy_candidate": 429,
         "god_class": 7,
-        "long_method": 178,
+        "long_method": 162,
         "too_many_params": 567
       },
       "arch_enabled": true,
@@ -351,7 +351,7 @@
       "smells": {
         "feature_envy_candidate": 75,
         "god_class": 1,
-        "long_method": 27,
+        "long_method": 22,
         "too_many_params": 37
       },
       "arch_enabled": true,
@@ -369,7 +369,7 @@
       "smells": {
         "feature_envy_candidate": 107,
         "god_class": 1,
-        "long_method": 38,
+        "long_method": 25,
         "too_many_params": 29
       },
       "arch_enabled": true,
@@ -403,7 +403,7 @@
       "smells": {
         "feature_envy_candidate": 21,
         "god_class": 1,
-        "long_method": 40,
+        "long_method": 31,
         "too_many_params": 78
       },
       "arch_enabled": true,
@@ -420,7 +420,7 @@
       "skipped_files": {},
       "smells": {
         "feature_envy_candidate": 61,
-        "long_method": 42,
+        "long_method": 26,
         "too_many_params": 57
       },
       "arch_enabled": true,
@@ -437,7 +437,7 @@
       "skipped_files": {},
       "smells": {
         "feature_envy_candidate": 3,
-        "long_method": 10,
+        "long_method": 8,
         "too_many_params": 5
       },
       "arch_enabled": true,

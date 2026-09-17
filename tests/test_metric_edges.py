@@ -32,6 +32,7 @@ from rlens.analysis.class_metrics import (
     wmc,
 )
 from rlens.analysis.func_metrics import (
+    code_lines,
     cyclomatic_complexity,
     function_loc,
     iter_module_functions,
@@ -267,25 +268,23 @@ class TestNestingEdges:
         assert max_nesting(node) == 2
 
 
-class TestLocDefinitionMismatch:
-    def test_loc_counts_blank_lines_and_comments(self):
-        """Sabitlenen davranış — **açık karar.**
+class TestLocDefinition:
+    def test_blank_lines_and_comments_are_not_counted(self):
+        """Şema 3 — docs/v2-tanim-kararlari.md K1.
 
-        `docs/04 §2.3` LOC'u "gövde satır sayısı (boş/yorum hariç)" diye
-        tanımlar; uygulama `def` satırından son satıra kadar boş ve yorum
-        dahil sayar. FINDINGS-1/2'nin LOC verisi uygulamanın tanımıyla
-        toplandı. Hangisinin düzeltileceği bir tanım kararıdır ve
-        `schema_version` gerektirir; bkz. `docs/STATUS.md`.
+        Şema 2'de bu fonksiyon 4 satırdı ve bu test o davranışı "açık karar"
+        olarak sabitliyordu. Karar: yorum ve boş satır sayılmaz. Belgeyi silmek
+        LOC'u iyileştirmemeli (Goodhart).
         """
-        node = first(
+        source = textwrap.dedent(
             """
             def f():
                 # yorum
 
                 return 1
             """
-        )
-        assert function_loc(node) == 4
+        ).strip()
+        assert function_loc(ast.parse(source).body[0], code_lines(source)) == 2
 
 
 # --------------------------------------------------------------------------- #
@@ -535,13 +534,11 @@ class TestCohesionEdges:
         )
         assert assigned_attributes(node) == {"x", "y"}
 
-    def test_class_without_methods_is_zero_not_null(self):
-        """Sabitlenen davranış — **açık karar.**
+    def test_class_without_methods_is_null(self):
+        """Şema 3 — docs/v2-tanim-kararlari.md K2.
 
-        `docs/04 §2.2` metotsuz sınıfta LCOM4'ü `null` tanımlar; uygulama 0
-        döndürür ve bunun gerekçesi `lcom4` docstring'inde yazılıdır. İkisi
-        çelişiyor. Çözüm bir tanım kararıdır (`schema_version`, koku
-        eşikleri `None` karşılaştırması); bkz. `docs/STATUS.md`.
+        Şema 2 `0` döndürüyordu. AGENTS.md invariant'ı: hesaplanamayan metrik
+        `null`'dır, asla sıfır değil. Metotsuz sınıfta kohezyon sorusu sorulamaz.
         """
         node = only_class(
             """
@@ -549,7 +546,19 @@ class TestCohesionEdges:
                 x = 1
             """
         )
-        assert lcom4(node) == 0
+        assert lcom4(node) is None
+
+    def test_class_with_only_dunders_is_null(self):
+        node = only_class(
+            """
+            class Point:
+                def __init__(self, x):
+                    self.x = x
+                def __repr__(self):
+                    return f"Point({self.x})"
+            """
+        )
+        assert lcom4(node) is None
 
 
 # --------------------------------------------------------------------------- #
@@ -725,6 +734,38 @@ class TestCouplingEdges:
         adapter = next(m for m in report.modules if m.module == "adapter")
         assert service.classes[0].dcc == 1
         assert adapter.classes[0].dcc == 0
+
+    def test_own_nested_class_is_not_a_reference(self):
+        """Şema 3 — docs/v2-tanim-kararlari.md K3.
+
+        Elle sayımda iki yanlış pozitif: `SubqueryLoader._SubqCollections`
+        (sınıf gövdesinde) ve metot içinde tanımlı `DecoratorBaseModel`.
+        İç içe sınıf aynı birimin parçasıdır, `self` gibi dışlanır.
+        """
+        node = only_class(
+            """
+            class Loader:
+                class Collections:
+                    pass
+                def run(self):
+                    class Model:
+                        pass
+                    return self.Collections(), Model(), Order()
+            """
+        )
+        assert dcc(node, PROJECT | {"Collections", "Model"}) == 1
+
+    def test_nested_class_does_not_hide_other_references(self):
+        node = only_class(
+            """
+            class Loader:
+                class Meta:
+                    model = Invoice
+                def run(self) -> "Customer":
+                    return None
+            """
+        )
+        assert dcc(node, PROJECT | {"Meta"}) == 2
 
     def test_parameter_name_colliding_with_class_is_a_false_positive(self):
         """Sabitlenen sınırlılık: isim tabanlı çözüm, sınıf adıyla aynı yerel adı sayar.

@@ -173,4 +173,4 @@ Hedef seti dondurma, prosedür, `bench run/report`, en az 4 model (≥3 ücretsi
 | Kapsam şişmesi | `03` yazılmadan v4 özelliği eklenmez |
 
 ## 13. Devam talimatı
-Sıra: kapı + worktree invariant'ları → `apply` → `chartests` → `loop`/kalibrasyon → tür tespiti/typed → `diff`/Action → LensBench/FINDINGS-3. Şema değişiklikleri `04`'e işlenir; `schema_version: 3`.
+Sıra: kapı + worktree invariant'ları → `apply` → `chartests` → `loop`/kalibrasyon → tür tespiti/typed → `diff`/Action → LensBench/FINDINGS-3. Şema değişiklikleri `04`'e işlenir; etkilenen raporların `schema_version` sayacı bir artar (scan v2 sertleştirmesinde zaten 3 oldu; sayaç ürün sürümü değildir, `04` §1).

@@ -146,6 +146,23 @@ class TestHints:
         forms = {r.name: r.forms for r in references(node, tree, names, is_project)}
         assert forms == {"Order": ["alias:O"], "Invoice": ["string"], "Customer": ["attr:models"]}
 
+    def test_references_exclude_own_nested_classes(self):
+        """Çalışma kâğıdı `dcc()` ile aynı sayıyı vermeli (şema 3, K3)."""
+        tree = parse(
+            """
+            class Loader:
+                class Collections:
+                    pass
+                def run(self):
+                    class Model:
+                        pass
+                    return self.Collections(), Model(), Order()
+            """
+        )
+        node = tree.body[0]
+        names = frozenset({"Collections", "Model", "Order"})
+        assert [r.name for r in references(node, tree, names, is_project)] == ["Order"]
+
 
 class TestFalseNegativeCandidates:
     def test_string_outside_annotations_type_alias_and_same_name(self):

@@ -22,7 +22,13 @@ from typing import Any
 #: `instability`; rapora `violations`. `verify` v1 ve v2 raporlarını
 #: karşılaştırmayı reddeder — metrik kuralları aynı kalsa bile eşikler artık
 #: katmana bağlı olabilir ve deltanın anlamı değişir.
-SCHEMA_VERSION = 2
+#:
+#: v3 (`docs/v2-tanim-kararlari.md`): alan yapısı aynı, üç alanın **anlamı**
+#: değişti. `loc` boş/yorum/docstring satırlarını saymaz (K1); metotsuz sınıfta
+#: `lcom4` `null`'dır, `0` değil (K2); `dcc` sınıfın kendi iç içe sınıflarını
+#: saymaz (K3). Aynı kod iki şemada farklı sayı verir, bu yüzden `verify` 2 ile
+#: 3'ü karşılaştırmaz.
+SCHEMA_VERSION = 3
 
 #: Mimari raporu formatı sürümü. Tarama ve öneri şemalarından **ayrıdır**:
 #: ihlal tespiti değişmeden metrik kuralları değişebilir, ya da tersi. Tek sayaç

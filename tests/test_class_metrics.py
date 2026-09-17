@@ -26,6 +26,7 @@ from rlens.analysis.class_metrics import (
     nom,
     wmc,
 )
+from rlens.analysis.func_metrics import code_lines
 
 MESSY_PROJECT = Path(__file__).resolve().parent.parent / "examples" / "messy_project"
 
@@ -256,7 +257,8 @@ class TestLcom4:
         assert lcom4(node) == 2
 
     def test_class_without_methods_is_zero(self):
-        assert lcom4(parse_class("class C:\n    x: int = 1")) == 0
+        # Şema 3 (K2): metot yoksa kohezyon sorusu sorulamaz → null.
+        assert lcom4(parse_class("class C:\n    x: int = 1")) is None
 
 
 # --------------------------------------------------------------------------- #
@@ -520,7 +522,12 @@ class TestGoldenGreyZone:
 class TestMeasureClass:
     def test_report_is_fully_populated(self, messy_classes):
         classes, registry = messy_classes
-        report = measure_class(classes["OrderManager"], module="god", project_classes=registry)
+        report = measure_class(
+            classes["OrderManager"],
+            module="god",
+            project_classes=registry,
+            code_lines=code_lines((MESSY_PROJECT / "god.py").read_text(encoding="utf-8")),
+        )
         assert report.qualified_name == "god:OrderManager"
         assert report.nom == 25
         assert report.lcom4 == 4
@@ -531,6 +538,11 @@ class TestMeasureClass:
 
     def test_method_reports_exclude_self_from_params(self, messy_classes):
         classes, registry = messy_classes
-        report = measure_class(classes["Customer"], module="models", project_classes=registry)
+        report = measure_class(
+            classes["Customer"],
+            module="models",
+            project_classes=registry,
+            code_lines=code_lines((MESSY_PROJECT / "models.py").read_text(encoding="utf-8")),
+        )
         rename = next(m for m in report.methods if m.name == "rename")
         assert rename.param_count == 1

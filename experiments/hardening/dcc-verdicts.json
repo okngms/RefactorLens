@@ -1,5 +1,5 @@
 {
-  "_readme": "DCC elle sayım kararları. Kodu okuyan kişinin kararıdır; dcc_sample.py ipucu üretir, karar vermez. 'references': DCC'nin saydığı ad için karar (tp/fp). İpucu likely_tp olan ve burada yer almayan referans, bağlanma satırı proje importu ya da aynı modüldeki sınıf olduğu için tp kabul edilir. 'false_negatives': DCC'nin saymadığı gerçek referanslar. 'rejected_candidates': otomatik FN adayı olup okunduktan sonra reddedilenler.",
+  "_readme": "DCC elle sayım kararları. Kodu okuyan kişinin kararıdır; dcc_sample.py ipucu üretir, karar vermez. 'references': DCC'nin saydığı ad için karar (tp/fp). İpucu likely_tp olan ve burada yer almayan referans, bağlanma satırı proje importu ya da aynı modüldeki sınıf olduğu için tp kabul edilir. 'false_negatives': DCC'nin saymadığı gerçek referanslar. 'rejected_candidates': otomatik FN adayı olup okunduktan sonra reddedilenler. Sonuçlar şema 3 DCC'sine göredir; şema 2 kararları resolved_by_schema_3 altında.",
   "references": {
     "httpx:_transports.default:AsyncHTTPTransport": {
       "Request": {
@@ -18,11 +18,6 @@
         "verdict": "tp",
         "category": "module_attribute",
         "note": "from .._internal import _config; _config.ConfigWrapper"
-      },
-      "DecoratorBaseModel": {
-        "verdict": "fp",
-        "category": "own_local_class",
-        "note": "sınıfın kendi metodu içinde tanımlı yerel sınıf (line 242)"
       }
     },
     "pydantic:type_adapter:TypeAdapter": {
@@ -134,11 +129,6 @@
         "category": "module_attribute",
         "note": "relationships.RelationshipProperty"
       },
-      "_SubqCollections": {
-        "verdict": "fp",
-        "category": "own_local_class",
-        "note": "SubqueryLoader'ın kendi iç içe sınıfı (line 1776), self üzerinden"
-      },
       "collection": {
         "verdict": "fp",
         "category": "local_name",
@@ -202,6 +192,23 @@
     },
     "pandas:groupby.generic:DataFrameGroupBy": {
       "same_name:DataFramex2": "yalnızca core.frame.DataFrame; interchange değil"
+    }
+  },
+  "resolved_by_schema_3": {
+    "_readme": "Şema 2'de sayılan ve yanlış pozitif olarak karara bağlanan referanslar. Şema 3 (docs/v2-tanim-kararlari.md K3) sınıfın kendi iç içe sınıflarını DCC'den çıkardığı için artık sayılmıyorlar; summary bunları okumaz. Şema 2 sonuçlarını yeniden üretmek için references altına geri taşınmalıdır.",
+    "pydantic:deprecated.decorator:ValidatedFunction": {
+      "DecoratorBaseModel": {
+        "verdict": "fp",
+        "category": "own_local_class",
+        "note": "sınıfın kendi metodu içinde tanımlı yerel sınıf (line 242)"
+      }
+    },
+    "sqlalchemy:strategies:SubqueryLoader": {
+      "_SubqCollections": {
+        "verdict": "fp",
+        "category": "own_local_class",
+        "note": "SubqueryLoader'ın kendi iç içe sınıfı (line 1776), self üzerinden"
+      }
     }
   }
 }

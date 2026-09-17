@@ -13,11 +13,13 @@ yapılsaydı test, kodun hatasını da birlikte onaylardı.
 """
 
 import ast
+import textwrap
 from pathlib import Path
 
 import pytest
 
 from rlens.analysis.func_metrics import (
+    code_lines,
     cyclomatic_complexity,
     function_loc,
     iter_module_functions,
@@ -123,16 +125,100 @@ class TestCyclomaticComplexity:
 # --------------------------------------------------------------------------- #
 
 
-class TestFunctionLoc:
-    def test_single_line_body(self):
-        assert function_loc(parse_function("def f():\n    return 1")) == 2
+def loc(source: str) -> int:
+    """Kaynaktaki ilk fonksiyonun LOC'u — şema 3 tanımı (docs/v2-tanim-kararlari.md K1)."""
+    source = textwrap.dedent(source).strip()
+    return function_loc(ast.parse(source).body[0], code_lines(source))
 
-    def test_blank_lines_are_counted(self):
-        assert function_loc(parse_function("def f():\n    x = 1\n\n    return x")) == 4
+
+class TestFunctionLoc:
+    """LOC: kod token'ı içeren satır; boş, yorum ve docstring hariç (şema 3)."""
+
+    def test_single_line_body(self):
+        assert loc("def f():\n    return 1") == 2
+
+    def test_blank_lines_are_not_counted(self):
+        assert loc("def f():\n    x = 1\n\n    return x") == 3
+
+    def test_comment_only_lines_are_not_counted(self):
+        assert (
+            loc("def f():\n    # açıklama\n    x = 1\n        # girintili yorum\n    return x") == 3
+        )
+
+    def test_inline_comment_line_is_code(self):
+        assert loc("def f():\n    x = 1  # not\n    return x") == 3
+
+    def test_docstring_is_not_counted(self):
+        source = """
+        def f():
+            \"\"\"Tek satır.\"\"\"
+            return 1
+        """
+        assert loc(source) == 2
+
+    def test_multiline_docstring_is_not_counted(self):
+        source = """
+        def f():
+            \"\"\"Başlık.
+
+            Ayrıntı.
+            \"\"\"
+            return 1
+        """
+        assert loc(source) == 2
+
+    def test_nested_definition_docstrings_are_not_counted(self):
+        """K1'in Goodhart gerekçesi iç içe tanımların belgesi için de geçerli."""
+        source = """
+        def f():
+            def g():
+                \"\"\"İç belge.\"\"\"
+                return 1
+            return g
+        """
+        assert loc(source) == 4
+
+    def test_non_docstring_multiline_string_is_code(self):
+        source = """
+        def f():
+            query = \"\"\"
+                SELECT 1
+            \"\"\"
+            return query
+        """
+        assert loc(source) == 5
+
+    def test_multiline_signature_is_code(self):
+        source = """
+        def f(
+            a,
+            b,
+        ):
+            return a
+        """
+        assert loc(source) == 5
+
+    def test_else_and_closing_brackets_are_code(self):
+        source = """
+        def f(x):
+            if x:
+                y = [
+                    1,
+                ]
+            else:
+                y = []
+            return y
+        """
+        assert loc(source) == 8
 
     def test_decorator_is_excluded(self):
-        source = "@decorator\ndef f():\n    return 1"
-        assert function_loc(parse_function(source)) == 2
+        assert loc("@decorator\ndef f():\n    return 1") == 2
+
+    def test_docstring_on_the_def_line_keeps_the_line(self):
+        assert loc('def f(): "belge"') == 1
+
+    def test_code_lines_ignore_blank_and_comment_lines(self):
+        assert code_lines("x = 1\n\n# yorum\ny = 2  # not\n") == frozenset({1, 4})
 
 
 # --------------------------------------------------------------------------- #
@@ -235,9 +321,13 @@ class TestMaxNesting:
 
 
 @pytest.fixture(scope="module")
-def utils_functions():
-    source = (MESSY_PROJECT / "utils.py").read_text(encoding="utf-8")
-    tree = ast.parse(source)
+def utils_source():
+    return (MESSY_PROJECT / "utils.py").read_text(encoding="utf-8")
+
+
+@pytest.fixture(scope="module")
+def utils_functions(utils_source):
+    tree = ast.parse(utils_source)
     return {node.name: node for node in iter_module_functions(tree)}
 
 
@@ -283,11 +373,22 @@ class TestGoldenValues:
     def test_build_shipping_label_is_flat(self, utils_functions):
         assert max_nesting(utils_functions["build_shipping_label"]) == 0
 
+    @pytest.mark.parametrize(
+        ("name", "expected"),
+        # Elle sayıldı (şema 3): aralık − docstring. deep_transform 4-18 → 15 − 1;
+        # build_shipping_label 21-24 → 4 − 1; classify_order 27-51 → 25 − 1.
+        [("deep_transform", 14), ("build_shipping_label", 3), ("classify_order", 24)],
+    )
+    def test_loc(self, utils_functions, utils_source, name, expected):
+        assert function_loc(utils_functions[name], code_lines(utils_source)) == expected
 
-def test_measure_function_fills_every_field(utils_functions):
-    report = measure_function(utils_functions["classify_order"])
+
+def test_measure_function_fills_every_field(utils_functions, utils_source):
+    report = measure_function(
+        utils_functions["classify_order"], code_lines=code_lines(utils_source)
+    )
     assert report.name == "classify_order"
     assert report.cyclomatic_complexity == 15
     assert report.param_count == 7
     assert report.max_nesting == 1
-    assert report.loc is not None and report.loc > 0
+    assert report.loc == 24

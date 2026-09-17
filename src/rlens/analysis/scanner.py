@@ -23,7 +23,7 @@ from rlens.analysis.class_metrics import (
     iter_module_classes,
     measure_class,
 )
-from rlens.analysis.func_metrics import iter_module_functions, measure_function
+from rlens.analysis.func_metrics import code_lines, iter_module_functions, measure_function
 from rlens.analysis.imports import (
     build_import_graph,
     project_module_predicate,
@@ -90,6 +90,7 @@ def scan_project_with_sources(root: Path, config: Config, *, no_arch: bool = Fal
 
         classes = []
         aliases = class_aliases(module.tree, project_classes, is_project_module)
+        lines = code_lines(module.source)
         for node in iter_module_classes(module.tree):
             measured = measure_class(
                 node,
@@ -97,6 +98,7 @@ def scan_project_with_sources(root: Path, config: Config, *, no_arch: bool = Fal
                 project_classes=project_classes,
                 cam_min_annotation_coverage=config.metrics.cam_min_annotation_coverage,
                 aliases=aliases,
+                code_lines=lines,
             )
             assignment = architecture.assignments.get(module.module) if architecture else None
             if assignment is not None:
@@ -124,7 +126,8 @@ def scan_project_with_sources(root: Path, config: Config, *, no_arch: bool = Fal
             classes.append(measured)
 
         functions = [
-            measure_function(node, is_method=False) for node in iter_module_functions(module.tree)
+            measure_function(node, code_lines=lines, is_method=False)
+            for node in iter_module_functions(module.tree)
         ]
         module_smells: list[dict] = [
             smell.to_dict()

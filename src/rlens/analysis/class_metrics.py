@@ -315,7 +315,7 @@ def dam(node: ast.ClassDef) -> tuple[float | None, float | None]:
 # --------------------------------------------------------------------------- #
 
 
-def lcom4(node: ast.ClassDef) -> int:
+def lcom4(node: ast.ClassDef) -> int | None:
     """Metot–attribute grafiğindeki bağlı bileşen sayısı.
 
     İki metot şu durumlarda aynı bileşendedir:
@@ -329,12 +329,15 @@ def lcom4(node: ast.ClassDef) -> int:
     Hiçbir attribute'a dokunmayan ve hiçbir kardeşini çağırmayan bir metot
     kendi başına bir bileşendir — sınıfla ilişkisi yoktur, dışarı taşınabilir.
 
-    Metot yoksa 0 döner: kohezyon sorusu sorulamaz, ama bu bir eksiklik değil
-    (veri sınıfları meşrudur), bu yüzden `None` değil 0.
+    Metot yoksa `None` döner (şema 3, `docs/v2-tanim-kararlari.md` K2):
+    kohezyon sorusu sorulamaz. `None` "eksik" değil "tanımsız" demektir; veri
+    sınıfı için doğru cevap budur. Şema 2 burada `0` döndürüyordu ve bu
+    "hesaplanamayan metrik `null`" invariant'ını ihlal ediyordu; `0` LCOM4'ün
+    tanım aralığında (≥ 1) bile değildir.
     """
     methods = class_methods(node)
     if not methods:
-        return 0
+        return None
 
     known = {method.name for method in methods}
     parent: dict[str, str] = {method.name: method.name for method in methods}
@@ -512,6 +515,12 @@ def dcc(
 
     referenced &= set(project_classes)
     referenced.discard(node.name)
+    # Şema 3 (K3): kendi iç içe sınıfları aynı birimin parçasıdır, `self` gibi.
+    referenced -= {
+        child.name
+        for child in ast.walk(node)
+        if isinstance(child, ast.ClassDef) and child is not node
+    }
     return len(referenced)
 
 
@@ -622,11 +631,13 @@ def measure_class(
     project_classes: frozenset[str] = frozenset(),
     cam_min_annotation_coverage: float = 0.7,
     aliases: Mapping[str, str] | None = None,
+    code_lines: frozenset[int],
 ) -> ClassReport:
     """Bir sınıfın tüm sınıf düzeyi metriklerini hesaplar.
 
     `aliases`, sınıfın bulunduğu modülün import takma adlarıdır
-    (`class_aliases`); verilmezse DCC takma adları çözemez.
+    (`class_aliases`); verilmezse DCC takma adları çözemez. `code_lines`,
+    modülün `func_metrics.code_lines(source)` sonucudur (metotların LOC'u için).
     """
     loose_dam, strict_dam = dam(node)
     cam_result = cam(node, cam_min_annotation_coverage)
@@ -643,7 +654,10 @@ def measure_class(
         dcc=dcc(node, project_classes, aliases),
         cam=cam_result.value,
         cam_skipped_reason=cam_result.skipped_reason,
-        methods=[measure_function(method, is_method=True) for method in class_methods(node)],
+        methods=[
+            measure_function(method, code_lines=code_lines, is_method=True)
+            for method in class_methods(node)
+        ],
     )
 
 

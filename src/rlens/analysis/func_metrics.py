@@ -13,6 +13,8 @@ fonksiyon, kendi mantığı basit olmasına rağmen karmaşık görünürdü.
 from __future__ import annotations
 
 import ast
+import io
+import tokenize
 
 from rlens.analysis.model import FunctionReport
 
@@ -146,20 +148,79 @@ def cyclomatic_complexity(node: FunctionNode) -> int:
 # --------------------------------------------------------------------------- #
 
 
-def function_loc(node: FunctionNode) -> int:
-    """Fonksiyonun kapladığı fiziksel satır sayısı.
+_NON_CODE_TOKENS = frozenset(
+    {
+        tokenize.COMMENT,
+        tokenize.NL,
+        tokenize.NEWLINE,
+        tokenize.INDENT,
+        tokenize.DEDENT,
+        tokenize.ENCODING,
+        tokenize.ENDMARKER,
+    }
+)
 
-    `def` satırından son satıra kadar, boş satırlar ve yorumlar dahil.
-    Dekoratörler hariçtir — dekoratör fonksiyonun uzunluğu değildir.
 
-    Boş satırları ayıklamak daha "adil" görünebilir ama tartışmalıdır ve
-    araçlar arasında farklılık yaratır. Basit ve öngörülebilir tanım tercih
-    edildi.
+def code_lines(source: str) -> frozenset[int]:
+    """Kaynakta en az bir kod token'ı taşıyan satırların numaraları (1'den).
+
+    Boş satırlar ve yalnızca yorum içeren satırlar dışarıda kalır. Çok satırlı
+    bir string'in (docstring dahil) bütün satırları içeridedir; docstring'leri
+    ayıklamak `function_loc`'un işidir, çünkü neyin docstring olduğunu AST bilir.
+
+    Modül başına bir kez hesaplanır ve o modüldeki her fonksiyon için kullanılır.
     """
-    end = getattr(node, "end_lineno", None)
-    if end is None:  # pragma: no cover - Python 3.8 öncesi
-        return 1
-    return end - node.lineno + 1
+    lines: set[int] = set()
+    readline = io.StringIO(source).readline
+    for token in tokenize.generate_tokens(readline):
+        if token.type in _NON_CODE_TOKENS:
+            continue
+        lines.update(range(token.start[0], token.end[0] + 1))
+    return frozenset(lines)
+
+
+def _docstring_lines(node: ast.AST, first_code_line: int) -> set[int]:
+    """Düğümün kendi docstring'inin satırları; tanım satırıyla aynı satırdaysa boş."""
+    body = getattr(node, "body", None)
+    if not body:
+        return set()
+    first = body[0]
+    if not (
+        isinstance(first, ast.Expr)
+        and isinstance(first.value, ast.Constant)
+        and isinstance(first.value.value, str)
+    ):
+        return set()
+    if first.lineno <= first_code_line:
+        return set()  # `def f(): "belge"` — satırda kod da var
+    return set(range(first.lineno, (first.end_lineno or first.lineno) + 1))
+
+
+def function_loc(node: FunctionNode, code_lines: frozenset[int]) -> int:
+    """Fonksiyonun kod satırı sayısı (şema 3, `docs/v2-tanim-kararlari.md` K1).
+
+    `def` satırından son satıra kadar, **en az bir kod token'ı içeren**
+    satırlar. Sayılmayanlar: boş satırlar, yalnızca yorum içeren satırlar,
+    fonksiyonun ve içindeki iç içe tanımların docstring'leri. Dekoratörler
+    hariçtir — dekoratör fonksiyonun uzunluğu değildir. İmza satırları, `else:`
+    ve yalnızca kapanış parantezi içeren satırlar koddur.
+
+    **Neden fiziksel satır değil.** RefactorLens refactoring önerir ve metrik
+    iyileşmesini raporlar. Fiziksel sayımda yorum ve docstring silmek LOC'u
+    "iyileştirir" ve hiçbir kontrol bunu görmez. Araç belgelenmiş kodu
+    cezalandırmamalı. Şema 2 fiziksel satır sayıyordu.
+
+    `code_lines` modülün `code_lines(source)` sonucudur ve zorunludur: kaynak
+    metin olmadan yorumlar görünmez, ve kaynaksız bir yedek tanım iki farklı
+    LOC'u sessizce aynı rapor alanına yazardı.
+    """
+    end = node.end_lineno or node.lineno
+    span = set(range(node.lineno, end + 1))
+    excluded: set[int] = set()
+    for child in ast.walk(node):
+        if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            excluded |= _docstring_lines(child, child.lineno)
+    return len((span & code_lines) - excluded)
 
 
 # --------------------------------------------------------------------------- #
@@ -272,13 +333,18 @@ def max_nesting(node: FunctionNode) -> int:
 # --------------------------------------------------------------------------- #
 
 
-def measure_function(node: FunctionNode, *, is_method: bool = False) -> FunctionReport:
-    """Bir fonksiyonun tüm fonksiyon düzeyi metriklerini hesaplar."""
+def measure_function(
+    node: FunctionNode, *, code_lines: frozenset[int], is_method: bool = False
+) -> FunctionReport:
+    """Bir fonksiyonun tüm fonksiyon düzeyi metriklerini hesaplar.
+
+    `code_lines`, fonksiyonun modülünün `code_lines(source)` sonucudur (LOC için).
+    """
     return FunctionReport(
         name=node.name,
         lineno=node.lineno,
         cyclomatic_complexity=cyclomatic_complexity(node),
-        loc=function_loc(node),
+        loc=function_loc(node, code_lines),
         param_count=param_count(node, is_method=is_method),
         max_nesting=max_nesting(node),
     )

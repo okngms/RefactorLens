@@ -144,9 +144,12 @@ def layered_report():
 
 
 class TestArchitectureIntegration:
-    def test_schema_version_is_two(self, layered_report):
-        """v2 raporları v1 ile karşılaştırılamaz; eşikler artık katmana bağlı."""
-        assert layered_report.schema_version == 2
+    def test_schema_version_is_three(self, layered_report):
+        """Şema 3: `loc`, metotsuz `lcom4` ve `dcc` anlam değiştirdi (docs/v2-tanim-kararlari.md).
+
+        v2 → v3 raporları karşılaştırılamaz; aynı kod iki şemada farklı sayı verir.
+        """
+        assert layered_report.schema_version == 3
 
     def test_classes_carry_their_layer(self, layered_report):
         service = next(c for c in layered_report.iter_classes() if c.name == "OrderService")

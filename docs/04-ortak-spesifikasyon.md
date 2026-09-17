@@ -6,7 +6,7 @@
 ---
 
 ## 1. Sürümleme
-- `schema_version`: 1 (v1.0), 2 (v2.0), 3 (v3.0), 4 (v4.0). Her raporun kökünde bulunur.
+- `schema_version` her raporun kökünde bulunur. **Rapor türü başına bağımsız bir sayaçtır, ürün sürümü değildir**: v2.0.0'da scan 2, arch 1, advice 2 olarak yayınlandı; scan v2 sertleştirmesinde 3 oldu. Planlama dokümanlarındaki "v3 = şema 3" eşleştirmesi geçersizdir.
 - Yeni alan eklemek sürüm artırmaz; alan anlamı değiştirmek ya da alan kaldırmak artırır.
 - Rapor okuyucu, bilmediği alanları yok sayar; eksik alanları `null` kabul eder.
 
@@ -18,6 +18,12 @@
 | arch | `ARCH_SCHEMA_VERSION` | 1 | v2'de doğdu |
 | advice | `ADVICE_SCHEMA_VERSION` | 2 | `target_layer`, `addresses_smells`, `confidence`, `status: rejected` |
 | verify | `SCHEMA_VERSION` (scan ile ortak) | 2 | gövdesi scan deltalarından oluşur; ayrı sayaç yok |
+
+**Sonraki artışlar:**
+
+| Rapor | Sürüm | Tarih | Değişen | Kaynak |
+|---|---|---|---|---|
+| scan | 3 | 2026-09-16 | alan yapısı aynı; `loc` boş/yorum/docstring saymaz, metotsuz sınıfta `lcom4` `null`, `dcc` kendi iç içe sınıflarını saymaz | `docs/v2-tanim-kararlari.md` K1-K3 |
 
 advice sürümünün artması salt alan eklemekten değil, **tüketim tarafından**
 gelir: kalibrasyon `confidence` alanına dayanır, v1 raporlarında bu alan yoktur
@@ -37,7 +43,7 @@ Sınıf gövdesinde doğrudan tanımlı metotlar; dunder'lar hariç; `@property/
 | WMC | Sayılan metotların CC toplamı | ≥0 | — | — |
 | LCOM4 | Metot–attribute paylaşım grafiğinde bağlı bileşen sayısı | ≥1 (metot yoksa null) | attribute kümesi: sınıf düzeyi atama/annotation, herhangi metotta `self.x = …`, `__slots__` | metot yok |
 | DAM | private attribute / tüm attribute | 0-1 | `dam`: `_x` ve `__x`; `dam_strict`: yalnız `__x` | attribute yok |
-| DCC | Referans verilen farklı proje-içi sınıf sayısı | ≥0 | isim tabanlı (`resolution: inferred`); tip çıkarımıyla `typed` | — |
+| DCC | Referans verilen farklı proje-içi sınıf sayısı | ≥0 | isim tabanlı (`resolution: inferred`); tip çıkarımıyla `typed`; string annotation ve proje-içi import takma adları çözülür; sınıfın kendisi ve kendi iç içe sınıfları sayılmaz (şema 3) | — |
 | CAM | Metot parametre tiplerinin sınıf-genel tip kümesine oranının ortalaması | 0-1 | yalnız annotation kapsamı ≥ `cam_min_annotation_coverage` | kapsam yetersiz → null, nedeni raporda |
 | PUBLIC_IF | Public arayüz kümesi (v2+) | küme | dunder hariç, `_` öneksiz metot ve attribute'lar | — |
 
@@ -45,7 +51,7 @@ Sınıf gövdesinde doğrudan tanımlı metotlar; dunder'lar hariç; `@property/
 | Metrik | Tanım |
 |---|---|
 | CC | 1 + `if/elif`, döngüler, `except`, ternary, ek `and/or` operandı, comprehension koşulu, `match` case. `else/with/try` eklemez. İç içe fonksiyon girilmez. |
-| LOC | Gövde satır sayısı (boş/yorum hariç) |
+| LOC | `def` satırından son satıra kadar en az bir kod token'ı içeren satır sayısı; boş satır, yalnız yorum satırı ve docstring (iç içe tanımlarınkiler dahil) hariç, dekoratör hariç (şema 3; şema 2 fiziksel satır sayıyordu) |
 | PARAMS | Parametre sayısı (`self/cls` hariç) |
 | NESTING | Maksimum blok derinliği; `elif` zinciri düz |
 

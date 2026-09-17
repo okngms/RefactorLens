@@ -5,8 +5,8 @@ kategorisi × sıklık tablosudur: hangi farkların tanım gereği olduğu, hang
 düzeltildiği, hangilerinin bilinen sınırlılık olarak kaldığı.
 
 **Durum: Blok 1 tamam.** CC (§1), uç nokta testleri ve düzeltmeler (§2), DCC
-elle sayımı (§4), CAM kapsamı (§5), kohezyon karşılaştırması (§6). Açık tanım
-kararları §3'te.
+elle sayımı (§4), CAM kapsamı (§5), kohezyon karşılaştırması (§6). Tanım
+kararları §3'te; scan şeması 3 ile uygulandı.
 
 Referans seti: `projects.txt`, 12 proje, commit hash'iyle dondurulmuş. Tarama
 kapsamı her projenin ürün kodu; `tests/` dizinleri dışlanır.
@@ -170,18 +170,22 @@ Mevcut davranış testle sabitlendi.
 
 ---
 
-## 3. Açık tanım kararları
+## 3. Tanım kararları — karara bağlandı
 
-Blok 1 ölçümlerinin ortaya çıkardığı, uygulama hatası olmayan ama tanımın
-cevaplamadığı sorular. Hepsi `schema_version` gerektirir; ayrıntı
-`docs/STATUS.md`.
+Blok 1 ölçümlerinin bıraktığı sorular `docs/v2-tanim-kararlari.md`'de karara
+bağlandı ve scan şeması 3'te uygulandı (2026-09-16):
 
-- **LOC:** `docs/04` boş satır ve yorumları hariç tutar, uygulama dahil eder (§2).
-- **Metotsuz sınıfta LCOM4:** `docs/04` `null`, uygulama `0` (§2).
-- **DCC'de sınıfın kendi iç içe sınıfı:** dış referans sayılıyor (§4).
-- **`god_class`'ın LCOM4 kapısı:** boyut koşulunu geçen büyük sınıfların üçte
-  biri, ortak bir yardımcı metodu çağırdıkları için LCOM4 = 1-2 alıp kokudan
-  kaçıyor (§6).
+| Soru | Karar | Uygulama |
+|---|---|---|
+| LOC boş/yorum dahil mi (§2) | Hariç; docstring de hariç (K1, Goodhart) | şema 3 |
+| Metotsuz sınıfta LCOM4 (§2) | `null` (K2, invariant) | şema 3 |
+| DCC'de sınıfın kendi iç içe sınıfı (§4) | Sayılmaz (K3) | şema 3 |
+| `god_class`'ın LCOM4 kapısı (§6) | Değişmez; yoğunluk ölçüsü v2.2'de (K4) | — |
+| `if`/`try` altındaki tanımlar (§1) | Raporlanmaz; kimlik tasarımı v2.2'de (K5) | — |
+
+Bu belgedeki §1, §2, §5 ve §6 sayıları şema 3'le yeniden üretildi ve
+değişmedi (CC, CAM ve karşılaştırmaya giren sınıfların LCOM4'ü bu kararlardan
+etkilenmez). §4 DCC sonuçları şema 3'e göre güncellendi.
 
 ---
 
@@ -237,31 +241,43 @@ denetleyebilir.
 
 | | |
 |---|---:|
-| Sayılan referans | 154 |
+| Sayılan referans | 152 (şema 2: 154) |
 | Doğru pozitif | 148 |
-| Yanlış pozitif | 6 |
+| Yanlış pozitif | 4 (şema 2: 6) |
 | Yanlış negatif | 6 |
-| **Kesinlik** (TP / sayılan) | **%96.1** |
+| **Kesinlik** (TP / sayılan) | **%97.4** (şema 2: %96.1) |
 | **Duyarlılık** (TP / gerçek) | **%96.1** |
-| DCC'si birebir doğru sınıf | 30 / 36 |
+| DCC'si birebir doğru sınıf | 31 / 36 (şema 2: 30) |
+
+Kararlar şema 2 ile okundu. K3 sınıfın kendi iç içe sınıflarını DCC'den
+çıkardığında o kategorideki iki yanlış pozitif sayılmaz oldu; kararları
+`dcc-verdicts.json`'da `resolved_by_schema_3` altında duruyor. Diğer kararlar
+değişmedi. Örneklem bantları şema 2 DCC'siyle çekildi ve örneklem korunmak için
+yeniden çekilmedi; hiçbir sınıf bu yüzden bant değiştirmezdi (tek değişen
+sınıflar 4→3 ve 11→10, bant sınırlarını geçmiyor).
+
+Çalışma kâğıdı DCC'yi kendi başına yeniden hesaplar. Şema 3'ün ilk koşusunda
+K3 yalnızca `dcc()`'ye girdi, çalışma kâğıdına girmedi ve özet sessizce eski
+sonucu üretti. Artık her örneklem sınıfında çalışma kâğıdının referans sayısı
+`dcc()`'ye eşit olmak zorunda; değilse betik durur.
 
 | Bant | Sınıf | TP | FP | FN | Birebir doğru |
 |---|---:|---:|---:|---:|---:|
 | düşük (0-2) | 12 | 8 | 0 | 0 | 12 |
-| orta (3-6) | 12 | 42 | 1 | 1 | 10 |
-| yüksek (7+) | 12 | 98 | 5 | 5 | 8 |
+| orta (3-6) | 12 | 42 | 0 | 1 | 11 |
+| yüksek (7+) | 12 | 98 | 4 | 5 | 8 |
 
 **Hatalar yüksek DCC'de toplanıyor** — ama örneklemde hiçbiri `dcc` eşiğini
 (7) geçirmiyor ya da altına indirmiyor: yanlış ölçülen dört yüksek sınıf
-10→15, 9→8, 12→11, 11→8. Koku kararı değişmezdi. Toplam ölçülen (154) ve
-gerçek (154) tesadüfen eşit: yanlış pozitif ve negatifler birbirini
-götürüyor, bu bir doğruluk göstergesi değildir.
+ölçülen→gerçek 10→15, 9→8, 12→11, 10→8. Koku kararı değişmezdi. Toplam
+ölçülen (152) ile gerçek (154) yakın, ama bu yanlış pozitif ve negatiflerin
+birbirini kısmen götürmesinden gelir; doğruluk göstergesi değildir.
 
 ### Kategoriler
 
 | Tür | Kategori | Adet | Örnek | Durum |
 |---|---|---:|---|---|
-| FP | `own_local_class` | 2 | `SubqueryLoader._SubqCollections`: sınıfın kendi iç içe sınıfı; `ValidatedFunction` metodu içinde tanımlı `DecoratorBaseModel` | tanım belirsiz — açık karar |
+| ~~FP~~ | `own_local_class` | 0 (şema 2: 2) | `SubqueryLoader._SubqCollections`: sınıfın kendi iç içe sınıfı; `ValidatedFunction` metodu içinde tanımlı `DecoratorBaseModel` | **şema 3 K3 ile giderildi** |
 | FP | `external_same_name` | 2 | `flask.sansio.App`: werkzeug `Response`; `click.Option`: `t.Tuple` (typing) ile `click.types.Tuple` | isim tabanlı çözüm sınırlılığı |
 | FP | `local_name` | 1 | `SubqueryLoader`: yerel değişken `collection` ile `collections.collection` sınıfı | isim tabanlı çözüm sınırlılığı |
 | FP | `module_same_name` | 1 | `SubqueryLoader`: `query` modülü ile metot içi `class query` | isim tabanlı çözüm sınırlılığı |
@@ -420,5 +436,7 @@ dağılan sınıflar. Örnekler: `mypy.TypeChecker` (NOM 217), `pydantic.Generat
 Bu **uygulama hatası değil**: Hitz ve Montazeri LCOM4'ü çağrıyı bağ sayarak
 tanımlar ve `docs/04` bu tanımı izler. Soru tanımın kendisinin
 `god_class` için doğru kapı olup olmadığı — ya da kapının bağlantı yerine
-yoğunluğa mı bakması gerektiği. Bu bir tanım kararıdır ve Blok 1b'nin eşik
-kalibrasyonuyla birlikte ele alınmalıdır (§3).
+yoğunluğa mı bakması gerektiği. **Karar (K4, §3):** kapı şema 3'te değişmez;
+yerine konacak yoğunluk ölçüsü `docs/v2.2-python-metrikleri.md` §5b'de dokuz
+madde şablonuyla tasarlanacak. Blok 1b dağılım tablosu bu 34 sınıfı ayrı satır
+olarak raporlar.

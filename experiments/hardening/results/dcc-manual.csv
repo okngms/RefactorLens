@@ -34,7 +34,6 @@ rich:markdown:ListItem,high,Segment,counted,likely_tp,tp,direct,
 rich:markdown:ListItem,high,TextElement,counted,likely_tp,tp,direct,
 pydantic:deprecated.decorator:ValidatedFunction,mid,BaseModel,counted,likely_tp,tp,direct,
 pydantic:deprecated.decorator:ValidatedFunction,mid,ConfigWrapper,counted,check_attribute,tp,module_attribute,from .._internal import _config; _config.ConfigWrapper
-pydantic:deprecated.decorator:ValidatedFunction,mid,DecoratorBaseModel,counted,check_unbound,fp,own_local_class,sınıfın kendi metodu içinde tanımlı yerel sınıf (line 242)
 pydantic:deprecated.decorator:ValidatedFunction,mid,PydanticUserError,counted,likely_tp,tp,direct,
 pydantic:type_adapter:TypeAdapter,high,BaseModel,counted,likely_tp,tp,direct,
 pydantic:type_adapter:TypeAdapter,high,CollectedInvalid,counted,check_attribute,tp,module_attribute,"GenerateSchema.CollectedInvalid, örnek üzerinden erişim; proje sınıfı"
@@ -115,7 +114,6 @@ sqlalchemy:strategies:SubqueryLoader,high,PathRegistry,counted,check_attribute,t
 sqlalchemy:strategies:SubqueryLoader,high,PostLoader,counted,likely_tp,tp,direct,
 sqlalchemy:strategies:SubqueryLoader,high,Query,counted,check_attribute,tp,module_attribute,query.Query
 sqlalchemy:strategies:SubqueryLoader,high,RelationshipProperty,counted,check_attribute,tp,module_attribute,relationships.RelationshipProperty
-sqlalchemy:strategies:SubqueryLoader,high,_SubqCollections,counted,check_attribute,fp,own_local_class,"SubqueryLoader'ın kendi iç içe sınıfı (line 1776), self üzerinden"
 sqlalchemy:strategies:SubqueryLoader,high,collection,counted,likely_fp_local_name,fp,local_name,yerel değişken; collections.collection sınıfıyla ad çakışması
 sqlalchemy:strategies:SubqueryLoader,high,query,counted,likely_tp,fp,module_same_name,from . import query modülü; scoping.py içindeki metot-içi class query ile çakışma
 black:trans:StringParenStripper,mid,CannotTransform,counted,likely_tp,tp,direct,

@@ -242,9 +242,11 @@ def references(
     bindings = module_bindings(tree, is_project_module)
     local = local_bindings(node)
     forms: dict[str, list[str]] = {}
+    # DCC gibi: sınıfın kendisi ve kendi iç içe sınıfları referans değildir (şema 3, K3).
+    own = {child.name for child in ast.walk(node) if isinstance(child, ast.ClassDef)}
 
     def note(name: str, form: str) -> None:
-        if name in names and name != node.name and form not in forms.setdefault(name, []):
+        if name in names and name not in own and form not in forms.setdefault(name, []):
             forms[name].append(form)
 
     for child in ast.walk(node):
@@ -259,6 +261,7 @@ def references(
         if name in aliases:
             note(aliases[name], f"alias:{name}")
 
+    forms = {name: seen for name, seen in forms.items() if seen}
     result: list[Reference] = []
     for name, seen in sorted(forms.items()):
         binding = list(bindings.get(name, []))
@@ -359,6 +362,15 @@ def iter_sample(only: str | None = None) -> Iterator[SampledClass]:
         module = next(m for m in context.modules if m.module == module_name)
         node = next(n for n in iter_module_classes(module.tree) if n.name == class_name)
         refs = references(node, module.tree, context.names, context.is_project_module)
+        aliases = class_aliases(module.tree, context.names, context.is_project_module)
+        measured = dcc(node, context.names, aliases)
+        if len(refs) != measured:
+            # Çalışma kâğıdı DCC'yi yeniden hesaplar; ayrışırsa elle sayım başka
+            # bir metriği doğruluyor olur. Şema 3'te K3 yalnızca `dcc()`'ye girip
+            # buraya girmediğinde tam olarak bu oldu ve sonuç sessizce eski kaldı.
+            raise RuntimeError(
+                f"{key}: worksheet counts {len(refs)} references, dcc() reports {measured}"
+            )
         counted = {ref.name for ref in refs}
         yield SampledClass(
             key=key,

@@ -104,6 +104,17 @@ new class, so they are `moved` and nothing is flagged suspicious — and six
 behaviour tests still failed. `suspicious` narrows where to look; only the
 tests decide whether a delta counts.
 
+**LOC does not count comments, blank lines or docstrings.** Physical line counts
+let a refactoring "improve" LOC by deleting documentation, and no check in the
+tool can see that. Scan schema 3; `docs/v2-tanim-kararlari.md` K1. Do not
+restore physical lines for simplicity — the token rule is already exact.
+
+**`god_class` keeps its LCOM4 gate until v2.2.** LCOM4 counts calls as
+connections, so hub-method classes escape the smell (34 of 107 large classes on
+the corpus). This is known and documented. Changing the gate means a new
+density metric through the nine-item template in `docs/v2.2-python-metrikleri.md`,
+not a threshold picked today. `docs/v2-tanim-kararlari.md` K4.
+
 ---
 
 ## Invariants — breaking these breaks the project's thesis

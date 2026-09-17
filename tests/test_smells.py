@@ -13,6 +13,7 @@ from rlens.analysis.class_metrics import (
     iter_module_classes,
     measure_class,
 )
+from rlens.analysis.func_metrics import code_lines
 from rlens.analysis.model import ClassReport, FunctionReport
 from rlens.analysis.parser import parse_project
 from rlens.analysis.smells import (
@@ -243,6 +244,7 @@ def smells_of(project: Path) -> list:
                 module=module.module,
                 project_classes=registry,
                 cam_min_annotation_coverage=config.metrics.cam_min_annotation_coverage,
+                code_lines=code_lines(module.source),
             )
             found.extend(detect_class_smells(node, report, config))
     return found
