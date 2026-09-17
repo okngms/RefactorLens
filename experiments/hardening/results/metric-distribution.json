@@ -1,0 +1,5179 @@
+{
+  "schema_version": 3,
+  "min_values": 30,
+  "metrics": {
+    "cyclomatic_complexity": {
+      "label": "CC",
+      "unit": "function",
+      "all": {
+        "projects": 25,
+        "p50": 2.0,
+        "p75": 4.0,
+        "p90": 8.0,
+        "p95": 12.0,
+        "p99": 20.0,
+        "null_share": 0.0
+      },
+      "by_type": {
+        "library": {
+          "projects": 10,
+          "p50": 2.0,
+          "p75": 4.5,
+          "p90": 8.5,
+          "p95": 12.125,
+          "p99": 23.235,
+          "null_share": 0.0
+        },
+        "cli": {
+          "projects": 6,
+          "p50": 2.5,
+          "p75": 5.0,
+          "p90": 9.5,
+          "p95": 13.0,
+          "p99": 25.0,
+          "null_share": 0.0
+        },
+        "web_app": {
+          "projects": 5,
+          "p50": 2.0,
+          "p75": 4.0,
+          "p90": 6.0,
+          "p95": 8.55,
+          "p99": 16.0,
+          "null_share": 0.0
+        },
+        "ml_research": {
+          "projects": 4,
+          "p50": 2.0,
+          "p75": 4.5,
+          "p90": 8.5,
+          "p95": 12.225,
+          "p99": 33.08,
+          "null_share": 0.0
+        }
+      },
+      "pooled": {
+        "p50": 2.0,
+        "p75": 4.0,
+        "p90": 8.0,
+        "p95": 11.0,
+        "p99": 24.0,
+        "n": 39485
+      }
+    },
+    "loc": {
+      "label": "LOC",
+      "unit": "function",
+      "all": {
+        "projects": 25,
+        "p50": 7.0,
+        "p75": 17.0,
+        "p90": 29.5,
+        "p95": 44.95,
+        "p99": 85.58,
+        "null_share": 0.0
+      },
+      "by_type": {
+        "library": {
+          "projects": 10,
+          "p50": 7.0,
+          "p75": 17.0,
+          "p90": 30.0,
+          "p95": 45.1,
+          "p99": 88.675,
+          "null_share": 0.0
+        },
+        "cli": {
+          "projects": 6,
+          "p50": 8.5,
+          "p75": 17.0,
+          "p90": 34.95,
+          "p95": 51.0,
+          "p99": 92.4,
+          "null_share": 0.0
+        },
+        "web_app": {
+          "projects": 5,
+          "p50": 6.0,
+          "p75": 14.0,
+          "p90": 25.0,
+          "p95": 34.0,
+          "p99": 58.0,
+          "null_share": 0.0
+        },
+        "ml_research": {
+          "projects": 4,
+          "p50": 8.5,
+          "p75": 18.5,
+          "p90": 33.9,
+          "p95": 46.45,
+          "p99": 109.255,
+          "null_share": 0.0
+        }
+      },
+      "pooled": {
+        "p50": 8.0,
+        "p75": 16.0,
+        "p90": 31.0,
+        "p95": 45.0,
+        "p99": 91.0,
+        "n": 39485
+      }
+    },
+    "param_count": {
+      "label": "PARAMS",
+      "unit": "function",
+      "all": {
+        "projects": 25,
+        "p50": 1.0,
+        "p75": 2.0,
+        "p90": 4.0,
+        "p95": 4.35,
+        "p99": 7.0,
+        "null_share": 0.0
+      },
+      "by_type": {
+        "library": {
+          "projects": 10,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 4.0,
+          "p95": 6.0,
+          "p99": 9.125,
+          "null_share": 0.0
+        },
+        "cli": {
+          "projects": 6,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 4.0,
+          "p99": 6.19,
+          "null_share": 0.0
+        },
+        "web_app": {
+          "projects": 5,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 3.0,
+          "p99": 6.0,
+          "null_share": 0.0
+        },
+        "ml_research": {
+          "projects": 4,
+          "p50": 1.75,
+          "p75": 3.0,
+          "p90": 4.0,
+          "p95": 5.0,
+          "p99": 8.0,
+          "null_share": 0.0
+        }
+      },
+      "pooled": {
+        "p50": 1.0,
+        "p75": 2.0,
+        "p90": 4.0,
+        "p95": 5.0,
+        "p99": 8.0,
+        "n": 39485
+      }
+    },
+    "max_nesting": {
+      "label": "NESTING",
+      "unit": "function",
+      "all": {
+        "projects": 25,
+        "p50": 1.0,
+        "p75": 1.0,
+        "p90": 2.0,
+        "p95": 3.0,
+        "p99": 4.0,
+        "null_share": 0.0
+      },
+      "by_type": {
+        "library": {
+          "projects": 10,
+          "p50": 1.0,
+          "p75": 1.5,
+          "p90": 2.0,
+          "p95": 3.0,
+          "p99": 4.125,
+          "null_share": 0.0
+        },
+        "cli": {
+          "projects": 6,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 2.5,
+          "p95": 3.0,
+          "p99": 4.5,
+          "null_share": 0.0
+        },
+        "web_app": {
+          "projects": 5,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 2.0,
+          "p95": 3.0,
+          "p99": 4.0,
+          "null_share": 0.0
+        },
+        "ml_research": {
+          "projects": 4,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 2.5,
+          "p95": 3.5,
+          "p99": 4.5,
+          "null_share": 0.0
+        }
+      },
+      "pooled": {
+        "p50": 1.0,
+        "p75": 1.0,
+        "p90": 2.0,
+        "p95": 3.0,
+        "p99": 4.0,
+        "n": 39485
+      }
+    },
+    "nom": {
+      "label": "NOM",
+      "unit": "class",
+      "all": {
+        "projects": 24,
+        "p50": 1.0,
+        "p75": 2.0,
+        "p90": 5.55,
+        "p95": 9.925,
+        "p99": 17.6,
+        "null_share": 0.0
+      },
+      "by_type": {
+        "library": {
+          "projects": 10,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 7.8,
+          "p95": 14.125,
+          "p99": 30.77,
+          "null_share": 0.0
+        },
+        "cli": {
+          "projects": 6,
+          "p50": 1.0,
+          "p75": 3.0,
+          "p90": 5.85,
+          "p95": 9.925,
+          "p99": 20.0,
+          "null_share": 0.0
+        },
+        "web_app": {
+          "projects": 5,
+          "p50": 0.0,
+          "p75": 2.0,
+          "p90": 4.0,
+          "p95": 7.0,
+          "p99": 15.95,
+          "null_share": 0.0
+        },
+        "ml_research": {
+          "projects": 3,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 5.0,
+          "p95": 8.0,
+          "p99": 14.3,
+          "null_share": 0.0
+        }
+      },
+      "pooled": {
+        "p50": 1.0,
+        "p75": 2.0,
+        "p90": 5.0,
+        "p95": 8.0,
+        "p99": 24.63,
+        "n": 13738
+      }
+    },
+    "wmc": {
+      "label": "WMC",
+      "unit": "class",
+      "all": {
+        "projects": 24,
+        "p50": 1.25,
+        "p75": 5.5,
+        "p90": 19.0,
+        "p95": 31.0,
+        "p99": 66.535,
+        "null_share": 0.0
+      },
+      "by_type": {
+        "library": {
+          "projects": 10,
+          "p50": 1.0,
+          "p75": 6.0,
+          "p90": 25.0,
+          "p95": 51.125,
+          "p99": 94.705,
+          "null_share": 0.0
+        },
+        "cli": {
+          "projects": 6,
+          "p50": 2.25,
+          "p75": 9.0,
+          "p90": 20.0,
+          "p95": 28.95,
+          "p99": 66.535,
+          "null_share": 0.0
+        },
+        "web_app": {
+          "projects": 5,
+          "p50": 0.0,
+          "p75": 4.0,
+          "p90": 12.0,
+          "p95": 19.0,
+          "p99": 48.94,
+          "null_share": 0.0
+        },
+        "ml_research": {
+          "projects": 3,
+          "p50": 2.0,
+          "p75": 5.0,
+          "p90": 21.2,
+          "p95": 35.5,
+          "p99": 77.35,
+          "null_share": 0.0
+        }
+      },
+      "pooled": {
+        "p50": 1.0,
+        "p75": 5.0,
+        "p90": 15.0,
+        "p95": 27.0,
+        "p99": 87.0,
+        "n": 13738
+      }
+    },
+    "lcom4": {
+      "label": "LCOM4",
+      "unit": "class",
+      "all": {
+        "projects": 18,
+        "p50": 1.0,
+        "p75": 2.0,
+        "p90": 3.0,
+        "p95": 4.65,
+        "p99": 9.35,
+        "null_share": 0.3205
+      },
+      "by_type": {
+        "library": {
+          "projects": 7,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 5.0,
+          "p95": 5.0,
+          "p99": 14.88,
+          "null_share": 0.3867
+        },
+        "cli": {
+          "projects": 4,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 3.0,
+          "p95": 3.525,
+          "p99": 6.705,
+          "null_share": 0.2369
+        },
+        "web_app": {
+          "projects": 5,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 5.0,
+          "p99": 6.81,
+          "null_share": 0.5333
+        },
+        "ml_research": {
+          "projects": 2,
+          "p50": 1.0,
+          "p75": 1.5,
+          "p90": 2.5,
+          "p95": 2.5,
+          "p99": 4.3,
+          "null_share": 0.159
+        }
+      },
+      "pooled": {
+        "p50": 1.0,
+        "p75": 2.0,
+        "p90": 3.0,
+        "p95": 4.0,
+        "p99": 11.57,
+        "n": 7444
+      }
+    },
+    "dcc": {
+      "label": "DCC",
+      "unit": "class",
+      "all": {
+        "projects": 24,
+        "p50": 1.0,
+        "p75": 2.0,
+        "p90": 4.25,
+        "p95": 5.4,
+        "p99": 9.675,
+        "null_share": 0.0
+      },
+      "by_type": {
+        "library": {
+          "projects": 10,
+          "p50": 1.5,
+          "p75": 2.5,
+          "p90": 4.8,
+          "p95": 7.875,
+          "p99": 14.765,
+          "null_share": 0.0
+        },
+        "cli": {
+          "projects": 6,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 5.0,
+          "p99": 7.94,
+          "null_share": 0.0
+        },
+        "web_app": {
+          "projects": 5,
+          "p50": 1.0,
+          "p75": 4.0,
+          "p90": 7.0,
+          "p95": 10.0,
+          "p99": 18.39,
+          "null_share": 0.0
+        },
+        "ml_research": {
+          "projects": 3,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 2.5,
+          "p95": 3.25,
+          "p99": 9.0,
+          "null_share": 0.0
+        }
+      },
+      "pooled": {
+        "p50": 2.0,
+        "p75": 4.0,
+        "p90": 7.0,
+        "p95": 10.0,
+        "p99": 21.0,
+        "n": 13738
+      }
+    },
+    "dam": {
+      "label": "DAM",
+      "unit": "class",
+      "all": {
+        "projects": 21,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p90": 0.2536,
+        "p95": 0.47,
+        "p99": 1.0,
+        "null_share": 0.216
+      },
+      "by_type": {
+        "library": {
+          "projects": 8,
+          "p50": 0.0,
+          "p75": 0.3215,
+          "p90": 0.875,
+          "p95": 1.0,
+          "p99": 1.0,
+          "null_share": 0.2063
+        },
+        "cli": {
+          "projects": 6,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 0.466,
+          "p95": 0.735,
+          "p99": 1.0,
+          "null_share": 0.2298
+        },
+        "web_app": {
+          "projects": 5,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 0.0,
+          "p95": 0.0,
+          "p99": 0.4118,
+          "null_share": 0.216
+        },
+        "ml_research": {
+          "projects": 2,
+          "p50": 0.0,
+          "p75": 0.25,
+          "p90": 0.5,
+          "p95": 0.5,
+          "p99": 0.64,
+          "null_share": 0.1655
+        }
+      },
+      "pooled": {
+        "p50": 0.0,
+        "p75": 0.5,
+        "p90": 1.0,
+        "p95": 1.0,
+        "p99": 1.0,
+        "n": 11380
+      }
+    },
+    "cam": {
+      "label": "CAM",
+      "unit": "class",
+      "all": {
+        "projects": 12,
+        "p50": 0.8125,
+        "p75": 1.0,
+        "p90": 1.0,
+        "p95": 1.0,
+        "p99": 1.0,
+        "null_share": 0.6163
+      },
+      "by_type": {
+        "library": {
+          "projects": 7,
+          "p50": 0.875,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "null_share": 0.5647
+        },
+        "cli": {
+          "projects": 2,
+          "p50": 0.75,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "null_share": 0.45
+        },
+        "web_app": {
+          "projects": 3,
+          "p50": 0.75,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "null_share": 0.7387
+        },
+        "ml_research": {
+          "projects": 0,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "p95": null,
+          "p99": null,
+          "null_share": null
+        }
+      },
+      "pooled": {
+        "p50": 0.75,
+        "p75": 1.0,
+        "p90": 1.0,
+        "p95": 1.0,
+        "p99": 1.0,
+        "n": 1426
+      }
+    },
+    "ca": {
+      "label": "Ca",
+      "unit": "module",
+      "all": {
+        "projects": 17,
+        "p50": 1.0,
+        "p75": 4.0,
+        "p90": 10.0,
+        "p95": 20.0,
+        "p99": 34.48,
+        "null_share": 0.0
+      },
+      "by_type": {
+        "library": {
+          "projects": 5,
+          "p50": 2.0,
+          "p75": 6.0,
+          "p90": 13.2,
+          "p95": 20.8,
+          "p99": 34.48,
+          "null_share": 0.0
+        },
+        "cli": {
+          "projects": 5,
+          "p50": 2.0,
+          "p75": 3.0,
+          "p90": 6.0,
+          "p95": 9.75,
+          "p99": 33.56,
+          "null_share": 0.0
+        },
+        "web_app": {
+          "projects": 5,
+          "p50": 1.0,
+          "p75": 4.0,
+          "p90": 10.0,
+          "p95": 20.2,
+          "p99": 46.34,
+          "null_share": 0.0
+        },
+        "ml_research": {
+          "projects": 2,
+          "p50": 1.5,
+          "p75": 3.0,
+          "p90": 8.4,
+          "p95": 13.5,
+          "p99": 27.4,
+          "null_share": 0.0
+        }
+      },
+      "pooled": {
+        "p50": 1.0,
+        "p75": 3.0,
+        "p90": 9.0,
+        "p95": 18.2,
+        "p99": 62.0,
+        "n": 5237
+      }
+    },
+    "ce": {
+      "label": "Ce",
+      "unit": "module",
+      "all": {
+        "projects": 17,
+        "p50": 3.0,
+        "p75": 6.0,
+        "p90": 10.0,
+        "p95": 12.0,
+        "p99": 17.6,
+        "null_share": 0.0
+      },
+      "by_type": {
+        "library": {
+          "projects": 5,
+          "p50": 4.0,
+          "p75": 7.0,
+          "p90": 13.0,
+          "p95": 14.15,
+          "p99": 21.3,
+          "null_share": 0.0
+        },
+        "cli": {
+          "projects": 5,
+          "p50": 2.0,
+          "p75": 5.0,
+          "p90": 7.0,
+          "p95": 8.75,
+          "p99": 15.75,
+          "null_share": 0.0
+        },
+        "web_app": {
+          "projects": 5,
+          "p50": 3.0,
+          "p75": 6.0,
+          "p90": 10.0,
+          "p95": 12.0,
+          "p99": 20.06,
+          "null_share": 0.0
+        },
+        "ml_research": {
+          "projects": 2,
+          "p50": 2.5,
+          "p75": 5.0,
+          "p90": 8.5,
+          "p95": 9.9,
+          "p99": 14.1,
+          "null_share": 0.0
+        }
+      },
+      "pooled": {
+        "p50": 3.0,
+        "p75": 6.0,
+        "p90": 12.0,
+        "p95": 17.0,
+        "p99": 30.0,
+        "n": 5237
+      }
+    },
+    "instability": {
+      "label": "I",
+      "unit": "module",
+      "all": {
+        "projects": 17,
+        "p50": 0.6667,
+        "p75": 0.8333,
+        "p90": 1.0,
+        "p95": 1.0,
+        "p99": 1.0,
+        "null_share": 0.0447
+      },
+      "by_type": {
+        "library": {
+          "projects": 5,
+          "p50": 0.5556,
+          "p75": 0.767,
+          "p90": 0.9203,
+          "p95": 1.0,
+          "p99": 1.0,
+          "null_share": 0.0128
+        },
+        "cli": {
+          "projects": 5,
+          "p50": 0.6667,
+          "p75": 0.8333,
+          "p90": 0.8922,
+          "p95": 0.9167,
+          "p99": 1.0,
+          "null_share": 0.0303
+        },
+        "web_app": {
+          "projects": 5,
+          "p50": 0.75,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "null_share": 0.0633
+        },
+        "ml_research": {
+          "projects": 2,
+          "p50": 0.55,
+          "p75": 0.845,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "null_share": 0.0637
+        }
+      },
+      "pooled": {
+        "p50": 0.6667,
+        "p75": 0.8889,
+        "p90": 1.0,
+        "p95": 1.0,
+        "p99": 1.0,
+        "n": 4985
+      }
+    }
+  },
+  "thresholds": [
+    {
+      "metric": "cyclomatic_complexity",
+      "label": "CC",
+      "level": "warn",
+      "value": 10,
+      "key": "CC>=10 (warn)",
+      "projects": 25,
+      "median_exceedance": 0.0687,
+      "min_exceedance": 0.0123,
+      "max_exceedance": 0.1846,
+      "by_type": {
+        "library": 0.081,
+        "cli": 0.0952,
+        "web_app": 0.0366,
+        "ml_research": 0.0746
+      },
+      "pooled_exceedance": 0.0669
+    },
+    {
+      "metric": "cyclomatic_complexity",
+      "label": "CC",
+      "level": "critical",
+      "value": 20,
+      "key": "CC>=20 (critical)",
+      "projects": 25,
+      "median_exceedance": 0.0117,
+      "min_exceedance": 0.0,
+      "max_exceedance": 0.0606,
+      "by_type": {
+        "library": 0.0173,
+        "cli": 0.0197,
+        "web_app": 0.0056,
+        "ml_research": 0.024
+      },
+      "pooled_exceedance": 0.0155
+    },
+    {
+      "metric": "param_count",
+      "label": "PARAMS",
+      "level": "warn",
+      "value": 5,
+      "key": "PARAMS>=5 (warn)",
+      "projects": 25,
+      "median_exceedance": 0.0508,
+      "min_exceedance": 0.0105,
+      "max_exceedance": 0.3134,
+      "by_type": {
+        "library": 0.0928,
+        "cli": 0.0353,
+        "web_app": 0.0212,
+        "ml_research": 0.0687
+      },
+      "pooled_exceedance": 0.0567
+    },
+    {
+      "metric": "max_nesting",
+      "label": "NESTING",
+      "level": "warn",
+      "value": 4,
+      "key": "NESTING>=4 (warn)",
+      "projects": 25,
+      "median_exceedance": 0.0259,
+      "min_exceedance": 0.0,
+      "max_exceedance": 0.0882,
+      "by_type": {
+        "library": 0.0338,
+        "cli": 0.0294,
+        "web_app": 0.0197,
+        "ml_research": 0.0374
+      },
+      "pooled_exceedance": 0.0266
+    },
+    {
+      "metric": "nom",
+      "label": "NOM",
+      "level": "warn",
+      "value": 20,
+      "key": "NOM>=20 (warn)",
+      "projects": 24,
+      "median_exceedance": 0.013,
+      "min_exceedance": 0.0,
+      "max_exceedance": 0.187,
+      "by_type": {
+        "library": 0.0287,
+        "cli": 0.0144,
+        "web_app": 0.0091,
+        "ml_research": 0.0101
+      },
+      "pooled_exceedance": 0.0147
+    },
+    {
+      "metric": "wmc",
+      "label": "WMC",
+      "level": "warn",
+      "value": 50,
+      "key": "WMC>=50 (warn)",
+      "projects": 24,
+      "median_exceedance": 0.0269,
+      "min_exceedance": 0.0,
+      "max_exceedance": 0.2114,
+      "by_type": {
+        "library": 0.0597,
+        "cli": 0.0183,
+        "web_app": 0.011,
+        "ml_research": 0.0404
+      },
+      "pooled_exceedance": 0.0222
+    },
+    {
+      "metric": "lcom4",
+      "label": "LCOM4",
+      "level": "warn",
+      "value": 2,
+      "key": "LCOM4>=2 (warn)",
+      "projects": 18,
+      "median_exceedance": 0.3211,
+      "min_exceedance": 0.1111,
+      "max_exceedance": 0.6178,
+      "by_type": {
+        "library": 0.4257,
+        "cli": 0.239,
+        "web_app": 0.3222,
+        "ml_research": 0.243
+      },
+      "pooled_exceedance": 0.2762
+    },
+    {
+      "metric": "lcom4",
+      "label": "LCOM4",
+      "level": "critical",
+      "value": 4,
+      "key": "LCOM4>=4 (critical)",
+      "projects": 18,
+      "median_exceedance": 0.0755,
+      "min_exceedance": 0.0123,
+      "max_exceedance": 0.2915,
+      "by_type": {
+        "library": 0.125,
+        "cli": 0.0609,
+        "web_app": 0.0791,
+        "ml_research": 0.0306
+      },
+      "pooled_exceedance": 0.0751
+    },
+    {
+      "metric": "dcc",
+      "label": "DCC",
+      "level": "warn",
+      "value": 7,
+      "key": "DCC>=7 (warn)",
+      "projects": 24,
+      "median_exceedance": 0.0476,
+      "min_exceedance": 0.0,
+      "max_exceedance": 0.2524,
+      "by_type": {
+        "library": 0.0791,
+        "cli": 0.0209,
+        "web_app": 0.1148,
+        "ml_research": 0.0278
+      },
+      "pooled_exceedance": 0.1233
+    },
+    {
+      "metric": "loc",
+      "label": "LOC",
+      "level": "long_method",
+      "value": 40,
+      "key": "LOC>=40 (long_method)",
+      "projects": 25,
+      "median_exceedance": 0.0648,
+      "min_exceedance": 0.022,
+      "max_exceedance": 0.3657,
+      "by_type": {
+        "library": 0.0659,
+        "cli": 0.0845,
+        "web_app": 0.0306,
+        "ml_research": 0.0734
+      },
+      "pooled_exceedance": 0.0646
+    }
+  ],
+  "god_class_gate": {
+    "library": {
+      "size_qualified": 67,
+      "fired": 52,
+      "gated_by_lcom4": 15,
+      "gated_only_because_of_call_edges": 15
+    },
+    "cli": {
+      "size_qualified": 67,
+      "fired": 31,
+      "gated_by_lcom4": 36,
+      "gated_only_because_of_call_edges": 34
+    },
+    "web_app": {
+      "size_qualified": 23,
+      "fired": 12,
+      "gated_by_lcom4": 11,
+      "gated_only_because_of_call_edges": 11
+    },
+    "ml_research": {
+      "size_qualified": 2,
+      "fired": 1,
+      "gated_by_lcom4": 1,
+      "gated_only_because_of_call_edges": 1
+    },
+    "all": {
+      "size_qualified": 159,
+      "fired": 96,
+      "gated_by_lcom4": 63,
+      "gated_only_because_of_call_edges": 61
+    }
+  },
+  "smell_rates": {
+    "library": {
+      "data_class": 0.0,
+      "feature_envy_candidate": 57.0881,
+      "god_class": 17.3513,
+      "long_method": 45.8754,
+      "too_many_params": 92.8132
+    },
+    "cli": {
+      "data_class": 2.1521,
+      "feature_envy_candidate": 49.9912,
+      "god_class": 1.2914,
+      "long_method": 59.1023,
+      "too_many_params": 35.2254
+    },
+    "web_app": {
+      "data_class": 0.0,
+      "feature_envy_candidate": 77.1184,
+      "god_class": 1.5106,
+      "long_method": 18.3099,
+      "too_many_params": 21.1524
+    },
+    "ml_research": {
+      "data_class": 0.0,
+      "feature_envy_candidate": 67.7026,
+      "god_class": 0.0,
+      "long_method": 58.8235,
+      "too_many_params": 63.263
+    }
+  },
+  "per_project": {
+    "requests": {
+      "type": "library",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 176,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 3.0,
+          "p75": 5.0,
+          "p90": 8.0,
+          "p95": 12.25,
+          "p99": 19.0,
+          "max": 21
+        },
+        "loc": {
+          "n": 176,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 7.0,
+          "p75": 15.0,
+          "p90": 26.5,
+          "p95": 40.75,
+          "p99": 75.5,
+          "max": 80
+        },
+        "param_count": {
+          "n": 176,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 4.0,
+          "p99": 9.25,
+          "max": 16
+        },
+        "max_nesting": {
+          "n": 176,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 3.0,
+          "p99": 4.25,
+          "max": 5
+        },
+        "nom": {
+          "n": 44,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 2.0,
+          "p90": 11.7,
+          "p95": 13.0,
+          "p99": 16.28,
+          "max": 18
+        },
+        "wmc": {
+          "n": 44,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 2.25,
+          "p90": 45.0,
+          "p95": 55.85,
+          "p99": 58.85,
+          "max": 61
+        },
+        "lcom4": {
+          "n": 15,
+          "null_share": 0.6591,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.6,
+          "p95": 6.1,
+          "p99": 10.02,
+          "max": 11
+        },
+        "dcc": {
+          "n": 44,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 2.7,
+          "p95": 7.0,
+          "p99": 10.28,
+          "max": 12
+        },
+        "dam": {
+          "n": 13,
+          "null_share": 0.7045,
+          "eligible": false,
+          "p50": 0.2857,
+          "p75": 0.6667,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "cam": {
+          "n": 0,
+          "null_share": 1.0,
+          "eligible": false,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "ca": {
+          "n": 18,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 2.5,
+          "p75": 4.75,
+          "p90": 5.0,
+          "p95": 5.75,
+          "p99": 9.15,
+          "max": 10
+        },
+        "ce": {
+          "n": 18,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 5.5,
+          "p90": 7.6,
+          "p95": 9.3,
+          "p99": 10.66,
+          "max": 11
+        },
+        "instability": {
+          "n": 16,
+          "null_share": 0.1111,
+          "eligible": false,
+          "p50": 0.2679,
+          "p75": 0.7812,
+          "p90": 0.9584,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.0852,
+        "CC>=20 (critical)": 0.0057,
+        "PARAMS>=5 (warn)": 0.0341,
+        "NESTING>=4 (warn)": 0.0398,
+        "NOM>=20 (warn)": 0.0,
+        "WMC>=50 (warn)": 0.0909,
+        "LCOM4>=2 (warn)": 0.3333,
+        "LCOM4>=4 (critical)": 0.1333,
+        "DCC>=7 (warn)": 0.0909,
+        "LOC>=40 (long_method)": 0.0568
+      }
+    },
+    "httpx": {
+      "type": "library",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 309,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 4.0,
+          "p90": 6.0,
+          "p95": 8.0,
+          "p99": 10.92,
+          "max": 46
+        },
+        "loc": {
+          "n": 309,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 7.0,
+          "p75": 15.0,
+          "p90": 27.6,
+          "p95": 34.0,
+          "p99": 50.76,
+          "max": 82
+        },
+        "param_count": {
+          "n": 309,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 7.0,
+          "p95": 11.6,
+          "p99": 14.0,
+          "max": 17
+        },
+        "max_nesting": {
+          "n": 309,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 2.0,
+          "p95": 3.0,
+          "p99": 4.0,
+          "max": 5
+        },
+        "nom": {
+          "n": 85,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 6.6,
+          "p95": 15.8,
+          "p99": 32.12,
+          "max": 38
+        },
+        "wmc": {
+          "n": 85,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 7.0,
+          "p90": 17.2,
+          "p95": 30.0,
+          "p99": 80.36,
+          "max": 119
+        },
+        "lcom4": {
+          "n": 48,
+          "null_share": 0.4353,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 2.3,
+          "p95": 3.0,
+          "p99": 6.53,
+          "max": 7
+        },
+        "dcc": {
+          "n": 85,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 4.6,
+          "p95": 8.0,
+          "p99": 18.32,
+          "max": 20
+        },
+        "dam": {
+          "n": 51,
+          "null_share": 0.4,
+          "eligible": true,
+          "p50": 0.5,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "cam": {
+          "n": 37,
+          "null_share": 0.5647,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "ca": {
+          "n": 23,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 2.0,
+          "p75": 5.5,
+          "p90": 8.8,
+          "p95": 11.7,
+          "p99": 12.78,
+          "max": 13
+        },
+        "ce": {
+          "n": 23,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 3.0,
+          "p75": 4.5,
+          "p90": 7.6,
+          "p95": 11.6,
+          "p99": 12.78,
+          "max": 13
+        },
+        "instability": {
+          "n": 23,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 0.5,
+          "p75": 0.75,
+          "p90": 0.8266,
+          "p95": 0.8333,
+          "p99": 0.9633,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.0194,
+        "CC>=20 (critical)": 0.0032,
+        "PARAMS>=5 (warn)": 0.11,
+        "NESTING>=4 (warn)": 0.0259,
+        "NOM>=20 (warn)": 0.0353,
+        "WMC>=50 (warn)": 0.0235,
+        "LCOM4>=2 (warn)": 0.3125,
+        "LCOM4>=4 (critical)": 0.0417,
+        "DCC>=7 (warn)": 0.0824,
+        "LOC>=40 (long_method)": 0.0259
+      }
+    },
+    "rich": {
+      "type": "library",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 582,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 4.0,
+          "p90": 8.0,
+          "p95": 12.0,
+          "p99": 21.19,
+          "max": 49
+        },
+        "loc": {
+          "n": 582,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 6.0,
+          "p75": 17.0,
+          "p90": 31.0,
+          "p95": 44.95,
+          "p99": 107.66,
+          "max": 254
+        },
+        "param_count": {
+          "n": 582,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 4.0,
+          "p95": 7.0,
+          "p99": 14.0,
+          "max": 18
+        },
+        "max_nesting": {
+          "n": 582,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 1.0,
+          "p90": 2.0,
+          "p95": 3.0,
+          "p99": 5.0,
+          "max": 9
+        },
+        "nom": {
+          "n": 170,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 6.1,
+          "p95": 15.0,
+          "p99": 30.89,
+          "max": 67
+        },
+        "wmc": {
+          "n": 170,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 5.0,
+          "p90": 20.0,
+          "p95": 52.1,
+          "p99": 158.19,
+          "max": 253
+        },
+        "lcom4": {
+          "n": 101,
+          "null_share": 0.4059,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 5.0,
+          "p95": 5.0,
+          "p99": 15.0,
+          "max": 17
+        },
+        "dcc": {
+          "n": 170,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 4.0,
+          "p90": 7.0,
+          "p95": 9.0,
+          "p99": 17.86,
+          "max": 38
+        },
+        "dam": {
+          "n": 133,
+          "null_share": 0.2176,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 0.1,
+          "p90": 0.5952,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "cam": {
+          "n": 93,
+          "null_share": 0.4529,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "ca": {
+          "n": 78,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 4.0,
+          "p90": 11.9,
+          "p95": 20.15,
+          "p99": 35.37,
+          "max": 50
+        },
+        "ce": {
+          "n": 78,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 3.0,
+          "p75": 7.0,
+          "p90": 12.0,
+          "p95": 13.15,
+          "p99": 19.6,
+          "max": 35
+        },
+        "instability": {
+          "n": 77,
+          "null_share": 0.0128,
+          "eligible": true,
+          "p50": 0.5556,
+          "p75": 0.75,
+          "p90": 0.9193,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.0687,
+        "CC>=20 (critical)": 0.0137,
+        "PARAMS>=5 (warn)": 0.0928,
+        "NESTING>=4 (warn)": 0.0378,
+        "NOM>=20 (warn)": 0.0294,
+        "WMC>=50 (warn)": 0.0588,
+        "LCOM4>=2 (warn)": 0.4257,
+        "LCOM4>=4 (critical)": 0.1287,
+        "DCC>=7 (warn)": 0.1412,
+        "LOC>=40 (long_method)": 0.067
+      }
+    },
+    "pydantic": {
+      "type": "library",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 756,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 5.0,
+          "p90": 9.0,
+          "p95": 12.0,
+          "p99": 26.45,
+          "max": 78
+        },
+        "loc": {
+          "n": 756,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 7.0,
+          "p75": 17.0,
+          "p90": 29.0,
+          "p95": 45.25,
+          "p99": 89.35,
+          "max": 168
+        },
+        "param_count": {
+          "n": 756,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 4.0,
+          "p95": 5.0,
+          "p99": 9.0,
+          "max": 36
+        },
+        "max_nesting": {
+          "n": 756,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 2.0,
+          "p95": 3.0,
+          "p99": 5.0,
+          "max": 7
+        },
+        "nom": {
+          "n": 179,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 1.0,
+          "p90": 4.0,
+          "p95": 11.2,
+          "p99": 37.04,
+          "max": 93
+        },
+        "wmc": {
+          "n": 179,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 3.0,
+          "p90": 14.2,
+          "p95": 32.6,
+          "p99": 229.08,
+          "max": 382
+        },
+        "lcom4": {
+          "n": 75,
+          "null_share": 0.581,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 4.3,
+          "p99": 11.04,
+          "max": 14
+        },
+        "dcc": {
+          "n": 179,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 5.2,
+          "p99": 16.98,
+          "max": 30
+        },
+        "dam": {
+          "n": 127,
+          "null_share": 0.2905,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "cam": {
+          "n": 58,
+          "null_share": 0.676,
+          "eligible": true,
+          "p50": 0.875,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "ca": {
+          "n": 77,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 9.0,
+          "p90": 16.4,
+          "p95": 20.8,
+          "p99": 34.48,
+          "max": 55
+        },
+        "ce": {
+          "n": 77,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 4.0,
+          "p75": 7.0,
+          "p90": 16.0,
+          "p95": 19.2,
+          "p99": 30.2,
+          "max": 34
+        },
+        "instability": {
+          "n": 77,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.6667,
+          "p75": 0.875,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.0939,
+        "CC>=20 (critical)": 0.0225,
+        "PARAMS>=5 (warn)": 0.0661,
+        "NESTING>=4 (warn)": 0.0384,
+        "NOM>=20 (warn)": 0.0279,
+        "WMC>=50 (warn)": 0.0391,
+        "LCOM4>=2 (warn)": 0.32,
+        "LCOM4>=4 (critical)": 0.08,
+        "DCC>=7 (warn)": 0.0503,
+        "LOC>=40 (long_method)": 0.0648
+      }
+    },
+    "fastapi": {
+      "type": "library",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 134,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 5.0,
+          "p90": 9.4,
+          "p95": 13.7,
+          "p99": 36.67,
+          "max": 38
+        },
+        "loc": {
+          "n": 134,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 16.0,
+          "p75": 82.5,
+          "p90": 357.0,
+          "p95": 358.0,
+          "p99": 358.0,
+          "max": 358
+        },
+        "param_count": {
+          "n": 134,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 9.0,
+          "p90": 23.0,
+          "p95": 27.05,
+          "p99": 30.0,
+          "max": 31
+        },
+        "max_nesting": {
+          "n": 134,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 3.0,
+          "p95": 3.0,
+          "p99": 4.0,
+          "max": 5
+        },
+        "nom": {
+          "n": 89,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 16.36,
+          "max": 19
+        },
+        "wmc": {
+          "n": 89,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 1.0,
+          "p95": 2.6,
+          "p99": 31.4,
+          "max": 49
+        },
+        "lcom4": {
+          "n": 10,
+          "null_share": 0.8876,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 1.75,
+          "p90": 4.2,
+          "p95": 5.1,
+          "p99": 5.82,
+          "max": 6
+        },
+        "dcc": {
+          "n": 89,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 3.0,
+          "p90": 5.0,
+          "p95": 5.6,
+          "p99": 8.24,
+          "max": 10
+        },
+        "dam": {
+          "n": 74,
+          "null_share": 0.1685,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 0.0,
+          "p95": 0.0,
+          "p99": 0.4027,
+          "max": 1.0
+        },
+        "cam": {
+          "n": 9,
+          "null_share": 0.8989,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "ca": {
+          "n": 44,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 3.0,
+          "p90": 5.7,
+          "p95": 6.85,
+          "p99": 9.14,
+          "max": 10
+        },
+        "ce": {
+          "n": 44,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.5,
+          "p75": 3.0,
+          "p90": 7.8,
+          "p95": 9.85,
+          "p99": 11.14,
+          "max": 12
+        },
+        "instability": {
+          "n": 33,
+          "null_share": 0.25,
+          "eligible": true,
+          "p50": 0.3333,
+          "p75": 0.7143,
+          "p90": 0.9203,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.1045,
+        "CC>=20 (critical)": 0.0448,
+        "PARAMS>=5 (warn)": 0.3134,
+        "NESTING>=4 (warn)": 0.0299,
+        "NOM>=20 (warn)": 0.0,
+        "WMC>=50 (warn)": 0.0,
+        "LCOM4>=2 (warn)": 0.3,
+        "LCOM4>=4 (critical)": 0.2,
+        "DCC>=7 (warn)": 0.0449,
+        "LOC>=40 (long_method)": 0.3657
+      }
+    },
+    "attrs": {
+      "type": "library",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 117,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 5.0,
+          "p90": 9.0,
+          "p95": 13.2,
+          "p99": 33.52,
+          "max": 46
+        },
+        "loc": {
+          "n": 117,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 8.0,
+          "p75": 18.0,
+          "p90": 49.4,
+          "p95": 70.6,
+          "p99": 123.12,
+          "max": 211
+        },
+        "param_count": {
+          "n": 117,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 3.0,
+          "p90": 5.0,
+          "p95": 8.0,
+          "p99": 20.04,
+          "max": 24
+        },
+        "max_nesting": {
+          "n": 117,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 2.4,
+          "p95": 3.0,
+          "p99": 4.84,
+          "max": 5
+        },
+        "nom": {
+          "n": 33,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 2.0,
+          "p95": 2.4,
+          "p99": 11.84,
+          "max": 16
+        },
+        "wmc": {
+          "n": 33,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 6.8,
+          "p95": 8.2,
+          "p99": 54.2,
+          "max": 75
+        },
+        "lcom4": {
+          "n": 6,
+          "null_share": 0.8182,
+          "eligible": false,
+          "p50": 1.5,
+          "p75": 2.0,
+          "p90": 2.5,
+          "p95": 2.75,
+          "p99": 2.95,
+          "max": 3
+        },
+        "dcc": {
+          "n": 33,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 2.36,
+          "max": 3
+        },
+        "dam": {
+          "n": 23,
+          "null_share": 0.303,
+          "eligible": false,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 0.48,
+          "p95": 0.95,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "cam": {
+          "n": 1,
+          "null_share": 0.9697,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "ca": {
+          "n": 19,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 3.0,
+          "p90": 4.4,
+          "p95": 6.3,
+          "p99": 8.46,
+          "max": 9
+        },
+        "ce": {
+          "n": 19,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 3.5,
+          "p90": 5.0,
+          "p95": 5.1,
+          "p99": 5.82,
+          "max": 6
+        },
+        "instability": {
+          "n": 19,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 0.6,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.0769,
+        "CC>=20 (critical)": 0.0256,
+        "PARAMS>=5 (warn)": 0.1282,
+        "NESTING>=4 (warn)": 0.0427,
+        "NOM>=20 (warn)": 0.0,
+        "WMC>=50 (warn)": 0.0303,
+        "LCOM4>=2 (warn)": 0.5,
+        "LCOM4>=4 (critical)": 0.0,
+        "DCC>=7 (warn)": 0.0,
+        "LOC>=40 (long_method)": 0.1282
+      }
+    },
+    "click": {
+      "type": "library",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 354,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 4.0,
+          "p90": 8.0,
+          "p95": 10.0,
+          "p99": 17.94,
+          "max": 39
+        },
+        "loc": {
+          "n": 354,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 7.0,
+          "p75": 14.0,
+          "p90": 26.7,
+          "p95": 36.0,
+          "p99": 61.0,
+          "max": 105
+        },
+        "param_count": {
+          "n": 354,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 4.35,
+          "p99": 7.0,
+          "max": 15
+        },
+        "max_nesting": {
+          "n": 354,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 2.0,
+          "p95": 3.0,
+          "p99": 4.0,
+          "max": 5
+        },
+        "nom": {
+          "n": 66,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 4.0,
+          "p90": 9.0,
+          "p95": 13.25,
+          "p99": 18.75,
+          "max": 22
+        },
+        "wmc": {
+          "n": 66,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 6.5,
+          "p75": 13.75,
+          "p90": 35.5,
+          "p95": 51.75,
+          "p99": 70.65,
+          "max": 96
+        },
+        "lcom4": {
+          "n": 56,
+          "null_share": 0.1515,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 2.5,
+          "p95": 5.0,
+          "p99": 9.7,
+          "max": 13
+        },
+        "dcc": {
+          "n": 66,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 3.0,
+          "p90": 5.5,
+          "p95": 7.75,
+          "p99": 9.0,
+          "max": 9
+        },
+        "dam": {
+          "n": 61,
+          "null_share": 0.0758,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 0.1429,
+          "p90": 0.75,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "cam": {
+          "n": 43,
+          "null_share": 0.3485,
+          "eligible": true,
+          "p50": 0.5,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "ca": {
+          "n": 16,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 2.0,
+          "p75": 7.0,
+          "p90": 8.0,
+          "p95": 8.0,
+          "p99": 8.0,
+          "max": 8
+        },
+        "ce": {
+          "n": 16,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 3.5,
+          "p75": 4.25,
+          "p90": 7.5,
+          "p95": 9.0,
+          "p99": 9.0,
+          "max": 9
+        },
+        "instability": {
+          "n": 16,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 0.5147,
+          "p75": 0.6875,
+          "p90": 0.9,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.0678,
+        "CC>=20 (critical)": 0.0085,
+        "PARAMS>=5 (warn)": 0.0508,
+        "NESTING>=4 (warn)": 0.0169,
+        "NOM>=20 (warn)": 0.0152,
+        "WMC>=50 (warn)": 0.0606,
+        "LCOM4>=2 (warn)": 0.2857,
+        "LCOM4>=4 (critical)": 0.0714,
+        "DCC>=7 (warn)": 0.0758,
+        "LOC>=40 (long_method)": 0.0452
+      }
+    },
+    "flask": {
+      "type": "library",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 290,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 3.75,
+          "p90": 6.0,
+          "p95": 8.0,
+          "p99": 14.22,
+          "max": 23
+        },
+        "loc": {
+          "n": 290,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 6.0,
+          "p75": 10.75,
+          "p90": 21.1,
+          "p95": 29.55,
+          "p99": 57.11,
+          "max": 65
+        },
+        "param_count": {
+          "n": 290,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 3.0,
+          "p99": 6.0,
+          "max": 9
+        },
+        "max_nesting": {
+          "n": 290,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 2.0,
+          "p95": 3.0,
+          "p99": 4.0,
+          "max": 4
+        },
+        "nom": {
+          "n": 46,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 3.0,
+          "p75": 4.0,
+          "p90": 12.0,
+          "p95": 24.0,
+          "p99": 30.65,
+          "max": 32
+        },
+        "wmc": {
+          "n": 46,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 4.0,
+          "p75": 13.5,
+          "p90": 30.0,
+          "p95": 50.5,
+          "p99": 109.05,
+          "max": 141
+        },
+        "lcom4": {
+          "n": 40,
+          "null_share": 0.1304,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 3.0,
+          "p90": 6.1,
+          "p95": 11.05,
+          "p99": 15.05,
+          "max": 17
+        },
+        "dcc": {
+          "n": 46,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 4.5,
+          "p95": 8.25,
+          "p99": 12.55,
+          "max": 13
+        },
+        "dam": {
+          "n": 40,
+          "null_share": 0.1304,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 0.0571,
+          "p90": 0.2536,
+          "p95": 0.4014,
+          "p99": 0.7772,
+          "max": 1.0
+        },
+        "cam": {
+          "n": 38,
+          "null_share": 0.1739,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "ca": {
+          "n": 24,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 3.5,
+          "p75": 6.25,
+          "p90": 8.7,
+          "p95": 11.55,
+          "p99": 18.93,
+          "max": 21
+        },
+        "ce": {
+          "n": 24,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 4.0,
+          "p75": 6.0,
+          "p90": 9.4,
+          "p95": 10.85,
+          "p99": 11.77,
+          "max": 12
+        },
+        "instability": {
+          "n": 24,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 0.6,
+          "p75": 0.6667,
+          "p90": 0.9333,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.0379,
+        "CC>=20 (critical)": 0.0034,
+        "PARAMS>=5 (warn)": 0.0276,
+        "NESTING>=4 (warn)": 0.0138,
+        "NOM>=20 (warn)": 0.087,
+        "WMC>=50 (warn)": 0.0652,
+        "LCOM4>=2 (warn)": 0.525,
+        "LCOM4>=4 (critical)": 0.125,
+        "DCC>=7 (warn)": 0.0652,
+        "LOC>=40 (long_method)": 0.031
+      }
+    },
+    "sqlalchemy": {
+      "type": "library",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 1673,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 4.0,
+          "p90": 9.0,
+          "p95": 13.0,
+          "p99": 25.28,
+          "max": 57
+        },
+        "loc": {
+          "n": 1673,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 8.0,
+          "p75": 18.0,
+          "p90": 37.0,
+          "p95": 60.0,
+          "p99": 119.0,
+          "max": 303
+        },
+        "param_count": {
+          "n": 1673,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 3.0,
+          "p90": 5.0,
+          "p95": 7.0,
+          "p99": 9.0,
+          "max": 38
+        },
+        "max_nesting": {
+          "n": 1673,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 1.0,
+          "p90": 3.0,
+          "p95": 3.0,
+          "p99": 5.0,
+          "max": 7
+        },
+        "nom": {
+          "n": 256,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.5,
+          "p75": 5.25,
+          "p90": 15.0,
+          "p95": 21.25,
+          "p99": 58.7,
+          "max": 117
+        },
+        "wmc": {
+          "n": 256,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 3.0,
+          "p75": 16.0,
+          "p90": 51.0,
+          "p95": 74.0,
+          "p99": 251.6,
+          "max": 534
+        },
+        "lcom4": {
+          "n": 157,
+          "null_share": 0.3867,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 4.0,
+          "p90": 7.0,
+          "p95": 9.2,
+          "p99": 14.88,
+          "max": 28
+        },
+        "dcc": {
+          "n": 256,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 5.0,
+          "p90": 9.0,
+          "p95": 13.0,
+          "p99": 22.35,
+          "max": 26
+        },
+        "dam": {
+          "n": 190,
+          "null_share": 0.2578,
+          "eligible": true,
+          "p50": 0.0435,
+          "p75": 0.5,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "cam": {
+          "n": 85,
+          "null_share": 0.668,
+          "eligible": true,
+          "p50": 0.5,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "ca": {
+          "n": 38,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 4.0,
+          "p75": 11.0,
+          "p90": 24.0,
+          "p95": 26.0,
+          "p99": 27.26,
+          "max": 28
+        },
+        "ce": {
+          "n": 38,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 8.0,
+          "p75": 10.0,
+          "p90": 13.0,
+          "p95": 14.15,
+          "p99": 21.3,
+          "max": 25
+        },
+        "instability": {
+          "n": 38,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.5882,
+          "p75": 0.7945,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.0891,
+        "CC>=20 (critical)": 0.0209,
+        "PARAMS>=5 (warn)": 0.1207,
+        "NESTING>=4 (warn)": 0.0442,
+        "NOM>=20 (warn)": 0.0625,
+        "WMC>=50 (warn)": 0.1055,
+        "LCOM4>=2 (warn)": 0.6178,
+        "LCOM4>=4 (critical)": 0.2739,
+        "DCC>=7 (warn)": 0.1719,
+        "LOC>=40 (long_method)": 0.0909
+      }
+    },
+    "pandas": {
+      "type": "library",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 3996,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 5.0,
+          "p90": 9.0,
+          "p95": 14.0,
+          "p99": 27.0,
+          "max": 65
+        },
+        "loc": {
+          "n": 3996,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 8.0,
+          "p75": 17.0,
+          "p90": 33.0,
+          "p95": 46.0,
+          "p99": 88.0,
+          "max": 332
+        },
+        "param_count": {
+          "n": 3996,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 3.0,
+          "p90": 4.0,
+          "p95": 5.0,
+          "p99": 9.0,
+          "max": 23
+        },
+        "max_nesting": {
+          "n": 3996,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 2.0,
+          "p95": 3.0,
+          "p99": 4.0,
+          "max": 7
+        },
+        "nom": {
+          "n": 246,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 3.0,
+          "p75": 11.0,
+          "p90": 28.5,
+          "p95": 53.25,
+          "p99": 160.75,
+          "max": 199
+        },
+        "wmc": {
+          "n": 246,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 6.5,
+          "p75": 38.0,
+          "p90": 104.0,
+          "p95": 193.25,
+          "p99": 692.1,
+          "max": 937
+        },
+        "lcom4": {
+          "n": 199,
+          "null_share": 0.1911,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 4.0,
+          "p90": 7.0,
+          "p95": 11.0,
+          "p99": 39.14,
+          "max": 48
+        },
+        "dcc": {
+          "n": 246,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 5.0,
+          "p90": 9.0,
+          "p95": 11.75,
+          "p99": 23.55,
+          "max": 24
+        },
+        "dam": {
+          "n": 198,
+          "null_share": 0.1951,
+          "eligible": true,
+          "p50": 0.3333,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "cam": {
+          "n": 72,
+          "null_share": 0.7073,
+          "eligible": true,
+          "p50": 0.5,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "ca": {
+          "n": 179,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 3.0,
+          "p75": 6.0,
+          "p90": 13.2,
+          "p95": 28.0,
+          "p99": 59.42,
+          "max": 86
+        },
+        "ce": {
+          "n": 179,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 4.0,
+          "p75": 10.0,
+          "p90": 16.2,
+          "p95": 22.0,
+          "p99": 32.98,
+          "max": 43
+        },
+        "instability": {
+          "n": 171,
+          "null_share": 0.0447,
+          "eligible": true,
+          "p50": 0.5,
+          "p75": 0.767,
+          "p90": 0.8571,
+          "p95": 0.9143,
+          "p99": 1.0,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.0953,
+        "CC>=20 (critical)": 0.022,
+        "PARAMS>=5 (warn)": 0.0928,
+        "NESTING>=4 (warn)": 0.0275,
+        "NOM>=20 (warn)": 0.187,
+        "WMC>=50 (warn)": 0.2114,
+        "LCOM4>=2 (warn)": 0.603,
+        "LCOM4>=4 (critical)": 0.2915,
+        "DCC>=7 (warn)": 0.1707,
+        "LOC>=40 (long_method)": 0.0696
+      }
+    },
+    "black": {
+      "type": "cli",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 363,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 4.0,
+          "p75": 8.0,
+          "p90": 15.0,
+          "p95": 21.0,
+          "p99": 39.38,
+          "max": 106
+        },
+        "loc": {
+          "n": 363,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 10.0,
+          "p75": 20.0,
+          "p90": 40.8,
+          "p95": 58.9,
+          "p99": 93.46,
+          "max": 191
+        },
+        "param_count": {
+          "n": 363,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 4.0,
+          "p99": 6.38,
+          "max": 29
+        },
+        "max_nesting": {
+          "n": 363,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 4.0,
+          "p99": 5.0,
+          "max": 6
+        },
+        "nom": {
+          "n": 44,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 3.0,
+          "p90": 6.7,
+          "p95": 9.85,
+          "p99": 27.14,
+          "max": 28
+        },
+        "wmc": {
+          "n": 44,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.5,
+          "p75": 15.0,
+          "p90": 72.5,
+          "p95": 91.35,
+          "p99": 127.96,
+          "max": 140
+        },
+        "lcom4": {
+          "n": 26,
+          "null_share": 0.4091,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 1.75,
+          "p90": 2.0,
+          "p95": 2.0,
+          "p99": 3.5,
+          "max": 4
+        },
+        "dcc": {
+          "n": 44,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 2.0,
+          "p90": 5.0,
+          "p95": 5.0,
+          "p99": 6.57,
+          "max": 7
+        },
+        "dam": {
+          "n": 33,
+          "null_share": 0.25,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 0.8571,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "cam": {
+          "n": 20,
+          "null_share": 0.5455,
+          "eligible": false,
+          "p50": 0.5,
+          "p75": 0.7708,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "ca": {
+          "n": 25,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 3.0,
+          "p90": 5.8,
+          "p95": 8.6,
+          "p99": 10.52,
+          "max": 11
+        },
+        "ce": {
+          "n": 25,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 3.0,
+          "p90": 5.2,
+          "p95": 7.6,
+          "p99": 12.56,
+          "max": 14
+        },
+        "instability": {
+          "n": 22,
+          "null_share": 0.12,
+          "eligible": false,
+          "p50": 0.4,
+          "p75": 0.75,
+          "p90": 0.8857,
+          "p95": 0.9944,
+          "p99": 1.0,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.1846,
+        "CC>=20 (critical)": 0.0606,
+        "PARAMS>=5 (warn)": 0.0331,
+        "NESTING>=4 (warn)": 0.0882,
+        "NOM>=20 (warn)": 0.0455,
+        "WMC>=50 (warn)": 0.1364,
+        "LCOM4>=2 (warn)": 0.2692,
+        "LCOM4>=4 (critical)": 0.0385,
+        "DCC>=7 (warn)": 0.0227,
+        "LOC>=40 (long_method)": 0.1102
+      }
+    },
+    "mypy": {
+      "type": "cli",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 4636,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 5.0,
+          "p90": 11.0,
+          "p95": 16.0,
+          "p99": 32.0,
+          "max": 97
+        },
+        "loc": {
+          "n": 4636,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 5.0,
+          "p75": 13.0,
+          "p90": 29.5,
+          "p95": 46.0,
+          "p99": 95.65,
+          "max": 870
+        },
+        "param_count": {
+          "n": 4636,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 4.0,
+          "p99": 7.0,
+          "max": 21
+        },
+        "max_nesting": {
+          "n": 4636,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 4.0,
+          "p99": 5.0,
+          "max": 10
+        },
+        "nom": {
+          "n": 420,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 6.0,
+          "p90": 23.1,
+          "p95": 32.05,
+          "p99": 101.67,
+          "max": 293
+        },
+        "wmc": {
+          "n": 420,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 3.0,
+          "p75": 17.0,
+          "p90": 57.0,
+          "p95": 130.65,
+          "p99": 413.98,
+          "max": 2008
+        },
+        "lcom4": {
+          "n": 343,
+          "null_share": 0.1833,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 3.0,
+          "p90": 6.0,
+          "p95": 16.0,
+          "p99": 43.16,
+          "max": 83
+        },
+        "dcc": {
+          "n": 420,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 3.0,
+          "p75": 7.0,
+          "p90": 24.1,
+          "p95": 31.15,
+          "p99": 91.62,
+          "max": 137
+        },
+        "dam": {
+          "n": 332,
+          "null_share": 0.2095,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 0.0288,
+          "p95": 0.2347,
+          "p99": 0.9225,
+          "max": 1.0
+        },
+        "cam": {
+          "n": 330,
+          "null_share": 0.2143,
+          "eligible": true,
+          "p50": 0.5,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "ca": {
+          "n": 132,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 5.25,
+          "p90": 14.8,
+          "p95": 20.0,
+          "p99": 65.53,
+          "max": 82
+        },
+        "ce": {
+          "n": 132,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 4.0,
+          "p75": 8.0,
+          "p90": 14.0,
+          "p95": 17.0,
+          "p99": 32.69,
+          "max": 39
+        },
+        "instability": {
+          "n": 128,
+          "null_share": 0.0303,
+          "eligible": true,
+          "p50": 0.5714,
+          "p75": 0.8333,
+          "p90": 0.9274,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.1158,
+        "CC>=20 (critical)": 0.0358,
+        "PARAMS>=5 (warn)": 0.0416,
+        "NESTING>=4 (warn)": 0.0561,
+        "NOM>=20 (warn)": 0.1286,
+        "WMC>=50 (warn)": 0.1214,
+        "LCOM4>=2 (warn)": 0.4227,
+        "LCOM4>=4 (critical)": 0.1983,
+        "DCC>=7 (warn)": 0.2524,
+        "LOC>=40 (long_method)": 0.0649
+      }
+    },
+    "httpie": {
+      "type": "cli",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 375,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 4.0,
+          "p90": 6.0,
+          "p95": 9.0,
+          "p99": 15.08,
+          "max": 26
+        },
+        "loc": {
+          "n": 375,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 7.0,
+          "p75": 14.0,
+          "p90": 23.0,
+          "p95": 35.6,
+          "p99": 78.26,
+          "max": 101
+        },
+        "param_count": {
+          "n": 375,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 3.0,
+          "p99": 5.0,
+          "max": 6
+        },
+        "max_nesting": {
+          "n": 375,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 2.0,
+          "p95": 3.0,
+          "p99": 4.0,
+          "max": 5
+        },
+        "nom": {
+          "n": 105,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 3.0,
+          "p90": 5.0,
+          "p95": 7.0,
+          "p99": 12.96,
+          "max": 19
+        },
+        "wmc": {
+          "n": 105,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 6.0,
+          "p90": 11.2,
+          "p95": 16.6,
+          "p99": 47.52,
+          "max": 120
+        },
+        "lcom4": {
+          "n": 60,
+          "null_share": 0.4286,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 3.0,
+          "p95": 3.05,
+          "p99": 4.41,
+          "max": 5
+        },
+        "dcc": {
+          "n": 105,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 3.0,
+          "p95": 5.0,
+          "p99": 8.88,
+          "max": 10
+        },
+        "dam": {
+          "n": 75,
+          "null_share": 0.2857,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 0.075,
+          "p95": 0.43,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "cam": {
+          "n": 33,
+          "null_share": 0.6857,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "ca": {
+          "n": 78,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 3.0,
+          "p90": 6.0,
+          "p95": 9.0,
+          "p99": 15.61,
+          "max": 21
+        },
+        "ce": {
+          "n": 78,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 4.0,
+          "p90": 6.3,
+          "p95": 8.3,
+          "p99": 12.46,
+          "max": 14
+        },
+        "instability": {
+          "n": 71,
+          "null_share": 0.0897,
+          "eligible": true,
+          "p50": 0.5,
+          "p75": 0.75,
+          "p90": 0.8462,
+          "p95": 0.906,
+          "p99": 1.0,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.0453,
+        "CC>=20 (critical)": 0.0107,
+        "PARAMS>=5 (warn)": 0.0187,
+        "NESTING>=4 (warn)": 0.016,
+        "NOM>=20 (warn)": 0.0,
+        "WMC>=50 (warn)": 0.0095,
+        "LCOM4>=2 (warn)": 0.2333,
+        "LCOM4>=4 (critical)": 0.05,
+        "DCC>=7 (warn)": 0.019,
+        "LOC>=40 (long_method)": 0.0373
+      }
+    },
+    "yt-dlp": {
+      "type": "cli",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 4787,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 3.0,
+          "p75": 5.0,
+          "p90": 10.0,
+          "p95": 14.0,
+          "p99": 32.0,
+          "max": 200
+        },
+        "loc": {
+          "n": 4787,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 11.0,
+          "p75": 24.0,
+          "p90": 44.0,
+          "p95": 63.0,
+          "p99": 128.14,
+          "max": 1723
+        },
+        "param_count": {
+          "n": 4787,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 4.0,
+          "p99": 6.0,
+          "max": 15
+        },
+        "max_nesting": {
+          "n": 4787,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 3.0,
+          "p99": 5.0,
+          "max": 8
+        },
+        "nom": {
+          "n": 2323,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 5.0,
+          "p99": 12.56,
+          "max": 168
+        },
+        "wmc": {
+          "n": 2323,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 4.0,
+          "p75": 9.0,
+          "p90": 18.0,
+          "p95": 27.9,
+          "p99": 65.0,
+          "max": 924
+        },
+        "lcom4": {
+          "n": 2043,
+          "null_share": 0.1205,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 2.0,
+          "p95": 2.0,
+          "p99": 4.0,
+          "max": 15
+        },
+        "dcc": {
+          "n": 2323,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 4.0,
+          "p99": 7.0,
+          "max": 57
+        },
+        "dam": {
+          "n": 2152,
+          "null_share": 0.0736,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "cam": {
+          "n": 17,
+          "null_share": 0.9927,
+          "eligible": false,
+          "p50": 0.6667,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "ca": {
+          "n": 1045,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 2.0,
+          "p95": 3.0,
+          "p99": 14.56,
+          "max": 896
+        },
+        "ce": {
+          "n": 1045,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 3.0,
+          "p90": 4.0,
+          "p95": 5.0,
+          "p99": 8.56,
+          "max": 928
+        },
+        "instability": {
+          "n": 1040,
+          "null_share": 0.0048,
+          "eligible": true,
+          "p50": 0.6667,
+          "p75": 0.75,
+          "p90": 0.8,
+          "p95": 0.8,
+          "p99": 1.0,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.104,
+        "CC>=20 (critical)": 0.0286,
+        "PARAMS>=5 (warn)": 0.0374,
+        "NESTING>=4 (warn)": 0.0359,
+        "NOM>=20 (warn)": 0.0034,
+        "WMC>=50 (warn)": 0.0159,
+        "LCOM4>=2 (warn)": 0.1326,
+        "LCOM4>=4 (critical)": 0.0132,
+        "DCC>=7 (warn)": 0.0125,
+        "LOC>=40 (long_method)": 0.1216
+      }
+    },
+    "awscli": {
+      "type": "cli",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 5587,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 3.0,
+          "p90": 5.0,
+          "p95": 6.0,
+          "p99": 11.0,
+          "max": 58
+        },
+        "loc": {
+          "n": 5587,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 6.0,
+          "p75": 11.0,
+          "p90": 20.0,
+          "p95": 28.0,
+          "p99": 56.0,
+          "max": 322
+        },
+        "param_count": {
+          "n": 5587,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 4.0,
+          "p99": 6.0,
+          "max": 15
+        },
+        "max_nesting": {
+          "n": 5587,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 2.0,
+          "p95": 2.0,
+          "p99": 4.0,
+          "max": 6
+        },
+        "nom": {
+          "n": 1394,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 4.0,
+          "p90": 8.0,
+          "p95": 12.0,
+          "p99": 24.0,
+          "max": 179
+        },
+        "wmc": {
+          "n": 1394,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 3.0,
+          "p75": 9.0,
+          "p90": 22.0,
+          "p95": 30.0,
+          "p99": 68.07,
+          "max": 221
+        },
+        "lcom4": {
+          "n": 989,
+          "null_share": 0.2905,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 3.0,
+          "p95": 4.0,
+          "p99": 9.0,
+          "max": 75
+        },
+        "dcc": {
+          "n": 1394,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 5.0,
+          "p99": 9.07,
+          "max": 25
+        },
+        "dam": {
+          "n": 1026,
+          "null_share": 0.264,
+          "eligible": true,
+          "p50": 0.3333,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "cam": {
+          "n": 3,
+          "null_share": 0.9978,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "ca": {
+          "n": 426,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 6.0,
+          "p95": 9.75,
+          "p99": 49.25,
+          "max": 74
+        },
+        "ce": {
+          "n": 426,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 5.0,
+          "p90": 7.0,
+          "p95": 8.75,
+          "p99": 15.75,
+          "max": 25
+        },
+        "instability": {
+          "n": 400,
+          "null_share": 0.061,
+          "eligible": true,
+          "p50": 0.6667,
+          "p75": 0.8393,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.0161,
+        "CC>=20 (critical)": 0.0014,
+        "PARAMS>=5 (warn)": 0.0277,
+        "NESTING>=4 (warn)": 0.0109,
+        "NOM>=20 (warn)": 0.0179,
+        "WMC>=50 (warn)": 0.0208,
+        "LCOM4>=2 (warn)": 0.2447,
+        "LCOM4>=4 (critical)": 0.0718,
+        "DCC>=7 (warn)": 0.0294,
+        "LOC>=40 (long_method)": 0.022
+      }
+    },
+    "pipx": {
+      "type": "cli",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 567,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 3.0,
+          "p75": 5.0,
+          "p90": 9.0,
+          "p95": 12.0,
+          "p99": 18.0,
+          "max": 37
+        },
+        "loc": {
+          "n": 567,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 10.0,
+          "p75": 20.0,
+          "p90": 40.4,
+          "p95": 56.0,
+          "p99": 91.34,
+          "max": 218
+        },
+        "param_count": {
+          "n": 567,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 3.0,
+          "p90": 5.0,
+          "p95": 8.7,
+          "p99": 14.34,
+          "max": 31
+        },
+        "max_nesting": {
+          "n": 567,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 2.0,
+          "p95": 3.0,
+          "p99": 4.0,
+          "max": 5
+        },
+        "nom": {
+          "n": 91,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 2.0,
+          "p95": 10.0,
+          "p99": 16.0,
+          "max": 34
+        },
+        "wmc": {
+          "n": 91,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 5.0,
+          "p95": 26.0,
+          "p99": 47.0,
+          "max": 110
+        },
+        "lcom4": {
+          "n": 19,
+          "null_share": 0.7912,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 1.5,
+          "p90": 5.0,
+          "p95": 9.0,
+          "p99": 9.0,
+          "max": 9
+        },
+        "dcc": {
+          "n": 91,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 1.0,
+          "p90": 3.0,
+          "p95": 3.0,
+          "p99": 4.3,
+          "max": 7
+        },
+        "dam": {
+          "n": 87,
+          "null_share": 0.044,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 0.0,
+          "p95": 0.47,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "cam": {
+          "n": 12,
+          "null_share": 0.8681,
+          "eligible": false,
+          "p50": 0.6833,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "ca": {
+          "n": 49,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 6.0,
+          "p90": 16.4,
+          "p95": 20.2,
+          "p99": 33.56,
+          "max": 35
+        },
+        "ce": {
+          "n": 49,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 4.0,
+          "p75": 8.0,
+          "p90": 12.0,
+          "p95": 14.6,
+          "p99": 17.6,
+          "max": 20
+        },
+        "instability": {
+          "n": 48,
+          "null_share": 0.0204,
+          "eligible": true,
+          "p50": 0.7084,
+          "p75": 0.8333,
+          "p90": 0.8922,
+          "p95": 0.9167,
+          "p99": 0.9706,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.0864,
+        "CC>=20 (critical)": 0.0053,
+        "PARAMS>=5 (warn)": 0.1164,
+        "NESTING>=4 (warn)": 0.0229,
+        "NOM>=20 (warn)": 0.011,
+        "WMC>=50 (warn)": 0.011,
+        "LCOM4>=2 (warn)": 0.2632,
+        "LCOM4>=4 (critical)": 0.1579,
+        "DCC>=7 (warn)": 0.011,
+        "LOC>=40 (long_method)": 0.1041
+      }
+    },
+    "healthchecks": {
+      "type": "web_app",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 710,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 4.0,
+          "p90": 6.0,
+          "p95": 8.55,
+          "p99": 16.0,
+          "max": 42
+        },
+        "loc": {
+          "n": 710,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 6.0,
+          "p75": 14.0,
+          "p90": 25.0,
+          "p95": 34.0,
+          "p99": 58.0,
+          "max": 138
+        },
+        "param_count": {
+          "n": 710,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 2.0,
+          "p95": 3.0,
+          "p99": 5.0,
+          "max": 8
+        },
+        "max_nesting": {
+          "n": 710,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 2.0,
+          "p95": 3.0,
+          "p99": 4.0,
+          "max": 5
+        },
+        "nom": {
+          "n": 214,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 4.0,
+          "p95": 5.35,
+          "p99": 21.48,
+          "max": 35
+        },
+        "wmc": {
+          "n": 214,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 5.0,
+          "p90": 12.0,
+          "p95": 18.35,
+          "p99": 46.18,
+          "max": 92
+        },
+        "lcom4": {
+          "n": 139,
+          "null_share": 0.3505,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 5.0,
+          "p99": 10.24,
+          "max": 15
+        },
+        "dcc": {
+          "n": 214,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 4.0,
+          "p95": 5.0,
+          "p99": 6.87,
+          "max": 18
+        },
+        "dam": {
+          "n": 175,
+          "null_share": 0.1822,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 0.0,
+          "p95": 0.0,
+          "p99": 0.0709,
+          "max": 1.0
+        },
+        "cam": {
+          "n": 103,
+          "null_share": 0.5187,
+          "eligible": true,
+          "p50": 0.75,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "ca": {
+          "n": 225,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 3.0,
+          "p95": 10.8,
+          "p99": 32.0,
+          "max": 77
+        },
+        "ce": {
+          "n": 225,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 4.0,
+          "p90": 6.0,
+          "p95": 7.0,
+          "p99": 8.76,
+          "max": 20
+        },
+        "instability": {
+          "n": 201,
+          "null_share": 0.1067,
+          "eligible": true,
+          "p50": 0.8571,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.0366,
+        "CC>=20 (critical)": 0.0056,
+        "PARAMS>=5 (warn)": 0.0197,
+        "NESTING>=4 (warn)": 0.0127,
+        "NOM>=20 (warn)": 0.014,
+        "WMC>=50 (warn)": 0.0093,
+        "LCOM4>=2 (warn)": 0.3381,
+        "LCOM4>=4 (critical)": 0.0791,
+        "DCC>=7 (warn)": 0.014,
+        "LOC>=40 (long_method)": 0.0296
+      }
+    },
+    "netbox": {
+      "type": "web_app",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 3151,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 4.0,
+          "p90": 7.0,
+          "p95": 10.0,
+          "p99": 21.0,
+          "max": 107
+        },
+        "loc": {
+          "n": 3151,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 6.0,
+          "p75": 11.0,
+          "p90": 22.0,
+          "p95": 31.0,
+          "p99": 61.0,
+          "max": 209
+        },
+        "param_count": {
+          "n": 3151,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 3.0,
+          "p99": 5.0,
+          "max": 10
+        },
+        "max_nesting": {
+          "n": 3151,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 2.0,
+          "p95": 3.0,
+          "p99": 4.0,
+          "max": 10
+        },
+        "nom": {
+          "n": 4116,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 1.0,
+          "p90": 2.0,
+          "p95": 3.0,
+          "p99": 8.0,
+          "max": 32
+        },
+        "wmc": {
+          "n": 4116,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 1.0,
+          "p90": 5.0,
+          "p95": 10.0,
+          "p99": 31.85,
+          "max": 213
+        },
+        "lcom4": {
+          "n": 1127,
+          "null_share": 0.7262,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 2.0,
+          "p95": 3.0,
+          "p99": 6.0,
+          "max": 13
+        },
+        "dcc": {
+          "n": 4116,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 4.0,
+          "p75": 6.0,
+          "p90": 9.0,
+          "p95": 12.0,
+          "p99": 19.0,
+          "max": 52
+        },
+        "dam": {
+          "n": 3701,
+          "null_share": 0.1008,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 0.0,
+          "p95": 0.0,
+          "p99": 0.4118,
+          "max": 1.0
+        },
+        "cam": {
+          "n": 12,
+          "null_share": 0.9971,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "ca": {
+          "n": 777,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 4.0,
+          "p90": 10.0,
+          "p95": 20.2,
+          "p99": 53.0,
+          "max": 100
+        },
+        "ce": {
+          "n": 777,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 3.0,
+          "p75": 6.0,
+          "p90": 11.0,
+          "p95": 15.0,
+          "p99": 23.0,
+          "max": 36
+        },
+        "instability": {
+          "n": 721,
+          "null_share": 0.0721,
+          "eligible": true,
+          "p50": 0.6667,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.059,
+        "CC>=20 (critical)": 0.0117,
+        "PARAMS>=5 (warn)": 0.0105,
+        "NESTING>=4 (warn)": 0.02,
+        "NOM>=20 (warn)": 0.001,
+        "WMC>=50 (warn)": 0.0049,
+        "LCOM4>=2 (warn)": 0.2822,
+        "LCOM4>=4 (critical)": 0.0399,
+        "DCC>=7 (warn)": 0.1897,
+        "LOC>=40 (long_method)": 0.0295
+      }
+    },
+    "saleor": {
+      "type": "web_app",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 6622,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 3.0,
+          "p90": 6.0,
+          "p95": 8.0,
+          "p99": 14.0,
+          "max": 38
+        },
+        "loc": {
+          "n": 6622,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 10.0,
+          "p75": 19.0,
+          "p90": 33.0,
+          "p95": 48.0,
+          "p99": 85.58,
+          "max": 289
+        },
+        "param_count": {
+          "n": 6622,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 3.0,
+          "p90": 4.0,
+          "p95": 5.0,
+          "p99": 8.0,
+          "max": 14
+        },
+        "max_nesting": {
+          "n": 6622,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 2.0,
+          "p95": 2.0,
+          "p99": 3.0,
+          "max": 6
+        },
+        "nom": {
+          "n": 2535,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 1.0,
+          "p90": 4.0,
+          "p95": 7.0,
+          "p99": 14.0,
+          "max": 206
+        },
+        "wmc": {
+          "n": 2535,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 3.0,
+          "p90": 9.0,
+          "p95": 19.0,
+          "p99": 53.98,
+          "max": 504
+        },
+        "lcom4": {
+          "n": 1183,
+          "null_share": 0.5333,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 5.0,
+          "p99": 12.18,
+          "max": 58
+        },
+        "dcc": {
+          "n": 2535,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 5.0,
+          "p90": 10.0,
+          "p95": 13.0,
+          "p99": 25.0,
+          "max": 74
+        },
+        "dam": {
+          "n": 1932,
+          "null_share": 0.2379,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 0.0,
+          "p95": 0.0,
+          "p99": 0.1429,
+          "max": 1.0
+        },
+        "cam": {
+          "n": 217,
+          "null_share": 0.9144,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "ca": {
+          "n": 1164,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 4.0,
+          "p90": 18.0,
+          "p95": 38.55,
+          "p99": 133.44,
+          "max": 405
+        },
+        "ce": {
+          "n": 1164,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 6.0,
+          "p75": 14.0,
+          "p90": 20.0,
+          "p95": 25.0,
+          "p99": 39.0,
+          "max": 77
+        },
+        "instability": {
+          "n": 1107,
+          "null_share": 0.049,
+          "eligible": true,
+          "p50": 0.75,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.0329,
+        "CC>=20 (critical)": 0.0033,
+        "PARAMS>=5 (warn)": 0.0856,
+        "NESTING>=4 (warn)": 0.0094,
+        "NOM>=20 (warn)": 0.0051,
+        "WMC>=50 (warn)": 0.011,
+        "LCOM4>=2 (warn)": 0.3119,
+        "LCOM4>=4 (critical)": 0.093,
+        "DCC>=7 (warn)": 0.1968,
+        "LOC>=40 (long_method)": 0.0749
+      }
+    },
+    "redash": {
+      "type": "web_app",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 1346,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 3.0,
+          "p90": 6.0,
+          "p95": 8.0,
+          "p99": 13.0,
+          "max": 31
+        },
+        "loc": {
+          "n": 1346,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 7.0,
+          "p75": 15.0,
+          "p90": 25.0,
+          "p95": 34.0,
+          "p99": 57.55,
+          "max": 125
+        },
+        "param_count": {
+          "n": 1346,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 2.0,
+          "p95": 3.0,
+          "p99": 7.0,
+          "max": 8
+        },
+        "max_nesting": {
+          "n": 1346,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 1.0,
+          "p90": 2.0,
+          "p95": 3.0,
+          "p99": 4.0,
+          "max": 7
+        },
+        "nom": {
+          "n": 247,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 3.0,
+          "p75": 5.0,
+          "p90": 8.0,
+          "p95": 10.0,
+          "p99": 20.08,
+          "max": 28
+        },
+        "wmc": {
+          "n": 247,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 5.0,
+          "p75": 13.0,
+          "p90": 25.0,
+          "p95": 32.0,
+          "p99": 48.94,
+          "max": 73
+        },
+        "lcom4": {
+          "n": 220,
+          "null_share": 0.1093,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 4.0,
+          "p90": 5.0,
+          "p95": 5.0,
+          "p99": 6.81,
+          "max": 10
+        },
+        "dcc": {
+          "n": 247,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 4.0,
+          "p99": 7.54,
+          "max": 19
+        },
+        "dam": {
+          "n": 132,
+          "null_share": 0.4656,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 0.0,
+          "p95": 0.4083,
+          "p99": 0.5862,
+          "max": 1.0
+        },
+        "cam": {
+          "n": 2,
+          "null_share": 0.9919,
+          "eligible": false,
+          "p50": 0.6666,
+          "p75": 0.8333,
+          "p90": 0.9333,
+          "p95": 0.9667,
+          "p99": 0.9933,
+          "max": 1.0
+        },
+        "ca": {
+          "n": 167,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 5.0,
+          "p95": 8.0,
+          "p99": 46.34,
+          "max": 78
+        },
+        "ce": {
+          "n": 167,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 4.0,
+          "p90": 6.0,
+          "p95": 9.0,
+          "p99": 13.02,
+          "max": 18
+        },
+        "instability": {
+          "n": 165,
+          "null_share": 0.012,
+          "eligible": true,
+          "p50": 0.8889,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.0357,
+        "CC>=20 (critical)": 0.0022,
+        "PARAMS>=5 (warn)": 0.0275,
+        "NESTING>=4 (warn)": 0.0201,
+        "NOM>=20 (warn)": 0.0121,
+        "WMC>=50 (warn)": 0.0121,
+        "LCOM4>=2 (warn)": 0.5455,
+        "LCOM4>=4 (critical)": 0.2682,
+        "DCC>=7 (warn)": 0.0202,
+        "LOC>=40 (long_method)": 0.0342
+      }
+    },
+    "mealie": {
+      "type": "web_app",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 1371,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 4.0,
+          "p90": 7.0,
+          "p95": 9.0,
+          "p99": 17.0,
+          "max": 24
+        },
+        "loc": {
+          "n": 1371,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 6.0,
+          "p75": 12.0,
+          "p90": 22.0,
+          "p95": 30.5,
+          "p99": 57.3,
+          "max": 118
+        },
+        "param_count": {
+          "n": 1371,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 4.0,
+          "p99": 6.0,
+          "max": 13
+        },
+        "max_nesting": {
+          "n": 1371,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 2.0,
+          "p95": 3.0,
+          "p99": 4.0,
+          "max": 6
+        },
+        "nom": {
+          "n": 662,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 2.0,
+          "p90": 5.0,
+          "p95": 8.0,
+          "p99": 15.95,
+          "max": 37
+        },
+        "wmc": {
+          "n": 662,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 4.0,
+          "p90": 13.0,
+          "p95": 20.95,
+          "p99": 57.51,
+          "max": 138
+        },
+        "lcom4": {
+          "n": 270,
+          "null_share": 0.5921,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 4.0,
+          "p99": 6.62,
+          "max": 15
+        },
+        "dcc": {
+          "n": 662,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 4.0,
+          "p90": 7.0,
+          "p95": 10.0,
+          "p99": 18.39,
+          "max": 91
+        },
+        "dam": {
+          "n": 519,
+          "null_share": 0.216,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 0.0,
+          "p95": 0.25,
+          "p99": 0.9743,
+          "max": 1.0
+        },
+        "cam": {
+          "n": 173,
+          "null_share": 0.7387,
+          "eligible": true,
+          "p50": 0.5,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "ca": {
+          "n": 395,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 4.0,
+          "p90": 10.0,
+          "p95": 21.0,
+          "p99": 45.18,
+          "max": 61
+        },
+        "ce": {
+          "n": 395,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 3.0,
+          "p75": 6.0,
+          "p90": 10.0,
+          "p95": 12.0,
+          "p99": 20.06,
+          "max": 63
+        },
+        "instability": {
+          "n": 370,
+          "null_share": 0.0633,
+          "eligible": true,
+          "p50": 0.6667,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.0481,
+        "CC>=20 (critical)": 0.0066,
+        "PARAMS>=5 (warn)": 0.0212,
+        "NESTING>=4 (warn)": 0.0197,
+        "NOM>=20 (warn)": 0.0091,
+        "WMC>=50 (warn)": 0.0136,
+        "LCOM4>=2 (warn)": 0.3222,
+        "LCOM4>=4 (critical)": 0.0556,
+        "DCC>=7 (warn)": 0.1148,
+        "LOC>=40 (long_method)": 0.0306
+      }
+    },
+    "nanogpt": {
+      "type": "ml_research",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 17,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 3.0,
+          "p75": 4.0,
+          "p90": 7.8,
+          "p95": 12.2,
+          "p99": 12.84,
+          "max": 13
+        },
+        "loc": {
+          "n": 17,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 9.0,
+          "p75": 13.0,
+          "p90": 18.4,
+          "p95": 23.4,
+          "p99": 37.48,
+          "max": 41
+        },
+        "param_count": {
+          "n": 17,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 2.8,
+          "p95": 4.0,
+          "p99": 4.0,
+          "max": 4
+        },
+        "max_nesting": {
+          "n": 17,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 2.4,
+          "p95": 3.0,
+          "p99": 3.0,
+          "max": 3
+        },
+        "nom": {
+          "n": 6,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 4.5,
+          "p95": 6.25,
+          "p99": 7.65,
+          "max": 8
+        },
+        "wmc": {
+          "n": 6,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 2.5,
+          "p90": 23.0,
+          "p95": 33.0,
+          "p99": 41.0,
+          "max": 43
+        },
+        "lcom4": {
+          "n": 5,
+          "null_share": 0.1667,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 2.8,
+          "p95": 3.4,
+          "p99": 3.88,
+          "max": 4
+        },
+        "dcc": {
+          "n": 6,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 0.0,
+          "p75": 2.25,
+          "p90": 3.0,
+          "p95": 3.0,
+          "p99": 3.0,
+          "max": 3
+        },
+        "dam": {
+          "n": 6,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 0.0,
+          "p95": 0.0,
+          "p99": 0.0,
+          "max": 0.0
+        },
+        "cam": {
+          "n": 0,
+          "null_share": 1.0,
+          "eligible": false,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "ca": {
+          "n": 15,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 0.0,
+          "p95": 0.9,
+          "p99": 2.58,
+          "max": 3
+        },
+        "ce": {
+          "n": 15,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1
+        },
+        "instability": {
+          "n": 4,
+          "null_share": 0.7333,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.1176,
+        "CC>=20 (critical)": 0.0,
+        "PARAMS>=5 (warn)": 0.0,
+        "NESTING>=4 (warn)": 0.0,
+        "NOM>=20 (warn)": 0.0,
+        "WMC>=50 (warn)": 0.0,
+        "LCOM4>=2 (warn)": 0.2,
+        "LCOM4>=4 (critical)": 0.2,
+        "DCC>=7 (warn)": 0.0,
+        "LOC>=40 (long_method)": 0.0588
+      }
+    },
+    "yolov5": {
+      "type": "ml_research",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 472,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 5.0,
+          "p90": 10.0,
+          "p95": 17.45,
+          "p99": 46.16,
+          "max": 90
+        },
+        "loc": {
+          "n": 472,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 7.0,
+          "p75": 18.0,
+          "p90": 37.0,
+          "p95": 50.9,
+          "p99": 144.51,
+          "max": 292
+        },
+        "param_count": {
+          "n": 472,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 4.0,
+          "p90": 6.0,
+          "p95": 7.45,
+          "p99": 19.16,
+          "max": 30
+        },
+        "max_nesting": {
+          "n": 472,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 4.0,
+          "p99": 5.0,
+          "max": 6
+        },
+        "nom": {
+          "n": 99,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 5.0,
+          "p95": 8.0,
+          "p99": 14.3,
+          "max": 29
+        },
+        "wmc": {
+          "n": 99,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 4.5,
+          "p90": 21.2,
+          "p95": 35.5,
+          "p99": 82.04,
+          "max": 84
+        },
+        "lcom4": {
+          "n": 81,
+          "null_share": 0.1818,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 2.0,
+          "p95": 2.0,
+          "p99": 3.6,
+          "max": 6
+        },
+        "dcc": {
+          "n": 99,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 2.0,
+          "p95": 3.0,
+          "p99": 4.0,
+          "max": 4
+        },
+        "dam": {
+          "n": 89,
+          "null_share": 0.101,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 0.0,
+          "p95": 0.0,
+          "p99": 0.28,
+          "max": 0.5
+        },
+        "cam": {
+          "n": 0,
+          "null_share": 1.0,
+          "eligible": false,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "ca": {
+          "n": 53,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 3.0,
+          "p90": 9.8,
+          "p95": 13.0,
+          "p99": 27.8,
+          "max": 33
+        },
+        "ce": {
+          "n": 53,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 3.0,
+          "p75": 5.0,
+          "p90": 8.0,
+          "p95": 9.8,
+          "p99": 15.0,
+          "max": 15
+        },
+        "instability": {
+          "n": 47,
+          "null_share": 0.1132,
+          "eligible": true,
+          "p50": 0.6,
+          "p75": 0.8643,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.1144,
+        "CC>=20 (critical)": 0.0424,
+        "PARAMS>=5 (warn)": 0.1653,
+        "NESTING>=4 (warn)": 0.0593,
+        "NOM>=20 (warn)": 0.0101,
+        "WMC>=50 (warn)": 0.0404,
+        "LCOM4>=2 (warn)": 0.1111,
+        "LCOM4>=4 (critical)": 0.0123,
+        "DCC>=7 (warn)": 0.0,
+        "LOC>=40 (long_method)": 0.0869
+      }
+    },
+    "detectron2": {
+      "type": "ml_research",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 901,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 4.0,
+          "p90": 8.0,
+          "p95": 10.0,
+          "p99": 20.0,
+          "max": 36
+        },
+        "loc": {
+          "n": 901,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 10.0,
+          "p75": 19.0,
+          "p90": 33.0,
+          "p95": 42.0,
+          "p99": 74.0,
+          "max": 170
+        },
+        "param_count": {
+          "n": 901,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 4.0,
+          "p95": 5.0,
+          "p99": 7.0,
+          "max": 11
+        },
+        "max_nesting": {
+          "n": 901,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 2.0,
+          "p95": 3.0,
+          "p99": 4.0,
+          "max": 5
+        },
+        "nom": {
+          "n": 213,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 3.0,
+          "p90": 6.8,
+          "p95": 8.0,
+          "p99": 12.76,
+          "max": 21
+        },
+        "wmc": {
+          "n": 213,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 4.0,
+          "p75": 11.0,
+          "p90": 18.0,
+          "p95": 25.4,
+          "p99": 46.16,
+          "max": 154
+        },
+        "lcom4": {
+          "n": 184,
+          "null_share": 0.1362,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 3.0,
+          "p99": 5.0,
+          "max": 5
+        },
+        "dcc": {
+          "n": 213,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.8,
+          "p95": 5.0,
+          "p99": 9.0,
+          "max": 11
+        },
+        "dam": {
+          "n": 164,
+          "null_share": 0.23,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 0.5,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "cam": {
+          "n": 24,
+          "null_share": 0.8873,
+          "eligible": false,
+          "p50": 0.5,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "ca": {
+          "n": 141,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 3.0,
+          "p90": 7.0,
+          "p95": 14.0,
+          "p99": 27.0,
+          "max": 37
+        },
+        "ce": {
+          "n": 141,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 5.0,
+          "p90": 9.0,
+          "p95": 10.0,
+          "p99": 13.2,
+          "max": 17
+        },
+        "instability": {
+          "n": 139,
+          "null_share": 0.0142,
+          "eligible": true,
+          "p50": 0.5,
+          "p75": 0.8257,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.0599,
+        "CC>=20 (critical)": 0.0122,
+        "PARAMS>=5 (warn)": 0.0633,
+        "NESTING>=4 (warn)": 0.0155,
+        "NOM>=20 (warn)": 0.0047,
+        "WMC>=50 (warn)": 0.0094,
+        "LCOM4>=2 (warn)": 0.375,
+        "LCOM4>=4 (critical)": 0.0489,
+        "DCC>=7 (warn)": 0.0329,
+        "LOC>=40 (long_method)": 0.0599
+      }
+    },
+    "whisper": {
+      "type": "ml_research",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 112,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 6.0,
+          "p90": 9.0,
+          "p95": 14.45,
+          "p99": 63.49,
+          "max": 84
+        },
+        "loc": {
+          "n": 112,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 6.0,
+          "p75": 19.0,
+          "p90": 34.8,
+          "p95": 61.35,
+          "p99": 189.67,
+          "max": 344
+        },
+        "param_count": {
+          "n": 112,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.5,
+          "p75": 3.0,
+          "p90": 4.0,
+          "p95": 4.0,
+          "p99": 9.0,
+          "max": 16
+        },
+        "max_nesting": {
+          "n": 112,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 4.0,
+          "p99": 5.0,
+          "max": 8
+        },
+        "nom": {
+          "n": 36,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 7.25,
+          "p99": 16.45,
+          "max": 21
+        },
+        "wmc": {
+          "n": 36,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 5.0,
+          "p90": 22.0,
+          "p95": 44.5,
+          "p99": 77.35,
+          "max": 91
+        },
+        "lcom4": {
+          "n": 29,
+          "null_share": 0.1944,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 2.0,
+          "p95": 2.6,
+          "p99": 3.0,
+          "max": 3
+        },
+        "dcc": {
+          "n": 36,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 2.5,
+          "p95": 3.25,
+          "p99": 11.15,
+          "max": 15
+        },
+        "dam": {
+          "n": 29,
+          "null_share": 0.1944,
+          "eligible": false,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 0.0,
+          "p95": 0.0,
+          "p99": 0.0,
+          "max": 0.0
+        },
+        "cam": {
+          "n": 26,
+          "null_share": 0.2778,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "ca": {
+          "n": 14,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 1.5,
+          "p75": 3.0,
+          "p90": 3.7,
+          "p95": 4.0,
+          "p99": 4.0,
+          "max": 4
+        },
+        "ce": {
+          "n": 14,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 3.5,
+          "p90": 4.7,
+          "p95": 5.35,
+          "p99": 5.87,
+          "max": 6
+        },
+        "instability": {
+          "n": 14,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 0.4166,
+          "p75": 0.7667,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.0893,
+        "CC>=20 (critical)": 0.0357,
+        "PARAMS>=5 (warn)": 0.0446,
+        "NESTING>=4 (warn)": 0.0625,
+        "NOM>=20 (warn)": 0.0278,
+        "WMC>=50 (warn)": 0.0556,
+        "LCOM4>=2 (warn)": 0.1724,
+        "LCOM4>=4 (critical)": 0.0,
+        "DCC>=7 (warn)": 0.0278,
+        "LOC>=40 (long_method)": 0.0893
+      }
+    },
+    "segment-anything": {
+      "type": "ml_research",
+      "metrics": {
+        "cyclomatic_complexity": {
+          "n": 81,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 3.0,
+          "p90": 5.0,
+          "p95": 6.0,
+          "p99": 8.6,
+          "max": 11
+        },
+        "loc": {
+          "n": 81,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 10.0,
+          "p75": 18.0,
+          "p90": 27.0,
+          "p95": 31.0,
+          "p99": 43.4,
+          "max": 53
+        },
+        "param_count": {
+          "n": 81,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 2.0,
+          "p75": 3.0,
+          "p90": 4.0,
+          "p95": 5.0,
+          "p99": 6.0,
+          "max": 6
+        },
+        "max_nesting": {
+          "n": 81,
+          "null_share": 0.0,
+          "eligible": true,
+          "p50": 0.0,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 2.0,
+          "p99": 2.0,
+          "max": 2
+        },
+        "nom": {
+          "n": 19,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 2.0,
+          "p75": 4.5,
+          "p90": 7.0,
+          "p95": 7.0,
+          "p99": 7.0,
+          "max": 7
+        },
+        "wmc": {
+          "n": 19,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 3.0,
+          "p75": 8.5,
+          "p90": 18.8,
+          "p95": 22.1,
+          "p99": 22.82,
+          "max": 23
+        },
+        "lcom4": {
+          "n": 19,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1
+        },
+        "dcc": {
+          "n": 19,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.0,
+          "p95": 3.0,
+          "p99": 3.0,
+          "max": 3
+        },
+        "dam": {
+          "n": 18,
+          "null_share": 0.0526,
+          "eligible": false,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p90": 0.0,
+          "p95": 0.15,
+          "p99": 0.83,
+          "max": 1.0
+        },
+        "cam": {
+          "n": 18,
+          "null_share": 0.0526,
+          "eligible": false,
+          "p50": 0.7084,
+          "p75": 1.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        },
+        "ca": {
+          "n": 15,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 2.0,
+          "p90": 3.2,
+          "p95": 4.0,
+          "p99": 4.0,
+          "max": 4
+        },
+        "ce": {
+          "n": 15,
+          "null_share": 0.0,
+          "eligible": false,
+          "p50": 1.0,
+          "p75": 2.5,
+          "p90": 3.0,
+          "p95": 3.6,
+          "p99": 4.72,
+          "max": 5
+        },
+        "instability": {
+          "n": 14,
+          "null_share": 0.0667,
+          "eligible": false,
+          "p50": 0.5,
+          "p75": 0.7014,
+          "p90": 0.925,
+          "p95": 1.0,
+          "p99": 1.0,
+          "max": 1.0
+        }
+      },
+      "exceedance": {
+        "CC>=10 (warn)": 0.0123,
+        "CC>=20 (critical)": 0.0,
+        "PARAMS>=5 (warn)": 0.0741,
+        "NESTING>=4 (warn)": 0.0,
+        "NOM>=20 (warn)": 0.0,
+        "WMC>=50 (warn)": 0.0,
+        "LCOM4>=2 (warn)": 0.0,
+        "LCOM4>=4 (critical)": 0.0,
+        "DCC>=7 (warn)": 0.0,
+        "LOC>=40 (long_method)": 0.0247
+      }
+    }
+  }
+}

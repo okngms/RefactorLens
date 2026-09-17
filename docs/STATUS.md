@@ -6,8 +6,33 @@ Publishing (OIDC) ile yayınlandı; API token kullanılmadı. CI matrisi
 (3.11/3.12/3.13) ilk kez bu sürümde koştu.
 
 ## Bitenler
-- **Sertleştirme Blok 1b, 2. oturum — tanım kararları, scan şeması 3** (bu
-  oturum). Kararlar ve gerekçeler: `docs/v2-tanim-kararlari.md`. Kararları
+- **Sertleştirme Blok 1b, 3. oturum — dağılım tablosu** (bu oturum). Ayrıntı:
+  `experiments/hardening/metric-distribution.md`. Aracın koduna ve eşiklere
+  dokunulmadı.
+  - `distribution.py`: 26 proje, şema 3; proje başına persentil (50/75/90/95/99),
+    tür ve genel değer projelerin medyanı, havuz karşılaştırma için; metrikte
+    < 30 değeri olan proje katılmaz; `null` ayrı. Tekrar üretilebilir; `god_class`
+    ateşlenme sayısı raporların koku sayısına eşit (96) — iki yol tutarlı.
+  - **Fonksiyon eşikleri makul:** CC warn ≈ p93, critical ≈ p99, PARAMS ≈ p95,
+    NESTING ≈ p97, LOC 40 ≈ p93.5. Sorun uçlarda: CC ≥ 10 black'te %18.5,
+    awscli'de %1.6.
+  - **LCOM4 warn = 2 sınıfların %32'sini işaretliyor (≈ p68)**; diğer uyarı
+    eşikleri p93-99. En net kalibrasyon adayı.
+  - **DCC:** havuz p90 = 7, proje medyanı 4.25 — ağırlıklandırma burada fark
+    ediyor. Tür bağımlı: DCC ≥ 7 web_app %11.5, cli %2.1.
+  - **Koku oranları türe göre 5-10 kat:** `too_many_params` library 93 / web_app
+    21 (1000 fonksiyonda); `god_class` library 17 / cli 1.3 (1000 sınıfta).
+  - **K1'in sınırı bulundu:** fastapi parametreleri imzada `Annotated[..., Doc("""...""")]`
+    ile belgeliyor; kod satırlarının %38'i bu string'ler, `Query`'nin LOC'u 300.
+    Şema 3'te düzeltilmedi (şema 4 gerektirir, tek proje ailesinin deyimi).
+  - CAM p75'ten itibaren 1.0, DAM p75 0: tabloda da ayırt edici değiller.
+  - `god_class` kapısı korpusun tamamında: 159 büyük sınıfın 61'i yalnızca çağrı
+    kenarı yüzünden eleniyor (%38; K4).
+  - Belgeye yazılan doğrulanmamış yorumlar (ör. "black dal yoğun olduğu için")
+    yayından önce çıkarıldı; yalnızca ölçülen iddialar kaldı.
+  - `tests/test_hardening_distribution.py`, 12 test. Durum: 1289 paket testi,
+    91 fikstür testi, ruff temiz.
+- **Sertleştirme Blok 1b, 2. oturum — tanım kararları, scan şeması 3**. Kararlar ve gerekçeler: `docs/v2-tanim-kararlari.md`. Kararları
   kullanıcının yetkisiyle asistan verdi; her birinin gerekçesi, maliyeti ve
   korpustaki etkisi kayıtta.
   - **K1 LOC:** kod token'ı içeren satır; boş, yorum ve docstring (iç içe
@@ -33,7 +58,7 @@ Publishing (OIDC) ile yayınlandı; API token kullanılmadı. CI matrisi
     üretti. Artık çalışma kâğıdı sayısı `dcc()`'ye eşit olmak zorunda.
   - Diğer tüm sertleştirme sonuçları (CC, CAM, kohezyon) şema 3 ile yeniden
     üretildi, değişmedi. `corpus-inventory.json`'da yalnız koku sayıları değişti.
-  - Durum: 1277 paket testi, 91 fikstür testi, ruff temiz.
+  - Durum (o oturum sonu): 1277 paket testi, 91 fikstür testi, ruff temiz.
 - **Sertleştirme Blok 1b, 1. oturum — korpus.** Ayrıntı:
   `experiments/hardening/corpus.md`. Aracın koduna dokunulmadı.
   - **Korpus** (`corpus.txt`): 26 proje, dört tür — library 10, cli 6
@@ -202,37 +227,39 @@ framework deyiminden geliyor.**
   orkestrasyon modülleri.
 
 ## Sıradaki iş
-**Blok 1b, madde 2: dağılım tablosu** (`experiments/hardening/metric-distribution.md`).
-Tanım kararları verildi ve şema 3 uygulandı; tablonun önünde engel yok.
+**Blok 1b, madde 4: framework giriş noktaları** (`too_many_params`). Eşik
+kararından önce gelmeli: `too_many_params` eşiğini onsuz kalibre etmek,
+fastapi'nin API yüzeyine (PARAMS ≥ 5 %31) ve CLI komutlarına göre kalibre
+etmek olur (metric-distribution.md Bulgu 5, 7).
 
-- **Kapsam:** korpusun 26 projesi, şema 3 metrikleri, kullanıcının varsayılan
-  taraması (`corpus.py`'nin config'i).
-- **Metrikler:** fonksiyon (CC, LOC, PARAMS, NESTING), sınıf (NOM, WMC, LCOM4,
-  DCC, DAM, CAM), modül (Ca, Ce, instability).
-- **Ağırlıklandırma (corpus.md Bulgu 1):** persentil (medyan, 75/90/95/99)
-  proje başına; tür ve genel değer projelerin medyanı; havuzlanmış persentil
-  yalnızca karşılaştırma için yanında. `null` değerler dağılıma girmez, oranı
-  ayrı sütunda (LCOM4 %46, CAM).
-- **Mevcut eşiklerle karşılaştırma:** her varsayılan eşiğin korpusun hangi
-  persentiline düştüğü (ör. `cyclomatic_complexity.warn = 10` → proje medyanı
-  kaçıncı persentil). Eşiği **değiştirmek** tablodan sonraki ayrı karardır;
-  tablo önce ne olduğunu gösterir.
-- **K4 satırı:** boyut koşulunu geçip LCOM4'te elenen sınıflar ayrı raporlanır.
+1. Korpusta PARAMS ≥ 5 fonksiyonlarını dekoratör deyimine göre sınıflandır:
+   `@app.command`/`@click.command`/`@click.option` (CLI), `@app.route`/
+   `@router.get`/`@app.get` (web), Django view dekoratörleri, fastapi
+   `param_functions` gibi bildirimsel API yüzeyi, dekoratörsüz.
+2. Oranı ölç; kuralı tasarla (giriş noktası ayrı etiketlenir mi, eşik mi
+   yükselir, hiç işaretlenmez mi). Kanıt alanları değişmez.
+3. Testle uygula; dağılım ve koku oranlarını yeniden üret.
 
-Sonra madde 3 (kapsama tablosu; CAM ve ölçülen mantık payı hazır) ve madde 4
-(framework giriş noktaları, `too_many_params`).
+**Sonra madde 3** (kapsama tablosu; CAM, ölçülen mantık payı, LCOM4 `null`
+payı hazır — birleştirilecek) ve **eşik kararı** (K6+): veri
+`metric-distribution.md` "Eşik kararı için girdi". En net aday LCOM4 warn
+(p68 → p90/p95). Kayıtta `schema_version` etkisi değerlendirilmeli.
 
 Projeler yerelde yoksa: `python experiments/hardening/corpus.py fetch`
 (~850 MB). Kohezyon betiği ayrıca `pip install cohesion==1.2.0` ister.
 
 ## Okunacak dokümanlar (sırayla)
 AGENTS.md → bu dosya → docs/v2-sertlestirme.md (Blok 1, 1b) →
-docs/v2-tanim-kararlari.md → experiments/hardening/corpus.md
+docs/v2-tanim-kararlari.md → experiments/hardening/metric-distribution.md
 Sonraki fazlar: docs/v2.2-python-metrikleri.md → docs/v2.1-explain.md
 Deney protokolü: docs/v2-duzeltme-asama5.md. Metrik sınıfları:
 docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.
 
 ## Açık kararlar / bilinen sorunlar
+- **K1 LOC imzaya gömülü belgeyi görmüyor.** PEP 727 tarzı
+  `Annotated[T, Doc("""...""")]` string'leri kod sayılıyor; fastapi'de kod
+  satırlarının %38'i. Şema 4 gerektirir; tek proje ailesi (fastapi, typer). Bir
+  sonraki tanım gözden geçirmesine girdi.
 - **`examples/sample_reports/` şema 1'de ve v0.2.0'dan kalma.** v2.0.0'dan beri
   bayat, hiçbir test onlara bağlı değil; şema 3'le yeniden üretilmeli. Blok 5
   (dokümantasyon) işi.
