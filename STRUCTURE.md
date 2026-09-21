@@ -19,6 +19,7 @@ refactorlens/
 ├── README.md               The public documentation (this is what PyPI shows)
 ├── STRUCTURE.md            You are here
 ├── AGENTS.md               Why the code is shaped this way; locked decisions
+├── CLAUDE.md               Claude Code entry point: imports AGENTS.md, adds the session workflow
 ├── FUTURE.md               Ideas deliberately kept out of scope
 ├── LICENSE                 MIT
 ├── .env.example            Which API keys are needed; copy to .env
