@@ -29,7 +29,7 @@
         "feature_envy_candidate": 17,
         "god_class": 2,
         "long_method": 3,
-        "too_many_params": 34
+        "too_many_params": 33
       },
       "arch_enabled": true,
       "logic_lines": 7757,
@@ -137,7 +137,7 @@
         "feature_envy_candidate": 17,
         "god_class": 2,
         "long_method": 7,
-        "too_many_params": 8
+        "too_many_params": 7
       },
       "arch_enabled": true,
       "logic_lines": 8358,
@@ -191,7 +191,7 @@
         "data_class": 2,
         "feature_envy_candidate": 24,
         "long_method": 37,
-        "too_many_params": 12
+        "too_many_params": 11
       },
       "arch_enabled": true,
       "logic_lines": 10832,
@@ -316,7 +316,7 @@
         "feature_envy_candidate": 243,
         "god_class": 3,
         "long_method": 77,
-        "too_many_params": 33
+        "too_many_params": 27
       },
       "arch_enabled": true,
       "logic_lines": 125008,
@@ -352,7 +352,7 @@
         "feature_envy_candidate": 75,
         "god_class": 1,
         "long_method": 22,
-        "too_many_params": 37
+        "too_many_params": 32
       },
       "arch_enabled": true,
       "logic_lines": 22522,
@@ -370,7 +370,7 @@
         "feature_envy_candidate": 107,
         "god_class": 1,
         "long_method": 25,
-        "too_many_params": 29
+        "too_many_params": 26
       },
       "arch_enabled": true,
       "logic_lines": 25914,

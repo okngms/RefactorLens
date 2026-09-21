@@ -351,6 +351,18 @@ function is 15% shorter under the new rule, and a quarter of `long_method`
 findings disappear because docstrings, comments and blank lines were what
 carried them past 40 lines.
 
+`too_many_params` is not reported for framework entry points: click/typer
+commands, HTTP route handlers (`@app.get("/...")`, `@bp.route("/...")`), Django
+and SQLAlchemy signal handlers, and pytest fixtures. Their parameters are the
+command-line options or HTTP parameters the framework exposes, or a signature the
+framework dictates; "reduce the parameter count" would mean changing that
+interface. The parameter count itself is still measured and still coloured in the
+terminal, where the row is marked (`cli.scan [cli]`); `advise` simply does not
+treat it as a reason to pick the function. Recognition is deliberately narrow — a
+Celery task's parameters are the author's own design and still count. On the
+calibration corpus this affects 17 of 2,238 functions with five or more
+parameters, but a single command can carry 29 of them.
+
 ## What RefactorLens does not do
 
 - **It does not run your code.** Files are parsed with `ast`, never executed.

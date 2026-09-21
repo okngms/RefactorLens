@@ -16,6 +16,7 @@ import ast
 import io
 import tokenize
 
+from rlens.analysis.entry_points import entry_point_kind
 from rlens.analysis.model import FunctionReport
 
 #: Bir fonksiyonun gövdesinde iç içelik seviyesi oluşturan düğümler.
@@ -347,6 +348,7 @@ def measure_function(
         loc=function_loc(node, code_lines),
         param_count=param_count(node, is_method=is_method),
         max_nesting=max_nesting(node),
+        entry_point=entry_point_kind(node),
     )
 
 

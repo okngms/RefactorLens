@@ -75,4 +75,4 @@ Proje başına pay; medyan ve aralık. Eşiğin denk geldiği persentil ≈ 100 
 | feature_envy_candidate | 57.09 | 49.99 | 77.12 | 67.70 |
 | god_class | 17.35 | 1.29 | 1.51 | 0 |
 | long_method | 45.88 | 59.10 | 18.31 | 58.82 |
-| too_many_params | 92.81 | 35.23 | 21.15 | 63.26 |
+| too_many_params | 92.81 | 33.85 | 19.72 | 63.26 |

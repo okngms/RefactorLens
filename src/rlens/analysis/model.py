@@ -70,6 +70,12 @@ class FunctionReport:
     loc: int | None = None
     param_count: int | None = None
     max_nesting: int | None = None
+    entry_point: str | None = None
+    """Framework giriş noktası türü (`cli`, `web_route`, `signal_handler`,
+    `fixture`), değilse `None`. Parametreleri dış arayüz ya da framework
+    tarafından dikte edilmiştir: `too_many_params` üretilmez, `advise`
+    parametre eşiğini hedef gerekçesi saymaz. Metrik değişmez.
+    Bkz. `analysis.entry_points`. Alan eklemek şema sürümü artırmaz (`04` §1)."""
 
 
 @dataclass

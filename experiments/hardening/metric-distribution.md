@@ -102,7 +102,7 @@ Proje başına pay; medyan ve aralık. Eşiğin denk geldiği persentil ≈ 100 
 | feature_envy_candidate | 57.09 | 49.99 | 77.12 | 67.70 |
 | god_class | 17.35 | 1.29 | 1.51 | 0 |
 | long_method | 45.88 | 59.10 | 18.31 | 58.82 |
-| too_many_params | 92.81 | 35.23 | 21.15 | 63.26 |
+| too_many_params | 92.81 | 33.85 | 19.72 | 63.26 |
 
 ---
 
@@ -183,7 +183,9 @@ parametre alıyor — framework'ün bildirimsel API yüzeyi. Bu madde 4'ün
 
 1000 birim başına, projelerin medyanı:
 
-- `too_many_params`: library 93, ml_research 63, cli 35, web_app 21.
+- `too_many_params`: library 93, ml_research 63, cli 34, web_app 20 (framework
+  giriş noktası kuralından sonra; öncesinde cli 35, web_app 21 —
+  `entry-points.md`).
 - `god_class` (1000 sınıf başına): library 17, cli 1.3, web_app 1.5,
   ml_research 0.
 - `long_method`: cli 59, ml_research 59, library 46, web_app 18.
@@ -213,10 +215,9 @@ Verinin söylediği:
 | NOM 20, WMC 50 | p97-p99; tutucu | korunur |
 | **LCOM4 warn 2** | **p68; sınıfların üçte biri** | p90'a (3) ya da p95'e (4) çekilmeli |
 | DCC 7 | proje medyanında p95, web_app'te p88 | genel değer korunur; tür/katman farkı `by_layer` ile |
-| `too_many_params` | framework API yüzeyi (fastapi) ve CLI komutları | madde 4 kuralı |
+| `too_many_params` | giriş noktaları artık hariç (madde 4); kalan gürültü dekoratörsüz API yüzeyi (pandas, fastapi `Query`) | eşik kararında; yalnızca-anahtar parametreler ayrı düşünülebilir (`entry-points.md`) |
 | CAM, DAM | ayırt edici değil | eşik değil, ölçünün kendisi v2.2'de |
 
-Kararın önünde iki madde daha var: **madde 3** (kapsama tablosu — CAM ve
-ölçülen mantık payı hazır) ve **madde 4** (framework giriş noktaları, çünkü
-`too_many_params` eşiğini onsuz kalibre etmek fastapi'nin API yüzeyine göre
-kalibre etmek olur).
+Madde 4 (framework giriş noktaları) tamamlandı ve tablo onunla yeniden
+üretildi. Kararın önünde **madde 3** (kapsama tablosu — CAM, ölçülen mantık
+payı ve LCOM4 `null` payı hazır) kaldı.

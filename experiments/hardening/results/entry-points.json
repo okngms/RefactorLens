@@ -1,0 +1,387 @@
+{
+  "threshold": 5,
+  "projects": {
+    "requests": {
+      "too_many_params_before": 6,
+      "too_many_params_after": 6,
+      "categories": {
+        "no_decorator": 6
+      },
+      "kinds": {},
+      "examples": {},
+      "type": "library"
+    },
+    "httpx": {
+      "too_many_params_before": 34,
+      "too_many_params_after": 33,
+      "categories": {
+        "entry_point": 1,
+        "no_decorator": 30,
+        "other_decorator": 3
+      },
+      "kinds": {
+        "cli": 1
+      },
+      "examples": {
+        "cli": [
+          "httpx:_main.main"
+        ]
+      },
+      "type": "library"
+    },
+    "rich": {
+      "too_many_params_before": 54,
+      "too_many_params_after": 54,
+      "categories": {
+        "no_decorator": 35,
+        "other_decorator": 19
+      },
+      "kinds": {},
+      "examples": {},
+      "type": "library"
+    },
+    "pydantic": {
+      "too_many_params_before": 50,
+      "too_many_params_after": 50,
+      "categories": {
+        "no_decorator": 36,
+        "other_decorator": 14
+      },
+      "kinds": {},
+      "examples": {},
+      "type": "library"
+    },
+    "fastapi": {
+      "too_many_params_before": 42,
+      "too_many_params_after": 42,
+      "categories": {
+        "no_decorator": 42
+      },
+      "kinds": {},
+      "examples": {},
+      "type": "library"
+    },
+    "attrs": {
+      "too_many_params_before": 15,
+      "too_many_params_after": 15,
+      "categories": {
+        "no_decorator": 15
+      },
+      "kinds": {},
+      "examples": {},
+      "type": "library"
+    },
+    "click": {
+      "too_many_params_before": 18,
+      "too_many_params_after": 18,
+      "categories": {
+        "no_decorator": 18
+      },
+      "kinds": {},
+      "examples": {},
+      "type": "library"
+    },
+    "flask": {
+      "too_many_params_before": 8,
+      "too_many_params_after": 7,
+      "categories": {
+        "entry_point": 1,
+        "no_decorator": 4,
+        "other_decorator": 3
+      },
+      "kinds": {
+        "cli": 1
+      },
+      "examples": {
+        "cli": [
+          "flask:cli.run_command"
+        ]
+      },
+      "type": "library"
+    },
+    "sqlalchemy": {
+      "too_many_params_before": 202,
+      "too_many_params_after": 202,
+      "categories": {
+        "no_decorator": 163,
+        "other_decorator": 39
+      },
+      "kinds": {},
+      "examples": {},
+      "type": "library"
+    },
+    "pandas": {
+      "too_many_params_before": 371,
+      "too_many_params_after": 371,
+      "categories": {
+        "no_decorator": 207,
+        "other_decorator": 164
+      },
+      "kinds": {},
+      "examples": {},
+      "type": "library"
+    },
+    "black": {
+      "too_many_params_before": 12,
+      "too_many_params_after": 11,
+      "categories": {
+        "entry_point": 1,
+        "no_decorator": 9,
+        "other_decorator": 2
+      },
+      "kinds": {
+        "cli": 1
+      },
+      "examples": {
+        "cli": [
+          "black:__init__.main"
+        ]
+      },
+      "type": "cli"
+    },
+    "mypy": {
+      "too_many_params_before": 193,
+      "too_many_params_after": 193,
+      "categories": {
+        "no_decorator": 187,
+        "other_decorator": 6
+      },
+      "kinds": {},
+      "examples": {},
+      "type": "cli"
+    },
+    "httpie": {
+      "too_many_params_before": 7,
+      "too_many_params_after": 7,
+      "categories": {
+        "no_decorator": 7
+      },
+      "kinds": {},
+      "examples": {},
+      "type": "cli"
+    },
+    "yt-dlp": {
+      "too_many_params_before": 179,
+      "too_many_params_after": 179,
+      "categories": {
+        "no_decorator": 168,
+        "other_decorator": 11
+      },
+      "kinds": {},
+      "examples": {},
+      "type": "cli"
+    },
+    "awscli": {
+      "too_many_params_before": 155,
+      "too_many_params_after": 155,
+      "categories": {
+        "no_decorator": 151,
+        "other_decorator": 4
+      },
+      "kinds": {},
+      "examples": {},
+      "type": "cli"
+    },
+    "pipx": {
+      "too_many_params_before": 66,
+      "too_many_params_after": 66,
+      "categories": {
+        "no_decorator": 63,
+        "other_decorator": 3
+      },
+      "kinds": {},
+      "examples": {},
+      "type": "cli"
+    },
+    "healthchecks": {
+      "too_many_params_before": 14,
+      "too_many_params_after": 14,
+      "categories": {
+        "no_decorator": 7,
+        "other_decorator": 7
+      },
+      "kinds": {},
+      "examples": {},
+      "type": "web_app"
+    },
+    "netbox": {
+      "too_many_params_before": 33,
+      "too_many_params_after": 27,
+      "categories": {
+        "entry_point": 6,
+        "no_decorator": 22,
+        "other_decorator": 5
+      },
+      "kinds": {
+        "signal_handler": 6
+      },
+      "examples": {
+        "signal_handler": [
+          "netbox:dcim.signals.handle_location_site_change",
+          "netbox:dcim.signals.handle_rack_site_change",
+          "netbox:dcim.signals.update_virtualchassis_member_search_cache",
+          "netbox:dcim.signals.update_channelized_cable_paths",
+          "netbox:extras.signals.validate_assigned_tags",
+          "netbox:extras.signals.invalidate_on_device_vm_tag_change"
+        ]
+      },
+      "type": "web_app"
+    },
+    "saleor": {
+      "too_many_params_before": 567,
+      "too_many_params_after": 567,
+      "categories": {
+        "no_decorator": 364,
+        "other_decorator": 203
+      },
+      "kinds": {},
+      "examples": {},
+      "type": "web_app"
+    },
+    "redash": {
+      "too_many_params_before": 37,
+      "too_many_params_after": 32,
+      "categories": {
+        "entry_point": 5,
+        "no_decorator": 29,
+        "other_decorator": 3
+      },
+      "kinds": {
+        "cli": 4,
+        "signal_handler": 1
+      },
+      "examples": {
+        "cli": [
+          "redash:cli.data_sources.edit",
+          "redash:cli.users.create",
+          "redash:cli.users.create_root",
+          "redash:cli.users.invite"
+        ],
+        "signal_handler": [
+          "redash:metrics.database.after_execute"
+        ]
+      },
+      "type": "web_app"
+    },
+    "mealie": {
+      "too_many_params_before": 29,
+      "too_many_params_after": 26,
+      "categories": {
+        "entry_point": 3,
+        "no_decorator": 17,
+        "other_decorator": 9
+      },
+      "kinds": {
+        "web_route": 3
+      },
+      "examples": {
+        "web_route": [
+          "mealie:routes.recipe.recipe_crud_routes.create_recipe_with_ai",
+          "mealie:routes.recipe.recipe_crud_routes.create_recipe_with_ai_stream",
+          "mealie:routes.recipe.recipe_crud_routes.upload_recipe_asset"
+        ]
+      },
+      "type": "web_app"
+    },
+    "nanogpt": {
+      "too_many_params_before": 0,
+      "too_many_params_after": 0,
+      "categories": {},
+      "kinds": {},
+      "examples": {},
+      "type": "ml_research"
+    },
+    "yolov5": {
+      "too_many_params_before": 78,
+      "too_many_params_after": 78,
+      "categories": {
+        "no_decorator": 60,
+        "other_decorator": 18
+      },
+      "kinds": {},
+      "examples": {},
+      "type": "ml_research"
+    },
+    "detectron2": {
+      "too_many_params_before": 57,
+      "too_many_params_after": 57,
+      "categories": {
+        "no_decorator": 48,
+        "other_decorator": 9
+      },
+      "kinds": {},
+      "examples": {},
+      "type": "ml_research"
+    },
+    "whisper": {
+      "too_many_params_before": 5,
+      "too_many_params_after": 5,
+      "categories": {
+        "no_decorator": 4,
+        "other_decorator": 1
+      },
+      "kinds": {},
+      "examples": {},
+      "type": "ml_research"
+    },
+    "segment-anything": {
+      "too_many_params_before": 6,
+      "too_many_params_after": 6,
+      "categories": {
+        "no_decorator": 4,
+        "other_decorator": 2
+      },
+      "kinds": {},
+      "examples": {},
+      "type": "ml_research"
+    }
+  },
+  "by_type": {
+    "library": {
+      "before": 800,
+      "after": 798,
+      "cli": 2
+    },
+    "cli": {
+      "before": 612,
+      "after": 611,
+      "cli": 1
+    },
+    "web_app": {
+      "before": 680,
+      "after": 666,
+      "signal_handler": 7,
+      "cli": 4,
+      "web_route": 3
+    },
+    "ml_research": {
+      "before": 146,
+      "after": 146
+    }
+  },
+  "corpus_categories": {
+    "entry_point": 17,
+    "no_decorator": 1696,
+    "other_decorator": 525
+  },
+  "refactorlens": {
+    "too_many_params_before": 20,
+    "too_many_params_after": 15,
+    "categories": {
+      "entry_point": 5,
+      "no_decorator": 15
+    },
+    "kinds": {
+      "cli": 5
+    },
+    "examples": {
+      "cli": [
+        "rlens:cli.scan",
+        "rlens:cli.arch",
+        "rlens:cli.advise",
+        "rlens:cli.explain",
+        "rlens:cli.verify"
+      ]
+    }
+  }
+}

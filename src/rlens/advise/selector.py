@@ -98,6 +98,20 @@ def _complexity_of(target: AdviceTarget) -> int:
     return int(value or 0)
 
 
+def _advice_violations(report: FunctionReport, config: Config) -> dict[str, str]:
+    """Öneri için eşik gerekçeleri: giriş noktasında parametre sayısı hariç.
+
+    Terminal metriği olduğu gibi gösterir (`function_violations`). Ama bir CLI
+    komutunun parametreleri kullanıcıya açılan seçeneklerdir; modele "parametre
+    sayısını azalt" dedirtmek arayüzü değiştirmeyi önermek olur. Diğer eşikler
+    (CC, iç içelik) giriş noktası için de geçerlidir.
+    """
+    violations = function_violations(report, config)
+    if report.entry_point is not None:
+        violations.pop("param_count", None)
+    return violations
+
+
 def collect_targets(report: ProjectReport, config: Config) -> list[AdviceTarget]:
     """En az bir eşiği aşan tüm hedefler, puanlarıyla birlikte.
 
@@ -137,7 +151,7 @@ def collect_targets(report: ProjectReport, config: Config) -> list[AdviceTarget]
                 )
 
         for fn in module.functions:
-            violations = function_violations(fn, config)
+            violations = _advice_violations(fn, config)
             if violations:
                 targets.append(
                     AdviceTarget(
@@ -232,7 +246,7 @@ def target_for(report: ProjectReport, config: Config, qualified_name: str) -> Ad
         for function in module.functions:
             if f"{module.module}:{function.name}" != qualified_name:
                 continue
-            flags = function_violations(function, config)
+            flags = _advice_violations(function, config)
             return AdviceTarget(
                 kind="function",
                 module=module.module,

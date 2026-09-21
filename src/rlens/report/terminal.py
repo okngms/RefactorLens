@@ -19,6 +19,7 @@ Tasarım ilkeleri:
 from __future__ import annotations
 
 from rich.console import Console
+from rich.markup import escape
 from rich.table import Table
 
 from rlens.analysis.model import ClassReport, FunctionReport, ProjectReport
@@ -256,7 +257,8 @@ def build_function_table(report: ProjectReport, config: Config) -> Table | None:
     rows.sort(key=lambda row: (-row[0], row[2], row[1].name))
     for _, fn, owner, levels in rows:
         table.add_row(
-            f"{owner}.{fn.name}",
+            # `[cli]` rich için stil etiketi olur ve yutulur; kaçırılmalı.
+            f"{owner}.{fn.name}" + (escape(f" [{fn.entry_point}]") if fn.entry_point else ""),
             _styled(fn.cyclomatic_complexity, levels.get("cyclomatic_complexity")),
             _styled(fn.param_count, levels.get("param_count")),
             _styled(fn.max_nesting, levels.get("max_nesting")),

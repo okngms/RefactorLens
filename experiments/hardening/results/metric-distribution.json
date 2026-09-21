@@ -997,14 +997,14 @@
       "feature_envy_candidate": 49.9912,
       "god_class": 1.2914,
       "long_method": 59.1023,
-      "too_many_params": 35.2254
+      "too_many_params": 33.848
     },
     "web_app": {
       "data_class": 0.0,
       "feature_envy_candidate": 77.1184,
       "god_class": 1.5106,
       "long_method": 18.3099,
-      "too_many_params": 21.1524
+      "too_many_params": 19.7183
     },
     "ml_research": {
       "data_class": 0.0,

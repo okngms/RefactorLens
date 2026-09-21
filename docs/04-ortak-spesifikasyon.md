@@ -71,7 +71,7 @@ v1 bulgusu bu ayrıma dayanır; tüm FINDINGS'ler tahmin doğruluğunu bu iki s�
 `cyclomatic_complexity {warn:10, critical:20}`, `max_params {warn:5}`, `max_nesting {warn:4}`, `lcom4 {warn:2, critical:4}`, `dcc {warn:7}`, `wmc {warn:50}`, `nom {warn:20}`. v2+: `by_layer` geçersiz kılma.
 
 ## 4. Koku kuralları (v2+, varsayılan)
-`god_class`: NOM≥20 ∧ WMC≥50 ∧ LCOM4≥3. `data_class`: NOM≤5 ∧ WMC≤NOM+2 ∧ DAM≥0.5 ∧ erişimci oranı≥0.7. `feature_envy_candidate` (metot): dış tek sınıfa erişim / kendi erişimi ≥ 2. `long_method`: CC≥warn ∧ LOC≥40. `too_many_params`: PARAMS≥warn. `layer_misfit`: katman güveni ≥0.7 ve katman-koku uyumsuzluğu. Her etiket `evidence` ile.
+`god_class`: NOM≥20 ∧ WMC≥50 ∧ LCOM4≥3. `data_class`: NOM≤5 ∧ WMC≤NOM+2 ∧ DAM≥0.5 ∧ erişimci oranı≥0.7. `feature_envy_candidate` (metot): dış tek sınıfa erişim / kendi erişimi ≥ 2. `long_method`: CC≥warn ∧ LOC≥40. `too_many_params`: PARAMS≥warn ∧ fonksiyon framework giriş noktası değil (`entry_point` alanı `null`; tanıma kuralları `analysis/entry_points.py`, gerekçe `v2-tanim-kararlari.md` K6). Giriş noktasında metrik ve eşik rengi değişmez, yalnızca koku verilmez ve `advise` parametre eşiğini hedef gerekçesi saymaz. `layer_misfit`: katman güveni ≥0.7 ve katman-koku uyumsuzluğu. Her etiket `evidence` ile.
 
 ## 5. Katman konvansiyonları (v2+, varsayılan)
 | Katman | Dizin adları | Sınıf sonekleri |

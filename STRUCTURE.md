@@ -50,6 +50,7 @@ src/rlens/
 ├── analysis/               Measurement. No network, no LLM.
 │   ├── model.py            Report dataclasses + the three schema versions
 │   ├── parser.py           File discovery and ast parsing
+│   ├── entry_points.py     Framework entry points (click/typer, routes, signals, fixtures)
 │   ├── func_metrics.py     CC, LOC, parameter count, nesting depth
 │   ├── class_metrics.py    NOM, WMC, DAM, LCOM4, DCC, CAM
 │   ├── imports.py          Import extraction; module → module edges
@@ -183,6 +184,7 @@ tests/
 ├── test_hardening_cohesion_cam.py  CAM coverage split, Spearman, deviation categories
 ├── test_hardening_corpus.py  Corpus file, accuracy-set subset, config trap, logic-line rule
 ├── test_hardening_distribution.py  Percentiles, >= rule, per-project weighting, eligibility
+├── test_entry_points.py    Entry point recognition; no too_many_params, no advice on params
 └── test_cli.py             All four commands end to end
 ```
 
@@ -196,6 +198,8 @@ experiments/hardening/
 ├── corpus.md               What the corpus is and how much of it RefactorLens sees
 ├── distribution.py         Per-project percentiles and where default thresholds fall
 ├── metric-distribution.md  The distribution table and what it says about thresholds
+├── entry_points.py         How many entry points the corpus has; effect on too_many_params
+├── entry-points.md         Why the rule is narrow, and what it changed
 ├── compare_radon.py        CC vs radon per function; classifies every difference
 ├── dcc_sample.py           DCC manual count: stratified sample, worksheet, summary
 ├── cam_coverage.py         How often CAM is computable, and informative
@@ -207,6 +211,7 @@ experiments/hardening/
 ├── results/cam-coverage.json, cohesion-spearman.json
 ├── results/corpus-inventory.json  Reproducible counts; corpus-timing.json is not
 ├── results/metric-distribution.json, metric-distribution-tables.md
+├── results/entry-points.json
 └── .cache/                 Checked-out reference projects (gitignored, not in sdist)
 ```
 

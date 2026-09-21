@@ -229,7 +229,13 @@ def detect_function_smells(report: FunctionReport, owner: str, config: Config) -
             )
         )
 
-    if params_threshold is not None and _meets(report.param_count, params_threshold.warn):
+    # Giriş noktasının parametreleri dış arayüzdür ya da framework tarafından
+    # dikte edilir (`analysis.entry_points`); azaltmak tasarımı iyileştirmez.
+    if (
+        params_threshold is not None
+        and report.entry_point is None
+        and _meets(report.param_count, params_threshold.warn)
+    ):
         found.append(
             Smell(
                 label=TOO_MANY_PARAMS,

@@ -6,7 +6,33 @@ Publishing (OIDC) ile yayınlandı; API token kullanılmadı. CI matrisi
 (3.11/3.12/3.13) ilk kez bu sürümde koştu.
 
 ## Bitenler
-- **Sertleştirme Blok 1b, 3. oturum — dağılım tablosu** (bu oturum). Ayrıntı:
+- **Sertleştirme Blok 1b, 4. oturum — framework giriş noktaları** (bu oturum).
+  Karar: `docs/v2-tanim-kararlari.md` K6; ölçüm: `experiments/hardening/entry-points.md`.
+  - **Ölçüm planı düzeltti.** Plan "dekoratörle tanımlanan fonksiyonlar ayrı ele
+    alınır" diyordu. Korpusta 5+ parametreli 2 238 fonksiyonun 542'si
+    dekoratörlü ama yalnızca 17'si giriş noktası; gerisi `@classmethod`, `@doc`,
+    `@final`. "Dekoratör varsa muaf" pandas'ın API metotlarını gizlerdi.
+  - **Kural:** `analysis/entry_points.py` parametre listesinin kimin tasarımı
+    olduğuna bakar — `cli` (click/typer), `web_route` (yol string'i `/` ile
+    başlayan HTTP fiili / `route`), `signal_handler` (`receiver`, `listens_for`),
+    `fixture`. Celery görevi bilinçli olarak dışarıda. `FunctionReport.entry_point`
+    alanı eklendi (şema 3 içinde, `04` §1: alan eklemek sürüm artırmaz).
+  - **İlke: metrik gerçeği söyler, koku yorumlar.** `param_count` ve terminal
+    eşik rengi değişmez; `too_many_params` verilmez; `advise` parametre eşiğini
+    hedef gerekçesi saymaz (CC gibi diğerleri geçerli); terminal satırı türü
+    yazar. Kanıt alanları değişmedi.
+  - **Etki:** korpusta 2 238 → 2 221; RefactorLens'in kendi kodunda 20 → 15 (beş
+    typer komutu). Dogfooding notu "büyük kısmı typer" diyordu — ölçüm çeyrek.
+    Kalan gürültü dekoratörsüz API yüzeyinden; eşik kararının konusu.
+  - Yakalanan hatalar: rich `[cli]`'yi stil etiketi sanıp yutuyordu (çıktıyı
+    sınayan test yakaladı, `escape` ile düzeltildi); belgelere black `main` için
+    "31 parametre" yazılmıştı — 31 dekoratör sayısıydı, parametre 29 (ölçülüp
+    düzeltildi).
+  - Dağılım tablosu ve envanter yeniden üretildi (`too_many_params` cli 35 → 34,
+    web_app 21 → 20).
+  - `tests/test_entry_points.py`, 49 test. Durum: 1338 paket testi, 91 fikstür
+    testi, ruff temiz.
+- **Sertleştirme Blok 1b, 3. oturum — dağılım tablosu**. Ayrıntı:
   `experiments/hardening/metric-distribution.md`. Aracın koduna ve eşiklere
   dokunulmadı.
   - `distribution.py`: 26 proje, şema 3; proje başına persentil (50/75/90/95/99),
@@ -30,8 +56,8 @@ Publishing (OIDC) ile yayınlandı; API token kullanılmadı. CI matrisi
     kenarı yüzünden eleniyor (%38; K4).
   - Belgeye yazılan doğrulanmamış yorumlar (ör. "black dal yoğun olduğu için")
     yayından önce çıkarıldı; yalnızca ölçülen iddialar kaldı.
-  - `tests/test_hardening_distribution.py`, 12 test. Durum: 1289 paket testi,
-    91 fikstür testi, ruff temiz.
+  - `tests/test_hardening_distribution.py`, 12 test. Durum (o oturum sonu):
+    1289 paket testi, 91 fikstür testi, ruff temiz.
 - **Sertleştirme Blok 1b, 2. oturum — tanım kararları, scan şeması 3**. Kararlar ve gerekçeler: `docs/v2-tanim-kararlari.md`. Kararları
   kullanıcının yetkisiyle asistan verdi; her birinin gerekçesi, maliyeti ve
   korpustaki etkisi kayıtta.
@@ -227,23 +253,28 @@ framework deyiminden geliyor.**
   orkestrasyon modülleri.
 
 ## Sıradaki iş
-**Blok 1b, madde 4: framework giriş noktaları** (`too_many_params`). Eşik
-kararından önce gelmeli: `too_many_params` eşiğini onsuz kalibre etmek,
-fastapi'nin API yüzeyine (PARAMS ≥ 5 %31) ve CLI komutlarına göre kalibre
-etmek olur (metric-distribution.md Bulgu 5, 7).
+**Blok 1b, madde 3: kapsama tablosu**, sonra **eşik kararı**. Madde 1, 2 ve 4
+bitti.
 
-1. Korpusta PARAMS ≥ 5 fonksiyonlarını dekoratör deyimine göre sınıflandır:
-   `@app.command`/`@click.command`/`@click.option` (CLI), `@app.route`/
-   `@router.get`/`@app.get` (web), Django view dekoratörleri, fastapi
-   `param_functions` gibi bildirimsel API yüzeyi, dekoratörsüz.
-2. Oranı ölç; kuralı tasarla (giriş noktası ayrı etiketlenir mi, eşik mi
-   yükselir, hiç işaretlenmez mi). Kanıt alanları değişmez.
-3. Testle uygula; dağılım ve koku oranlarını yeniden üret.
+**Madde 3 — kapsama tablosu** (`experiments/hardening/coverage.md`). Verisi büyük
+ölçüde hazır; birleştirilecek:
+- Her metrik kaç birimde hesaplanabiliyor (`null` payı: LCOM4 %32, CAM, DAM —
+  `metric-distribution.json`) ve kaçında **ayırt edici** (CAM'de tek metotlu
+  sınıf 1.0; `cam-coverage.json` "informative").
+- Ölçülen mantık payı (`corpus-inventory.json`): betik tarzı kod.
+- Karar girdisi: plan "ayrım yapmayan metrik düşürülür ya da gerekçesiyle
+  tutulur" diyor. Adaylar CAM (p75'ten itibaren 1.0) ve DAM (p75 0). Düşürmek
+  alan kaldırmak demek → şema artışı; `verify`'ın Goodhart kontrolü ve `advise`
+  prompt'u bu alanları kullanıyor mu kontrol edilmeli.
 
-**Sonra madde 3** (kapsama tablosu; CAM, ölçülen mantık payı, LCOM4 `null`
-payı hazır — birleştirilecek) ve **eşik kararı** (K6+): veri
-`metric-distribution.md` "Eşik kararı için girdi". En net aday LCOM4 warn
-(p68 → p90/p95). Kayıtta `schema_version` etkisi değerlendirilmeli.
+**Eşik kararı** (K7+): veri `metric-distribution.md` "Eşik kararı için girdi".
+- LCOM4 warn = 2 → p68, en net aday (p90 = 3, p95 = 4.65).
+- DCC tür bağımlı (web_app p90 = 7, cli 3) — `by_layer` mı genel eşik mi.
+- `too_many_params`: kalan gürültü dekoratörsüz API yüzeyi; yalnızca-anahtar
+  parametreleri ayrı saymak bir seçenek (`entry-points.md`).
+- Kabul kriteri: varsayılanların persentil kaynağı `docs/04`'e yazılır.
+- `schema_version` etkisi değerlendirilmeli (v2 notu eşik değişimini delta
+  anlamı değişikliği saymıştı).
 
 Projeler yerelde yoksa: `python experiments/hardening/corpus.py fetch`
 (~850 MB). Kohezyon betiği ayrıca `pip install cohesion==1.2.0` ister.
@@ -256,6 +287,13 @@ Deney protokolü: docs/v2-duzeltme-asama5.md. Metrik sınıfları:
 docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.
 
 ## Açık kararlar / bilinen sorunlar
+- **Alt dizin taraması üst dizinin config'iyle boşalıyor** (Blok 2 girdisi).
+  `rlens scan src/rlens` bu depoda 0 dosya buluyor: config yukarı doğru aranıp
+  kökteki `rlens.yaml` bulunuyor, ama `include: ["src/"]` config dosyasının
+  dizinine göre değil tarama köküne göre yorumlanıyor. Sessiz değil ("Check the
+  `scan.include`" uyarısı veriliyor) ama kafa karıştırıcı. Korpus betikleri aynı
+  tuzağa karşı config'i açıkça yazıyor (`corpus.py`). Yolları config dosyasının
+  dizinine göre çözmek bir davranış değişikliğidir; tasarım kararı gerekir.
 - **K1 LOC imzaya gömülü belgeyi görmüyor.** PEP 727 tarzı
   `Annotated[T, Doc("""...""")]` string'leri kod sayılıyor; fastapi'de kod
   satırlarının %38'i. Şema 4 gerektirir; tek proje ailesi (fastapi, typer). Bir

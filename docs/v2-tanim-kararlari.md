@@ -5,7 +5,8 @@
 > `experiments/hardening/corpus.md`.
 
 Sertleştirme Blok 1 ölçümleri, uygulama hatası olmayan ama tanımın
-cevaplamadığı beş soru bıraktı. Blok 1b'nin dağılım tablosu metrik değerlerini
+cevaplamadığı beş soru bıraktı (K1-K5). K6, Blok 1b madde 4'ün koku kuralı
+kararıdır; alan eklediği için şema sürümü değiştirmez (`04` §1). Blok 1b'nin dağılım tablosu metrik değerlerini
 ölçeceği için bu sorular **tablodan önce** kapanmalıydı; yoksa tablo iki kez
 üretilirdi. Beşi burada birlikte karara bağlandı ve metrik anlamını değiştiren
 üçü tek bir `schema_version` artışıyla (2 → 3) uygulandı.
@@ -137,6 +138,38 @@ tasarımı gerekir (hangi dal raporlanır, kimlik neyi içerir). Bu, v2.2'nin
 çözülmelidir.
 
 ---
+
+## K6 — Framework giriş noktalarında `too_many_params` verilmez
+
+> Karara bağlandı 2026-09-18. Şema 3 içinde: yalnızca alan ekler
+> (`FunctionReport.entry_point`), alan anlamı değiştirmez.
+
+**Karar.** Bir fonksiyon framework giriş noktasıysa (`cli`, `web_route`,
+`signal_handler`, `fixture`) `too_many_params` kokusu verilmez ve `advise`
+parametre eşiğini hedef gerekçesi saymaz. `param_count` ve terminaldeki eşik
+rengi **değişmez**; terminal satıra türü yazar (`cli.scan [cli]`).
+
+**Gerekçe.** Parametre listesi iki durumda yazarın tasarımı değildir: framework
+imzayı dikte eder (Django sinyal alıcısı, pytest fixture'ı) ya da parametreler
+framework'e bildirilen dış arayüzdür (CLI seçenekleri, HTTP parametreleri).
+İkincisinde "parametre nesnesi çıkar" önerisi arayüzü değiştirmeyi önermektir.
+İlke: **metrik gerçeği söyler, koku yorumlar.**
+
+**Tanıma dar.** Yanlış pozitif gerçek bir kokuyu gizler. Planın "dekoratörle
+tanımlanan fonksiyonlar ayrı ele alınır" ifadesi ölçümle daraltıldı: korpusta
+5+ parametreli 2 238 fonksiyonun 542'si dekoratörlü ama yalnızca 17'si giriş
+noktası; gerisi `@classmethod`, `@doc`, `@final` gibi. "Dekoratör varsa muaf"
+kuralı pandas'ın API metotlarını gizlerdi. Celery görevi (`@app.task`) giriş
+noktası sayılmaz: parametreleri yazarın seçtiği mesaj içeriğidir.
+
+**Etki** (`experiments/hardening/entry-points.md`). Korpusta `too_many_params`
+2 238 → 2 221 (%0.8). RefactorLens'in kendi kodunda 20 → 15: typer
+komutlarının beşi. Dogfooding notu "vakaların büyük kısmı typer komutu"
+diyordu; ölçüm çeyreği olduğunu gösterdi. Kural doğru ve yanlış tavsiyeyi
+önlüyor, ama `too_many_params` gürültüsünün asıl kaynağı değil — o dekoratörsüz
+API yüzeyinden geliyor ve eşik kararının konusu.
+
+**Kanıt alanları** (`params`, `thresholds`) değişmez.
 
 ## Korpustaki etki
 
