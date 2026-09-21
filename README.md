@@ -303,6 +303,26 @@ noise dressed up as evidence. If annotation coverage falls below
 `metrics.cam_min_annotation_coverage` (default 0.7), CAM reports `null` and the
 report records why.
 
+### Known limitation: DAM and CAM on real code
+
+Measured on a 26-project calibration corpus (per-project medians):
+
+- **DAM mostly reflects a project's naming convention.** Among classes with at
+  least two attributes, a typical project puts 86.5% on a single DAM value, and
+  in 17 of 19 projects that value is 0. In four of five
+  web applications (and in fastapi, pipx, yolov5) DAM does not separate classes
+  at all: at least 90% of them have no `_`-prefixed attribute. In six of seven
+  libraries it does vary between classes. Read DAM against the project's own
+  convention, not as an absolute score.
+- **CAM is computed for about a quarter of classes** and carries information
+  (two or more methods with parameters) for about one in six; in projects
+  without annotations (yt-dlp, awscli, netbox) it is almost always `null`.
+  Where it is computed, it does discriminate.
+
+Both are kept rather than dropped: removing a field would invalidate earlier
+reports and the experiment data built on them. Measurement:
+[coverage.md](https://github.com/okngms/RefactorLens/blob/main/experiments/hardening/coverage.md).
+
 ### Known limitation: LCOM4 and data classes
 
 LCOM4 flags well-written data-holder classes as uncohesive. A class with one

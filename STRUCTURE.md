@@ -185,6 +185,7 @@ tests/
 ├── test_hardening_cohesion_cam.py  CAM coverage split, Spearman, deviation categories
 ├── test_hardening_corpus.py  Corpus file, accuracy-set subset, config trap, logic-line rule
 ├── test_hardening_distribution.py  Percentiles, >= rule, per-project weighting, eligibility
+├── test_hardening_coverage.py  Null / definitional / informative split, spread, trivial-value rules
 ├── test_entry_points.py    Entry point recognition; no too_many_params, no advice on params
 └── test_cli.py             All four commands end to end
 ```
@@ -199,6 +200,8 @@ experiments/hardening/
 ├── corpus.md               What the corpus is and how much of it RefactorLens sees
 ├── distribution.py         Per-project percentiles and where default thresholds fall
 ├── metric-distribution.md  The distribution table and what it says about thresholds
+├── coverage.py             Per metric: computable, fixed by definition, informative, spread
+├── coverage.md             The coverage table; why CAM and DAM are kept (K7)
 ├── entry_points.py         How many entry points the corpus has; effect on too_many_params
 ├── entry-points.md         Why the rule is narrow, and what it changed
 ├── compare_radon.py        CC vs radon per function; classifies every difference
@@ -213,6 +216,7 @@ experiments/hardening/
 ├── results/corpus-inventory.json  Reproducible counts; corpus-timing.json is not
 ├── results/metric-distribution.json, metric-distribution-tables.md
 ├── results/entry-points.json
+├── results/coverage.json, coverage-tables.md
 └── .cache/                 Checked-out reference projects (gitignored, not in sdist)
 ```
 

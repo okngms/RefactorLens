@@ -1,4 +1,4 @@
-# STATUS — 2026-09-15
+# STATUS — 2026-09-21
 
 ## Sürüm
 **v2.0.0 PyPI'da.** `v2.0.0` tag'i ile GitHub Actions üzerinden, Trusted
@@ -6,7 +6,37 @@ Publishing (OIDC) ile yayınlandı; API token kullanılmadı. CI matrisi
 (3.11/3.12/3.13) ilk kez bu sürümde koştu.
 
 ## Bitenler
-- **Sertleştirme Blok 1b, 4. oturum — framework giriş noktaları** (bu oturum).
+- **Sertleştirme Blok 1b, 5. oturum — kapsama tablosu (madde 3)** (bu oturum).
+  Ölçüm: `experiments/hardening/coverage.md`; karar: `docs/v2-tanim-kararlari.md`
+  K7. Aracın koduna, metriklere ve eşiklere dokunulmadı.
+  - `coverage.py`: her metrikte birimler `null` / **tanım gereği belli** /
+    **bilgi taşıyan** diye ayrılır. Tanım gereği belli: tek adlı metotlu
+    sınıfta LCOM4 = 1, parametreli tek metotlu sınıfta CAM = 1.0, tek
+    attribute'lu sınıfta DAM ∈ {0, 1}. Betik bu kuralları korpusun tamamında
+    metriğin kendisiyle denetler (uymayan 0). Ayrım ölçüsü: bilgi taşıyan
+    değerlerde p10 ≠ p90. Tekrar üretilebilir (iki koşu, aynı hash).
+  - **On metrik tartışmasız:** CC, LOC, PARAMS, NESTING, NOM, WMC, DCC, Ca, Ce,
+    I birimlerin %96-100'ünde hesaplanıyor, uygun her projede ayırıyor.
+  - **CAM: sorun kapsama, ayrım değil.** Bilgi taşıyan pay %15.9 (yt-dlp,
+    awscli, netbox, redash < %0.5), ama hesaplandığı 8/8 projede ayırıyor
+    (p10 medyanı 0.14, p90 0.84). Dağılım tablosunun "p75'ten itibaren 1.0"
+    bulgusu tanım gereği 1.0 değerlerinden geliyordu; `metric-distribution.md`
+    Bulgu 6'ya düzeltme notu düşüldü.
+  - **DAM: sorun ayrım ve türe bağlı.** Bilgi taşıyan pay %59.9 ama tipik
+    projede değerlerin %86.5'i tek değerde (19 projenin 17'sinde 0); 7 projede
+    hiç yayılım yok (web_app'in 5'inden 4'ü), kütüphanelerde 7'de 6'sında var.
+  - **LCOM4:** sınıfların %21.8'i tanım gereği 1. Dağılım tablosundaki
+    "LCOM4 ≥ 2 → %32" paydası bunları içeriyor — eşik kararına girdi.
+  - **K7: CAM ve DAM tutulur.** Düşürmek şema artışı ve `smells.py` kanıt alanı
+    (`data_class`'ın `dam`'ı) + `prompts.py` metrik listesi değişikliği demek;
+    ikisi deney protokolü sonrası donmuş. CAM'in eksiği v2.2'nin annotation
+    kapsamı ölçüsü, DAM'ın yeniden tanımı v2.2. Çürütme koşulu kayıtta.
+    README'ye "Known limitation: DAM and CAM on real code" eklendi.
+  - Hijyen: kesilen bir `corpus.py fetch` commit'siz bir klon bırakıyor ve
+    sonraki `fetch` `rev-parse HEAD`'de düşüyor (bkz. açık sorunlar).
+  - `tests/test_hardening_coverage.py`, 23 test. Durum: 1351 paket testi (10
+    atlandı), 91 fikstür testi, ruff temiz.
+- **Sertleştirme Blok 1b, 4. oturum — framework giriş noktaları**.
   Karar: `docs/v2-tanim-kararlari.md` K6; ölçüm: `experiments/hardening/entry-points.md`.
   - **Ölçüm planı düzeltti.** Plan "dekoratörle tanımlanan fonksiyonlar ayrı ele
     alınır" diyordu. Korpusta 5+ parametreli 2 238 fonksiyonun 542'si
@@ -253,26 +283,22 @@ framework deyiminden geliyor.**
   orkestrasyon modülleri.
 
 ## Sıradaki iş
-**Blok 1b, madde 3: kapsama tablosu**, sonra **eşik kararı**. Madde 1, 2 ve 4
-bitti.
+**Blok 1b'nin son işi: eşik kararı** (K8+). Madde 1-4 bitti; kapsama kararı K7.
 
-**Madde 3 — kapsama tablosu** (`experiments/hardening/coverage.md`). Verisi büyük
-ölçüde hazır; birleştirilecek:
-- Her metrik kaç birimde hesaplanabiliyor (`null` payı: LCOM4 %32, CAM, DAM —
-  `metric-distribution.json`) ve kaçında **ayırt edici** (CAM'de tek metotlu
-  sınıf 1.0; `cam-coverage.json` "informative").
-- Ölçülen mantık payı (`corpus-inventory.json`): betik tarzı kod.
-- Karar girdisi: plan "ayrım yapmayan metrik düşürülür ya da gerekçesiyle
-  tutulur" diyor. Adaylar CAM (p75'ten itibaren 1.0) ve DAM (p75 0). Düşürmek
-  alan kaldırmak demek → şema artışı; `verify`'ın Goodhart kontrolü ve `advise`
-  prompt'u bu alanları kullanıyor mu kontrol edilmeli.
-
-**Eşik kararı** (K7+): veri `metric-distribution.md` "Eşik kararı için girdi".
-- LCOM4 warn = 2 → p68, en net aday (p90 = 3, p95 = 4.65).
-- DCC tür bağımlı (web_app p90 = 7, cli 3) — `by_layer` mı genel eşik mi.
-- `too_many_params`: kalan gürültü dekoratörsüz API yüzeyi; yalnızca-anahtar
+Veri: `metric-distribution.md` "Eşik kararı için girdi" ve `coverage.md`
+Bulgu 4.
+- **LCOM4 warn = 2 → p68**, en net aday (p90 = 3, p95 = 4.65). Önce ölçülmeli:
+  %32'nin paydasında tanım gereği 1 olan sınıflar var (%21.8). Eşiğin payı
+  bilgi taşıyan sınıflar arasında ayrıca hesaplanmalı; persentil hangi
+  paydadan alınacağı kararın parçası.
+- **DCC** tür bağımlı (web_app p90 = 7, cli 3) — `by_layer` mı genel eşik mi.
+- **`too_many_params`:** kalan gürültü dekoratörsüz API yüzeyi; yalnızca-anahtar
   parametreleri ayrı saymak bir seçenek (`entry-points.md`).
-- Kabul kriteri: varsayılanların persentil kaynağı `docs/04`'e yazılır.
+- **Deney protokolü kısıtı:** eşikler prompt'ta `[WARN]`/`[CRITICAL]` bayrağını
+  ve `advise`'ın hedef seçimini belirler. `prompts.py` ve kanıt alanları
+  değişmez; eşik değişikliğinin FINDINGS'in yeniden üretilebilirliğine etkisi
+  (deney config'i eşikleri sabitliyor mu) önce incelenmeli.
+- Kabul kriteri: varsayılanların persentil kaynağı `docs/04` §3'e yazılır.
 - `schema_version` etkisi değerlendirilmeli (v2 notu eşik değişimini delta
   anlamı değişikliği saymıştı).
 
@@ -281,12 +307,23 @@ Projeler yerelde yoksa: `python experiments/hardening/corpus.py fetch`
 
 ## Okunacak dokümanlar (sırayla)
 AGENTS.md → bu dosya → docs/v2-sertlestirme.md (Blok 1, 1b) →
-docs/v2-tanim-kararlari.md → experiments/hardening/metric-distribution.md
+docs/v2-tanim-kararlari.md → experiments/hardening/metric-distribution.md →
+experiments/hardening/coverage.md
 Sonraki fazlar: docs/v2.2-python-metrikleri.md → docs/v2.1-explain.md
 Deney protokolü: docs/v2-duzeltme-asama5.md. Metrik sınıfları:
 docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.
 
 ## Açık kararlar / bilinen sorunlar
+- **Kesilen `corpus.py fetch` sürdürülemiyor.** Klon `git fetch` sırasında
+  kesilirse dizinde commit'siz bir `.git` kalır; sonraki `fetch`,
+  `compare_radon.fetch` içindeki `git rev-parse HEAD` (`check=True`) yüzünden
+  düşer. Geçici çözüm: o projenin `.cache/<ad>` dizinini silip yeniden
+  `fetch`. Kalıcı çözüm `rev-parse` başarısızlığını "önbellekte yok" saymak;
+  uygulanmadı (bu oturumda bir kez yaşandı).
+- **DAM web uygulamalarında sınıfları ayırmıyor** (K7, `coverage.md` Bulgu 3).
+  Prompt'a ve rapora bilgi taşımayan bir 0 olarak girmeye devam ediyor;
+  README'de yazılı. `data_class`'ın web_app'te hiç ateşlememesinin DAM
+  koşulundan gelip gelmediği incelenmedi. Yeniden tanım v2.2.
 - **Alt dizin taraması üst dizinin config'iyle boşalıyor** (Blok 2 girdisi).
   `rlens scan src/rlens` bu depoda 0 dosya buluyor: config yukarı doğru aranıp
   kökteki `rlens.yaml` bulunuyor, ama `include: ["src/"]` config dosyasının

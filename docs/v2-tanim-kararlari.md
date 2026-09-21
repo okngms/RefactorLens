@@ -6,7 +6,8 @@
 
 Sertleştirme Blok 1 ölçümleri, uygulama hatası olmayan ama tanımın
 cevaplamadığı beş soru bıraktı (K1-K5). K6, Blok 1b madde 4'ün koku kuralı
-kararıdır; alan eklediği için şema sürümü değiştirmez (`04` §1). Blok 1b'nin dağılım tablosu metrik değerlerini
+kararıdır; alan eklediği için şema sürümü değiştirmez (`04` §1). K7, madde 3'ün
+(kapsama) kararıdır; hiçbir şey değiştirmez. Blok 1b'nin dağılım tablosu metrik değerlerini
 ölçeceği için bu sorular **tablodan önce** kapanmalıydı; yoksa tablo iki kez
 üretilirdi. Beşi burada birlikte karara bağlandı ve metrik anlamını değiştiren
 üçü tek bir `schema_version` artışıyla (2 → 3) uygulandı.
@@ -170,6 +171,57 @@ diyordu; ölçüm çeyreği olduğunu gösterdi. Kural doğru ve yanlış tavsiy
 API yüzeyinden geliyor ve eşik kararının konusu.
 
 **Kanıt alanları** (`params`, `thresholds`) değişmez.
+
+## K7 — CAM ve DAM tutulur; ayrım sorunu belgelenir
+
+> Karara bağlandı 2026-09-21. Metrik, alan ve eşik değişmez; şema 3 aynen.
+> Ölçüm: `experiments/hardening/coverage.md`.
+
+**Soru.** Blok 1b planı: "ayrım yapmayan metrik düşürülür ya da gerekçesiyle
+tutulur". Dağılım tablosu iki aday göstermişti: CAM (p75'ten itibaren 1.0) ve
+DAM (p75 0).
+
+**Ölçüm.** Kapsama tablosu birimleri `null` / tanım gereği belli / bilgi taşıyan
+diye ayırdı (proje medyanları):
+
+- **CAM** sınıfların %15.9'unda bilgi taşıyor; kapsam projenin annotation
+  kültürüne bağlı (yt-dlp, awscli, netbox, redash < %0.5). Ama hesaplandığı her
+  uygun projede (8/8) ayırıyor: p10 medyanı 0.14, p90 medyanı 0.84. Dağılım
+  tablosundaki tavan, parametreli tek metodu olan sınıfların tanım gereği 1.0
+  değerinden geliyordu. **Sorun ayrım değil kapsama.**
+- **DAM** sınıfların %59.9'unda bilgi taşıyor ama tipik projede bu değerlerin
+  %86.5'i tek değerde (19 projenin 17'sinde 0);
+  19 uygun projenin 7'sinde (web_app'in 5'inden 4'ü) proje içinde hiç yayılım
+  yok. Kütüphanelerde 7'nin 6'sında var. **Sorun ayrım ve türe bağlı.**
+
+**Karar.** İkisi de tutulur. CAM için ek bir şey gerekmez: hesaplanamadığında
+zaten `null` ve sebebi raporda. DAM'ın web uygulamalarında sınıfları
+ayırmadığı README'ye sınırlılık olarak yazılır; yeniden tanımı v2.2'nin konusu.
+
+**Gerekçe.**
+
+1. **Düşürmenin bedeli ölçülen kazançtan büyük.** Alan kaldırmak alan anlamını
+   değiştirir → şema artışı (`04` §1) ve `verify` eski raporları reddeder.
+   DAM `data_class` kokusunun koşulu ve kanıt alanı; CAM ve DAM `advise`
+   prompt'unun metrik listesinde. `smells.py` kanıt alanları ve `prompts.py`
+   deney protokolü başladıktan sonra değişmez (CLAUDE.md; bu belgenin 2. kuralı).
+   Düşürmek FINDINGS-1/2'nin girdisini yeniden üretilemez yapardı.
+2. **CAM'i düşürmek yanlış metriği cezalandırırdı.** Ölçüm CAM'in hesaplandığı
+   yerde ayırdığını gösterdi. Kapsamı artırmanın yolu annotation kapsamını ayrı
+   bir ölçü yapmak; v2.2 §3 bunu zaten planlıyor.
+3. **DAM'ın yerine konacak ölçü henüz yok.** Yeni ölçü uydurulmaz (bu belgenin
+   3. kuralı); v2.2'nin dokuz maddesinden ve korpustan geçer. O zamana kadar
+   DAM kütüphanelerde sınıfları ayıran bir sayı üretiyor; web
+   uygulamalarında neredeyse her sınıfta 0 ve bu README'de yazılı.
+
+**Maliyet.** Web uygulamalarında DAM prompt'a ve rapora bilgi taşımayan bir 0
+olarak girmeye devam eder. `data_class`'ın web_app'te hiç ateşlememesinin
+(koku oranı 0) DAM koşulundan mı geldiği sınıf sınıf incelenmedi.
+
+**Çürütme koşulu.** v2.2 korpus koşusunda DAM, tanım gereği belli olmayan
+sınıflarda da kütüphanelerin çoğunda yayılım göstermezse (bugün 7'de 6),
+"kütüphanelerde anlamlı" iddiası düşer ve DAM v2.2'de kaldırılır ya da
+yeniden tanımlanır.
 
 ## Korpustaki etki
 

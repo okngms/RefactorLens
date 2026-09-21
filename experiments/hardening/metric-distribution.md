@@ -175,6 +175,11 @@ parametre alıyor — framework'ün bildirimsel API yüzeyi. Bu madde 4'ün
 - **CAM:** yalnızca 12 proje yeterli değer taşıyor; p75'ten itibaren her
   persentil 1.0. CAM, hesaplanabildiği yerde tavana yapışıyor (metric-accuracy
   §5: tek parametreli metotlu sınıfta tanım gereği 1.0).
+
+  > **Düzeltme (madde 3, `coverage.md` Bulgu 2).** Tavanı tanım gereği 1.0
+  > olan değerler üretiyor. Parametreli en az iki metodu olan sınıflarda CAM
+  > uygun 8 projenin 8'inde yayılım gösteriyor (p10 medyanı 0.14, p90 medyanı
+  > 0.84). CAM'in sorunu ayrım değil kapsama.
 - **DAM:** p50 ve p75 0. Kütüphanelerde p90 0.88 (private attribute kültürü),
   web uygulamalarında p90 bile 0. Dogfooding'deki "DAM Python'da ölçtüğü şey yok"
   gözlemi web uygulamaları için tamamen, kütüphaneler için kısmen doğru.
@@ -216,8 +221,9 @@ Verinin söylediği:
 | **LCOM4 warn 2** | **p68; sınıfların üçte biri** | p90'a (3) ya da p95'e (4) çekilmeli |
 | DCC 7 | proje medyanında p95, web_app'te p88 | genel değer korunur; tür/katman farkı `by_layer` ile |
 | `too_many_params` | giriş noktaları artık hariç (madde 4); kalan gürültü dekoratörsüz API yüzeyi (pandas, fastapi `Query`) | eşik kararında; yalnızca-anahtar parametreler ayrı düşünülebilir (`entry-points.md`) |
-| CAM, DAM | ayırt edici değil | eşik değil, ölçünün kendisi v2.2'de |
+| CAM, DAM | CAM kapsama sorunu, DAM ayrım sorunu (`coverage.md`) | eşik değil; ikisi tutulur (K7), DAM'ın yeniden tanımı v2.2'de |
 
 Madde 4 (framework giriş noktaları) tamamlandı ve tablo onunla yeniden
-üretildi. Kararın önünde **madde 3** (kapsama tablosu — CAM, ölçülen mantık
-payı ve LCOM4 `null` payı hazır) kaldı.
+üretildi. Madde 3 (kapsama, `coverage.md`) de tamamlandı; LCOM4 için bir girdi
+ekledi: yukarıdaki %32'nin paydasında tanım gereği 1 olan sınıflar (tek adlı
+metot, proje medyanında sınıfların %21.8'i) da var.
