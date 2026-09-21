@@ -89,7 +89,7 @@ DEFAULTS: dict[str, Any] = {
         "cyclomatic_complexity": {"warn": 10, "critical": 20},
         "max_params": {"warn": 5},
         "max_nesting": {"warn": 4},
-        "lcom4": {"warn": 2, "critical": 4},
+        "lcom4": {"warn": 5, "critical": 10},
         "dcc": {"warn": 7},
         "wmc": {"warn": 50},
         "nom": {"warn": 20},

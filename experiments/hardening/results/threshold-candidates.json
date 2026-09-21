@@ -1,0 +1,2150 @@
+{
+  "schema_version": 3,
+  "min_values": 30,
+  "class_thresholds": {
+    "nom": 20,
+    "wmc": 50,
+    "dcc": 7
+  },
+  "lcom4": {
+    "2": {
+      "all": {
+        "computed": 0.3211,
+        "computed_projects": 18,
+        "informative": 0.6039,
+        "informative_projects": 17,
+        "any_class_flagged": 0.2172,
+        "only_lcom4": 0.1098,
+        "class_projects": 24
+      },
+      "by_type": {
+        "library": {
+          "computed": 0.4257,
+          "computed_projects": 7,
+          "informative": 0.7,
+          "informative_projects": 7,
+          "any_class_flagged": 0.244,
+          "only_lcom4": 0.1382,
+          "class_projects": 10
+        },
+        "cli": {
+          "computed": 0.239,
+          "computed_projects": 4,
+          "informative": 0.3696,
+          "informative_projects": 4,
+          "any_class_flagged": 0.1799,
+          "only_lcom4": 0.1235,
+          "class_projects": 6
+        },
+        "web_app": {
+          "computed": 0.3222,
+          "computed_projects": 5,
+          "informative": 0.6104,
+          "informative_projects": 5,
+          "any_class_flagged": 0.2471,
+          "only_lcom4": 0.0937,
+          "class_projects": 5
+        },
+        "ml_research": {
+          "computed": 0.243,
+          "computed_projects": 2,
+          "informative": 0.5308,
+          "informative_projects": 1,
+          "any_class_flagged": 0.1667,
+          "only_lcom4": 0.0833,
+          "class_projects": 3
+        }
+      }
+    },
+    "3": {
+      "all": {
+        "computed": 0.1394,
+        "computed_projects": 18,
+        "informative": 0.2231,
+        "informative_projects": 17,
+        "any_class_flagged": 0.155,
+        "only_lcom4": 0.0505,
+        "class_projects": 24
+      },
+      "by_type": {
+        "library": {
+          "computed": 0.24,
+          "computed_projects": 7,
+          "informative": 0.4286,
+          "informative_projects": 7,
+          "any_class_flagged": 0.1553,
+          "only_lcom4": 0.0551,
+          "class_projects": 10
+        },
+        "cli": {
+          "computed": 0.1278,
+          "computed_projects": 4,
+          "informative": 0.1982,
+          "informative_projects": 4,
+          "any_class_flagged": 0.1118,
+          "only_lcom4": 0.0546,
+          "class_projects": 6
+        },
+        "web_app": {
+          "computed": 0.1296,
+          "computed_projects": 5,
+          "informative": 0.1955,
+          "informative_projects": 5,
+          "any_class_flagged": 0.2048,
+          "only_lcom4": 0.0423,
+          "class_projects": 5
+        },
+        "ml_research": {
+          "computed": 0.0973,
+          "computed_projects": 2,
+          "informative": 0.2231,
+          "informative_projects": 1,
+          "any_class_flagged": 0.1389,
+          "only_lcom4": 0.0556,
+          "class_projects": 3
+        }
+      }
+    },
+    "4": {
+      "all": {
+        "computed": 0.0755,
+        "computed_projects": 18,
+        "informative": 0.1429,
+        "informative_projects": 17,
+        "any_class_flagged": 0.1135,
+        "only_lcom4": 0.0227,
+        "class_projects": 24
+      },
+      "by_type": {
+        "library": {
+          "computed": 0.125,
+          "computed_projects": 7,
+          "informative": 0.1667,
+          "informative_projects": 7,
+          "any_class_flagged": 0.1288,
+          "only_lcom4": 0.0198,
+          "class_projects": 10
+        },
+        "cli": {
+          "computed": 0.0609,
+          "computed_projects": 4,
+          "informative": 0.0935,
+          "informative_projects": 4,
+          "any_class_flagged": 0.0712,
+          "only_lcom4": 0.0308,
+          "class_projects": 6
+        },
+        "web_app": {
+          "computed": 0.0791,
+          "computed_projects": 5,
+          "informative": 0.1429,
+          "informative_projects": 5,
+          "any_class_flagged": 0.197,
+          "only_lcom4": 0.0151,
+          "class_projects": 5
+        },
+        "ml_research": {
+          "computed": 0.0306,
+          "computed_projects": 2,
+          "informative": 0.0692,
+          "informative_projects": 1,
+          "any_class_flagged": 0.0704,
+          "only_lcom4": 0.0,
+          "class_projects": 3
+        }
+      }
+    },
+    "5": {
+      "all": {
+        "computed": 0.0554,
+        "computed_projects": 18,
+        "informative": 0.1039,
+        "informative_projects": 17,
+        "any_class_flagged": 0.1098,
+        "only_lcom4": 0.0115,
+        "class_projects": 24
+      },
+      "by_type": {
+        "library": {
+          "computed": 0.1089,
+          "computed_projects": 7,
+          "informative": 0.1667,
+          "informative_projects": 7,
+          "any_class_flagged": 0.1174,
+          "only_lcom4": 0.0135,
+          "class_projects": 10
+        },
+        "cli": {
+          "computed": 0.0291,
+          "computed_projects": 4,
+          "informative": 0.044,
+          "informative_projects": 4,
+          "any_class_flagged": 0.0534,
+          "only_lcom4": 0.0158,
+          "class_projects": 6
+        },
+        "web_app": {
+          "computed": 0.0576,
+          "computed_projects": 5,
+          "informative": 0.1039,
+          "informative_projects": 5,
+          "any_class_flagged": 0.1498,
+          "only_lcom4": 0.0091,
+          "class_projects": 5
+        },
+        "ml_research": {
+          "computed": 0.017,
+          "computed_projects": 2,
+          "informative": 0.0308,
+          "informative_projects": 1,
+          "any_class_flagged": 0.0469,
+          "only_lcom4": 0.0,
+          "class_projects": 3
+        }
+      }
+    },
+    "6": {
+      "all": {
+        "computed": 0.0323,
+        "computed_projects": 18,
+        "informative": 0.0526,
+        "informative_projects": 17,
+        "any_class_flagged": 0.0946,
+        "only_lcom4": 0.0063,
+        "class_projects": 24
+      },
+      "by_type": {
+        "library": {
+          "computed": 0.0495,
+          "computed_projects": 7,
+          "informative": 0.082,
+          "informative_projects": 7,
+          "any_class_flagged": 0.1174,
+          "only_lcom4": 0.0135,
+          "class_projects": 10
+        },
+        "cli": {
+          "computed": 0.0151,
+          "computed_projects": 4,
+          "informative": 0.024,
+          "informative_projects": 4,
+          "any_class_flagged": 0.0488,
+          "only_lcom4": 0.0049,
+          "class_projects": 6
+        },
+        "web_app": {
+          "computed": 0.0273,
+          "computed_projects": 5,
+          "informative": 0.0357,
+          "informative_projects": 5,
+          "any_class_flagged": 0.1193,
+          "only_lcom4": 0.003,
+          "class_projects": 5
+        },
+        "ml_research": {
+          "computed": 0.0062,
+          "computed_projects": 2,
+          "informative": 0.0,
+          "informative_projects": 1,
+          "any_class_flagged": 0.0404,
+          "only_lcom4": 0.0,
+          "class_projects": 3
+        }
+      }
+    },
+    "7": {
+      "all": {
+        "computed": 0.0248,
+        "computed_projects": 18,
+        "informative": 0.0492,
+        "informative_projects": 17,
+        "any_class_flagged": 0.0946,
+        "only_lcom4": 0.0022,
+        "class_projects": 24
+      },
+      "by_type": {
+        "library": {
+          "computed": 0.04,
+          "computed_projects": 7,
+          "informative": 0.0714,
+          "informative_projects": 7,
+          "any_class_flagged": 0.1174,
+          "only_lcom4": 0.0118,
+          "class_projects": 10
+        },
+        "cli": {
+          "computed": 0.0113,
+          "computed_projects": 4,
+          "informative": 0.0181,
+          "informative_projects": 4,
+          "any_class_flagged": 0.0466,
+          "only_lcom4": 0.0026,
+          "class_projects": 6
+        },
+        "web_app": {
+          "computed": 0.0136,
+          "computed_projects": 5,
+          "informative": 0.0204,
+          "informative_projects": 5,
+          "any_class_flagged": 0.1178,
+          "only_lcom4": 0.0028,
+          "class_projects": 5
+        },
+        "ml_research": {
+          "computed": 0.0,
+          "computed_projects": 2,
+          "informative": 0.0,
+          "informative_projects": 1,
+          "any_class_flagged": 0.0404,
+          "only_lcom4": 0.0,
+          "class_projects": 3
+        }
+      }
+    },
+    "8": {
+      "all": {
+        "computed": 0.0161,
+        "computed_projects": 18,
+        "informative": 0.0263,
+        "informative_projects": 17,
+        "any_class_flagged": 0.0887,
+        "only_lcom4": 0.0003,
+        "class_projects": 24
+      },
+      "by_type": {
+        "library": {
+          "computed": 0.04,
+          "computed_projects": 7,
+          "informative": 0.0714,
+          "informative_projects": 7,
+          "any_class_flagged": 0.1099,
+          "only_lcom4": 0.0,
+          "class_projects": 10
+        },
+        "cli": {
+          "computed": 0.0079,
+          "computed_projects": 4,
+          "informative": 0.0124,
+          "informative_projects": 4,
+          "any_class_flagged": 0.0445,
+          "only_lcom4": 0.0024,
+          "class_projects": 6
+        },
+        "web_app": {
+          "computed": 0.0111,
+          "computed_projects": 5,
+          "informative": 0.0168,
+          "informative_projects": 5,
+          "any_class_flagged": 0.1178,
+          "only_lcom4": 0.0015,
+          "class_projects": 5
+        },
+        "ml_research": {
+          "computed": 0.0,
+          "computed_projects": 2,
+          "informative": 0.0,
+          "informative_projects": 1,
+          "any_class_flagged": 0.0404,
+          "only_lcom4": 0.0,
+          "class_projects": 3
+        }
+      }
+    },
+    "9": {
+      "all": {
+        "computed": 0.0145,
+        "computed_projects": 18,
+        "informative": 0.0263,
+        "informative_projects": 17,
+        "any_class_flagged": 0.0887,
+        "only_lcom4": 0.0,
+        "class_projects": 24
+      },
+      "by_type": {
+        "library": {
+          "computed": 0.04,
+          "computed_projects": 7,
+          "informative": 0.0714,
+          "informative_projects": 7,
+          "any_class_flagged": 0.1099,
+          "only_lcom4": 0.0,
+          "class_projects": 10
+        },
+        "cli": {
+          "computed": 0.006,
+          "computed_projects": 4,
+          "informative": 0.0095,
+          "informative_projects": 4,
+          "any_class_flagged": 0.0434,
+          "only_lcom4": 0.0024,
+          "class_projects": 6
+        },
+        "web_app": {
+          "computed": 0.0074,
+          "computed_projects": 5,
+          "informative": 0.0112,
+          "informative_projects": 5,
+          "any_class_flagged": 0.1163,
+          "only_lcom4": 0.0008,
+          "class_projects": 5
+        },
+        "ml_research": {
+          "computed": 0.0,
+          "computed_projects": 2,
+          "informative": 0.0,
+          "informative_projects": 1,
+          "any_class_flagged": 0.0404,
+          "only_lcom4": 0.0,
+          "class_projects": 3
+        }
+      }
+    },
+    "10": {
+      "all": {
+        "computed": 0.0112,
+        "computed_projects": 18,
+        "informative": 0.026,
+        "informative_projects": 17,
+        "any_class_flagged": 0.0887,
+        "only_lcom4": 0.0,
+        "class_projects": 24
+      },
+      "by_type": {
+        "library": {
+          "computed": 0.0267,
+          "computed_projects": 7,
+          "informative": 0.0476,
+          "informative_projects": 7,
+          "any_class_flagged": 0.1099,
+          "only_lcom4": 0.0,
+          "class_projects": 10
+        },
+        "cli": {
+          "computed": 0.0046,
+          "computed_projects": 4,
+          "informative": 0.0073,
+          "informative_projects": 4,
+          "any_class_flagged": 0.0379,
+          "only_lcom4": 0.0,
+          "class_projects": 6
+        },
+        "web_app": {
+          "computed": 0.0074,
+          "computed_projects": 5,
+          "informative": 0.0112,
+          "informative_projects": 5,
+          "any_class_flagged": 0.1163,
+          "only_lcom4": 0.0008,
+          "class_projects": 5
+        },
+        "ml_research": {
+          "computed": 0.0,
+          "computed_projects": 2,
+          "informative": 0.0,
+          "informative_projects": 1,
+          "any_class_flagged": 0.0404,
+          "only_lcom4": 0.0,
+          "class_projects": 3
+        }
+      }
+    }
+  },
+  "kwonly": {
+    "firings": 2221,
+    "rescued": 554,
+    "pooled_share": 0.2494,
+    "median_share": 0.2079
+  },
+  "per_project": {
+    "requests": {
+      "type": "library",
+      "classes": 44,
+      "lcom4_computed": 15,
+      "lcom4_informative": 13,
+      "lcom4": {
+        "2": {
+          "computed": 0.3333,
+          "informative": 0.3846,
+          "any": 0.1818,
+          "only_lcom4": 0.0682
+        },
+        "3": {
+          "computed": 0.2,
+          "informative": 0.2308,
+          "any": 0.1591,
+          "only_lcom4": 0.0455
+        },
+        "4": {
+          "computed": 0.1333,
+          "informative": 0.1538,
+          "any": 0.1364,
+          "only_lcom4": 0.0227
+        },
+        "5": {
+          "computed": 0.0667,
+          "informative": 0.0769,
+          "any": 0.1136,
+          "only_lcom4": 0.0
+        },
+        "6": {
+          "computed": 0.0667,
+          "informative": 0.0769,
+          "any": 0.1136,
+          "only_lcom4": 0.0
+        },
+        "7": {
+          "computed": 0.0667,
+          "informative": 0.0769,
+          "any": 0.1136,
+          "only_lcom4": 0.0
+        },
+        "8": {
+          "computed": 0.0667,
+          "informative": 0.0769,
+          "any": 0.1136,
+          "only_lcom4": 0.0
+        },
+        "9": {
+          "computed": 0.0667,
+          "informative": 0.0769,
+          "any": 0.1136,
+          "only_lcom4": 0.0
+        },
+        "10": {
+          "computed": 0.0667,
+          "informative": 0.0769,
+          "any": 0.1136,
+          "only_lcom4": 0.0
+        }
+      },
+      "functions": 176,
+      "too_many_params": 6,
+      "rescued_by_kwonly": 0
+    },
+    "httpx": {
+      "type": "library",
+      "classes": 85,
+      "lcom4_computed": 48,
+      "lcom4_informative": 35,
+      "lcom4": {
+        "2": {
+          "computed": 0.3125,
+          "informative": 0.4286,
+          "any": 0.2,
+          "only_lcom4": 0.1059
+        },
+        "3": {
+          "computed": 0.1042,
+          "informative": 0.1429,
+          "any": 0.1059,
+          "only_lcom4": 0.0118
+        },
+        "4": {
+          "computed": 0.0417,
+          "informative": 0.0571,
+          "any": 0.1059,
+          "only_lcom4": 0.0118
+        },
+        "5": {
+          "computed": 0.0417,
+          "informative": 0.0571,
+          "any": 0.1059,
+          "only_lcom4": 0.0118
+        },
+        "6": {
+          "computed": 0.0417,
+          "informative": 0.0571,
+          "any": 0.1059,
+          "only_lcom4": 0.0118
+        },
+        "7": {
+          "computed": 0.0208,
+          "informative": 0.0286,
+          "any": 0.1059,
+          "only_lcom4": 0.0118
+        },
+        "8": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0941,
+          "only_lcom4": 0.0
+        },
+        "9": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0941,
+          "only_lcom4": 0.0
+        },
+        "10": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0941,
+          "only_lcom4": 0.0
+        }
+      },
+      "functions": 309,
+      "too_many_params": 33,
+      "rescued_by_kwonly": 28
+    },
+    "rich": {
+      "type": "library",
+      "classes": 170,
+      "lcom4_computed": 101,
+      "lcom4_informative": 61,
+      "lcom4": {
+        "2": {
+          "computed": 0.4257,
+          "informative": 0.7049,
+          "any": 0.3235,
+          "only_lcom4": 0.1706
+        },
+        "3": {
+          "computed": 0.198,
+          "informative": 0.3279,
+          "any": 0.2176,
+          "only_lcom4": 0.0647
+        },
+        "4": {
+          "computed": 0.1287,
+          "informative": 0.2131,
+          "any": 0.2,
+          "only_lcom4": 0.0471
+        },
+        "5": {
+          "computed": 0.1089,
+          "informative": 0.1803,
+          "any": 0.1882,
+          "only_lcom4": 0.0353
+        },
+        "6": {
+          "computed": 0.0495,
+          "informative": 0.082,
+          "any": 0.1706,
+          "only_lcom4": 0.0176
+        },
+        "7": {
+          "computed": 0.0297,
+          "informative": 0.0492,
+          "any": 0.1647,
+          "only_lcom4": 0.0118
+        },
+        "8": {
+          "computed": 0.0297,
+          "informative": 0.0492,
+          "any": 0.1647,
+          "only_lcom4": 0.0118
+        },
+        "9": {
+          "computed": 0.0297,
+          "informative": 0.0492,
+          "any": 0.1647,
+          "only_lcom4": 0.0118
+        },
+        "10": {
+          "computed": 0.0198,
+          "informative": 0.0328,
+          "any": 0.1588,
+          "only_lcom4": 0.0059
+        }
+      },
+      "functions": 582,
+      "too_many_params": 54,
+      "rescued_by_kwonly": 39
+    },
+    "pydantic": {
+      "type": "library",
+      "classes": 179,
+      "lcom4_computed": 75,
+      "lcom4_informative": 42,
+      "lcom4": {
+        "2": {
+          "computed": 0.32,
+          "informative": 0.5714,
+          "any": 0.162,
+          "only_lcom4": 0.095
+        },
+        "3": {
+          "computed": 0.24,
+          "informative": 0.4286,
+          "any": 0.1341,
+          "only_lcom4": 0.067
+        },
+        "4": {
+          "computed": 0.08,
+          "informative": 0.1429,
+          "any": 0.0838,
+          "only_lcom4": 0.0168
+        },
+        "5": {
+          "computed": 0.0533,
+          "informative": 0.0952,
+          "any": 0.0726,
+          "only_lcom4": 0.0056
+        },
+        "6": {
+          "computed": 0.04,
+          "informative": 0.0714,
+          "any": 0.067,
+          "only_lcom4": 0.0
+        },
+        "7": {
+          "computed": 0.04,
+          "informative": 0.0714,
+          "any": 0.067,
+          "only_lcom4": 0.0
+        },
+        "8": {
+          "computed": 0.04,
+          "informative": 0.0714,
+          "any": 0.067,
+          "only_lcom4": 0.0
+        },
+        "9": {
+          "computed": 0.04,
+          "informative": 0.0714,
+          "any": 0.067,
+          "only_lcom4": 0.0
+        },
+        "10": {
+          "computed": 0.0267,
+          "informative": 0.0476,
+          "any": 0.067,
+          "only_lcom4": 0.0
+        }
+      },
+      "functions": 756,
+      "too_many_params": 50,
+      "rescued_by_kwonly": 36
+    },
+    "fastapi": {
+      "type": "library",
+      "classes": 89,
+      "lcom4_computed": 10,
+      "lcom4_informative": 4,
+      "lcom4": {
+        "2": {
+          "computed": 0.3,
+          "informative": 0.75,
+          "any": 0.0674,
+          "only_lcom4": 0.0225
+        },
+        "3": {
+          "computed": 0.2,
+          "informative": 0.5,
+          "any": 0.0562,
+          "only_lcom4": 0.0112
+        },
+        "4": {
+          "computed": 0.2,
+          "informative": 0.5,
+          "any": 0.0562,
+          "only_lcom4": 0.0112
+        },
+        "5": {
+          "computed": 0.1,
+          "informative": 0.25,
+          "any": 0.0562,
+          "only_lcom4": 0.0112
+        },
+        "6": {
+          "computed": 0.1,
+          "informative": 0.25,
+          "any": 0.0562,
+          "only_lcom4": 0.0112
+        },
+        "7": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0449,
+          "only_lcom4": 0.0
+        },
+        "8": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0449,
+          "only_lcom4": 0.0
+        },
+        "9": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0449,
+          "only_lcom4": 0.0
+        },
+        "10": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0449,
+          "only_lcom4": 0.0
+        }
+      },
+      "functions": 134,
+      "too_many_params": 42,
+      "rescued_by_kwonly": 39
+    },
+    "attrs": {
+      "type": "library",
+      "classes": 33,
+      "lcom4_computed": 6,
+      "lcom4_informative": 6,
+      "lcom4": {
+        "2": {
+          "computed": 0.5,
+          "informative": 0.5,
+          "any": 0.1212,
+          "only_lcom4": 0.0909
+        },
+        "3": {
+          "computed": 0.1667,
+          "informative": 0.1667,
+          "any": 0.0606,
+          "only_lcom4": 0.0303
+        },
+        "4": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0303,
+          "only_lcom4": 0.0
+        },
+        "5": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0303,
+          "only_lcom4": 0.0
+        },
+        "6": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0303,
+          "only_lcom4": 0.0
+        },
+        "7": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0303,
+          "only_lcom4": 0.0
+        },
+        "8": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0303,
+          "only_lcom4": 0.0
+        },
+        "9": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0303,
+          "only_lcom4": 0.0
+        },
+        "10": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0303,
+          "only_lcom4": 0.0
+        }
+      },
+      "functions": 117,
+      "too_many_params": 15,
+      "rescued_by_kwonly": 2
+    },
+    "click": {
+      "type": "library",
+      "classes": 66,
+      "lcom4_computed": 56,
+      "lcom4_informative": 38,
+      "lcom4": {
+        "2": {
+          "computed": 0.2857,
+          "informative": 0.4211,
+          "any": 0.2879,
+          "only_lcom4": 0.1818
+        },
+        "3": {
+          "computed": 0.1071,
+          "informative": 0.1579,
+          "any": 0.1515,
+          "only_lcom4": 0.0455
+        },
+        "4": {
+          "computed": 0.0714,
+          "informative": 0.1053,
+          "any": 0.1212,
+          "only_lcom4": 0.0152
+        },
+        "5": {
+          "computed": 0.0714,
+          "informative": 0.1053,
+          "any": 0.1212,
+          "only_lcom4": 0.0152
+        },
+        "6": {
+          "computed": 0.0357,
+          "informative": 0.0526,
+          "any": 0.1212,
+          "only_lcom4": 0.0152
+        },
+        "7": {
+          "computed": 0.0357,
+          "informative": 0.0526,
+          "any": 0.1212,
+          "only_lcom4": 0.0152
+        },
+        "8": {
+          "computed": 0.0179,
+          "informative": 0.0263,
+          "any": 0.1061,
+          "only_lcom4": 0.0
+        },
+        "9": {
+          "computed": 0.0179,
+          "informative": 0.0263,
+          "any": 0.1061,
+          "only_lcom4": 0.0
+        },
+        "10": {
+          "computed": 0.0179,
+          "informative": 0.0263,
+          "any": 0.1061,
+          "only_lcom4": 0.0
+        }
+      },
+      "functions": 354,
+      "too_many_params": 18,
+      "rescued_by_kwonly": 1
+    },
+    "flask": {
+      "type": "library",
+      "classes": 46,
+      "lcom4_computed": 40,
+      "lcom4_informative": 30,
+      "lcom4": {
+        "2": {
+          "computed": 0.525,
+          "informative": 0.7,
+          "any": 0.5,
+          "only_lcom4": 0.3913
+        },
+        "3": {
+          "computed": 0.325,
+          "informative": 0.4333,
+          "any": 0.3261,
+          "only_lcom4": 0.2174
+        },
+        "4": {
+          "computed": 0.125,
+          "informative": 0.1667,
+          "any": 0.1522,
+          "only_lcom4": 0.0435
+        },
+        "5": {
+          "computed": 0.125,
+          "informative": 0.1667,
+          "any": 0.1522,
+          "only_lcom4": 0.0435
+        },
+        "6": {
+          "computed": 0.125,
+          "informative": 0.1667,
+          "any": 0.1522,
+          "only_lcom4": 0.0435
+        },
+        "7": {
+          "computed": 0.1,
+          "informative": 0.1333,
+          "any": 0.1304,
+          "only_lcom4": 0.0217
+        },
+        "8": {
+          "computed": 0.075,
+          "informative": 0.1,
+          "any": 0.1304,
+          "only_lcom4": 0.0217
+        },
+        "9": {
+          "computed": 0.075,
+          "informative": 0.1,
+          "any": 0.1304,
+          "only_lcom4": 0.0217
+        },
+        "10": {
+          "computed": 0.075,
+          "informative": 0.1,
+          "any": 0.1304,
+          "only_lcom4": 0.0217
+        }
+      },
+      "functions": 290,
+      "too_many_params": 7,
+      "rescued_by_kwonly": 2
+    },
+    "sqlalchemy": {
+      "type": "library",
+      "classes": 256,
+      "lcom4_computed": 157,
+      "lcom4_informative": 128,
+      "lcom4": {
+        "2": {
+          "computed": 0.6178,
+          "informative": 0.7578,
+          "any": 0.4141,
+          "only_lcom4": 0.2148
+        },
+        "3": {
+          "computed": 0.3758,
+          "informative": 0.4609,
+          "any": 0.3008,
+          "only_lcom4": 0.1016
+        },
+        "4": {
+          "computed": 0.2739,
+          "informative": 0.3359,
+          "any": 0.2734,
+          "only_lcom4": 0.0742
+        },
+        "5": {
+          "computed": 0.1783,
+          "informative": 0.2188,
+          "any": 0.2422,
+          "only_lcom4": 0.043
+        },
+        "6": {
+          "computed": 0.1274,
+          "informative": 0.1562,
+          "any": 0.2266,
+          "only_lcom4": 0.0273
+        },
+        "7": {
+          "computed": 0.1083,
+          "informative": 0.1328,
+          "any": 0.2188,
+          "only_lcom4": 0.0195
+        },
+        "8": {
+          "computed": 0.0892,
+          "informative": 0.1094,
+          "any": 0.2148,
+          "only_lcom4": 0.0156
+        },
+        "9": {
+          "computed": 0.0701,
+          "informative": 0.0859,
+          "any": 0.2148,
+          "only_lcom4": 0.0156
+        },
+        "10": {
+          "computed": 0.051,
+          "informative": 0.0625,
+          "any": 0.2109,
+          "only_lcom4": 0.0117
+        }
+      },
+      "functions": 1673,
+      "too_many_params": 202,
+      "rescued_by_kwonly": 42
+    },
+    "pandas": {
+      "type": "library",
+      "classes": 246,
+      "lcom4_computed": 199,
+      "lcom4_informative": 159,
+      "lcom4": {
+        "2": {
+          "computed": 0.603,
+          "informative": 0.7547,
+          "any": 0.5203,
+          "only_lcom4": 0.2561
+        },
+        "3": {
+          "computed": 0.402,
+          "informative": 0.5031,
+          "any": 0.3902,
+          "only_lcom4": 0.126
+        },
+        "4": {
+          "computed": 0.2915,
+          "informative": 0.3648,
+          "any": 0.3415,
+          "only_lcom4": 0.0772
+        },
+        "5": {
+          "computed": 0.2161,
+          "informative": 0.2704,
+          "any": 0.313,
+          "only_lcom4": 0.0488
+        },
+        "6": {
+          "computed": 0.1709,
+          "informative": 0.2138,
+          "any": 0.3089,
+          "only_lcom4": 0.0447
+        },
+        "7": {
+          "computed": 0.1307,
+          "informative": 0.1635,
+          "any": 0.2967,
+          "only_lcom4": 0.0325
+        },
+        "8": {
+          "computed": 0.0854,
+          "informative": 0.1069,
+          "any": 0.2805,
+          "only_lcom4": 0.0163
+        },
+        "9": {
+          "computed": 0.0704,
+          "informative": 0.0881,
+          "any": 0.2805,
+          "only_lcom4": 0.0163
+        },
+        "10": {
+          "computed": 0.0603,
+          "informative": 0.0755,
+          "any": 0.2805,
+          "only_lcom4": 0.0163
+        }
+      },
+      "functions": 3996,
+      "too_many_params": 371,
+      "rescued_by_kwonly": 112
+    },
+    "black": {
+      "type": "cli",
+      "classes": 44,
+      "lcom4_computed": 26,
+      "lcom4_informative": 18,
+      "lcom4": {
+        "2": {
+          "computed": 0.2692,
+          "informative": 0.3889,
+          "any": 0.25,
+          "only_lcom4": 0.1136
+        },
+        "3": {
+          "computed": 0.0385,
+          "informative": 0.0556,
+          "any": 0.1591,
+          "only_lcom4": 0.0227
+        },
+        "4": {
+          "computed": 0.0385,
+          "informative": 0.0556,
+          "any": 0.1591,
+          "only_lcom4": 0.0227
+        },
+        "5": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.1364,
+          "only_lcom4": 0.0
+        },
+        "6": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.1364,
+          "only_lcom4": 0.0
+        },
+        "7": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.1364,
+          "only_lcom4": 0.0
+        },
+        "8": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.1364,
+          "only_lcom4": 0.0
+        },
+        "9": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.1364,
+          "only_lcom4": 0.0
+        },
+        "10": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.1364,
+          "only_lcom4": 0.0
+        }
+      },
+      "functions": 363,
+      "too_many_params": 11,
+      "rescued_by_kwonly": 3
+    },
+    "mypy": {
+      "type": "cli",
+      "classes": 420,
+      "lcom4_computed": 343,
+      "lcom4_informative": 218,
+      "lcom4": {
+        "2": {
+          "computed": 0.4227,
+          "informative": 0.6651,
+          "any": 0.4381,
+          "only_lcom4": 0.1738
+        },
+        "3": {
+          "computed": 0.3061,
+          "informative": 0.4817,
+          "any": 0.3643,
+          "only_lcom4": 0.1
+        },
+        "4": {
+          "computed": 0.1983,
+          "informative": 0.3119,
+          "any": 0.3024,
+          "only_lcom4": 0.0381
+        },
+        "5": {
+          "computed": 0.1545,
+          "informative": 0.2431,
+          "any": 0.2905,
+          "only_lcom4": 0.0262
+        },
+        "6": {
+          "computed": 0.1195,
+          "informative": 0.1881,
+          "any": 0.2738,
+          "only_lcom4": 0.0095
+        },
+        "7": {
+          "computed": 0.0991,
+          "informative": 0.156,
+          "any": 0.269,
+          "only_lcom4": 0.0048
+        },
+        "8": {
+          "computed": 0.0933,
+          "informative": 0.1468,
+          "any": 0.269,
+          "only_lcom4": 0.0048
+        },
+        "9": {
+          "computed": 0.0875,
+          "informative": 0.1376,
+          "any": 0.269,
+          "only_lcom4": 0.0048
+        },
+        "10": {
+          "computed": 0.0816,
+          "informative": 0.1284,
+          "any": 0.269,
+          "only_lcom4": 0.0048
+        }
+      },
+      "functions": 4636,
+      "too_many_params": 193,
+      "rescued_by_kwonly": 41
+    },
+    "httpie": {
+      "type": "cli",
+      "classes": 105,
+      "lcom4_computed": 60,
+      "lcom4_informative": 37,
+      "lcom4": {
+        "2": {
+          "computed": 0.2333,
+          "informative": 0.3784,
+          "any": 0.1524,
+          "only_lcom4": 0.1333
+        },
+        "3": {
+          "computed": 0.1333,
+          "informative": 0.2162,
+          "any": 0.0952,
+          "only_lcom4": 0.0762
+        },
+        "4": {
+          "computed": 0.05,
+          "informative": 0.0811,
+          "any": 0.0476,
+          "only_lcom4": 0.0286
+        },
+        "5": {
+          "computed": 0.0167,
+          "informative": 0.027,
+          "any": 0.0286,
+          "only_lcom4": 0.0095
+        },
+        "6": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.019,
+          "only_lcom4": 0.0
+        },
+        "7": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.019,
+          "only_lcom4": 0.0
+        },
+        "8": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.019,
+          "only_lcom4": 0.0
+        },
+        "9": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.019,
+          "only_lcom4": 0.0
+        },
+        "10": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.019,
+          "only_lcom4": 0.0
+        }
+      },
+      "functions": 375,
+      "too_many_params": 7,
+      "rescued_by_kwonly": 1
+    },
+    "yt-dlp": {
+      "type": "cli",
+      "classes": 2323,
+      "lcom4_computed": 2043,
+      "lcom4_informative": 766,
+      "lcom4": {
+        "2": {
+          "computed": 0.1326,
+          "informative": 0.3538,
+          "any": 0.1283,
+          "only_lcom4": 0.1042
+        },
+        "3": {
+          "computed": 0.0308,
+          "informative": 0.0822,
+          "any": 0.0435,
+          "only_lcom4": 0.0194
+        },
+        "4": {
+          "computed": 0.0132,
+          "informative": 0.0352,
+          "any": 0.0306,
+          "only_lcom4": 0.0065
+        },
+        "5": {
+          "computed": 0.0059,
+          "informative": 0.0157,
+          "any": 0.0263,
+          "only_lcom4": 0.0022
+        },
+        "6": {
+          "computed": 0.0029,
+          "informative": 0.0078,
+          "any": 0.0245,
+          "only_lcom4": 0.0004
+        },
+        "7": {
+          "computed": 0.0024,
+          "informative": 0.0065,
+          "any": 0.0245,
+          "only_lcom4": 0.0004
+        },
+        "8": {
+          "computed": 0.0015,
+          "informative": 0.0039,
+          "any": 0.0241,
+          "only_lcom4": 0.0
+        },
+        "9": {
+          "computed": 0.001,
+          "informative": 0.0026,
+          "any": 0.0241,
+          "only_lcom4": 0.0
+        },
+        "10": {
+          "computed": 0.001,
+          "informative": 0.0026,
+          "any": 0.0241,
+          "only_lcom4": 0.0
+        }
+      },
+      "functions": 4787,
+      "too_many_params": 179,
+      "rescued_by_kwonly": 24
+    },
+    "awscli": {
+      "type": "cli",
+      "classes": 1394,
+      "lcom4_computed": 989,
+      "lcom4_informative": 671,
+      "lcom4": {
+        "2": {
+          "computed": 0.2447,
+          "informative": 0.3607,
+          "any": 0.2073,
+          "only_lcom4": 0.1585
+        },
+        "3": {
+          "computed": 0.1223,
+          "informative": 0.1803,
+          "any": 0.1284,
+          "only_lcom4": 0.0796
+        },
+        "4": {
+          "computed": 0.0718,
+          "informative": 0.1058,
+          "any": 0.0947,
+          "only_lcom4": 0.0459
+        },
+        "5": {
+          "computed": 0.0415,
+          "informative": 0.0611,
+          "any": 0.0739,
+          "only_lcom4": 0.0251
+        },
+        "6": {
+          "computed": 0.0273,
+          "informative": 0.0402,
+          "any": 0.0646,
+          "only_lcom4": 0.0158
+        },
+        "7": {
+          "computed": 0.0202,
+          "informative": 0.0298,
+          "any": 0.0603,
+          "only_lcom4": 0.0115
+        },
+        "8": {
+          "computed": 0.0142,
+          "informative": 0.0209,
+          "any": 0.056,
+          "only_lcom4": 0.0072
+        },
+        "9": {
+          "computed": 0.0111,
+          "informative": 0.0164,
+          "any": 0.0538,
+          "only_lcom4": 0.005
+        },
+        "10": {
+          "computed": 0.0081,
+          "informative": 0.0119,
+          "any": 0.0516,
+          "only_lcom4": 0.0029
+        }
+      },
+      "functions": 5587,
+      "too_many_params": 155,
+      "rescued_by_kwonly": 0
+    },
+    "pipx": {
+      "type": "cli",
+      "classes": 91,
+      "lcom4_computed": 19,
+      "lcom4_informative": 12,
+      "lcom4": {
+        "2": {
+          "computed": 0.2632,
+          "informative": 0.4167,
+          "any": 0.0549,
+          "only_lcom4": 0.044
+        },
+        "3": {
+          "computed": 0.1579,
+          "informative": 0.25,
+          "any": 0.044,
+          "only_lcom4": 0.033
+        },
+        "4": {
+          "computed": 0.1579,
+          "informative": 0.25,
+          "any": 0.044,
+          "only_lcom4": 0.033
+        },
+        "5": {
+          "computed": 0.1053,
+          "informative": 0.1667,
+          "any": 0.033,
+          "only_lcom4": 0.022
+        },
+        "6": {
+          "computed": 0.1053,
+          "informative": 0.1667,
+          "any": 0.033,
+          "only_lcom4": 0.022
+        },
+        "7": {
+          "computed": 0.1053,
+          "informative": 0.1667,
+          "any": 0.033,
+          "only_lcom4": 0.022
+        },
+        "8": {
+          "computed": 0.1053,
+          "informative": 0.1667,
+          "any": 0.033,
+          "only_lcom4": 0.022
+        },
+        "9": {
+          "computed": 0.1053,
+          "informative": 0.1667,
+          "any": 0.033,
+          "only_lcom4": 0.022
+        },
+        "10": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.011,
+          "only_lcom4": 0.0
+        }
+      },
+      "functions": 567,
+      "too_many_params": 66,
+      "rescued_by_kwonly": 49
+    },
+    "healthchecks": {
+      "type": "web_app",
+      "classes": 214,
+      "lcom4_computed": 139,
+      "lcom4_informative": 77,
+      "lcom4": {
+        "2": {
+          "computed": 0.3381,
+          "informative": 0.6104,
+          "any": 0.2243,
+          "only_lcom4": 0.2056
+        },
+        "3": {
+          "computed": 0.1079,
+          "informative": 0.1948,
+          "any": 0.0888,
+          "only_lcom4": 0.0701
+        },
+        "4": {
+          "computed": 0.0791,
+          "informative": 0.1429,
+          "any": 0.0701,
+          "only_lcom4": 0.0514
+        },
+        "5": {
+          "computed": 0.0576,
+          "informative": 0.1039,
+          "any": 0.0561,
+          "only_lcom4": 0.0374
+        },
+        "6": {
+          "computed": 0.0288,
+          "informative": 0.0519,
+          "any": 0.0374,
+          "only_lcom4": 0.0187
+        },
+        "7": {
+          "computed": 0.0288,
+          "informative": 0.0519,
+          "any": 0.0374,
+          "only_lcom4": 0.0187
+        },
+        "8": {
+          "computed": 0.0216,
+          "informative": 0.039,
+          "any": 0.0327,
+          "only_lcom4": 0.014
+        },
+        "9": {
+          "computed": 0.0216,
+          "informative": 0.039,
+          "any": 0.0327,
+          "only_lcom4": 0.014
+        },
+        "10": {
+          "computed": 0.0144,
+          "informative": 0.026,
+          "any": 0.028,
+          "only_lcom4": 0.0093
+        }
+      },
+      "functions": 710,
+      "too_many_params": 14,
+      "rescued_by_kwonly": 7
+    },
+    "netbox": {
+      "type": "web_app",
+      "classes": 4116,
+      "lcom4_computed": 1127,
+      "lcom4_informative": 491,
+      "lcom4": {
+        "2": {
+          "computed": 0.2822,
+          "informative": 0.6477,
+          "any": 0.2471,
+          "only_lcom4": 0.0559
+        },
+        "3": {
+          "computed": 0.0843,
+          "informative": 0.1935,
+          "any": 0.2048,
+          "only_lcom4": 0.0136
+        },
+        "4": {
+          "computed": 0.0399,
+          "informative": 0.0916,
+          "any": 0.197,
+          "only_lcom4": 0.0058
+        },
+        "5": {
+          "computed": 0.0186,
+          "informative": 0.0428,
+          "any": 0.1944,
+          "only_lcom4": 0.0032
+        },
+        "6": {
+          "computed": 0.0124,
+          "informative": 0.0285,
+          "any": 0.1934,
+          "only_lcom4": 0.0022
+        },
+        "7": {
+          "computed": 0.0089,
+          "informative": 0.0204,
+          "any": 0.1927,
+          "only_lcom4": 0.0015
+        },
+        "8": {
+          "computed": 0.0044,
+          "informative": 0.0102,
+          "any": 0.1919,
+          "only_lcom4": 0.0007
+        },
+        "9": {
+          "computed": 0.0027,
+          "informative": 0.0061,
+          "any": 0.1917,
+          "only_lcom4": 0.0005
+        },
+        "10": {
+          "computed": 0.0018,
+          "informative": 0.0041,
+          "any": 0.1914,
+          "only_lcom4": 0.0002
+        }
+      },
+      "functions": 3151,
+      "too_many_params": 27,
+      "rescued_by_kwonly": 1
+    },
+    "saleor": {
+      "type": "web_app",
+      "classes": 2535,
+      "lcom4_computed": 1183,
+      "lcom4_informative": 611,
+      "lcom4": {
+        "2": {
+          "computed": 0.3119,
+          "informative": 0.6039,
+          "any": 0.2619,
+          "only_lcom4": 0.0635
+        },
+        "3": {
+          "computed": 0.1454,
+          "informative": 0.2815,
+          "any": 0.2197,
+          "only_lcom4": 0.0213
+        },
+        "4": {
+          "computed": 0.093,
+          "informative": 0.18,
+          "any": 0.2075,
+          "only_lcom4": 0.0091
+        },
+        "5": {
+          "computed": 0.0642,
+          "informative": 0.1244,
+          "any": 0.2043,
+          "only_lcom4": 0.0059
+        },
+        "6": {
+          "computed": 0.0431,
+          "informative": 0.0835,
+          "any": 0.2012,
+          "only_lcom4": 0.0028
+        },
+        "7": {
+          "computed": 0.0347,
+          "informative": 0.0671,
+          "any": 0.2012,
+          "only_lcom4": 0.0028
+        },
+        "8": {
+          "computed": 0.0254,
+          "informative": 0.0491,
+          "any": 0.1996,
+          "only_lcom4": 0.0012
+        },
+        "9": {
+          "computed": 0.022,
+          "informative": 0.0426,
+          "any": 0.1992,
+          "only_lcom4": 0.0008
+        },
+        "10": {
+          "computed": 0.0203,
+          "informative": 0.0393,
+          "any": 0.1992,
+          "only_lcom4": 0.0008
+        }
+      },
+      "functions": 6622,
+      "too_many_params": 567,
+      "rescued_by_kwonly": 107
+    },
+    "redash": {
+      "type": "web_app",
+      "classes": 247,
+      "lcom4_computed": 220,
+      "lcom4_informative": 168,
+      "lcom4": {
+        "2": {
+          "computed": 0.5455,
+          "informative": 0.7143,
+          "any": 0.4858,
+          "only_lcom4": 0.4575
+        },
+        "3": {
+          "computed": 0.4,
+          "informative": 0.5238,
+          "any": 0.3644,
+          "only_lcom4": 0.336
+        },
+        "4": {
+          "computed": 0.2682,
+          "informative": 0.3512,
+          "any": 0.247,
+          "only_lcom4": 0.2186
+        },
+        "5": {
+          "computed": 0.1455,
+          "informative": 0.1905,
+          "any": 0.1498,
+          "only_lcom4": 0.1215
+        },
+        "6": {
+          "computed": 0.0273,
+          "informative": 0.0357,
+          "any": 0.0486,
+          "only_lcom4": 0.0202
+        },
+        "7": {
+          "computed": 0.0136,
+          "informative": 0.0179,
+          "any": 0.0364,
+          "only_lcom4": 0.0081
+        },
+        "8": {
+          "computed": 0.0045,
+          "informative": 0.006,
+          "any": 0.0324,
+          "only_lcom4": 0.004
+        },
+        "9": {
+          "computed": 0.0045,
+          "informative": 0.006,
+          "any": 0.0324,
+          "only_lcom4": 0.004
+        },
+        "10": {
+          "computed": 0.0045,
+          "informative": 0.006,
+          "any": 0.0324,
+          "only_lcom4": 0.004
+        }
+      },
+      "functions": 1346,
+      "too_many_params": 32,
+      "rescued_by_kwonly": 0
+    },
+    "mealie": {
+      "type": "web_app",
+      "classes": 662,
+      "lcom4_computed": 270,
+      "lcom4_informative": 179,
+      "lcom4": {
+        "2": {
+          "computed": 0.3222,
+          "informative": 0.486,
+          "any": 0.21,
+          "only_lcom4": 0.0937
+        },
+        "3": {
+          "computed": 0.1296,
+          "informative": 0.1955,
+          "any": 0.1586,
+          "only_lcom4": 0.0423
+        },
+        "4": {
+          "computed": 0.0556,
+          "informative": 0.0838,
+          "any": 0.1314,
+          "only_lcom4": 0.0151
+        },
+        "5": {
+          "computed": 0.0333,
+          "informative": 0.0503,
+          "any": 0.1254,
+          "only_lcom4": 0.0091
+        },
+        "6": {
+          "computed": 0.0185,
+          "informative": 0.0279,
+          "any": 0.1193,
+          "only_lcom4": 0.003
+        },
+        "7": {
+          "computed": 0.0111,
+          "informative": 0.0168,
+          "any": 0.1178,
+          "only_lcom4": 0.0015
+        },
+        "8": {
+          "computed": 0.0111,
+          "informative": 0.0168,
+          "any": 0.1178,
+          "only_lcom4": 0.0015
+        },
+        "9": {
+          "computed": 0.0074,
+          "informative": 0.0112,
+          "any": 0.1163,
+          "only_lcom4": 0.0
+        },
+        "10": {
+          "computed": 0.0074,
+          "informative": 0.0112,
+          "any": 0.1163,
+          "only_lcom4": 0.0
+        }
+      },
+      "functions": 1371,
+      "too_many_params": 26,
+      "rescued_by_kwonly": 5
+    },
+    "nanogpt": {
+      "type": "ml_research",
+      "classes": 6,
+      "lcom4_computed": 5,
+      "lcom4_informative": 1,
+      "lcom4": {
+        "2": {
+          "computed": 0.2,
+          "informative": 1.0,
+          "any": 0.1667,
+          "only_lcom4": 0.1667
+        },
+        "3": {
+          "computed": 0.2,
+          "informative": 1.0,
+          "any": 0.1667,
+          "only_lcom4": 0.1667
+        },
+        "4": {
+          "computed": 0.2,
+          "informative": 1.0,
+          "any": 0.1667,
+          "only_lcom4": 0.1667
+        },
+        "5": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0,
+          "only_lcom4": 0.0
+        },
+        "6": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0,
+          "only_lcom4": 0.0
+        },
+        "7": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0,
+          "only_lcom4": 0.0
+        },
+        "8": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0,
+          "only_lcom4": 0.0
+        },
+        "9": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0,
+          "only_lcom4": 0.0
+        },
+        "10": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0,
+          "only_lcom4": 0.0
+        }
+      },
+      "functions": 17,
+      "too_many_params": 0,
+      "rescued_by_kwonly": 0
+    },
+    "yolov5": {
+      "type": "ml_research",
+      "classes": 99,
+      "lcom4_computed": 81,
+      "lcom4_informative": 28,
+      "lcom4": {
+        "2": {
+          "computed": 0.1111,
+          "informative": 0.3214,
+          "any": 0.1111,
+          "only_lcom4": 0.0707
+        },
+        "3": {
+          "computed": 0.037,
+          "informative": 0.1071,
+          "any": 0.0505,
+          "only_lcom4": 0.0101
+        },
+        "4": {
+          "computed": 0.0123,
+          "informative": 0.0357,
+          "any": 0.0404,
+          "only_lcom4": 0.0
+        },
+        "5": {
+          "computed": 0.0123,
+          "informative": 0.0357,
+          "any": 0.0404,
+          "only_lcom4": 0.0
+        },
+        "6": {
+          "computed": 0.0123,
+          "informative": 0.0357,
+          "any": 0.0404,
+          "only_lcom4": 0.0
+        },
+        "7": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0404,
+          "only_lcom4": 0.0
+        },
+        "8": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0404,
+          "only_lcom4": 0.0
+        },
+        "9": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0404,
+          "only_lcom4": 0.0
+        },
+        "10": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0404,
+          "only_lcom4": 0.0
+        }
+      },
+      "functions": 472,
+      "too_many_params": 78,
+      "rescued_by_kwonly": 0
+    },
+    "detectron2": {
+      "type": "ml_research",
+      "classes": 213,
+      "lcom4_computed": 184,
+      "lcom4_informative": 130,
+      "lcom4": {
+        "2": {
+          "computed": 0.375,
+          "informative": 0.5308,
+          "any": 0.3333,
+          "only_lcom4": 0.3005
+        },
+        "3": {
+          "computed": 0.1576,
+          "informative": 0.2231,
+          "any": 0.1596,
+          "only_lcom4": 0.1268
+        },
+        "4": {
+          "computed": 0.0489,
+          "informative": 0.0692,
+          "any": 0.0704,
+          "only_lcom4": 0.0376
+        },
+        "5": {
+          "computed": 0.0217,
+          "informative": 0.0308,
+          "any": 0.0469,
+          "only_lcom4": 0.0141
+        },
+        "6": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0329,
+          "only_lcom4": 0.0
+        },
+        "7": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0329,
+          "only_lcom4": 0.0
+        },
+        "8": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0329,
+          "only_lcom4": 0.0
+        },
+        "9": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0329,
+          "only_lcom4": 0.0
+        },
+        "10": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0329,
+          "only_lcom4": 0.0
+        }
+      },
+      "functions": 901,
+      "too_many_params": 57,
+      "rescued_by_kwonly": 12
+    },
+    "whisper": {
+      "type": "ml_research",
+      "classes": 36,
+      "lcom4_computed": 29,
+      "lcom4_informative": 11,
+      "lcom4": {
+        "2": {
+          "computed": 0.1724,
+          "informative": 0.4545,
+          "any": 0.1667,
+          "only_lcom4": 0.0833
+        },
+        "3": {
+          "computed": 0.069,
+          "informative": 0.1818,
+          "any": 0.1389,
+          "only_lcom4": 0.0556
+        },
+        "4": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0833,
+          "only_lcom4": 0.0
+        },
+        "5": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0833,
+          "only_lcom4": 0.0
+        },
+        "6": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0833,
+          "only_lcom4": 0.0
+        },
+        "7": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0833,
+          "only_lcom4": 0.0
+        },
+        "8": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0833,
+          "only_lcom4": 0.0
+        },
+        "9": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0833,
+          "only_lcom4": 0.0
+        },
+        "10": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0833,
+          "only_lcom4": 0.0
+        }
+      },
+      "functions": 112,
+      "too_many_params": 5,
+      "rescued_by_kwonly": 3
+    },
+    "segment-anything": {
+      "type": "ml_research",
+      "classes": 19,
+      "lcom4_computed": 19,
+      "lcom4_informative": 10,
+      "lcom4": {
+        "2": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0,
+          "only_lcom4": 0.0
+        },
+        "3": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0,
+          "only_lcom4": 0.0
+        },
+        "4": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0,
+          "only_lcom4": 0.0
+        },
+        "5": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0,
+          "only_lcom4": 0.0
+        },
+        "6": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0,
+          "only_lcom4": 0.0
+        },
+        "7": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0,
+          "only_lcom4": 0.0
+        },
+        "8": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0,
+          "only_lcom4": 0.0
+        },
+        "9": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0,
+          "only_lcom4": 0.0
+        },
+        "10": {
+          "computed": 0.0,
+          "informative": 0.0,
+          "any": 0.0,
+          "only_lcom4": 0.0
+        }
+      },
+      "functions": 81,
+      "too_many_params": 6,
+      "rescued_by_kwonly": 0
+    }
+  }
+}

@@ -68,7 +68,24 @@ Sınıf gövdesinde doğrudan tanımlı metotlar; dunder'lar hariç; `@property/
 v1 bulgusu bu ayrıma dayanır; tüm FINDINGS'ler tahmin doğruluğunu bu iki sınıf için ayrı raporlar.
 
 ## 3. Eşikler (varsayılan)
-`cyclomatic_complexity {warn:10, critical:20}`, `max_params {warn:5}`, `max_nesting {warn:4}`, `lcom4 {warn:2, critical:4}`, `dcc {warn:7}`, `wmc {warn:50}`, `nom {warn:20}`. v2+: `by_layer` geçersiz kılma.
+`cyclomatic_complexity {warn:10, critical:20}`, `max_params {warn:5}`, `max_nesting {warn:4}`, `lcom4 {warn:5, critical:10}`, `dcc {warn:7}`, `wmc {warn:50}`, `nom {warn:20}`. v2+: `by_layer` geçersiz kılma.
+
+**Persentil kaynağı** (sertleştirme Blok 1b; 26 projelik korpus, scan şeması 3). Pay: eşiği karşılayan birim payı (`değer >= eşik`), proje başına hesaplanıp projelerin medyanı alınır. Persentil ≈ 100 − pay.
+
+| Eşik | Pay | ≈ Persentil |
+|---|---:|---:|
+| CC warn 10 | %6.9 | p93 |
+| CC critical 20 | %1.2 | p99 |
+| PARAMS warn 5 | %5.1 | p95 |
+| NESTING warn 4 | %2.6 | p97 |
+| LCOM4 warn 5 | %5.5 | p94.5 |
+| LCOM4 critical 10 | %1.1 | p99 |
+| DCC warn 7 | %4.8 | p95 |
+| WMC warn 50 | %2.7 | p97 |
+| NOM warn 20 | %1.3 | p99 |
+| `long_method` LOC 40 | %6.5 | p93.5 |
+
+Kural: uyarı eşiği payı ≤ %6.9, kritik ≤ %1.2 olan en küçük tamsayıdır; kural gürültüye üst sınırdır, daha tutucu eşikler düşürülmez. LCOM4 v2.0.0'da 2/4 idi (%32.1 / %7.5). Gerekçe ve ölçüm: `docs/v2-tanim-kararlari.md` K8, `experiments/hardening/thresholds.md`, `experiments/hardening/metric-distribution.md`. Eşik değişikliği yalnızca bir kokuya girdiğinde `verify` koku deltasının anlamını değiştirir; LCOM4 eşiği hiçbir kokuya girmez, şema sürümü artmadı.
 
 ## 4. Koku kuralları (v2+, varsayılan)
 `god_class`: NOM≥20 ∧ WMC≥50 ∧ LCOM4≥3. `data_class`: NOM≤5 ∧ WMC≤NOM+2 ∧ DAM≥0.5 ∧ erişimci oranı≥0.7. `feature_envy_candidate` (metot): dış tek sınıfa erişim / kendi erişimi ≥ 2. `long_method`: CC≥warn ∧ LOC≥40. `too_many_params`: PARAMS≥warn ∧ fonksiyon framework giriş noktası değil (`entry_point` alanı `null`; tanıma kuralları `analysis/entry_points.py`, gerekçe `v2-tanim-kararlari.md` K6). Giriş noktasında metrik ve eşik rengi değişmez, yalnızca koku verilmez ve `advise` parametre eşiğini hedef gerekçesi saymaz. `layer_misfit`: katman güveni ≥0.7 ve katman-koku uyumsuzluğu. Her etiket `evidence` ile.

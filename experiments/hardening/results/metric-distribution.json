@@ -883,37 +883,37 @@
       "metric": "lcom4",
       "label": "LCOM4",
       "level": "warn",
-      "value": 2,
-      "key": "LCOM4>=2 (warn)",
+      "value": 5,
+      "key": "LCOM4>=5 (warn)",
       "projects": 18,
-      "median_exceedance": 0.3211,
-      "min_exceedance": 0.1111,
-      "max_exceedance": 0.6178,
+      "median_exceedance": 0.0554,
+      "min_exceedance": 0.0059,
+      "max_exceedance": 0.2161,
       "by_type": {
-        "library": 0.4257,
-        "cli": 0.239,
-        "web_app": 0.3222,
-        "ml_research": 0.243
+        "library": 0.1089,
+        "cli": 0.0291,
+        "web_app": 0.0576,
+        "ml_research": 0.017
       },
-      "pooled_exceedance": 0.2762
+      "pooled_exceedance": 0.0482
     },
     {
       "metric": "lcom4",
       "label": "LCOM4",
       "level": "critical",
-      "value": 4,
-      "key": "LCOM4>=4 (critical)",
+      "value": 10,
+      "key": "LCOM4>=10 (critical)",
       "projects": 18,
-      "median_exceedance": 0.0755,
-      "min_exceedance": 0.0123,
-      "max_exceedance": 0.2915,
+      "median_exceedance": 0.0112,
+      "min_exceedance": 0.0,
+      "max_exceedance": 0.0816,
       "by_type": {
-        "library": 0.125,
-        "cli": 0.0609,
-        "web_app": 0.0791,
-        "ml_research": 0.0306
+        "library": 0.0267,
+        "cli": 0.0046,
+        "web_app": 0.0074,
+        "ml_research": 0.0
       },
-      "pooled_exceedance": 0.0751
+      "pooled_exceedance": 0.0132
     },
     {
       "metric": "dcc",
@@ -1169,8 +1169,8 @@
         "NESTING>=4 (warn)": 0.0398,
         "NOM>=20 (warn)": 0.0,
         "WMC>=50 (warn)": 0.0909,
-        "LCOM4>=2 (warn)": 0.3333,
-        "LCOM4>=4 (critical)": 0.1333,
+        "LCOM4>=5 (warn)": 0.0667,
+        "LCOM4>=10 (critical)": 0.0667,
         "DCC>=7 (warn)": 0.0909,
         "LOC>=40 (long_method)": 0.0568
       }
@@ -1329,8 +1329,8 @@
         "NESTING>=4 (warn)": 0.0259,
         "NOM>=20 (warn)": 0.0353,
         "WMC>=50 (warn)": 0.0235,
-        "LCOM4>=2 (warn)": 0.3125,
-        "LCOM4>=4 (critical)": 0.0417,
+        "LCOM4>=5 (warn)": 0.0417,
+        "LCOM4>=10 (critical)": 0.0,
         "DCC>=7 (warn)": 0.0824,
         "LOC>=40 (long_method)": 0.0259
       }
@@ -1489,8 +1489,8 @@
         "NESTING>=4 (warn)": 0.0378,
         "NOM>=20 (warn)": 0.0294,
         "WMC>=50 (warn)": 0.0588,
-        "LCOM4>=2 (warn)": 0.4257,
-        "LCOM4>=4 (critical)": 0.1287,
+        "LCOM4>=5 (warn)": 0.1089,
+        "LCOM4>=10 (critical)": 0.0198,
         "DCC>=7 (warn)": 0.1412,
         "LOC>=40 (long_method)": 0.067
       }
@@ -1649,8 +1649,8 @@
         "NESTING>=4 (warn)": 0.0384,
         "NOM>=20 (warn)": 0.0279,
         "WMC>=50 (warn)": 0.0391,
-        "LCOM4>=2 (warn)": 0.32,
-        "LCOM4>=4 (critical)": 0.08,
+        "LCOM4>=5 (warn)": 0.0533,
+        "LCOM4>=10 (critical)": 0.0267,
         "DCC>=7 (warn)": 0.0503,
         "LOC>=40 (long_method)": 0.0648
       }
@@ -1809,8 +1809,8 @@
         "NESTING>=4 (warn)": 0.0299,
         "NOM>=20 (warn)": 0.0,
         "WMC>=50 (warn)": 0.0,
-        "LCOM4>=2 (warn)": 0.3,
-        "LCOM4>=4 (critical)": 0.2,
+        "LCOM4>=5 (warn)": 0.1,
+        "LCOM4>=10 (critical)": 0.0,
         "DCC>=7 (warn)": 0.0449,
         "LOC>=40 (long_method)": 0.3657
       }
@@ -1969,8 +1969,8 @@
         "NESTING>=4 (warn)": 0.0427,
         "NOM>=20 (warn)": 0.0,
         "WMC>=50 (warn)": 0.0303,
-        "LCOM4>=2 (warn)": 0.5,
-        "LCOM4>=4 (critical)": 0.0,
+        "LCOM4>=5 (warn)": 0.0,
+        "LCOM4>=10 (critical)": 0.0,
         "DCC>=7 (warn)": 0.0,
         "LOC>=40 (long_method)": 0.1282
       }
@@ -2129,8 +2129,8 @@
         "NESTING>=4 (warn)": 0.0169,
         "NOM>=20 (warn)": 0.0152,
         "WMC>=50 (warn)": 0.0606,
-        "LCOM4>=2 (warn)": 0.2857,
-        "LCOM4>=4 (critical)": 0.0714,
+        "LCOM4>=5 (warn)": 0.0714,
+        "LCOM4>=10 (critical)": 0.0179,
         "DCC>=7 (warn)": 0.0758,
         "LOC>=40 (long_method)": 0.0452
       }
@@ -2289,8 +2289,8 @@
         "NESTING>=4 (warn)": 0.0138,
         "NOM>=20 (warn)": 0.087,
         "WMC>=50 (warn)": 0.0652,
-        "LCOM4>=2 (warn)": 0.525,
-        "LCOM4>=4 (critical)": 0.125,
+        "LCOM4>=5 (warn)": 0.125,
+        "LCOM4>=10 (critical)": 0.075,
         "DCC>=7 (warn)": 0.0652,
         "LOC>=40 (long_method)": 0.031
       }
@@ -2449,8 +2449,8 @@
         "NESTING>=4 (warn)": 0.0442,
         "NOM>=20 (warn)": 0.0625,
         "WMC>=50 (warn)": 0.1055,
-        "LCOM4>=2 (warn)": 0.6178,
-        "LCOM4>=4 (critical)": 0.2739,
+        "LCOM4>=5 (warn)": 0.1783,
+        "LCOM4>=10 (critical)": 0.051,
         "DCC>=7 (warn)": 0.1719,
         "LOC>=40 (long_method)": 0.0909
       }
@@ -2609,8 +2609,8 @@
         "NESTING>=4 (warn)": 0.0275,
         "NOM>=20 (warn)": 0.187,
         "WMC>=50 (warn)": 0.2114,
-        "LCOM4>=2 (warn)": 0.603,
-        "LCOM4>=4 (critical)": 0.2915,
+        "LCOM4>=5 (warn)": 0.2161,
+        "LCOM4>=10 (critical)": 0.0603,
         "DCC>=7 (warn)": 0.1707,
         "LOC>=40 (long_method)": 0.0696
       }
@@ -2769,8 +2769,8 @@
         "NESTING>=4 (warn)": 0.0882,
         "NOM>=20 (warn)": 0.0455,
         "WMC>=50 (warn)": 0.1364,
-        "LCOM4>=2 (warn)": 0.2692,
-        "LCOM4>=4 (critical)": 0.0385,
+        "LCOM4>=5 (warn)": 0.0,
+        "LCOM4>=10 (critical)": 0.0,
         "DCC>=7 (warn)": 0.0227,
         "LOC>=40 (long_method)": 0.1102
       }
@@ -2929,8 +2929,8 @@
         "NESTING>=4 (warn)": 0.0561,
         "NOM>=20 (warn)": 0.1286,
         "WMC>=50 (warn)": 0.1214,
-        "LCOM4>=2 (warn)": 0.4227,
-        "LCOM4>=4 (critical)": 0.1983,
+        "LCOM4>=5 (warn)": 0.1545,
+        "LCOM4>=10 (critical)": 0.0816,
         "DCC>=7 (warn)": 0.2524,
         "LOC>=40 (long_method)": 0.0649
       }
@@ -3089,8 +3089,8 @@
         "NESTING>=4 (warn)": 0.016,
         "NOM>=20 (warn)": 0.0,
         "WMC>=50 (warn)": 0.0095,
-        "LCOM4>=2 (warn)": 0.2333,
-        "LCOM4>=4 (critical)": 0.05,
+        "LCOM4>=5 (warn)": 0.0167,
+        "LCOM4>=10 (critical)": 0.0,
         "DCC>=7 (warn)": 0.019,
         "LOC>=40 (long_method)": 0.0373
       }
@@ -3249,8 +3249,8 @@
         "NESTING>=4 (warn)": 0.0359,
         "NOM>=20 (warn)": 0.0034,
         "WMC>=50 (warn)": 0.0159,
-        "LCOM4>=2 (warn)": 0.1326,
-        "LCOM4>=4 (critical)": 0.0132,
+        "LCOM4>=5 (warn)": 0.0059,
+        "LCOM4>=10 (critical)": 0.001,
         "DCC>=7 (warn)": 0.0125,
         "LOC>=40 (long_method)": 0.1216
       }
@@ -3409,8 +3409,8 @@
         "NESTING>=4 (warn)": 0.0109,
         "NOM>=20 (warn)": 0.0179,
         "WMC>=50 (warn)": 0.0208,
-        "LCOM4>=2 (warn)": 0.2447,
-        "LCOM4>=4 (critical)": 0.0718,
+        "LCOM4>=5 (warn)": 0.0415,
+        "LCOM4>=10 (critical)": 0.0081,
         "DCC>=7 (warn)": 0.0294,
         "LOC>=40 (long_method)": 0.022
       }
@@ -3569,8 +3569,8 @@
         "NESTING>=4 (warn)": 0.0229,
         "NOM>=20 (warn)": 0.011,
         "WMC>=50 (warn)": 0.011,
-        "LCOM4>=2 (warn)": 0.2632,
-        "LCOM4>=4 (critical)": 0.1579,
+        "LCOM4>=5 (warn)": 0.1053,
+        "LCOM4>=10 (critical)": 0.0,
         "DCC>=7 (warn)": 0.011,
         "LOC>=40 (long_method)": 0.1041
       }
@@ -3729,8 +3729,8 @@
         "NESTING>=4 (warn)": 0.0127,
         "NOM>=20 (warn)": 0.014,
         "WMC>=50 (warn)": 0.0093,
-        "LCOM4>=2 (warn)": 0.3381,
-        "LCOM4>=4 (critical)": 0.0791,
+        "LCOM4>=5 (warn)": 0.0576,
+        "LCOM4>=10 (critical)": 0.0144,
         "DCC>=7 (warn)": 0.014,
         "LOC>=40 (long_method)": 0.0296
       }
@@ -3889,8 +3889,8 @@
         "NESTING>=4 (warn)": 0.02,
         "NOM>=20 (warn)": 0.001,
         "WMC>=50 (warn)": 0.0049,
-        "LCOM4>=2 (warn)": 0.2822,
-        "LCOM4>=4 (critical)": 0.0399,
+        "LCOM4>=5 (warn)": 0.0186,
+        "LCOM4>=10 (critical)": 0.0018,
         "DCC>=7 (warn)": 0.1897,
         "LOC>=40 (long_method)": 0.0295
       }
@@ -4049,8 +4049,8 @@
         "NESTING>=4 (warn)": 0.0094,
         "NOM>=20 (warn)": 0.0051,
         "WMC>=50 (warn)": 0.011,
-        "LCOM4>=2 (warn)": 0.3119,
-        "LCOM4>=4 (critical)": 0.093,
+        "LCOM4>=5 (warn)": 0.0642,
+        "LCOM4>=10 (critical)": 0.0203,
         "DCC>=7 (warn)": 0.1968,
         "LOC>=40 (long_method)": 0.0749
       }
@@ -4209,8 +4209,8 @@
         "NESTING>=4 (warn)": 0.0201,
         "NOM>=20 (warn)": 0.0121,
         "WMC>=50 (warn)": 0.0121,
-        "LCOM4>=2 (warn)": 0.5455,
-        "LCOM4>=4 (critical)": 0.2682,
+        "LCOM4>=5 (warn)": 0.1455,
+        "LCOM4>=10 (critical)": 0.0045,
         "DCC>=7 (warn)": 0.0202,
         "LOC>=40 (long_method)": 0.0342
       }
@@ -4369,8 +4369,8 @@
         "NESTING>=4 (warn)": 0.0197,
         "NOM>=20 (warn)": 0.0091,
         "WMC>=50 (warn)": 0.0136,
-        "LCOM4>=2 (warn)": 0.3222,
-        "LCOM4>=4 (critical)": 0.0556,
+        "LCOM4>=5 (warn)": 0.0333,
+        "LCOM4>=10 (critical)": 0.0074,
         "DCC>=7 (warn)": 0.1148,
         "LOC>=40 (long_method)": 0.0306
       }
@@ -4529,8 +4529,8 @@
         "NESTING>=4 (warn)": 0.0,
         "NOM>=20 (warn)": 0.0,
         "WMC>=50 (warn)": 0.0,
-        "LCOM4>=2 (warn)": 0.2,
-        "LCOM4>=4 (critical)": 0.2,
+        "LCOM4>=5 (warn)": 0.0,
+        "LCOM4>=10 (critical)": 0.0,
         "DCC>=7 (warn)": 0.0,
         "LOC>=40 (long_method)": 0.0588
       }
@@ -4689,8 +4689,8 @@
         "NESTING>=4 (warn)": 0.0593,
         "NOM>=20 (warn)": 0.0101,
         "WMC>=50 (warn)": 0.0404,
-        "LCOM4>=2 (warn)": 0.1111,
-        "LCOM4>=4 (critical)": 0.0123,
+        "LCOM4>=5 (warn)": 0.0123,
+        "LCOM4>=10 (critical)": 0.0,
         "DCC>=7 (warn)": 0.0,
         "LOC>=40 (long_method)": 0.0869
       }
@@ -4849,8 +4849,8 @@
         "NESTING>=4 (warn)": 0.0155,
         "NOM>=20 (warn)": 0.0047,
         "WMC>=50 (warn)": 0.0094,
-        "LCOM4>=2 (warn)": 0.375,
-        "LCOM4>=4 (critical)": 0.0489,
+        "LCOM4>=5 (warn)": 0.0217,
+        "LCOM4>=10 (critical)": 0.0,
         "DCC>=7 (warn)": 0.0329,
         "LOC>=40 (long_method)": 0.0599
       }
@@ -5009,8 +5009,8 @@
         "NESTING>=4 (warn)": 0.0625,
         "NOM>=20 (warn)": 0.0278,
         "WMC>=50 (warn)": 0.0556,
-        "LCOM4>=2 (warn)": 0.1724,
-        "LCOM4>=4 (critical)": 0.0,
+        "LCOM4>=5 (warn)": 0.0,
+        "LCOM4>=10 (critical)": 0.0,
         "DCC>=7 (warn)": 0.0278,
         "LOC>=40 (long_method)": 0.0893
       }
@@ -5169,8 +5169,8 @@
         "NESTING>=4 (warn)": 0.0,
         "NOM>=20 (warn)": 0.0,
         "WMC>=50 (warn)": 0.0,
-        "LCOM4>=2 (warn)": 0.0,
-        "LCOM4>=4 (critical)": 0.0,
+        "LCOM4>=5 (warn)": 0.0,
+        "LCOM4>=10 (critical)": 0.0,
         "DCC>=7 (warn)": 0.0,
         "LOC>=40 (long_method)": 0.0247
       }

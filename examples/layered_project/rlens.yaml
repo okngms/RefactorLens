@@ -12,3 +12,10 @@ arch:
     application: ["src/services/"]
     domain: ["src/domain/"]
     infrastructure: ["src/infra/"]
+
+# Deney fikstürü: FINDINGS-1/2 bu eşiklerle üretildi. v2.1'de varsayılan LCOM4
+# eşiği 5/10 oldu (docs/v2-tanim-kararlari.md K8); burada sabitlenmezse deney
+# yeniden koşulduğunda prompt'taki [WARN]/[CRITICAL] bayrakları ve hedef
+# seçimi değişir.
+thresholds:
+  lcom4: {warn: 2, critical: 4}

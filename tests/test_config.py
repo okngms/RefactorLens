@@ -45,7 +45,7 @@ class TestMerging:
         write_config(tmp_path, "thresholds:\n  dcc: {warn: 3}\n")
         config = load_config(search_from=tmp_path)
         assert config.thresholds["dcc"].warn == 3
-        assert config.thresholds["lcom4"].warn == 2
+        assert config.thresholds["lcom4"].warn == 5
 
     def test_empty_file_is_valid(self, tmp_path):
         write_config(tmp_path, "")
@@ -272,7 +272,7 @@ class TestLayerThresholds:
     def test_unoverridden_metric_falls_back(self, tmp_path):
         write_config(tmp_path, "thresholds:\n  by_layer:\n    domain: {dcc: {warn: 4}}\n")
         config = load_config(search_from=tmp_path)
-        assert config.threshold_for("lcom4", "domain").warn == 2
+        assert config.threshold_for("lcom4", "domain").warn == 5
 
     def test_unknown_layer_uses_the_general_threshold(self, tmp_path):
         """Katman çıkarılamadıysa tahmin zorlanmaz, genel eşik kullanılır."""

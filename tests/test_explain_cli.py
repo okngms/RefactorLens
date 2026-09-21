@@ -64,9 +64,15 @@ REPLY = json.dumps(
 
 @pytest.fixture
 def project(tmp_path):
-    """İki bileşenli bir sınıf — LCOM4 2, eşik ihlali var."""
+    """İki bileşenli bir sınıf — LCOM4 2, eşik ihlali var.
+
+    Varsayılan LCOM4 uyarısı 5 (K8); sızıntı testleri bir ihlal gerektirdiği
+    için eşik burada 2'ye sabitlenir.
+    """
     (tmp_path / "rlens.yaml").write_text(
-        "scan:\n  include: ['.']\n  output_dir: out/\n", encoding="utf-8"
+        "scan:\n  include: ['.']\n  output_dir: out/\n"
+        "thresholds:\n  lcom4: {warn: 2, critical: 4}\n",
+        encoding="utf-8",
     )
     (tmp_path / "mod.py").write_text(
         "class Widget:\n"
@@ -143,7 +149,7 @@ class TestNoRawThresholds:
 
     def test_no_default_limit_value_appears(self, project):
         block = self.user_block(project)
-        # lcom4 {warn:2, critical:4}, nom {warn:20}, wmc {warn:50}
+        # Fikstürün eşikleri: lcom4 {warn:2, critical:4}, nom {warn:20}, wmc {warn:50}
         for leaked in ("critical", "warn=", "=warn", "limit"):
             assert leaked not in block
 

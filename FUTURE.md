@@ -33,6 +33,11 @@ eklenmez; amaç fikri kaybetmemek ama kapsamı şişirmemektir.
   üçüncü parti bir araca bağımlılık gerektirir; M1'in "yalnızca `ast`" kararına
   aykırıdır.
 - Kalıtım hiyerarşisi metrikleri (DIT, NOC).
+- **PARAMS'ta yalnızca-anahtar parametreler.** `*` sonrası parametreleri ayrı
+  saymak `too_many_params`'ın %24.9'unu kaldırırdı (K8,
+  `experiments/hardening/thresholds.md`). Tanım değişikliği, şema artışı;
+  v2.2'nin dokuz maddesinden geçmeli: kaybolan kokuların gerçekten yanlış
+  pozitif olduğu gösterilmeden uygulanmaz.
 - Python'a özgü çok düzeyli kalite modeli: metrikleri ve kokuları tek tek
   raporlamak yerine, Python'un kendi tasarım deyimlerine (duck typing,
   `@property`, dataclass, modül düzeyi fonksiyon) göre ağırlıklandırılmış bir

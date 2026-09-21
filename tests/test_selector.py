@@ -59,7 +59,7 @@ class TestCollectTargets:
 
     def test_violating_class_is_a_target(self):
         cfg = load_config(search_from=Path("/tmp"))
-        bad = ClassReport(name="Bad", module="m", lineno=1, nom=2, wmc=3, lcom4=5, dcc=1)
+        bad = ClassReport(name="Bad", module="m", lineno=1, nom=2, wmc=3, lcom4=10, dcc=1)
         targets = collect_targets(make_report(bad), cfg)
         assert len(targets) == 1
         assert targets[0].kind == "class"
@@ -104,8 +104,8 @@ class TestRanking:
 
     def test_equal_scores_break_ties_by_complexity(self):
         cfg = load_config(search_from=Path("/tmp"))
-        light = ClassReport(name="Light", module="m", lineno=1, wmc=5, lcom4=2, dcc=1)
-        heavy = ClassReport(name="Heavy", module="m", lineno=2, wmc=40, lcom4=2, dcc=1)
+        light = ClassReport(name="Light", module="m", lineno=1, wmc=5, lcom4=5, dcc=1)
+        heavy = ClassReport(name="Heavy", module="m", lineno=2, wmc=40, lcom4=5, dcc=1)
         ranked = rank_targets(collect_targets(make_report(light, heavy), cfg))
         assert [t.name for t in ranked] == ["Heavy", "Light"]
 

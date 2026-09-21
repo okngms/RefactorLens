@@ -147,8 +147,8 @@ class TestViolations:
         assert class_violations(cls, config) == {}
 
     def test_lcom4_warn_and_critical(self, config):
-        warn = ClassReport(name="C", module="m", lineno=1, lcom4=2)
-        critical = ClassReport(name="C", module="m", lineno=1, lcom4=5)
+        warn = ClassReport(name="C", module="m", lineno=1, lcom4=5)
+        critical = ClassReport(name="C", module="m", lineno=1, lcom4=10)
         assert class_violations(warn, config)["lcom4"] == "warn"
         assert class_violations(critical, config)["lcom4"] == "critical"
 

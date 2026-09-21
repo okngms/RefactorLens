@@ -77,8 +77,14 @@ Proje başına pay; medyan ve aralık. Eşiğin denk geldiği persentil ≈ 100 
 | NESTING>=4 (warn) | 25 | %2.6 | %0.0 | %8.8 | %3.4 | %2.9 | %2.0 | %3.7 | %2.7 |
 | NOM>=20 (warn) | 24 | %1.3 | %0.0 | %18.7 | %2.9 | %1.4 | %0.9 | %1.0 | %1.5 |
 | WMC>=50 (warn) | 24 | %2.7 | %0.0 | %21.1 | %6.0 | %1.8 | %1.1 | %4.0 | %2.2 |
-| LCOM4>=2 (warn) | 18 | %32.1 | %11.1 | %61.8 | %42.6 | %23.9 | %32.2 | %24.3 | %27.6 |
-| LCOM4>=4 (critical) | 18 | %7.5 | %1.2 | %29.1 | %12.5 | %6.1 | %7.9 | %3.1 | %7.5 |
+| LCOM4>=5 (warn) | 18 | %5.5 | %0.6 | %21.6 | %10.9 | %2.9 | %5.8 | %1.7 | %4.8 |
+| LCOM4>=10 (critical) | 18 | %1.1 | %0.0 | %8.2 | %2.7 | %0.5 | %0.7 | %0.0 | %1.3 |
+
+> **K8 sonrası.** Tablo varsayılan config'ten okunur; K8 LCOM4'ü 2/4'ten 5/10'a
+> çektiği için yeniden üretildiğinde yukarıdaki iki satır değişti. Aşağıdaki
+> bulgular v2.0.0 eşikleriyle yazıldı: LCOM4 ≥ 2 %32.1 (min %11.1, max %61.8;
+> library %42.6, cli %23.9, web_app %32.2, ml_research %24.3, havuz %27.6),
+> LCOM4 ≥ 4 %7.5 (havuz %7.5). Adayların tamamı `thresholds.md`'de.
 | DCC>=7 (warn) | 24 | %4.8 | %0.0 | %25.2 | %7.9 | %2.1 | %11.5 | %2.8 | %12.3 |
 | LOC>=40 (long_method) | 25 | %6.5 | %2.2 | %36.6 | %6.6 | %8.5 | %3.1 | %7.3 | %6.5 |
 
@@ -218,7 +224,7 @@ Verinin söylediği:
 |---|---|---|
 | CC warn/critical, PARAMS, NESTING, LOC 40 | p93-p99; uyarı eşiği gibi davranıyor | korunur |
 | NOM 20, WMC 50 | p97-p99; tutucu | korunur |
-| **LCOM4 warn 2** | **p68; sınıfların üçte biri** | p90'a (3) ya da p95'e (4) çekilmeli |
+| **LCOM4 warn 2** | **p68; sınıfların üçte biri** | p90'a (3) ya da p95'e (4) çekilmeli — **K8: 5/10** (`thresholds.md`) |
 | DCC 7 | proje medyanında p95, web_app'te p88 | genel değer korunur; tür/katman farkı `by_layer` ile |
 | `too_many_params` | giriş noktaları artık hariç (madde 4); kalan gürültü dekoratörsüz API yüzeyi (pandas, fastapi `Query`) | eşik kararında; yalnızca-anahtar parametreler ayrı düşünülebilir (`entry-points.md`) |
 | CAM, DAM | CAM kapsama sorunu, DAM ayrım sorunu (`coverage.md`) | eşik değil; ikisi tutulur (K7), DAM'ın yeniden tanımı v2.2'de |

@@ -6,7 +6,40 @@ Publishing (OIDC) ile yayınlandı; API token kullanılmadı. CI matrisi
 (3.11/3.12/3.13) ilk kez bu sürümde koştu.
 
 ## Bitenler
-- **Sertleştirme Blok 1b, 5. oturum — kapsama tablosu (madde 3)** (bu oturum).
+- **Sertleştirme Blok 1b, 6. oturum — eşik kararı; Blok 1b kapandı** (bu
+  oturum). Karar: `docs/v2-tanim-kararlari.md` K8; ölçüm:
+  `experiments/hardening/thresholds.md`; persentil kaynakları `docs/04` §3.
+  - **Kural korunan eşiklerden türetildi:** uyarı = proje medyanında payı
+    ≤ %6.9 (CC ≥ 10'un payı), kritik = ≤ %1.2 (CC ≥ 20'nin payı) olan en küçük
+    tamsayı. Kural gürültüye üst sınır; daha tutucu eşikler (NOM, WMC,
+    NESTING) düşürülmez — doğruluk verisi yok.
+  - **LCOM4 2/4 → 5/10.** ≥ 4 %7.5 (sınırın üstü), ≥ 5 %5.5; ≥ 10 %1.1.
+    ≈ p95 / p99. Tipik projede en az bir eşiği aşan sınıf %21.7 → %11.0,
+    yalnızca LCOM4 yüzünden işaretlenen %11.0 → %1.1. Kendi deposunda (66
+    sınıf) eşik aşan sınıf 6 → 1; eski altısının altısı yalnız LCOM4'tü.
+  - **Değişmeyenler:** DCC 7 (%4.8; tür farkı var ama araç türü bilmez,
+    `by_layer` katman içindir), PARAMS 5 (yalnızca-anahtar parametreleri
+    saymamak kokuların %24.9'unu kaldırırdı — tanım değişikliği, FUTURE.md),
+    diğerleri kuralın içinde.
+  - **Şema artmadı:** LCOM4 eşiği hiçbir kokuya girmiyor (`god_class` kendi
+    `lcom4: 3`'ünü taşıyor, K4); scan raporu eşik değişince birebir aynı —
+    testle sabit.
+  - **Deney fikstürleri v2.0.0 eşiklerini sabitliyor.** `test_severity_property`
+    yakaladı: `messy_project`'te `OrderManager` (LCOM4 4) yeni varsayılanla
+    `critical`'dan `warn`'a iniyordu; deney yeniden koşulsa prompt değişirdi.
+    `examples/messy_project/rlens.yaml` ve `examples/layered_project/rlens.yaml`
+    `lcom4: {warn: 2, critical: 4}` taşıyor; `test_explain_cli.py` fikstürü de.
+  - `thresholds.py`: LCOM4 adayları (iki payda), kullanıcıya görünen etki,
+    yalnızca-anahtar parametreler. Doğrulama: ≥ 2 / ≥ 4 payları dağılım
+    tablosuna birebir eşit; `too_many_params` sayımı her projede raporun koku
+    sayısına eşit olmak zorunda. Tekrar üretilebilir (aynı hash).
+  - Dağılım tablosu yeni varsayılanlarla yeniden üretildi (yalnızca iki LCOM4
+    eşik satırı değişti); belgeye v2.0.0 değerleri not olarak düşüldü.
+  - README config bloğu ve kalibrasyon notu; `docs/04` §3 persentil tablosu.
+  - `tests/test_hardening_thresholds.py`, 15 test; varsayılanı sınayan 5 test
+    yeni değerlere çekildi. Durum: 1366 paket testi (10 atlandı), 91 fikstür
+    testi, ruff temiz.
+- **Sertleştirme Blok 1b, 5. oturum — kapsama tablosu (madde 3)**.
   Ölçüm: `experiments/hardening/coverage.md`; karar: `docs/v2-tanim-kararlari.md`
   K7. Aracın koduna, metriklere ve eşiklere dokunulmadı.
   - `coverage.py`: her metrikte birimler `null` / **tanım gereği belli** /
@@ -283,37 +316,47 @@ framework deyiminden geliyor.**
   orkestrasyon modülleri.
 
 ## Sıradaki iş
-**Blok 1b'nin son işi: eşik kararı** (K8+). Madde 1-4 bitti; kapsama kararı K7.
+**Blok 1b kapandı** (kabul: dağılım ve kapsama tabloları, persentilden
+varsayılanlar ve `docs/04` §3 kaynağı, K7, giriş noktası testi). Sıra
+(`docs/v2-sertlestirme.md`, `docs/v2.2-python-metrikleri.md` §5):
+Blok 1b → **v2.2 Python ölçü seti** → `explain` Blok 2 → Blok 3/2/4/5.
 
-Veri: `metric-distribution.md` "Eşik kararı için girdi" ve `coverage.md`
-Bulgu 4.
-- **LCOM4 warn = 2 → p68**, en net aday (p90 = 3, p95 = 4.65). Önce ölçülmeli:
-  %32'nin paydasında tanım gereği 1 olan sınıflar var (%21.8). Eşiğin payı
-  bilgi taşıyan sınıflar arasında ayrıca hesaplanmalı; persentil hangi
-  paydadan alınacağı kararın parçası.
-- **DCC** tür bağımlı (web_app p90 = 7, cli 3) — `by_layer` mı genel eşik mi.
-- **`too_many_params`:** kalan gürültü dekoratörsüz API yüzeyi; yalnızca-anahtar
-  parametreleri ayrı saymak bir seçenek (`entry-points.md`).
-- **Deney protokolü kısıtı:** eşikler prompt'ta `[WARN]`/`[CRITICAL]` bayrağını
-  ve `advise`'ın hedef seçimini belirler. `prompts.py` ve kanıt alanları
-  değişmez; eşik değişikliğinin FINDINGS'in yeniden üretilebilirliğine etkisi
-  (deney config'i eşikleri sabitliyor mu) önce incelenmeli.
-- Kabul kriteri: varsayılanların persentil kaynağı `docs/04` §3'e yazılır.
-- `schema_version` etkisi değerlendirilmeli (v2 notu eşik değişimini delta
-  anlamı değişikliği saymıştı).
+**v2.2'nin ilk işi: dokuz madde, koddan önce.** `docs/v2.2-python-metrikleri.md`
+§3: her yeni ölçü için dokuz madde yazılır, 8 (eşik) ve 9 (çürütme) korpustan.
+Hangi ölçüyle başlanacağı açık; adaylar ve sertleştirmeden gelen girdiler:
+- **§5b `god_class` kapısı (K4):** sınıf içi yoğunluk (çağrı kenarsız bileşen
+  ya da TCC). Veri hazır: 159 büyük sınıfın 61'i yalnız çağrı kenarı yüzünden
+  eleniyor. Yeni koku sürümü olarak eklenir; FINDINGS kanıt alanları değişmez.
+- **§3 anotasyon kapsamı:** CAM'in kapsama sorununu (K7, `coverage.md` Bulgu 2)
+  doğrudan ölçer.
+- **DAM'ın yeniden tanımı** (K7): web uygulamalarında ayırmıyor; çürütme koşulu
+  kayıtta.
+- **§5b modül düzeyi kod ve koşullu tanımlar (K5).**
+- Girdi: PARAMS'ta yalnızca-anahtar parametreler (FUTURE.md, K8 ölçümü).
+
+Oturumun ilk adımı kullanıcıyla sıranın seçilmesi ya da §5b `god_class`
+kapısıyla başlanması (verisi en hazır olan).
 
 Projeler yerelde yoksa: `python experiments/hardening/corpus.py fetch`
 (~850 MB). Kohezyon betiği ayrıca `pip install cohesion==1.2.0` ister.
 
 ## Okunacak dokümanlar (sırayla)
-AGENTS.md → bu dosya → docs/v2-sertlestirme.md (Blok 1, 1b) →
-docs/v2-tanim-kararlari.md → experiments/hardening/metric-distribution.md →
-experiments/hardening/coverage.md
-Sonraki fazlar: docs/v2.2-python-metrikleri.md → docs/v2.1-explain.md
+AGENTS.md → bu dosya → docs/v2.2-python-metrikleri.md → docs/v2-tanim-kararlari.md
+(K4, K5, K7, K8) → experiments/hardening/coverage.md →
+experiments/hardening/metric-distribution.md (god_class kapısı)
+Sonraki faz: docs/v2.1-explain.md (Blok 2).
 Deney protokolü: docs/v2-duzeltme-asama5.md. Metrik sınıfları:
 docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.
 
 ## Açık kararlar / bilinen sorunlar
+- **`explain` metni K8'den sonra tam doğru değil.** Talimat ve terminal notu
+  "eşikler başka bir dil için kalibre edildi" diyor; varsayılanlar artık Python
+  korpusunun persentillerine bakılarak doğrulandı. Sıfat yasağının kalkıp
+  kalkmayacağı explain Blok 2'nin kararı; metin değiştirilmedi.
+- **`god_class` ile LCOM4 hücresi tutarsız görünebilir** (K8 maliyeti):
+  koku LCOM4 ≥ 3 ile ateşler, uyarı rengi 5'ten başlar.
+- **Deney fikstürlerinin eşikleri varsayılandan farklı** (K8). Fikstürle demo
+  yapan kullanıcı LCOM4'ü 2/4 ile görür; config'te yorumla açıklandı.
 - **Kesilen `corpus.py fetch` sürdürülemiyor.** Klon `git fetch` sırasında
   kesilirse dizinde commit'siz bir `.git` kalır; sonraki `fetch`,
   `compare_radon.fetch` içindeki `git rev-parse HEAD` (`check=True`) yüzünden

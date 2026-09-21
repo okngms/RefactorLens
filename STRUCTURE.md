@@ -186,6 +186,7 @@ tests/
 ├── test_hardening_corpus.py  Corpus file, accuracy-set subset, config trap, logic-line rule
 ├── test_hardening_distribution.py  Percentiles, >= rule, per-project weighting, eligibility
 ├── test_hardening_coverage.py  Null / definitional / informative split, spread, trivial-value rules
+├── test_hardening_thresholds.py  Candidate shares, pinned fixture thresholds, LCOM4 reaches no smell
 ├── test_entry_points.py    Entry point recognition; no too_many_params, no advice on params
 └── test_cli.py             All four commands end to end
 ```
@@ -202,6 +203,8 @@ experiments/hardening/
 ├── metric-distribution.md  The distribution table and what it says about thresholds
 ├── coverage.py             Per metric: computable, fixed by definition, informative, spread
 ├── coverage.md             The coverage table; why CAM and DAM are kept (K7)
+├── thresholds.py           Threshold candidates: LCOM4 shares, user-visible effect, kw-only params
+├── thresholds.md           The threshold rule and why LCOM4 became 5/10 (K8)
 ├── entry_points.py         How many entry points the corpus has; effect on too_many_params
 ├── entry-points.md         Why the rule is narrow, and what it changed
 ├── compare_radon.py        CC vs radon per function; classifies every difference
@@ -217,6 +220,7 @@ experiments/hardening/
 ├── results/metric-distribution.json, metric-distribution-tables.md
 ├── results/entry-points.json
 ├── results/coverage.json, coverage-tables.md
+├── results/threshold-candidates.json, threshold-candidates-tables.md
 └── .cache/                 Checked-out reference projects (gitignored, not in sdist)
 ```
 

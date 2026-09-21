@@ -7,7 +7,8 @@
 Sertleştirme Blok 1 ölçümleri, uygulama hatası olmayan ama tanımın
 cevaplamadığı beş soru bıraktı (K1-K5). K6, Blok 1b madde 4'ün koku kuralı
 kararıdır; alan eklediği için şema sürümü değiştirmez (`04` §1). K7, madde 3'ün
-(kapsama) kararıdır; hiçbir şey değiştirmez. Blok 1b'nin dağılım tablosu metrik değerlerini
+(kapsama) kararıdır; hiçbir şey değiştirmez. K8 eşik kararıdır; eşik metrik
+değildir, şema sürümü değişmez. Blok 1b'nin dağılım tablosu metrik değerlerini
 ölçeceği için bu sorular **tablodan önce** kapanmalıydı; yoksa tablo iki kez
 üretilirdi. Beşi burada birlikte karara bağlandı ve metrik anlamını değiştiren
 üçü tek bir `schema_version` artışıyla (2 → 3) uygulandı.
@@ -222,6 +223,70 @@ olarak girmeye devam eder. `data_class`'ın web_app'te hiç ateşlememesinin
 sınıflarda da kütüphanelerin çoğunda yayılım göstermezse (bugün 7'de 6),
 "kütüphanelerde anlamlı" iddiası düşer ve DAM v2.2'de kaldırılır ya da
 yeniden tanımlanır.
+
+## K8 — Varsayılan eşikler persentilden; LCOM4 5/10
+
+> Karara bağlandı 2026-09-21. Şema 3 aynen. Ölçüm:
+> `experiments/hardening/thresholds.md`; persentil kaynakları `docs/04` §3.
+
+**Karar.** `thresholds.lcom4` `{warn: 2, critical: 4}` → `{warn: 5, critical: 10}`.
+Diğer bütün eşikler aynı kalır; DCC için varsayılan `by_layer` eklenmez;
+PARAMS tanımı (yalnızca-anahtar parametreler) değişmez. Deney fikstürleri
+(`examples/messy_project`, `examples/layered_project`) `rlens.yaml`'larında
+v2.0.0 LCOM4 eşiklerini sabitler.
+
+**Kural.** Uyarı: proje medyanında birimlerin en fazla %6.9'unu işaretleyen en
+küçük tamsayı. Kritik: en fazla %1.2. İki sayı da yeni seçilmedi; korunan
+eşiklerden geliyor: %6.9 en gevşek korunan uyarının (CC ≥ 10), %1.2 tek
+kritik referansın (CC ≥ 20) payı. Kural gürültüye üst sınır koyar: korunan
+eşiklerden daha tutucu olanlar (NOM %1.3, NESTING %2.6, WMC %2.7) düşürülmez,
+çünkü düşürmek yeni uyarı üretir ve işaretlenen birimlerin sorunlu olduğunu
+gösteren doğruluk verisi yok.
+
+**Ölçüm.** LCOM4 ≥ 4 %7.5 (üst sınırın üstünde), ≥ 5 %5.5; ≥ 9 %1.5, ≥ 10 %1.1.
+Dağılım tablosunda p95 = 4.65, p99 = 9.35: yeni eşikler ≈ p95 ve ≈ p99. Tipik
+projede en az bir eşiği aşan sınıf payı %21.7 → %11.0; yalnızca LCOM4 yüzünden
+işaretlenen pay %11.0 → %1.1.
+
+**Neden şema sürümü artmıyor.** v2 şema notu eşik değişimini sürüm gerekçesi
+saymıştı, çünkü `verify`'ın koku deltası eşiğe bağlı kokulardan
+(`too_many_params`, `long_method`, `layer_misfit`) oluşur. LCOM4 eşiği hiçbir
+kokuya girmez: `god_class` kendi `smells.god_class.lcom4` kuralını (3) taşır,
+K4 gereği değişmedi. LCOM4 eşiğini yalnızca `class_violations` okur (terminal
+rengi, "over threshold" sayımı, `--fail-on-violation`, `advise` hedef seçimi ve
+prompt'taki `[WARN]`/`[CRITICAL]`). Scan raporu eşik değişince birebir aynı
+kalır; `tests/test_hardening_thresholds.py` bunu sınar.
+
+**Deney fikstürleri neden sabitlendi.** `messy_project`'te `OrderManager`'ın
+LCOM4'ü 4: yeni varsayılanla işaretlenmez ve hedefin önem derecesi
+`critical`'dan `warn`'a iner (`test_selector.py::test_severity_property` bunu
+yakaladı). Deney yeniden koşulduğunda model farklı bir prompt görürdü.
+`prompts.py` donmuş olsa da girdisi değişirdi; FINDINGS-1/2'nin yeniden
+üretilebilirliği bu yüzden fikstür config'inde korunur.
+
+**Maliyet.**
+- `god_class` LCOM4 ≥ 3 ile ateşleyebilirken aynı sınıfın LCOM4 hücresi
+  renklenmeyebilir. Koku bir birleşimdir, tek koşulu uyarı eşiği değildir;
+  ama okuyucuya tutarsız görünebilir.
+- Kütüphanelerde pay hâlâ %10.9 (cli %2.9); tür farkı kapanmadı.
+- Payda seçimi sonucu bir tamsayı oynatıyor: tek adlı metotlu sınıflar
+  çıkarılsaydı kural 6'yı verirdi. Diğer metriklerle tutarlılık için
+  hesaplanmış bütün değerler seçildi.
+- `explain` talimatı ve terminal notu "eşikler başka bir dil için kalibre
+  edildi" diyor; K8'den sonra bu cümle tam doğru değil. `explain`'in sıfat
+  yasağını kaldırıp kaldırmamak explain Blok 2'nin kararı; metin değiştirilmedi.
+
+**Değişmeyenler ve neden.**
+- **DCC 7** proje medyanında %4.8 (≈ p95), kuralın içinde. Tür farkı gerçek
+  (web_app p90 = 7, cli 3) ama araç projenin türünü bilmez; `by_layer` katmana
+  göredir, türe göre değil. Varsayılan boş kalır.
+- **PARAMS 5** %5.1. Yalnızca-anahtar parametreleri saymamak kokuların
+  %24.9'unu kaldırırdı; bu tanım değişikliği (şema artışı) ve v2.2'nin girdisi.
+- CC, NESTING, NOM, WMC, `long_method` LOC: kuralın içinde.
+
+**Çürütme koşulu.** v2.2'nin genişleyen korpusunda LCOM4 ≥ 5 payı proje
+medyanında %6.9'u aşarsa ya da K4'ün yeni yoğunluk ölçüsü LCOM4'ün yerini
+alırsa eşik yeniden hesaplanır.
 
 ## Korpustaki etki
 

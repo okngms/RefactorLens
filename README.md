@@ -223,11 +223,17 @@ thresholds:
   cyclomatic_complexity: {warn: 10, critical: 20}
   max_params: {warn: 5}
   max_nesting: {warn: 4}
-  lcom4: {warn: 2, critical: 4}
+  lcom4: {warn: 5, critical: 10}
   dcc: {warn: 7}
   wmc: {warn: 50}
   nom: {warn: 20}
 ```
+
+The defaults are checked against a 26-project calibration corpus: in a typical
+project each warning level flags at most about 7% of functions or classes, and
+each critical level about 1%. LCOM4 was `{warn: 2, critical: 4}` before this
+change; at 2 it flagged a third of all classes. Measurement:
+[thresholds.md](https://github.com/okngms/RefactorLens/blob/main/experiments/hardening/thresholds.md).
 
 Unknown keys are an **error**, not a warning. A typo like `max_nestings` would
 otherwise leave you silently running on defaults.
