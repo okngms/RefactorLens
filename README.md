@@ -446,6 +446,16 @@ claim the tool can support. Types kept in separate `.pyi` stub files are not
 read, so a package typed that way (attrs) looks unannotated. Measurement:
 [annotation-coverage.md](https://github.com/okngms/RefactorLens/blob/main/experiments/hardening/annotation-coverage.md).
 
+`dynamic_sites` counts the places in a function where static analysis cannot
+see the target: `getattr`/`setattr`/`delattr`/`hasattr` with a non-constant
+name, `eval`/`exec`, dynamic imports, and forwarding the function's own
+`**kwargs` to another call. Classes report `dynamic_attribute_hooks` when they
+define `__getattr__`, `__getattribute__` or `__setattr__`. Again descriptive:
+forwarding `**kwargs` is usually the right design, so there is no threshold.
+Hand-checked on 30 sites, 27 were genuinely opaque; the three that were not
+looped over a literal list written in the same function. Measurement:
+[dynamic-opacity.md](https://github.com/okngms/RefactorLens/blob/main/experiments/hardening/dynamic-opacity.md).
+
 ## What RefactorLens does not do
 
 - **It does not run your code.** Files are parsed with `ast`, never executed.

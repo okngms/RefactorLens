@@ -47,6 +47,7 @@ Sınıf gövdesinde doğrudan tanımlı metotlar; dunder'lar hariç; `@property/
 | CAM | Metot parametre tiplerinin sınıf-genel tip kümesine oranının ortalaması | 0-1 | yalnız annotation kapsamı ≥ `cam_min_annotation_coverage` | kapsam yetersiz → null, nedeni raporda |
 | PUBLIC_IF | Public arayüz kümesi (v2+) | küme | dunder hariç, `_` öneksiz metot ve attribute'lar | — |
 | ANN (`annotation_coverage`) | Raporlanan metotların parametre yuvalarında annotation'lı payı (CAM'in iç kapsamı); betimsel, eşiksiz (K11) | 0-1 | yuvalar `param_count` ile aynı; string annotation ve `Any` sayılır; `.pyi` okunmaz | parametre yuvası yok |
+| HOOK (`dynamic_attribute_hooks`) | Sınıf gövdesinde `__getattr__`/`__getattribute__`/`__setattr__` tanımlı mı (K13) | evet/hayır | — | — |
 
 ### 2.3 Fonksiyon düzeyi
 | Metrik | Tanım |
@@ -57,6 +58,7 @@ Sınıf gövdesinde doğrudan tanımlı metotlar; dunder'lar hariç; `@property/
 | NESTING | Maksimum blok derinliği; `elif` zinciri düz |
 | ANN (`annotation_coverage`) | Annotation'lı parametre yuvası payı; yuvalar PARAMS ile aynı; yuva yoksa `null`. Betimsel, eşiksiz (K11) |
 | RET (`returns_annotated`) | Dönüş annotation'ı yazılmış mı |
+| DYN (`dynamic_sites`) | Statik analizin hedefini göremediği nokta sayısı: sabit olmayan adlı `getattr`/`setattr`/`delattr`/`hasattr`, `eval`/`exec`, sabit olmayan `__import__`/`importlib.import_module`, kendi `**kwargs`'ının aktarılması; iç içe tanımlara girilmez. Betimsel, eşiksiz (K13) |
 
 ### 2.4 Modül düzeyi (v2+)
 | Metrik | Tanım |

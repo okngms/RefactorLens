@@ -620,6 +620,17 @@ def _annotation_key(annotation: ast.expr) -> str:
     return ast.unparse(annotation)
 
 
+_ATTRIBUTE_HOOKS = ("__getattr__", "__getattribute__", "__setattr__")
+
+
+def has_attribute_hooks(node: ast.ClassDef) -> bool:
+    """Sınıf gövdesinde attribute erişimini ele geçiren bir dunder var mı (K13)."""
+    return any(
+        isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)) and item.name in _ATTRIBUTE_HOOKS
+        for item in node.body
+    )
+
+
 def class_annotation_coverage(node: ast.ClassDef) -> float | None:
     """Raporlanan metotların bütün parametre yuvaları üzerinden annotation payı.
 
@@ -731,6 +742,7 @@ def measure_class(
         cam=cam_result.value,
         cam_skipped_reason=cam_result.skipped_reason,
         annotation_coverage=class_annotation_coverage(node),
+        dynamic_attribute_hooks=has_attribute_hooks(node),
         stub_methods=len(stub_method_names(node)),
         methods=[
             measure_function(method, code_lines=code_lines, is_method=True)

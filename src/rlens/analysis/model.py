@@ -84,6 +84,12 @@ class FunctionReport:
     returns_annotated: bool | None = None
     """Dönüş annotation'ı yazılmış mı."""
 
+    dynamic_sites: int = 0
+    """Statik analizin hedefini göremediği nokta sayısı: sabit olmayan adlı
+    `getattr`/`setattr`/`delattr`/`hasattr`, `eval`/`exec`, dinamik import,
+    kendi `**kwargs`'ının aktarılması. Betimseldir, eşiği yok
+    (`v2-tanim-kararlari.md` K13)."""
+
 
 @dataclass
 class ClassReport:
@@ -108,6 +114,9 @@ class ClassReport:
     annotation_coverage: float | None = None
     """Raporlanan metotların bütün parametre yuvaları üzerinden annotation payı;
     CAM'in iç kapsamının aynısı, ama yuva yoksa `None` (K11)."""
+    dynamic_attribute_hooks: bool = False
+    """Sınıf gövdesinde `__getattr__`, `__getattribute__` ya da `__setattr__`
+    tanımlı mı: attribute erişimi statik olarak izlenemez (K13)."""
     stub_methods: int = 0
     """Gövdesi taslak olan metot adı sayısı (`pass`, `...`, `return None`,
     `raise NotImplementedError`). Adların en az yarısı taslaksa sınıf bir

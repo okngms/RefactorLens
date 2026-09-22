@@ -7,7 +7,27 @@ ilk kez). PyPI'da wheel ve sdist doğrulandı. İçerik: `CHANGELOG.md` 2.1.0.
 Önceki: v2.0.0 (2026-09-10).
 
 ## Bitenler
-- **v2.2, 5. oturum — PySmell etiketleri (§2)** (bu oturum). Ön kayıt ve
+- **v2.2, 6. oturum — dinamik opaklık (§3), K13** (bu oturum). Ön kayıt ve
+  ölçüm: `experiments/hardening/dynamic-opacity.md`.
+  - **Ön kayıt:** v2.2'nin kendi çürütme koşulunun "bakımlı/ihmal edilmiş"
+    yarısı korpusta ölçülemediği için ölçülebilir koşullarla yeniden yazıldı
+    (elle kesinlik, metaprogramlama kütüphanelerinde yoğunlaşma, uygulama
+    tutarlılığı); bu açıkça yazıldı.
+  - **Sonuç:** kesinlik 27/30 (%90); attrs, sqlalchemy, pydantic üçü de korpus
+    medyanının (34.5 / 1000 fonksiyon) üstünde; belirteç tutarsızlığı 0 →
+    **çürütülmedi.**
+  - **Rapora iki alan** (şema 3 içinde): `functions[].dynamic_sites`,
+    `classes[].dynamic_attribute_hooks`. Eşik, koku, yön yok; prompt'a girmez.
+    Aday `src`'ye taşındı; ölçüm yeniden koşuldu, çıktılar aynı hash.
+  - **Bulgu:** 1 805 noktanın %59'u `**kwargs` aktarımı; kütüphaneler üstte
+    (medyan 67.5), cli altta (21.6); tür içi fark büyük (requests 182, rich 5).
+  - **Yakalanan kendi hatam:** taşırken gövde iki kez dolaşıldı (`_walk_body`
+    zaten alt düğümleri veriyor), noktalar çift sayıldı; altın değer testleri
+    yakaladı, düzeltildi.
+  - `CHANGELOG.md`'ye "Unreleased" bölümü açıldı.
+  - Testler: `test_dynamic_opacity.py` 11. Durum: 1493 paket testi (10
+    atlandı), 91 fikstür testi, ruff temiz.
+- **v2.2, 5. oturum — PySmell etiketleri (§2)**. Ön kayıt ve
   ölçüm: `experiments/hardening/pysmell-labels.md`. Aracın koduna dokunulmadı.
   - **Soru:** on kokunun elle verilmiş etiketi PySmell'in kendi metrik
     sütunlarıyla (tek eşik / iki eşikli `ve`-`veya`) yeniden üretilebiliyor mu;
@@ -480,16 +500,18 @@ framework deyiminden geliyor.**
 - **§2 PySmell kokuları:** etiket kontrolü bitti (`pysmell-labels.md`):
   etiketler literatür eşiği, dış doğrulama değil. Bir koku eklenecekse dokuz
   madde, eşik korpustan, geçerlilik başka bir bağımsız sinyalden.
-- **§3 dinamik opaklık, modül düzeyi kohezyon, duck typing kuplajı.**
+- **§3 modül düzeyi kohezyon, duck typing kuplajı** (dinamik opaklık K13 ile
+  eklendi).
 - **§5b modül düzeyi kod ve koşullu tanımlar** (K5).
 - **PARAMS'ta yalnızca-anahtar parametreler** (FUTURE.md, K8 ölçümü).
 
-§3 anotasyon kapsamı (K11), DAM sorusu (K12) ve §2 etiket kontrolü bitti.
-Önerilen sıra: etiketleme beklenirken **§3 dinamik opaklık**
-(`getattr`/`setattr`/`eval`, `**kwargs` geçişi, `__getattr__`; v2.2 §3'ün
-dokuz madde örneği zaten onu kullanıyor, bilinen yanlış pozitif listesi
-yazılı). Ardından §2'nin kokuları (literatür eşiğiyle, korpus
-kalibrasyonuyla). Annotation'la çözülen açıklık (EXP-typed) FUTURE.md'de.
+§3 anotasyon kapsamı (K11), DAM sorusu (K12), §2 etiket kontrolü ve §3
+dinamik opaklık (K13) bitti. Önerilen sıra: etiketleme beklenirken **§3 duck
+typing yapısal kuplajı** (parametreler üzerinde erişilen farklı attribute adı
+sayısı; K12'nin isim çözümü sorununu tip çözümü gerektirmeden atlıyor), sonra
+§3 modül düzeyi kohezyon (§5b K5 ile birlikte). Yayın: `CHANGELOG.md`
+"Unreleased" bölümünde K13 var; yeni alan eklendikçe küçük bir 2.1.x ya da
+2.2.0 yayını kullanıcıya önerilecek.
 
 Projeler yerelde yoksa: `python experiments/hardening/corpus.py fetch`
 (~850 MB). Kohezyon betiği ayrıca `pip install cohesion==1.2.0` ister.

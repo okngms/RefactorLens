@@ -1,0 +1,122 @@
+{
+  "saleor:plugins.manager:PluginsManager.__run_tax_method_until_first_success:648:kwargs": {
+    "verdict": "opaque",
+    "reason": "plugins/manager.py:648: forwards the caller's **kwargs; keys unknown to this function"
+  },
+  "saleor:graphql.order.mutations.draft_order_update:DraftOrderUpdate.clean_input:126:kwargs": {
+    "verdict": "opaque",
+    "reason": "graphql/order/mutations/draft_order_update.py:126: forwards the caller's **kwargs to super().clean_input"
+  },
+  "saleor:schedulers.schedulers:CustomModelEntry.from_entry:55:kwargs": {
+    "verdict": "opaque",
+    "reason": "schedulers/schedulers.py:55: forwards the caller's **entry to _unpack_fields"
+  },
+  "pandas:accessor:PandasDelegate._add_delegate_accessors:132:hasattr": {
+    "verdict": "opaque",
+    "reason": "accessor.py:132: name comes from the accessors parameter"
+  },
+  "click:decorators:password_option:409:kwargs": {
+    "verdict": "opaque",
+    "reason": "decorators.py:409: caller-supplied **kwargs are forwarded; only three keys are set here"
+  },
+  "pandas:internals.array_manager:BaseArrayManager.apply_with_block:298:getattr": {
+    "verdict": "opaque",
+    "reason": "internals/array_manager.py:298: f is a parameter"
+  },
+  "awscli:argparser:CLIArgParser.parse_known_args:101:setattr": {
+    "verdict": "opaque",
+    "reason": "argparser.py:101: arg iterates parsed arguments at run time"
+  },
+  "pandas:internals.managers:BaseBlockManager.apply:361:kwargs": {
+    "verdict": "opaque",
+    "reason": "internals/managers.py:361: forwards **kwargs built from the caller's arguments"
+  },
+  "awscli:customizations.paginate:ensure_paging_params_not_set:290:getattr": {
+    "verdict": "resolvable",
+    "reason": "customizations/paginate.py:290: name iterates paging_params, a literal list assigned two lines above in the same function"
+  },
+  "pydantic:_internal._generate_schema:GenerateSchema._common_field_schema:1241:setattr": {
+    "verdict": "opaque",
+    "reason": "_internal/_generate_schema.py:1241: k iterates a dict derived from the field's metadata"
+  },
+  "saleor:graphql.core.dataloaders:BaseThumbnailBySizeAndFormatLoader.batch_load:106:getattr": {
+    "verdict": "opaque",
+    "reason": "graphql/core/dataloaders.py:106: name is built from model_name, defined outside this function"
+  },
+  "pandas:resample:Resampler._groupby_and_aggregate:477:kwargs": {
+    "verdict": "opaque",
+    "reason": "resample.py:477: forwards the caller's **kwargs to _apply"
+  },
+  "awscli:botocore.serialize:JSONSerializer._serialize:386:getattr": {
+    "verdict": "opaque",
+    "reason": "botocore/serialize.py:386: name is built from shape.type_name at run time (dispatch)"
+  },
+  "awscli:customizations.emr.config:Configuration._check_arg:86:getattr": {
+    "verdict": "opaque",
+    "reason": "customizations/emr/config.py:86: arg_name is a parameter"
+  },
+  "sqlalchemy:_orm_constructors:create_session:2054:kwargs": {
+    "verdict": "opaque",
+    "reason": "_orm_constructors.py:2054: caller-supplied **kwargs are forwarded; only two keys are set here"
+  },
+  "saleor:graphql.product.mutations.product.product_create:ProductCreate.clean_input:146:kwargs": {
+    "verdict": "opaque",
+    "reason": "graphql/product/mutations/product/product_create.py:146: forwards the caller's **kwargs to super().clean_input"
+  },
+  "saleor:attribute.models.base:AttributeValueManager.bulk_update_or_create:333:setattr": {
+    "verdict": "opaque",
+    "reason": "attribute/models/base.py:333: key iterates obj['defaults'], run-time data"
+  },
+  "pandas:groupby.generic:DataFrameGroupBy.aggregate:1422:kwargs": {
+    "verdict": "opaque",
+    "reason": "groupby/generic.py:1422: forwards the caller's **kwargs to reconstruct_func"
+  },
+  "saleor:graphql.order.bulk_mutations.draft_orders:DraftOrderBulkDelete.perform_mutation:145:kwargs": {
+    "verdict": "opaque",
+    "reason": "graphql/order/bulk_mutations/draft_orders.py:145: forwards the caller's **data to bulk_action"
+  },
+  "pandas:common:temp_setattr:565:setattr": {
+    "verdict": "opaque",
+    "reason": "common.py:565: attr is a parameter"
+  },
+  "yt-dlp:extractor.tvp:TVPVODBaseIE._call_api:489:kwargs": {
+    "verdict": "opaque",
+    "reason": "extractor/tvp.py:489: forwards the caller's **kwargs to _download_json_handle"
+  },
+  "saleor:graphql.product.mutations.product.product_create:ProductCreate.perform_mutation:197:kwargs": {
+    "verdict": "opaque",
+    "reason": "graphql/product/mutations/product/product_create.py:197: forwards the caller's **data to super().perform_mutation"
+  },
+  "awscli:customizations.configure.set:ConfigureSetCommand._get_subsection_from_args:105:getattr": {
+    "verdict": "opaque",
+    "reason": "customizations/configure/set.py:105: name is computed by another method from a module-level table"
+  },
+  "pandas:missing:interpolate_2d_inplace:366:kwargs": {
+    "verdict": "opaque",
+    "reason": "missing.py:366: forwards the caller's **kwargs to clean_interp_method"
+  },
+  "requests:status_codes:_init:114:setattr": {
+    "verdict": "opaque",
+    "reason": "status_codes.py:114: title iterates the module-level _codes table, not visible in this function"
+  },
+  "netbox:dcim.api.serializers_.devices:ModuleSerializer.validate:270:getattr": {
+    "verdict": "resolvable",
+    "reason": "dcim/api/serializers_/devices.py:270: component_attr iterates a literal list of tuples written in the same for statement"
+  },
+  "healthchecks:front.views:filtering_rules:596:setattr": {
+    "verdict": "resolvable",
+    "reason": "front/views.py:596: field iterates update_fields, a literal tuple assigned in the same function"
+  },
+  "yt-dlp:extractor.zattoo:ZattooPlatformBaseIE._real_extract:236:getattr": {
+    "verdict": "opaque",
+    "reason": "extractor/zattoo.py:236: name is built from self._TYPE, set by each subclass"
+  },
+  "pandas:series:Series.to_markdown:1971:kwargs": {
+    "verdict": "opaque",
+    "reason": "series.py:1971: forwards the caller's **kwargs to DataFrame.to_markdown"
+  },
+  "pandas:resample:Resampler.transform:396:kwargs": {
+    "verdict": "opaque",
+    "reason": "resample.py:396: forwards the caller's **kwargs to transform"
+  }
+}

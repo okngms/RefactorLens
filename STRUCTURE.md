@@ -195,6 +195,7 @@ tests/
 ├── test_hardening_annotations.py  Pre-registered refutations, py.typed detection
 ├── test_exposure.py        EXP candidate: index, external access, eta squared
 ├── test_hardening_pysmell_labels.py  Threshold search, reading rule, PySmell detector rules
+├── test_dynamic_opacity.py  K13: opaque site kinds, hooks, refutation rules, fixture gold values
 ├── test_entry_points.py    Entry point recognition; no too_many_params, no advice on params
 └── test_cli.py             All four commands end to end
 ```
@@ -229,6 +230,10 @@ experiments/hardening/
 ├── exposure-verdicts.json  Per-access verdicts with file, line and reason
 ├── pysmell_labels.py       Can PySmell's manual labels be rebuilt from its own metrics
 ├── pysmell-labels.md       Pre-registration and result: labels are thresholds, not an oracle
+├── dynamic_opacity.py      Dynamic opacity on the corpus; precision sample
+├── dynamic-opacity.md      Pre-registration and result (K13)
+├── dynamic-sample.json     30 opaque sites drawn for the precision check
+├── dynamic-verdicts.json   Per-site verdicts with file, line and reason
 ├── entry_points.py         How many entry points the corpus has; effect on too_many_params
 ├── entry-points.md         Why the rule is narrow, and what it changed
 ├── compare_radon.py        CC vs radon per function; classifies every difference
@@ -251,6 +256,7 @@ experiments/hardening/
 ├── results/annotation-coverage.json, annotation-coverage-tables.md
 ├── results/exposure.json, exposure-tables.md
 ├── results/pysmell-labels.json, pysmell-labels-tables.md
+├── results/dynamic-opacity.json, dynamic-opacity-tables.md
 └── .cache/                 Checked-out reference projects (gitignored, not in sdist)
 ```
 

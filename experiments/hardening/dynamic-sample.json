@@ -1,0 +1,242 @@
+[
+  {
+    "id": "saleor:plugins.manager:PluginsManager.__run_tax_method_until_first_success:648:kwargs",
+    "project": "saleor",
+    "file": "plugins/manager.py",
+    "line": 648,
+    "function": "PluginsManager.__run_tax_method_until_first_success",
+    "kind": "kwargs"
+  },
+  {
+    "id": "saleor:graphql.order.mutations.draft_order_update:DraftOrderUpdate.clean_input:126:kwargs",
+    "project": "saleor",
+    "file": "graphql/order/mutations/draft_order_update.py",
+    "line": 126,
+    "function": "DraftOrderUpdate.clean_input",
+    "kind": "kwargs"
+  },
+  {
+    "id": "saleor:schedulers.schedulers:CustomModelEntry.from_entry:55:kwargs",
+    "project": "saleor",
+    "file": "schedulers/schedulers.py",
+    "line": 55,
+    "function": "CustomModelEntry.from_entry",
+    "kind": "kwargs"
+  },
+  {
+    "id": "pandas:accessor:PandasDelegate._add_delegate_accessors:132:hasattr",
+    "project": "pandas",
+    "file": "accessor.py",
+    "line": 132,
+    "function": "PandasDelegate._add_delegate_accessors",
+    "kind": "hasattr"
+  },
+  {
+    "id": "click:decorators:password_option:409:kwargs",
+    "project": "click",
+    "file": "decorators.py",
+    "line": 409,
+    "function": "password_option",
+    "kind": "kwargs"
+  },
+  {
+    "id": "pandas:internals.array_manager:BaseArrayManager.apply_with_block:298:getattr",
+    "project": "pandas",
+    "file": "internals/array_manager.py",
+    "line": 298,
+    "function": "BaseArrayManager.apply_with_block",
+    "kind": "getattr"
+  },
+  {
+    "id": "awscli:argparser:CLIArgParser.parse_known_args:101:setattr",
+    "project": "awscli",
+    "file": "argparser.py",
+    "line": 101,
+    "function": "CLIArgParser.parse_known_args",
+    "kind": "setattr"
+  },
+  {
+    "id": "pandas:internals.managers:BaseBlockManager.apply:361:kwargs",
+    "project": "pandas",
+    "file": "internals/managers.py",
+    "line": 361,
+    "function": "BaseBlockManager.apply",
+    "kind": "kwargs"
+  },
+  {
+    "id": "awscli:customizations.paginate:ensure_paging_params_not_set:290:getattr",
+    "project": "awscli",
+    "file": "customizations/paginate.py",
+    "line": 290,
+    "function": "ensure_paging_params_not_set",
+    "kind": "getattr"
+  },
+  {
+    "id": "pydantic:_internal._generate_schema:GenerateSchema._common_field_schema:1241:setattr",
+    "project": "pydantic",
+    "file": "_internal/_generate_schema.py",
+    "line": 1241,
+    "function": "GenerateSchema._common_field_schema",
+    "kind": "setattr"
+  },
+  {
+    "id": "saleor:graphql.core.dataloaders:BaseThumbnailBySizeAndFormatLoader.batch_load:106:getattr",
+    "project": "saleor",
+    "file": "graphql/core/dataloaders.py",
+    "line": 106,
+    "function": "BaseThumbnailBySizeAndFormatLoader.batch_load",
+    "kind": "getattr"
+  },
+  {
+    "id": "pandas:resample:Resampler._groupby_and_aggregate:477:kwargs",
+    "project": "pandas",
+    "file": "resample.py",
+    "line": 477,
+    "function": "Resampler._groupby_and_aggregate",
+    "kind": "kwargs"
+  },
+  {
+    "id": "awscli:botocore.serialize:JSONSerializer._serialize:386:getattr",
+    "project": "awscli",
+    "file": "botocore/serialize.py",
+    "line": 386,
+    "function": "JSONSerializer._serialize",
+    "kind": "getattr"
+  },
+  {
+    "id": "awscli:customizations.emr.config:Configuration._check_arg:86:getattr",
+    "project": "awscli",
+    "file": "customizations/emr/config.py",
+    "line": 86,
+    "function": "Configuration._check_arg",
+    "kind": "getattr"
+  },
+  {
+    "id": "sqlalchemy:_orm_constructors:create_session:2054:kwargs",
+    "project": "sqlalchemy",
+    "file": "_orm_constructors.py",
+    "line": 2054,
+    "function": "create_session",
+    "kind": "kwargs"
+  },
+  {
+    "id": "saleor:graphql.product.mutations.product.product_create:ProductCreate.clean_input:146:kwargs",
+    "project": "saleor",
+    "file": "graphql/product/mutations/product/product_create.py",
+    "line": 146,
+    "function": "ProductCreate.clean_input",
+    "kind": "kwargs"
+  },
+  {
+    "id": "saleor:attribute.models.base:AttributeValueManager.bulk_update_or_create:333:setattr",
+    "project": "saleor",
+    "file": "attribute/models/base.py",
+    "line": 333,
+    "function": "AttributeValueManager.bulk_update_or_create",
+    "kind": "setattr"
+  },
+  {
+    "id": "pandas:groupby.generic:DataFrameGroupBy.aggregate:1422:kwargs",
+    "project": "pandas",
+    "file": "groupby/generic.py",
+    "line": 1422,
+    "function": "DataFrameGroupBy.aggregate",
+    "kind": "kwargs"
+  },
+  {
+    "id": "saleor:graphql.order.bulk_mutations.draft_orders:DraftOrderBulkDelete.perform_mutation:145:kwargs",
+    "project": "saleor",
+    "file": "graphql/order/bulk_mutations/draft_orders.py",
+    "line": 145,
+    "function": "DraftOrderBulkDelete.perform_mutation",
+    "kind": "kwargs"
+  },
+  {
+    "id": "pandas:common:temp_setattr:565:setattr",
+    "project": "pandas",
+    "file": "common.py",
+    "line": 565,
+    "function": "temp_setattr",
+    "kind": "setattr"
+  },
+  {
+    "id": "yt-dlp:extractor.tvp:TVPVODBaseIE._call_api:489:kwargs",
+    "project": "yt-dlp",
+    "file": "extractor/tvp.py",
+    "line": 489,
+    "function": "TVPVODBaseIE._call_api",
+    "kind": "kwargs"
+  },
+  {
+    "id": "saleor:graphql.product.mutations.product.product_create:ProductCreate.perform_mutation:197:kwargs",
+    "project": "saleor",
+    "file": "graphql/product/mutations/product/product_create.py",
+    "line": 197,
+    "function": "ProductCreate.perform_mutation",
+    "kind": "kwargs"
+  },
+  {
+    "id": "awscli:customizations.configure.set:ConfigureSetCommand._get_subsection_from_args:105:getattr",
+    "project": "awscli",
+    "file": "customizations/configure/set.py",
+    "line": 105,
+    "function": "ConfigureSetCommand._get_subsection_from_args",
+    "kind": "getattr"
+  },
+  {
+    "id": "pandas:missing:interpolate_2d_inplace:366:kwargs",
+    "project": "pandas",
+    "file": "missing.py",
+    "line": 366,
+    "function": "interpolate_2d_inplace",
+    "kind": "kwargs"
+  },
+  {
+    "id": "requests:status_codes:_init:114:setattr",
+    "project": "requests",
+    "file": "status_codes.py",
+    "line": 114,
+    "function": "_init",
+    "kind": "setattr"
+  },
+  {
+    "id": "netbox:dcim.api.serializers_.devices:ModuleSerializer.validate:270:getattr",
+    "project": "netbox",
+    "file": "dcim/api/serializers_/devices.py",
+    "line": 270,
+    "function": "ModuleSerializer.validate",
+    "kind": "getattr"
+  },
+  {
+    "id": "healthchecks:front.views:filtering_rules:596:setattr",
+    "project": "healthchecks",
+    "file": "front/views.py",
+    "line": 596,
+    "function": "filtering_rules",
+    "kind": "setattr"
+  },
+  {
+    "id": "yt-dlp:extractor.zattoo:ZattooPlatformBaseIE._real_extract:236:getattr",
+    "project": "yt-dlp",
+    "file": "extractor/zattoo.py",
+    "line": 236,
+    "function": "ZattooPlatformBaseIE._real_extract",
+    "kind": "getattr"
+  },
+  {
+    "id": "pandas:series:Series.to_markdown:1971:kwargs",
+    "project": "pandas",
+    "file": "series.py",
+    "line": 1971,
+    "function": "Series.to_markdown",
+    "kind": "kwargs"
+  },
+  {
+    "id": "pandas:resample:Resampler.transform:396:kwargs",
+    "project": "pandas",
+    "file": "resample.py",
+    "line": 396,
+    "function": "Resampler.transform",
+    "kind": "kwargs"
+  }
+]

@@ -361,6 +361,64 @@ def max_nesting(node: FunctionNode) -> int:
 # --------------------------------------------------------------------------- #
 
 
+# --------------------------------------------------------------------------- #
+# Dinamik opaklık (v2.2 §3, K13)
+# --------------------------------------------------------------------------- #
+
+_ATTRIBUTE_BUILTINS = ("getattr", "setattr", "delattr", "hasattr")
+_DYNAMIC_IMPORTS = ("__import__", "importlib.import_module")
+
+
+def _is_string(node: ast.AST | None) -> bool:
+    return isinstance(node, ast.Constant) and isinstance(node.value, str)
+
+
+def _callee(call: ast.Call) -> str | None:
+    """`f(...)` → "f"; `importlib.import_module(...)` → "importlib.import_module"."""
+    if isinstance(call.func, ast.Name):
+        return call.func.id
+    if isinstance(call.func, ast.Attribute) and isinstance(call.func.value, ast.Name):
+        return f"{call.func.value.id}.{call.func.attr}"
+    return None
+
+
+def dynamic_sites(node: FunctionNode) -> list[tuple[int, str]]:
+    """Statik analizin hedefini göremediği noktalar: (satır, tür), konuma göre.
+
+    Türler: ikinci argümanı string sabiti olmayan `getattr`/`setattr`/
+    `delattr`/`hasattr`; `eval`/`exec`; ilk argümanı sabit olmayan
+    `__import__`/`importlib.import_module`; fonksiyonun **kendi** `**kwargs`
+    parametresinin bir çağrıya aktarılması (`kwargs`). İç içe tanımlara
+    inilmez; dekoratörler ve varsayılan değerler gövde değildir. Betimseldir,
+    yönü yoktur. Ön kayıt: `experiments/hardening/dynamic-opacity.md`.
+    """
+    own_kwargs = node.args.kwarg.arg if node.args.kwarg else None
+    found: list[tuple[int, int, str]] = []
+    for child in _walk_body(node):
+        if not isinstance(child, ast.Call):
+            continue
+        name = _callee(child)
+        kind = None
+        if name in _ATTRIBUTE_BUILTINS:
+            if len(child.args) >= 2 and not _is_string(child.args[1]):
+                kind = name
+        elif name in ("eval", "exec"):
+            kind = name
+        elif name in _DYNAMIC_IMPORTS and child.args and not _is_string(child.args[0]):
+            kind = "import"
+        if kind:
+            found.append((child.lineno, child.col_offset, kind))
+        if own_kwargs:
+            for keyword in child.keywords:
+                if (
+                    keyword.arg is None
+                    and isinstance(keyword.value, ast.Name)
+                    and keyword.value.id == own_kwargs
+                ):
+                    found.append((keyword.value.lineno, keyword.value.col_offset, "kwargs"))
+    return [(line, kind) for line, _, kind in sorted(found)]
+
+
 def measure_function(
     node: FunctionNode, *, code_lines: frozenset[int], is_method: bool = False
 ) -> FunctionReport:
@@ -378,6 +436,7 @@ def measure_function(
         entry_point=entry_point_kind(node),
         annotation_coverage=annotation_coverage(node, is_method=is_method),
         returns_annotated=returns_annotated(node),
+        dynamic_sites=len(dynamic_sites(node)),
     )
 
 

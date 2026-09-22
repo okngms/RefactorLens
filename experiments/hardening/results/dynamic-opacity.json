@@ -1,0 +1,522 @@
+{
+  "schema_version": 3,
+  "median_rate": 34.47,
+  "by_type": {
+    "library": 67.505,
+    "cli": 21.64,
+    "web_app": 31.36,
+    "ml_research": 49.94
+  },
+  "token_misses": 0,
+  "sites": 1805,
+  "concentration": {
+    "above": [
+      "attrs",
+      "pydantic",
+      "sqlalchemy"
+    ],
+    "refuted": false
+  },
+  "per_project": {
+    "requests": {
+      "type": "library",
+      "functions": 176,
+      "sites": 32,
+      "rate_per_1000": 181.82,
+      "functions_with_sites": 0.1477,
+      "kinds": {
+        "getattr": 0,
+        "setattr": 2,
+        "delattr": 0,
+        "hasattr": 0,
+        "eval": 0,
+        "exec": 0,
+        "import": 1,
+        "kwargs": 29
+      },
+      "classes": 44,
+      "hooked_classes": 0
+    },
+    "httpx": {
+      "type": "library",
+      "functions": 309,
+      "sites": 2,
+      "rate_per_1000": 6.47,
+      "functions_with_sites": 0.0065,
+      "kinds": {
+        "getattr": 0,
+        "setattr": 0,
+        "delattr": 0,
+        "hasattr": 0,
+        "eval": 0,
+        "exec": 0,
+        "import": 0,
+        "kwargs": 2
+      },
+      "classes": 85,
+      "hooked_classes": 0
+    },
+    "rich": {
+      "type": "library",
+      "functions": 582,
+      "sites": 3,
+      "rate_per_1000": 5.15,
+      "functions_with_sites": 0.0052,
+      "kinds": {
+        "getattr": 0,
+        "setattr": 0,
+        "delattr": 0,
+        "hasattr": 1,
+        "eval": 0,
+        "exec": 0,
+        "import": 0,
+        "kwargs": 2
+      },
+      "classes": 170,
+      "hooked_classes": 1
+    },
+    "pydantic": {
+      "type": "library",
+      "functions": 756,
+      "sites": 44,
+      "rate_per_1000": 58.2,
+      "functions_with_sites": 0.045,
+      "kinds": {
+        "getattr": 22,
+        "setattr": 9,
+        "delattr": 1,
+        "hasattr": 3,
+        "eval": 0,
+        "exec": 0,
+        "import": 0,
+        "kwargs": 9
+      },
+      "classes": 179,
+      "hooked_classes": 6
+    },
+    "fastapi": {
+      "type": "library",
+      "functions": 134,
+      "sites": 8,
+      "rate_per_1000": 59.7,
+      "functions_with_sites": 0.0597,
+      "kinds": {
+        "getattr": 0,
+        "setattr": 0,
+        "delattr": 0,
+        "hasattr": 0,
+        "eval": 0,
+        "exec": 0,
+        "import": 0,
+        "kwargs": 8
+      },
+      "classes": 89,
+      "hooked_classes": 0
+    },
+    "attrs": {
+      "type": "library",
+      "functions": 117,
+      "sites": 13,
+      "rate_per_1000": 111.11,
+      "functions_with_sites": 0.0855,
+      "kinds": {
+        "getattr": 8,
+        "setattr": 1,
+        "delattr": 1,
+        "hasattr": 0,
+        "eval": 1,
+        "exec": 0,
+        "import": 0,
+        "kwargs": 2
+      },
+      "classes": 33,
+      "hooked_classes": 1
+    },
+    "click": {
+      "type": "library",
+      "functions": 354,
+      "sites": 13,
+      "rate_per_1000": 36.72,
+      "functions_with_sites": 0.0339,
+      "kinds": {
+        "getattr": 1,
+        "setattr": 0,
+        "delattr": 0,
+        "hasattr": 0,
+        "eval": 0,
+        "exec": 0,
+        "import": 0,
+        "kwargs": 12
+      },
+      "classes": 66,
+      "hooked_classes": 8
+    },
+    "flask": {
+      "type": "library",
+      "functions": 290,
+      "sites": 41,
+      "rate_per_1000": 141.38,
+      "functions_with_sites": 0.1172,
+      "kinds": {
+        "getattr": 6,
+        "setattr": 0,
+        "delattr": 0,
+        "hasattr": 0,
+        "eval": 1,
+        "exec": 1,
+        "import": 2,
+        "kwargs": 31
+      },
+      "classes": 46,
+      "hooked_classes": 1
+    },
+    "sqlalchemy": {
+      "type": "library",
+      "functions": 1673,
+      "sites": 126,
+      "rate_per_1000": 75.31,
+      "functions_with_sites": 0.055,
+      "kinds": {
+        "getattr": 43,
+        "setattr": 17,
+        "delattr": 4,
+        "hasattr": 6,
+        "eval": 0,
+        "exec": 1,
+        "import": 0,
+        "kwargs": 55
+      },
+      "classes": 256,
+      "hooked_classes": 7
+    },
+    "pandas": {
+      "type": "library",
+      "functions": 3996,
+      "sites": 375,
+      "rate_per_1000": 93.84,
+      "functions_with_sites": 0.0643,
+      "kinds": {
+        "getattr": 90,
+        "setattr": 10,
+        "delattr": 0,
+        "hasattr": 10,
+        "eval": 1,
+        "exec": 0,
+        "import": 0,
+        "kwargs": 264
+      },
+      "classes": 246,
+      "hooked_classes": 7
+    },
+    "black": {
+      "type": "cli",
+      "functions": 363,
+      "sites": 7,
+      "rate_per_1000": 19.28,
+      "functions_with_sites": 0.0193,
+      "kinds": {
+        "getattr": 2,
+        "setattr": 0,
+        "delattr": 0,
+        "hasattr": 0,
+        "eval": 0,
+        "exec": 0,
+        "import": 0,
+        "kwargs": 5
+      },
+      "classes": 44,
+      "hooked_classes": 0
+    },
+    "mypy": {
+      "type": "cli",
+      "functions": 4636,
+      "sites": 41,
+      "rate_per_1000": 8.84,
+      "functions_with_sites": 0.0054,
+      "kinds": {
+        "getattr": 17,
+        "setattr": 4,
+        "delattr": 1,
+        "hasattr": 11,
+        "eval": 0,
+        "exec": 0,
+        "import": 5,
+        "kwargs": 3
+      },
+      "classes": 420,
+      "hooked_classes": 2
+    },
+    "httpie": {
+      "type": "cli",
+      "functions": 375,
+      "sites": 9,
+      "rate_per_1000": 24.0,
+      "functions_with_sites": 0.024,
+      "kinds": {
+        "getattr": 2,
+        "setattr": 1,
+        "delattr": 0,
+        "hasattr": 0,
+        "eval": 0,
+        "exec": 0,
+        "import": 0,
+        "kwargs": 6
+      },
+      "classes": 105,
+      "hooked_classes": 1
+    },
+    "yt-dlp": {
+      "type": "cli",
+      "functions": 4787,
+      "sites": 145,
+      "rate_per_1000": 30.29,
+      "functions_with_sites": 0.0286,
+      "kinds": {
+        "getattr": 6,
+        "setattr": 2,
+        "delattr": 0,
+        "hasattr": 1,
+        "eval": 0,
+        "exec": 0,
+        "import": 1,
+        "kwargs": 135
+      },
+      "classes": 2323,
+      "hooked_classes": 4
+    },
+    "awscli": {
+      "type": "cli",
+      "functions": 5587,
+      "sites": 180,
+      "rate_per_1000": 32.22,
+      "functions_with_sites": 0.0252,
+      "kinds": {
+        "getattr": 78,
+        "setattr": 13,
+        "delattr": 1,
+        "hasattr": 11,
+        "eval": 0,
+        "exec": 0,
+        "import": 7,
+        "kwargs": 70
+      },
+      "classes": 1394,
+      "hooked_classes": 6
+    },
+    "pipx": {
+      "type": "cli",
+      "functions": 567,
+      "sites": 4,
+      "rate_per_1000": 7.05,
+      "functions_with_sites": 0.0035,
+      "kinds": {
+        "getattr": 3,
+        "setattr": 1,
+        "delattr": 0,
+        "hasattr": 0,
+        "eval": 0,
+        "exec": 0,
+        "import": 0,
+        "kwargs": 0
+      },
+      "classes": 91,
+      "hooked_classes": 0
+    },
+    "healthchecks": {
+      "type": "web_app",
+      "functions": 710,
+      "sites": 7,
+      "rate_per_1000": 9.86,
+      "functions_with_sites": 0.0085,
+      "kinds": {
+        "getattr": 5,
+        "setattr": 2,
+        "delattr": 0,
+        "hasattr": 0,
+        "eval": 0,
+        "exec": 0,
+        "import": 0,
+        "kwargs": 0
+      },
+      "classes": 214,
+      "hooked_classes": 0
+    },
+    "netbox": {
+      "type": "web_app",
+      "functions": 3151,
+      "sites": 328,
+      "rate_per_1000": 104.09,
+      "functions_with_sites": 0.0838,
+      "kinds": {
+        "getattr": 93,
+        "setattr": 25,
+        "delattr": 0,
+        "hasattr": 6,
+        "eval": 0,
+        "exec": 3,
+        "import": 3,
+        "kwargs": 198
+      },
+      "classes": 4116,
+      "hooked_classes": 4
+    },
+    "saleor": {
+      "type": "web_app",
+      "functions": 6622,
+      "sites": 269,
+      "rate_per_1000": 40.62,
+      "functions_with_sites": 0.0341,
+      "kinds": {
+        "getattr": 67,
+        "setattr": 13,
+        "delattr": 0,
+        "hasattr": 5,
+        "eval": 0,
+        "exec": 0,
+        "import": 3,
+        "kwargs": 181
+      },
+      "classes": 2535,
+      "hooked_classes": 2
+    },
+    "redash": {
+      "type": "web_app",
+      "functions": 1346,
+      "sites": 34,
+      "rate_per_1000": 25.26,
+      "functions_with_sites": 0.023,
+      "kinds": {
+        "getattr": 8,
+        "setattr": 2,
+        "delattr": 0,
+        "hasattr": 0,
+        "eval": 0,
+        "exec": 2,
+        "import": 3,
+        "kwargs": 19
+      },
+      "classes": 247,
+      "hooked_classes": 1
+    },
+    "mealie": {
+      "type": "web_app",
+      "functions": 1371,
+      "sites": 43,
+      "rate_per_1000": 31.36,
+      "functions_with_sites": 0.0182,
+      "kinds": {
+        "getattr": 23,
+        "setattr": 12,
+        "delattr": 0,
+        "hasattr": 3,
+        "eval": 0,
+        "exec": 0,
+        "import": 0,
+        "kwargs": 5
+      },
+      "classes": 662,
+      "hooked_classes": 0
+    },
+    "nanogpt": {
+      "type": "ml_research",
+      "functions": 17,
+      "sites": 0,
+      "rate_per_1000": 0.0,
+      "functions_with_sites": 0.0,
+      "kinds": {
+        "getattr": 0,
+        "setattr": 0,
+        "delattr": 0,
+        "hasattr": 0,
+        "eval": 0,
+        "exec": 0,
+        "import": 0,
+        "kwargs": 0
+      },
+      "classes": 6,
+      "hooked_classes": 0
+    },
+    "yolov5": {
+      "type": "ml_research",
+      "functions": 472,
+      "sites": 29,
+      "rate_per_1000": 61.44,
+      "functions_with_sites": 0.0466,
+      "kinds": {
+        "getattr": 4,
+        "setattr": 8,
+        "delattr": 0,
+        "hasattr": 0,
+        "eval": 8,
+        "exec": 1,
+        "import": 0,
+        "kwargs": 8
+      },
+      "classes": 99,
+      "hooked_classes": 0
+    },
+    "detectron2": {
+      "type": "ml_research",
+      "functions": 901,
+      "sites": 45,
+      "rate_per_1000": 49.94,
+      "functions_with_sites": 0.0355,
+      "kinds": {
+        "getattr": 13,
+        "setattr": 7,
+        "delattr": 0,
+        "hasattr": 2,
+        "eval": 0,
+        "exec": 1,
+        "import": 1,
+        "kwargs": 21
+      },
+      "classes": 213,
+      "hooked_classes": 4
+    },
+    "whisper": {
+      "type": "ml_research",
+      "functions": 112,
+      "sites": 7,
+      "rate_per_1000": 62.5,
+      "functions_with_sites": 0.0625,
+      "kinds": {
+        "getattr": 0,
+        "setattr": 0,
+        "delattr": 0,
+        "hasattr": 0,
+        "eval": 0,
+        "exec": 0,
+        "import": 0,
+        "kwargs": 7
+      },
+      "classes": 36,
+      "hooked_classes": 0
+    },
+    "segment-anything": {
+      "type": "ml_research",
+      "functions": 81,
+      "sites": 0,
+      "rate_per_1000": 0.0,
+      "functions_with_sites": 0.0,
+      "kinds": {
+        "getattr": 0,
+        "setattr": 0,
+        "delattr": 0,
+        "hasattr": 0,
+        "eval": 0,
+        "exec": 0,
+        "import": 0,
+        "kwargs": 0
+      },
+      "classes": 19,
+      "hooked_classes": 0
+    }
+  },
+  "precision": {
+    "sample": 30,
+    "opaque": 27,
+    "precision": 0.9,
+    "refuted": false
+  }
+}

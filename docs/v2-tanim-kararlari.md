@@ -11,7 +11,8 @@ kararıdır; alan eklediği için şema sürümü değiştirmez (`04` §1). K7, 
 değildir, şema sürümü değişmez. K9 v2.2'nin ilk ölçümüdür; bir adayı
 reddeder, hiçbir şey değiştirmez. K10 bir koku kuralıdır (K6 deseni); alan
 ekler, şema sürümü değişmez. K11 v2.2'nin ilk yeni ölçüsüdür; alan ekler.
-K12 bir adayı reddeder; hiçbir şey değiştirmez. Blok 1b'nin dağılım tablosu metrik değerlerini
+K12 bir adayı reddeder; hiçbir şey değiştirmez.
+K13 v2.2'nin ikinci yeni ölçüsüdür; alan ekler. Blok 1b'nin dağılım tablosu metrik değerlerini
 ölçeceği için bu sorular **tablodan önce** kapanmalıydı; yoksa tablo iki kez
 üretilirdi. Beşi burada birlikte karara bağlandı ve metrik anlamını değiştiren
 üçü tek bir `schema_version` artışıyla (2 → 3) uygulandı.
@@ -440,6 +441,33 @@ raporda bir alan olarak taşınmasını haklı çıkarmaz.
 kalıyor. EXP'nin çözülebildiği yerde işe yaradığı görüldü; darboğaz isim
 çözümü. Annotation'lı projelerde alıcının türünü imzadan okumak bu darboğazı
 gevşetebilir (FUTURE.md); `ast`-yalnız kararını zorlamaz.
+
+## K13 — Dinamik opaklık rapora eklendi (betimsel, eşiksiz)
+
+> Karara bağlandı 2026-09-22. Şema 3 içinde: iki alan eklendi (`04` §1). Ön
+> kayıt ve ölçüm: `experiments/hardening/dynamic-opacity.md`. v2.2 §3'ün
+> ikinci ölçüsü.
+
+**Karar.** `functions[].dynamic_sites` (statik analizin hedefini göremediği
+nokta sayısı) ve `classes[].dynamic_attribute_hooks` (`__getattr__` /
+`__getattribute__` / `__setattr__` tanımlı mı) rapora girer. Sayılanlar:
+sabit olmayan adlı `getattr`/`setattr`/`delattr`/`hasattr`, `eval`/`exec`,
+sabit olmayan dinamik import, fonksiyonun kendi `**kwargs`'ının aktarılması.
+Eşik, koku, yön yok; prompt'a girmez.
+
+**Gerekçe.** Ön kayıtlı üç koşul geçti: elle kesinlik 27/30 (%90), üç
+metaprogramlama kütüphanesinin üçü korpus medyanının üstünde, uygulama
+tutarlılığı tam. v2.2'nin kendi çürütme koşulunun ikinci yarısı (bakımlı ve
+ihmal edilmiş projelerin ayrımı) bu korpusta ölçülemediği için yeniden yazıldı;
+bu, ön kayıtta açıkça belirtildi.
+
+**Neden eşiksiz.** İddia "burada statik analiz kör"; "burası kötü" değil.
+`**kwargs` aktarımı çoğu yerde doğru tasarımdır (sarmalayıcı, `super()`
+çağrısı). Eşik ikinci iddiayı gizlice sokardı.
+
+**Maliyet.** Aynı fonksiyonda sabit bir liste üzerinde dönen ad opak sayılıyor
+(örneklemde 3/30). `obj.__dict__[name]`, `vars()`, `attrgetter`, `type()` ile
+üretim sayılmıyor. (b) koşulunun kütüphane listesi bir önsel yargıydı.
 
 ## Korpustaki etki
 

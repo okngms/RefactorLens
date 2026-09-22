@@ -4,6 +4,15 @@ Scan, advice and explain reports carry their own `schema_version`; `verify`
 refuses to compare scan reports whose schema versions differ. After upgrading,
 regenerate any `before` report with the new version.
 
+## Unreleased
+
+### Added
+
+- Report fields `functions[].dynamic_sites` and
+  `classes[].dynamic_attribute_hooks`: where static analysis cannot see the
+  target (non-constant `getattr`/`setattr`, `eval`/`exec`, dynamic imports,
+  forwarded `**kwargs`, attribute hooks). Descriptive, no threshold (K13).
+
 ## 2.1.0 — 2026-09-22
 
 The metrics were checked against a 26-project calibration corpus: CC
