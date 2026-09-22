@@ -10,7 +10,7 @@ kararıdır; alan eklediği için şema sürümü değiştirmez (`04` §1). K7, 
 (kapsama) kararıdır; hiçbir şey değiştirmez. K8 eşik kararıdır; eşik metrik
 değildir, şema sürümü değişmez. K9 v2.2'nin ilk ölçümüdür; bir adayı
 reddeder, hiçbir şey değiştirmez. K10 bir koku kuralıdır (K6 deseni); alan
-ekler, şema sürümü değişmez. Blok 1b'nin dağılım tablosu metrik değerlerini
+ekler, şema sürümü değişmez. K11 v2.2'nin ilk yeni ölçüsüdür; alan ekler. Blok 1b'nin dağılım tablosu metrik değerlerini
 ölçeceği için bu sorular **tablodan önce** kapanmalıydı; yoksa tablo iki kez
 üretilirdi. Beşi burada birlikte karara bağlandı ve metrik anlamını değiştiren
 üçü tek bir `schema_version` artışıyla (2 → 3) uygulandı.
@@ -378,6 +378,34 @@ payı ≥ 0.5 iken) kaçırılır; korpusta böyle bir durum incelenmedi.
   (durumlu LCOM4) (c) ile. **R4** (durumlu LCOM3-HM) çürütmeleri geçti ama
   etiket olmadan kodlanmaz; kör etiketli örneklem hazırlandı
   (`god_class_sample.py`, 32 sınıf), etiketlenmedi.
+
+## K11 — Anotasyon kapsamı rapora eklendi (betimsel, eşiksiz)
+
+> Karara bağlandı 2026-09-22. Şema 3 içinde: üç alan eklendi (`04` §1). Ön
+> kayıt ve ölçüm: `experiments/hardening/annotation-coverage.md`. v2.2 §3'ün
+> ilk ölçüsü.
+
+**Karar.** `functions[].annotation_coverage`, `functions[].returns_annotated`
+ve `classes[].annotation_coverage` rapora girer. Yuvalar `param_count` ile
+aynı (tek yardımcı: `func_metrics.parameter_slots`); sınıf değeri CAM'in iç
+kapsamının aynısı ama yuva yoksa `null`. **Eşik yok, koku yok, yön yok.**
+`advise` prompt'u donmuş olduğu için alanlar prompt'a girmez.
+
+**Gerekçe.** K7, CAM'in sorununun kapsama olduğunu gösterdi; kapsamın kendisi
+görünmüyordu. Ön kayıtlı bağımsız sınama geçti: `py.typed` taşıyan projelerin
+medyanı %100, taşımayanların %59.6; py.typed projelerinin 9'unun 8'i genel
+medyanın üstünde; sınıf değeri CAM ile her sınıfta aynı.
+
+**Neden eşiksiz.** Ölçü "imzalarda ne kadar tip bilgisi yazılı" sorusuna
+cevaptır; "düşük kapsam kötüdür" iddiası taşımıyor. Eşik bu iddiayı gizlice
+sokardı. Dokuz maddenin 8'i bu yüzden "tanımlanmaz" diye doldu.
+
+**Maliyet.** Ayrı `.pyi` dosyalarıyla tiplenen paketler annotation'sız görünür
+(attrs %11.4); `Any` kapsamı artırır ama bilgi taşımaz; `# type:` yorumları
+sayılmaz. Üçü ön kayıtta yazılıydı.
+
+**Yan etki.** `param_count` artık `parameter_slots`'un uzunluğu; davranış
+aynı (bütün testler, uç durum testleri dahil, değişmeden geçti).
 
 ## Korpustaki etki
 

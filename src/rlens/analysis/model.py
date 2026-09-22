@@ -77,6 +77,13 @@ class FunctionReport:
     parametre eşiğini hedef gerekçesi saymaz. Metrik değişmez.
     Bkz. `analysis.entry_points`. Alan eklemek şema sürümü artırmaz (`04` §1)."""
 
+    annotation_coverage: float | None = None
+    """Annotation'lı parametre yuvası payı (yuvalar `param_count` ile aynı);
+    yuva yoksa `None`. Betimseldir, yönü yoktur (`v2-tanim-kararlari.md` K11)."""
+
+    returns_annotated: bool | None = None
+    """Dönüş annotation'ı yazılmış mı."""
+
 
 @dataclass
 class ClassReport:
@@ -98,6 +105,9 @@ class ClassReport:
     dcc: int | None = None
     cam: float | None = None
     cam_skipped_reason: str | None = None
+    annotation_coverage: float | None = None
+    """Raporlanan metotların bütün parametre yuvaları üzerinden annotation payı;
+    CAM'in iç kapsamının aynısı, ama yuva yoksa `None` (K11)."""
     stub_methods: int = 0
     """Gövdesi taslak olan metot adı sayısı (`pass`, `...`, `return None`,
     `raise NotImplementedError`). Adların en az yarısı taslaksa sınıf bir

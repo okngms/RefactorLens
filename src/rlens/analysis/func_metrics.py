@@ -229,29 +229,56 @@ def function_loc(node: FunctionNode, code_lines: frozenset[int]) -> int:
 # --------------------------------------------------------------------------- #
 
 
-def param_count(node: FunctionNode, *, is_method: bool = False) -> int:
-    """Parametre sayısı.
+def parameter_slots(node: FunctionNode, *, is_method: bool = False) -> list[ast.arg]:
+    """Parametre yuvaları; `param_count` ve anotasyon kapsamı aynı kümeyi sayar.
 
     Konumsal, yalnızca-konumsal, yalnızca-anahtar parametrelerin tümü ile
-    `*args` ve `**kwargs` sayılır.
+    `*args` ve `**kwargs`.
 
-    Metotlarda ilk parametre (`self` / `cls`) sayılmaz — çağıran onu vermez,
-    dolayısıyla çağrı yükü oluşturmaz. `@staticmethod` bu kuraldan muaftır;
-    onun ilk parametresi gerçek bir parametredir.
+    Metotlarda ilk parametre (`self` / `cls`) yuva değildir — çağıran onu
+    vermez, dolayısıyla çağrı yükü oluşturmaz. `@staticmethod` bu kuraldan
+    muaftır; onun ilk parametresi gerçek bir parametredir.
     """
     args = node.args
-    total = len(args.posonlyargs) + len(args.args) + len(args.kwonlyargs)
-    if args.vararg is not None:
-        total += 1
-    if args.kwarg is not None:
-        total += 1
+    positional = args.posonlyargs + args.args
+    if (
+        is_method
+        and not _is_staticmethod(node)
+        and positional
+        and positional[0].arg in ("self", "cls")
+    ):
+        positional = positional[1:]
+    slots = positional + args.kwonlyargs
+    slots += [extra for extra in (args.vararg, args.kwarg) if extra is not None]
+    return slots
 
-    if is_method and not _is_staticmethod(node):
-        positional = args.posonlyargs + args.args
-        if positional and positional[0].arg in ("self", "cls"):
-            total -= 1
 
-    return total
+def param_count(node: FunctionNode, *, is_method: bool = False) -> int:
+    """Parametre sayısı: `parameter_slots`'un uzunluğu."""
+    return len(parameter_slots(node, is_method=is_method))
+
+
+# --------------------------------------------------------------------------- #
+# Anotasyon kapsamı (v2.2 §3)
+# --------------------------------------------------------------------------- #
+
+
+def annotation_coverage(node: FunctionNode, *, is_method: bool = False) -> float | None:
+    """Annotation'lı parametre yuvası payı; yuva yoksa `None`.
+
+    Betimseldir, yönü yoktur: yüksek değer "daha iyi" demek değil, imzada daha
+    çok tip bilgisi **yazılı** demektir. String annotation ve `Any` sayılır.
+    Ön kayıt: `experiments/hardening/annotation-coverage.md`.
+    """
+    slots = parameter_slots(node, is_method=is_method)
+    if not slots:
+        return None
+    return round(sum(1 for slot in slots if slot.annotation is not None) / len(slots), 4)
+
+
+def returns_annotated(node: FunctionNode) -> bool:
+    """Dönüş annotation'ı yazılmış mı (`-> None` dahil)."""
+    return node.returns is not None
 
 
 def _has_decorator(node: FunctionNode, name: str) -> bool:
@@ -349,6 +376,8 @@ def measure_function(
         param_count=param_count(node, is_method=is_method),
         max_nesting=max_nesting(node),
         entry_point=entry_point_kind(node),
+        annotation_coverage=annotation_coverage(node, is_method=is_method),
+        returns_annotated=returns_annotated(node),
     )
 
 

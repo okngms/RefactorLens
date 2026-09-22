@@ -26,6 +26,7 @@ from rlens.analysis.func_metrics import (
     is_overload_stub,
     is_staticmethod,
     measure_function,
+    parameter_slots,
 )
 from rlens.analysis.model import ClassReport
 
@@ -619,6 +620,21 @@ def _annotation_key(annotation: ast.expr) -> str:
     return ast.unparse(annotation)
 
 
+def class_annotation_coverage(node: ast.ClassDef) -> float | None:
+    """Raporlanan metotların bütün parametre yuvaları üzerinden annotation payı.
+
+    CAM'in içeride hesapladığı kapsamın aynısı; tek fark yuvası olmayan
+    sınıfta `None` dönmesi (CAM orada `0.0` taşır). Ön kayıt:
+    `experiments/hardening/annotation-coverage.md`.
+    """
+    slots = [
+        slot for method in class_methods(node) for slot in parameter_slots(method, is_method=True)
+    ]
+    if not slots:
+        return None
+    return round(sum(1 for slot in slots if slot.annotation is not None) / len(slots), 4)
+
+
 def cam(node: ast.ClassDef, min_annotation_coverage: float = 0.7) -> CamResult:
     """Metotların parametre tiplerinin sınıf geneline oranlarının ortalaması.
 
@@ -714,6 +730,7 @@ def measure_class(
         dcc=dcc(node, project_classes, aliases),
         cam=cam_result.value,
         cam_skipped_reason=cam_result.skipped_reason,
+        annotation_coverage=class_annotation_coverage(node),
         stub_methods=len(stub_method_names(node)),
         methods=[
             measure_function(method, code_lines=code_lines, is_method=True)

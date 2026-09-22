@@ -46,6 +46,7 @@ Sınıf gövdesinde doğrudan tanımlı metotlar; dunder'lar hariç; `@property/
 | DCC | Referans verilen farklı proje-içi sınıf sayısı | ≥0 | isim tabanlı (`resolution: inferred`); tip çıkarımıyla `typed`; string annotation ve proje-içi import takma adları çözülür; sınıfın kendisi ve kendi iç içe sınıfları sayılmaz (şema 3) | — |
 | CAM | Metot parametre tiplerinin sınıf-genel tip kümesine oranının ortalaması | 0-1 | yalnız annotation kapsamı ≥ `cam_min_annotation_coverage` | kapsam yetersiz → null, nedeni raporda |
 | PUBLIC_IF | Public arayüz kümesi (v2+) | küme | dunder hariç, `_` öneksiz metot ve attribute'lar | — |
+| ANN (`annotation_coverage`) | Raporlanan metotların parametre yuvalarında annotation'lı payı (CAM'in iç kapsamı); betimsel, eşiksiz (K11) | 0-1 | yuvalar `param_count` ile aynı; string annotation ve `Any` sayılır; `.pyi` okunmaz | parametre yuvası yok |
 
 ### 2.3 Fonksiyon düzeyi
 | Metrik | Tanım |
@@ -54,6 +55,8 @@ Sınıf gövdesinde doğrudan tanımlı metotlar; dunder'lar hariç; `@property/
 | LOC | `def` satırından son satıra kadar en az bir kod token'ı içeren satır sayısı; boş satır, yalnız yorum satırı ve docstring (iç içe tanımlarınkiler dahil) hariç, dekoratör hariç (şema 3; şema 2 fiziksel satır sayıyordu) |
 | PARAMS | Parametre sayısı (`self/cls` hariç) |
 | NESTING | Maksimum blok derinliği; `elif` zinciri düz |
+| ANN (`annotation_coverage`) | Annotation'lı parametre yuvası payı; yuvalar PARAMS ile aynı; yuva yoksa `null`. Betimsel, eşiksiz (K11) |
+| RET (`returns_annotated`) | Dönüş annotation'ı yazılmış mı |
 
 ### 2.4 Modül düzeyi (v2+)
 | Metrik | Tanım |

@@ -268,6 +268,7 @@ constructors for the same reason.
 | **DAM** | Ratio of private attributes | Reported twice: `dam` counts `_x` and `__x`; `dam_strict` counts only `__x` |
 | **DCC** | Distinct project-internal classes referenced | Name-based resolution; see below |
 | **CAM** | Mean ratio of each method's parameter types to the class-wide set | Computed only when annotation coverage is sufficient |
+| `annotation_coverage` | Share of the class's method parameters that carry a type annotation | Descriptive only: no threshold, no smell; `null` when there are no parameters |
 
 **Attribute set (used by DAM and LCOM4)** is the union of: class-level
 assignments and annotations, `self.x = ...` in *any* method (not just
@@ -304,7 +305,9 @@ Method, per-reference verdicts and the full breakdown:
 **CAM is conditional.** The classic definition uses parameter *types*. Parameter
 *names* measure something else entirely and would make the result incomparable
 to the literature, so name similarity is never used as a fallback. Most Python
-codebases are unannotated; forcing a number out of them would feed the model
+codebases on our calibration corpus are mostly annotated (median 82% of
+parameters), but a large minority is not â€” 7 of 26 projects annotate fewer than
+3%. Forcing a number out of those would feed the model
 noise dressed up as evidence. If annotation coverage falls below
 `metrics.cam_min_annotation_coverage` (default 0.7), CAM reports `null` and the
 report records why.
@@ -409,6 +412,14 @@ treat it as a reason to pick the function. Recognition is deliberately narrow â€
 Celery task's parameters are the author's own design and still count. On the
 calibration corpus this affects 17 of 2,238 functions with five or more
 parameters, but a single command can carry 29 of them.
+
+Every function also reports `annotation_coverage` (the share of its parameters,
+counted exactly as for the parameter count, that carry a type annotation;
+`null` when it has none) and `returns_annotated`. These are descriptive: there
+is no threshold and no smell, because "fewer annotations is worse" is not a
+claim the tool can support. Types kept in separate `.pyi` stub files are not
+read, so a package typed that way (attrs) looks unannotated. Measurement:
+[annotation-coverage.md](https://github.com/okngms/RefactorLens/blob/main/experiments/hardening/annotation-coverage.md).
 
 ## What RefactorLens does not do
 

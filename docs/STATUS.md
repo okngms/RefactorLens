@@ -6,7 +6,28 @@ Publishing (OIDC) ile yayınlandı; API token kullanılmadı. CI matrisi
 (3.11/3.12/3.13) ilk kez bu sürümde koştu.
 
 ## Bitenler
-- **v2.2, 2. oturum — etiketli veri, durumsuz metot adayları, K10** (bu oturum).
+- **v2.2, 3. oturum — anotasyon kapsamı (§3), K11** (bu oturum). Ön kayıt ve
+  ölçüm: `experiments/hardening/annotation-coverage.md`.
+  - **Ön kayıt ölçümden önce;** bağımsız sinyal PEP 561 `py.typed`. Sonuç:
+    py.typed medyanı %100, diğerleri %59.6; 9'un 8'i genel medyanın üstünde;
+    sınıf değeri CAM'in iç kapsamıyla her sınıfta aynı → **çürütülmedi.**
+    Tek istisna (attrs %11.4) ön kayıtta öngörülen `.pyi` yanlış negatifi,
+    doğrulandı (10 `.pyi` dosyası).
+  - **Rapora üç alan** (şema 3 içinde): `functions[].annotation_coverage`,
+    `functions[].returns_annotated`, `classes[].annotation_coverage`. Eşik,
+    koku, yön yok. `param_count` ve kapsam tek yardımcıdan
+    (`parameter_slots`); davranış değişmedi.
+  - **Fikstür altın değerleri** alanlar bağlanmadan önce elle yazıldı ve ilk
+    denemede tuttu (`ReportBuilder` 0.3333, `Order`/`Invoice` null, ...).
+  - **Bulgular:** korpus medyanı %82.4 (library %99.5, web_app %56.7,
+    ml_research %54.4); proje içinde iki kutuplu (%75.9 tam, %12.8 hiç);
+    26 projenin 7'si %3'ün altında.
+  - **Düzeltilen doğrulanmamış iddia:** README ve AGENTS "Python kodunun
+    çoğu annotation'sız" diyordu; ölçülen cümleyle değiştirildi (invariant
+    aynı, gerekçesi ölçüldü).
+  - Testler: `test_annotation_coverage.py` 21, `test_hardening_annotations.py`
+    9. Durum: 1460 paket testi (10 atlandı), 91 fikstür testi, ruff temiz.
+- **v2.2, 2. oturum — etiketli veri, durumsuz metot adayları, K10**.
   Ön kayıt, ölçüm ve sonuçlar: `experiments/hardening/stateless-gate.md`;
   karar: `docs/v2-tanim-kararlari.md` K10.
   - **Yol 1 — etiketli veri: kullanılamaz.** PySmell'in (commit `233afeb`) elle
@@ -400,14 +421,16 @@ framework deyiminden geliyor.**
 - **§2 PySmell kokuları:** önce her kokunun etiketi tek bir metrik eşiğiyle
   ayrılıyor mu kontrol edilir (Large Class'ta ayrılıyordu); etiket boyut
   kodluyorsa dış doğrulama sayılmaz.
-- **§3 anotasyon kapsamı:** CAM'in kapsama sorununu ölçer (K7).
 - **DAM'ın yeniden tanımı** (K7; çürütme koşulu kayıtta).
 - **§3 dinamik opaklık, modül düzeyi kohezyon, duck typing kuplajı.**
 - **§5b modül düzeyi kod ve koşullu tanımlar** (K5).
 - **PARAMS'ta yalnızca-anahtar parametreler** (FUTURE.md, K8 ölçümü).
 
-Önerilen sıra: etiketleme beklenirken §3 anotasyon kapsamı (verisi
-`cam-coverage.json` ve `coverage.json`'da hazır, dokuz maddesi en kısa olan).
+§3 anotasyon kapsamı bitti (K11). Önerilen sıra: etiketleme beklenirken
+**DAM'ın yeniden tanımı** (K7'nin çürütme koşulu ve `coverage.json` verisi
+hazır; K11'in kapsam alanı DAM'ın "adlandırma geleneği" yorumunu sınamak için
+proje düzeyi bir eş değişken verir), ardından §2 PySmell kokularının etiket
+kontrolü.
 
 Projeler yerelde yoksa: `python experiments/hardening/corpus.py fetch`
 (~850 MB). Kohezyon betiği ayrıca `pip install cohesion==1.2.0` ister.

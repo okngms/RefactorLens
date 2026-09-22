@@ -178,7 +178,10 @@ number in phase 5 against the model. They are counted separately and shown.
 
 ### Uncomputable metrics report `null`, never zero
 
-Most Python code is unannotated, so CAM often cannot be computed. Forcing a
+Much Python code is unannotated (7 of 26 calibration projects annotate under
+3% of parameters) and many classes have no parameters at all, so CAM often
+cannot be computed: in a typical project it is computed for only 27.7% of
+classes. Forcing a
 number would feed the model noise dressed as evidence — which would undermine the
 project's own thesis from the inside. `null` propagates through the report, the
 terminal (`—`), and the delta logic (not comparable).
