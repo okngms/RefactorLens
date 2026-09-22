@@ -98,6 +98,11 @@ class ClassReport:
     dcc: int | None = None
     cam: float | None = None
     cam_skipped_reason: str | None = None
+    stub_methods: int = 0
+    """Gövdesi taslak olan metot adı sayısı (`pass`, `...`, `return None`,
+    `raise NotImplementedError`). Adların en az yarısı taslaksa sınıf bir
+    arayüzdür ve `god_class` verilmez (`docs/v2-tanim-kararlari.md` K10).
+    Alan eklemek şema sürümü artırmaz (`04` §1)."""
     methods: list[FunctionReport] = field(default_factory=list)
 
     layer: str | None = None

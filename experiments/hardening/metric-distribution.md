@@ -24,7 +24,8 @@ alındı). İkisi de tekrar üretildiğinde birebir aynıdır.
   katılır. "Proje" sütunu kaç projenin katıldığını söyler.
 - **`null`** dağılıma girmez; "null" sütunu projelerin medyan `null` payıdır.
 - **Eşik kuralı** aracın kendisiyle aynı: `değer >= eşik`.
-- **Doğrulama:** `god_class` kapısının AST'den hesaplanan ateşlenme sayısı (96)
+- **Doğrulama:** `god_class` kapısının AST'den hesaplanan ateşlenme sayısı (96),
+  K10'dan beri taslak arayüzler (3) çıkarıldıktan sonra (93)
   raporların ürettiği `god_class` kokusu sayısına birebir eşit.
 
 Scan şeması 3. Proje başına persentil, projelerin medyanı; projenin katılması için metrikte en az 30 değer.

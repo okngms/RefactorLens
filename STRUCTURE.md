@@ -188,6 +188,9 @@ tests/
 ├── test_hardening_coverage.py  Null / definitional / informative split, spread, trivial-value rules
 ├── test_hardening_thresholds.py  Candidate shares, pinned fixture thresholds, LCOM4 reaches no smell
 ├── test_hardening_density_gate.py  LCOM3-HM, direct TCC, stub bodies, stateless kinds
+├── test_hardening_stateless_gate.py  Stateful graphs, R1-R4 rules, refutation conditions
+├── test_hardening_god_class_sample.py  Stratified pick, blindness, verdict checks, weighting
+├── test_stub_interfaces.py  K10: stub bodies, stub names, no god_class on interfaces
 ├── test_entry_points.py    Entry point recognition; no too_many_params, no advice on params
 └── test_cli.py             All four commands end to end
 ```
@@ -208,6 +211,12 @@ experiments/hardening/
 ├── thresholds.md           The threshold rule and why LCOM4 became 5/10 (K8)
 ├── density_gate.py         god_class gate candidates: LCOM3-HM, TCC, stateless methods
 ├── density-gate.md         Nine items for both candidates and why they were rejected (K9)
+├── stateless_gate.py       Pre-registered stateless-method rules R1-R4 and their refutations
+├── stateless-gate.md       Pre-registration, PySmell label check, results; R1 became K10
+├── god_class_sample.py     Blind stratified god_class sample and weighted summary
+├── god-class-labeling.md   Labelling guide, written before any label
+├── god-class-sample.json   What the labeller sees: identity and location only
+├── god-class-verdicts.json Labels (empty until labelled)
 ├── entry_points.py         How many entry points the corpus has; effect on too_many_params
 ├── entry-points.md         Why the rule is narrow, and what it changed
 ├── compare_radon.py        CC vs radon per function; classifies every difference
@@ -225,6 +234,8 @@ experiments/hardening/
 ├── results/coverage.json, coverage-tables.md
 ├── results/threshold-candidates.json, threshold-candidates-tables.md
 ├── results/density-gate.json, density-gate-tables.md
+├── results/stateless-gate.json, stateless-gate-tables.md
+├── results/god-class-strata.json  Strata of the sample; closed until labelling ends
 └── .cache/                 Checked-out reference projects (gitignored, not in sdist)
 ```
 

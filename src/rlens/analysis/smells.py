@@ -26,7 +26,7 @@ from __future__ import annotations
 import ast
 from dataclasses import dataclass, field
 
-from rlens.analysis.class_metrics import class_methods
+from rlens.analysis.class_metrics import class_methods, stub_method_share
 from rlens.analysis.interface import public_interface
 from rlens.analysis.model import ClassReport, FunctionReport
 from rlens.config import Config, SmellsConfig
@@ -37,6 +37,11 @@ FEATURE_ENVY = "feature_envy_candidate"
 LONG_METHOD = "long_method"
 TOO_MANY_PARAMS = "too_many_params"
 LAYER_MISFIT = "layer_misfit"
+
+#: Metot adlarının en az bu kadarı taslaksa sınıf bir arayüzdür ve `god_class`
+#: verilmez (`docs/v2-tanim-kararlari.md` K10). Config'te değil: K6 gibi bir
+#: tanım sınırıdır, ayar düğmesi değil.
+INTERFACE_STUB_SHARE = 0.5
 
 #: `layer_misfit` yalnızca katman ataması bu güvenin üstündeyse verilir.
 MISFIT_MIN_CONFIDENCE = 0.7
@@ -301,9 +306,13 @@ def detect_class_smells(
     rules = config.smells
     found: list[Smell] = []
 
-    god = detect_god_class(report, rules)
-    if god:
-        found.append(god)
+    # Taslak arayüz (K10): davranışı olmayan sınıfa "bölünebilir" denmez.
+    # Metrikler ve kanıt alanları değişmez; yalnızca koku verilmez.
+    stub_share = stub_method_share(node)
+    if stub_share is None or stub_share < INTERFACE_STUB_SHARE:
+        god = detect_god_class(report, rules)
+        if god:
+            found.append(god)
 
     data = detect_data_class(node, report, rules)
     if data:

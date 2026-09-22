@@ -117,6 +117,10 @@ alıcısız metodu ayrı bileşen sayar; bunlar kokunun "bölünebilir sınıf"
 iddiasıyla örtüşmüyor. Sınıf sınıf okunup etiketlenmedi; "şüpheli" sayım bir
 ölçü, hüküm değil.
 
+> **Sonrası (K10):** üç taslak arayüz, ön kayıtlı bir kuralla kokudan
+> çıkarıldı (`stateless-gate.md`). graphene tipleri hâlâ koku alıyor; onlar
+> etiket gerektiren bir soru.
+
 ## Karar girdisi
 
 - Kapı değişmez (K4 sürer). İki aday dokuzuncu maddede düştü.
@@ -127,3 +131,4 @@ iddiasıyla örtüşmüyor. Sınıf sınıf okunup etiketlenmedi; "şüpheli" sa
 - **Etiketli veri:** §2 PySmell'in etiketli veri setine dayanıyor; Large Class
   etiketlerinin bu soruyu cevaplayıp cevaplamadığı **incelenmedi**. Kapı
   yeniden tasarlanmadan önce bakılması gereken ilk kaynak.
+  *Sonrası:* incelendi, etiketler boyutu kodluyor (`stateless-gate.md`).

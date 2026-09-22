@@ -9,7 +9,8 @@ cevaplamadığı beş soru bıraktı (K1-K5). K6, Blok 1b madde 4'ün koku kural
 kararıdır; alan eklediği için şema sürümü değiştirmez (`04` §1). K7, madde 3'ün
 (kapsama) kararıdır; hiçbir şey değiştirmez. K8 eşik kararıdır; eşik metrik
 değildir, şema sürümü değişmez. K9 v2.2'nin ilk ölçümüdür; bir adayı
-reddeder, hiçbir şey değiştirmez. Blok 1b'nin dağılım tablosu metrik değerlerini
+reddeder, hiçbir şey değiştirmez. K10 bir koku kuralıdır (K6 deseni); alan
+ekler, şema sürümü değişmez. Blok 1b'nin dağılım tablosu metrik değerlerini
 ölçeceği için bu sorular **tablodan önce** kapanmalıydı; yoksa tablo iki kez
 üretilirdi. Beşi burada birlikte karara bağlandı ve metrik anlamını değiştiren
 üçü tek bir `schema_version` artışıyla (2 → 3) uygulandı.
@@ -336,6 +337,47 @@ olarak yazıldı.
 kurmak ya da `god_class`'ı etiketli veriyle doğrulamak. PySmell'in etiketli
 veri setinin Large Class için kullanılabilirliği incelenmedi; ilk bakılacak
 kaynak o.
+
+## K10 — Taslak arayüzlerde `god_class` verilmez
+
+> Karara bağlandı 2026-09-22. Şema 3 içinde: `ClassReport.stub_methods` alanı
+> eklendi (`04` §1: alan eklemek sürüm artırmaz). Ön kayıt ve ölçüm:
+> `experiments/hardening/stateless-gate.md`.
+
+**Karar.** Metot adlarının en az yarısının gövdesi taslaksa (`pass`, `...`,
+`return` / `return None`, `raise NotImplementedError`; docstring hariç) sınıf
+bir arayüzdür ve `god_class` verilmez. NOM, WMC, LCOM4 ve `god_class`'ın
+kanıt alanları değişmez; eşik 0.5 config'te değil (K6 gibi tanım sınırı).
+
+**Gerekçe.** Davranışı olmayan bir sınıf sorumluluk taşımaz; "bölünebilir
+sınıf" iddiası ona uygulanamaz. LCOM4 her taslağı ayrı bileşen saydığı için
+`mypy.NodeVisitor` (83 metodun 83'ü `pass`) LCOM4 = 83 ile god class
+sayılıyordu. Bu bir etiket gerektirmeyen, tanım gereği yanlış pozitif.
+
+**Ön kayıt.** Kural ve çürütme koşulları ölçümden önce yazıldı; R1 hiçbirini
+tetiklemedi. K9'da reddi taşıyan koşullar sonradan formüle edilmişti; bu kez
+değil.
+
+**Etki.** Korpusta `god_class` 96 → 93 (`mypy.NodeVisitor`, `mypy._Hasher`,
+`pandas.BaseStringArrayMethods`). Deney fikstürlerinde taslak metot yok;
+`messy_project` ve `layered_project`'in kokuları aynı (ölçüldü). Kapının
+metrik koşulunu sayan `god_class_gate` taslak arayüzleri ayrı sütunda sayar;
+"ateşlendi − taslak arayüz = koku sayısı" dağılım tablosunda denetlenir.
+
+**Maliyet.** Bir sınıf taslak payı sınırın hemen altındaysa koku alır, hemen
+üstündeyse almaz; 0.5 bir tanım seçimi, kalibre edilmiş bir eşik değil.
+Kısmen soyut bir sınıfın gerçek metotları bir god class oluşturuyorsa (taslak
+payı ≥ 0.5 iken) kaçırılır; korpusta böyle bir durum incelenmedi.
+
+**Aynı ölçümün diğer sonuçları.**
+- **Etiketli veri:** PySmell'in elle incelenen 300 Large Class etiketi tek bir
+  `CLOC >= 37` eşiğiyle 1 hatayla ayrılıyor; PeerJ 2023 veri seti aynı
+  etiketleri kullanıyor; MLCQ Java. Kohezyon kapısını doğrulayacak Python
+  etiketi yok.
+- **R2** (alıcısız metotlu sınıflar) ön kayıtlı (b) ile reddedildi; **R3**
+  (durumlu LCOM4) (c) ile. **R4** (durumlu LCOM3-HM) çürütmeleri geçti ama
+  etiket olmadan kodlanmaz; kör etiketli örneklem hazırlandı
+  (`god_class_sample.py`, 32 sınıf), etiketlenmedi.
 
 ## Korpustaki etki
 

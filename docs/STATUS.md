@@ -6,8 +6,46 @@ Publishing (OIDC) ile yayınlandı; API token kullanılmadı. CI matrisi
 (3.11/3.12/3.13) ilk kez bu sürümde koştu.
 
 ## Bitenler
-- **v2.2, 1. oturum — `god_class` kapısı adayları (§5b); ikisi de reddedildi**
-  (bu oturum). Ölçüm: `experiments/hardening/density-gate.md`; karar:
+- **v2.2, 2. oturum — etiketli veri, durumsuz metot adayları, K10** (bu oturum).
+  Ön kayıt, ölçüm ve sonuçlar: `experiments/hardening/stateless-gate.md`;
+  karar: `docs/v2-tanim-kararlari.md` K10.
+  - **Yol 1 — etiketli veri: kullanılamaz.** PySmell'in (commit `233afeb`) elle
+    incelenen 300 Large Class etiketi tek bir `CLOC >= 37` eşiğiyle 1 hatayla
+    ayrılıyor: etiket boyutu kodluyor. PeerJ 2023 veri seti aynı etiketleri
+    kullanıyor; MLCQ Java. Kohezyon kapısı için Python etiketi yok.
+  - **Yol 2 — ön kayıtlı dört aday.** Çürütme koşulları ölçümden **önce**
+    yazıldı (K9'un zayıflığı giderildi) ve betik tarafından mekanik uygulandı:
+    - R1 (taslak arayüz istisnası): çürütme yok, kaldırdığı 3 sınıf kapının
+      %3.1'i → **uygulandı (K10).**
+    - R2 (alıcısız metotlu sınıflar): (b) ile reddedildi — kurgusu gereği;
+      birleşik R1+R2 ön kayıtta yoktu, eklenmedi.
+    - R3 (durumlu LCOM4): (c) ile reddedildi, p75 = p90 = p95 = 2.
+    - R4 (durumlu LCOM3-HM, eşik 3): çürütmeleri geçti → kodlanmadı, etiketli
+      örneklemle sınanacak aday.
+  - **K10 uygulaması.** `class_metrics.is_stub_body`, `stub_method_names`,
+    `stub_method_share`; `ClassReport.stub_methods` alanı (şema 3 içinde);
+    `god_class` taslak payı ≥ 0.5 olan sınıfta verilmez, kanıt alanları ve
+    metrikler aynı. Korpusta `god_class` 96 → 93; deney fikstürlerinde taslak
+    yok, kokular aynı (ölçüldü). Deney betikleri taslak tanımını artık
+    `src`'den alıyor; R1 yeniden koşuldu, sonuç aynı.
+  - **Kör etiketli örneklem hazır, etiketlenmedi.** `god_class_sample.py`:
+    156 büyük sınıftan (K10 sonrası) bugünkü kapı × R4 hücrelerine göre 32
+    sınıf (seed 20260922). Etiketleyenin gördüğü dosya yalnız kimlik/konum;
+    kılavuz `god-class-labeling.md` etiketlerden önce yazıldı; `summary` tek
+    karar eksikken sonuç üretmez; kesinlik/duyarlılık hücre büyüklükleriyle
+    ağırlıklı. Asistan etiketlemedi: kapı sonuçlarını gördüğü için kör değil.
+  - **Tutarlılık denetimleri:** hücreler 53 + 40 = 93 (koku sayısı, envanterle
+    aynı), 53 + 17 = 70 (R4); `god_class_gate` taslak arayüzleri ayrı sayıyor
+    (96 − 3 = 93) ve dağılım tablosu bunu gösteriyor.
+  - **Yakalanan eski hata:** `distribution.py` Windows konsolunda (cp1254)
+    tablodaki `≈` yüzünden 1 ile çıkıyordu; dosyalar print'ten önce yazıldığı
+    için sonuçlar doğruydu ama çıkış kodu yanlıştı. Konsol çıktısı karakter
+    hatasına dayanıklı yapıldı. Önceki oturumlarda çıkış kodu denetlenmemişti.
+  - AGENTS.md kilitli `god_class` kararına K9/K10 notu (karar yeniden açılmadı).
+  - Testler: `test_stub_interfaces.py` 23, `test_hardening_stateless_gate.py`
+    17, `test_hardening_god_class_sample.py` 9, `god_class_gate` +1. Durum:
+    1430 paket testi (10 atlandı), 91 fikstür testi, ruff temiz.
+- **v2.2, 1. oturum — `god_class` kapısı adayları (§5b); ikisi de reddedildi**. Ölçüm: `experiments/hardening/density-gate.md`; karar:
   `docs/v2-tanim-kararlari.md` K9. Aracın koduna, metriklere, eşiklere
   dokunulmadı.
   - **Dokuz madde iki literatür adayı için yazıldı:** LCOM3-HM (Hitz-Montazeri,
@@ -345,39 +383,55 @@ framework deyiminden geliyor.**
 ## Sıradaki iş
 **v2.2 sürüyor.** Sıra: v2.2 → `explain` Blok 2 → Blok 3/2/4/5.
 
-İlk soru (`god_class` kapısı, K9) bir ret ve yeni bir soruyla kapandı:
-**durumsuz metotlar.** Sıradaki oturum için iki yol; hangisiyle
-başlanacağı kullanıcının kararı:
+### `god_class` sorusunun açık kalan işi
+1. **Kör etiketleme — kullanıcı işi (asistan kör değil).** `god-class-sample.json`
+   ve `god-class-labeling.md` ile 32 sınıf etiketlenir, kararlar
+   `god-class-verdicts.json`'a yazılır; `results/` altındaki kapı çıktıları
+   etiketleme bitene kadar açılmaz. Sonra
+   `python experiments/hardening/god_class_sample.py summary`.
+   Mümkünse ikinci bir etiketleyici ve Cohen κ.
+2. **Etiketlerden sonra:** bugünkü kapı ile R4'ün ağırlıklı kesinlik/
+   duyarlılığı karşılaştırılır. R4 üstünse dokuz maddesi tamam (8 ve 9
+   korpustan, 5 testte), yeni koku sürümü olarak eklenir (FINDINGS kanıt
+   alanları değişmez). graphene/`@staticmethod` sınıflarının (R2) durumu da
+   etiketlerden okunur.
 
-1. **Etiketli veri (önerilen ilk adım).** §2 PySmell'in etiketli veri setine
-   dayanıyor; Large Class etiketlerinin erişilebilir olup olmadığı ve
-   `god_class`'ı doğrulamaya yetip yetmediği **incelenmedi**. Yetiyorsa K4/K9
-   sorusu ölçümle cevaplanır; yetmiyorsa bu da bir bulgu.
-2. **Durumsuz metot adayları** (her biri dokuz madde): taslak metotları
-   NOM/LCOM4 düğüm kümesinden çıkarmak (tanım değişikliği, şema artışı; NOM
-   ve WMC'yi de değiştirir); kapıyı yalnızca durumlu metotlar üzerinde kurmak.
-   Veri `results/density-gate.json`'da.
+### Diğer v2.2 adayları (hiçbiri başlamadı)
+- **§2 PySmell kokuları:** önce her kokunun etiketi tek bir metrik eşiğiyle
+  ayrılıyor mu kontrol edilir (Large Class'ta ayrılıyordu); etiket boyut
+  kodluyorsa dış doğrulama sayılmaz.
+- **§3 anotasyon kapsamı:** CAM'in kapsama sorununu ölçer (K7).
+- **DAM'ın yeniden tanımı** (K7; çürütme koşulu kayıtta).
+- **§3 dinamik opaklık, modül düzeyi kohezyon, duck typing kuplajı.**
+- **§5b modül düzeyi kod ve koşullu tanımlar** (K5).
+- **PARAMS'ta yalnızca-anahtar parametreler** (FUTURE.md, K8 ölçümü).
 
-Diğer v2.2 adayları değişmedi: §3 anotasyon kapsamı (CAM'in kapsama sorunu,
-K7), DAM'ın yeniden tanımı (K7), §5b modül düzeyi kod ve koşullu tanımlar
-(K5), §2 PySmell kokuları, PARAMS'ta yalnızca-anahtar parametreler
-(FUTURE.md).
+Önerilen sıra: etiketleme beklenirken §3 anotasyon kapsamı (verisi
+`cam-coverage.json` ve `coverage.json`'da hazır, dokuz maddesi en kısa olan).
 
 Projeler yerelde yoksa: `python experiments/hardening/corpus.py fetch`
 (~850 MB). Kohezyon betiği ayrıca `pip install cohesion==1.2.0` ister.
 
 ## Okunacak dokümanlar (sırayla)
 AGENTS.md → bu dosya → docs/v2.2-python-metrikleri.md (§2, §3, §5b) →
-experiments/hardening/density-gate.md → docs/v2-tanim-kararlari.md (K4, K9)
+experiments/hardening/stateless-gate.md → experiments/hardening/density-gate.md
+→ docs/v2-tanim-kararlari.md (K4, K7, K9, K10)
+Etiketleme: experiments/hardening/god-class-labeling.md (etiketleyen için;
+kapı çıktılarını okumadan).
 Sonraki faz: docs/v2.1-explain.md (Blok 2).
 Deney protokolü: docs/v2-duzeltme-asama5.md. Metrik sınıfları:
 docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.
 
 ## Açık kararlar / bilinen sorunlar
-- **`god_class` durumsuz sınıflarda yanlış pozitif veriyor** (K9). Soyut
-  arayüzler ve `@staticmethod` resolver'lı sınıflar LCOM4'te her metodu ayrı
-  bileşen olarak alıyor; 96 kokunun 8'i açıkça şüpheli. README'de yazılı.
-  Düzeltme v2.2'nin durumsuz metot sorusuna bağlı.
+- **`god_class` durumsuz sınıflarda yanlış pozitif veriyor** (K9). Taslak
+  arayüzler K10 ile çıkarıldı (3 sınıf); `@staticmethod` resolver'lı graphene
+  tipleri (5) ve yalnızca ortak yardımcıya devreden katalog sınıfları hâlâ
+  koku alıyor. README'de yazılı. Karar kör etiketlere bağlı.
+- **K10'un 0.5 sınırı bir tanım seçimi**, kalibre edilmiş eşik değil. Kısmen
+  soyut bir sınıfın gerçek metotları god class oluşturuyorsa kaçırılır;
+  korpusta böyle bir durum incelenmedi.
+- **Etiketleme kitinin körlüğü dürüstlüğe dayanıyor.** `results/god-class-strata.json`
+  depoda duruyor; etiketleyenin açmaması gerekiyor. Teknik bir engel yok.
 - **`explain` metni K8'den sonra tam doğru değil.** Talimat ve terminal notu
   "eşikler başka bir dil için kalibre edildi" diyor; varsayılanlar artık Python
   korpusunun persentillerine bakılarak doğrulandı. Sıfat yasağının kalkıp

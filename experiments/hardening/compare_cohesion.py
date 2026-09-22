@@ -184,10 +184,15 @@ def god_class_gate(modules, rules) -> dict:
     sınıflar; ve bunlardan çağrı kenarları çıkarılınca eşiği geçecek olanlar.
     Bu bir hata sayımı değil: LCOM4'ün tanımı çağrıyı bağ sayar. Soru, bu
     tanımın `god_class` için doğru kapı olup olmadığıdır (Blok 1b girdisi).
-    """
-    from rlens.analysis.class_metrics import nom, wmc
 
-    size = gated = gated_by_calls = fired = 0
+    `fired` kapının metrik koşulunu sayar. K10'dan beri metot adlarının en az
+    yarısı taslak olan sınıf kokuyu almaz; onlar `interfaces`'ta ayrıca
+    sayılır, böylece `fired - interfaces` raporların `god_class` sayısıdır.
+    """
+    from rlens.analysis.class_metrics import nom, stub_method_share, wmc
+    from rlens.analysis.smells import INTERFACE_STUB_SHARE
+
+    size = gated = gated_by_calls = fired = interfaces = 0
     examples: list[str] = []
     for module in modules:
         for node in iter_module_classes(module.tree):
@@ -197,6 +202,8 @@ def god_class_gate(modules, rules) -> dict:
             value = lcom4(node)
             if value >= rules["lcom4"]:
                 fired += 1
+                if stub_method_share(node) >= INTERFACE_STUB_SHARE:
+                    interfaces += 1
                 continue
             gated += 1
             if attribute_components(node) >= rules["lcom4"]:
@@ -208,6 +215,7 @@ def god_class_gate(modules, rules) -> dict:
     return {
         "size_qualified": size,
         "fired": fired,
+        "interfaces": interfaces,
         "gated_by_lcom4": gated,
         "gated_only_because_of_call_edges": gated_by_calls,
         "examples": examples,

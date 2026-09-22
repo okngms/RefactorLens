@@ -57,13 +57,15 @@ Proje başına pay; medyan ve aralık. Eşiğin denk geldiği persentil ≈ 100 
 
 ## `god_class` kapısı (K4)
 
-| Tür | Boyut koşulunu geçen | Ateşlendi | LCOM4'te elendi | Yalnız çağrı kenarı yüzünden |
-|---|---:|---:|---:|---:|
-| library | 67 | 52 | 15 | 15 |
-| cli | 67 | 31 | 36 | 34 |
-| web_app | 23 | 12 | 11 | 11 |
-| ml_research | 2 | 1 | 1 | 1 |
-| all | 159 | 96 | 63 | 61 |
+Ateşlendi: kapının metrik koşulu. Taslak arayüz (K10) koşulu geçer ama kokuyu almaz; koku sayısı = ateşlendi - taslak arayüz.
+
+| Tür | Boyut koşulunu geçen | Ateşlendi | Taslak arayüz | LCOM4'te elendi | Yalnız çağrı kenarı yüzünden |
+|---|---:|---:|---:|---:|---:|
+| library | 67 | 52 | 1 | 15 | 15 |
+| cli | 67 | 31 | 2 | 36 | 34 |
+| web_app | 23 | 12 | 0 | 11 | 11 |
+| ml_research | 2 | 1 | 0 | 1 | 1 |
+| all | 159 | 96 | 3 | 63 | 61 |
 
 ## Koku oranları — 1000 birim başına, projelerin medyanı
 

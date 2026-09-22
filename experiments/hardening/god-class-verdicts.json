@@ -1,0 +1,226 @@
+{
+  "yolov5:utils.loggers.comet:CometLogger:64": {
+    "class": "CometLogger",
+    "file": "utils/loggers/comet/__init__.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "sqlalchemy:mapper:Mapper:164": {
+    "class": "Mapper",
+    "file": "mapper.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "yt-dlp:postprocessor.ffmpeg:FFmpegPostProcessor:86": {
+    "class": "FFmpegPostProcessor",
+    "file": "postprocessor/ffmpeg.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "pandas:frame:DataFrame:509": {
+    "class": "DataFrame",
+    "file": "frame.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "httpx:_models:Response:515": {
+    "class": "Response",
+    "file": "_models.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "pandas:indexes.range:RangeIndex:66": {
+    "class": "RangeIndex",
+    "file": "indexes/range.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "awscli:bcdoc.textwriter:TextTranslator:54": {
+    "class": "TextTranslator",
+    "file": "bcdoc/textwriter.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "yt-dlp:YoutubeDL:YoutubeDL:204": {
+    "class": "YoutubeDL",
+    "file": "YoutubeDL.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "mypy:constraints:ConstraintBuilderVisitor:666": {
+    "class": "ConstraintBuilderVisitor",
+    "file": "constraints.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "saleor:graphql.product.types.products:Product:936": {
+    "class": "Product",
+    "file": "graphql/product/types/products.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "saleor:graphql.core.mutations:BaseMutation:142": {
+    "class": "BaseMutation",
+    "file": "graphql/core/mutations.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "awscli:customizations.dynamodb.types:TypeSerializer:80": {
+    "class": "TypeSerializer",
+    "file": "customizations/dynamodb/types.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "sqlalchemy:strategy_options:_AbstractLoad:90": {
+    "class": "_AbstractLoad",
+    "file": "strategy_options.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "rich:segment:Segment:64": {
+    "class": "Segment",
+    "file": "segment.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "pandas:internals.array_manager:BaseArrayManager:101": {
+    "class": "BaseArrayManager",
+    "file": "internals/array_manager.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "mypy:checkexpr:ExpressionChecker:297": {
+    "class": "ExpressionChecker",
+    "file": "checkexpr.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "sqlalchemy:session:ORMExecuteState:266": {
+    "class": "ORMExecuteState",
+    "file": "session.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "mypy:fastparse:TypeConverter:1813": {
+    "class": "TypeConverter",
+    "file": "fastparse.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "mealie:repos.repository_generic:RepositoryGeneric:31": {
+    "class": "RepositoryGeneric",
+    "file": "repos/repository_generic.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "pydantic:_internal._generate_schema:GenerateSchema:318": {
+    "class": "GenerateSchema",
+    "file": "_internal/_generate_schema.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "mypy:messages:MessageBuilder:154": {
+    "class": "MessageBuilder",
+    "file": "messages.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "pandas:groupby.ops:BaseGrouper:560": {
+    "class": "BaseGrouper",
+    "file": "groupby/ops.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "healthchecks:accounts.models:Profile:77": {
+    "class": "Profile",
+    "file": "accounts/models.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "mypy:suggestions:SuggestionEngine:232": {
+    "class": "SuggestionEngine",
+    "file": "suggestions.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "sqlalchemy:relationships:JoinCondition:2269": {
+    "class": "JoinCondition",
+    "file": "relationships.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "black:lines:Line:40": {
+    "class": "Line",
+    "file": "lines.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "mypy:fastparse:ASTConverter:356": {
+    "class": "ASTConverter",
+    "file": "fastparse.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "awscli:customizations.wizard.app:WizardTraverser:93": {
+    "class": "WizardTraverser",
+    "file": "customizations/wizard/app.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "mealie:routes.recipe.recipe_crud_routes:RecipeController:93": {
+    "class": "RecipeController",
+    "file": "routes/recipe/recipe_crud_routes.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "healthchecks:api.models:Check:192": {
+    "class": "Check",
+    "file": "api/models.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "mealie:services.recipe.recipe_service:RecipeService:59": {
+    "class": "RecipeService",
+    "file": "services/recipe/recipe_service.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  },
+  "awscli:botocore.utils:S3EndpointSetter:2062": {
+    "class": "S3EndpointSetter",
+    "file": "botocore/utils.py",
+    "verdict": null,
+    "responsibilities": [],
+    "note": ""
+  }
+}

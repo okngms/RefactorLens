@@ -69,6 +69,66 @@ def all_methods(node: ast.ClassDef) -> list[FunctionNode]:
 
 
 # --------------------------------------------------------------------------- #
+# Taslak metotlar (K10)
+# --------------------------------------------------------------------------- #
+
+
+def is_stub_body(method: FunctionNode) -> bool:
+    """Docstring dışında yalnızca `pass`, `...`, `return`/`return None` ya da
+    `raise NotImplementedError` içeren gövde.
+
+    Bunlar davranış değil sözleşmedir: alt sınıfın dolduracağı yer. Soyut
+    arayüzler (`NodeVisitor`) yüzlerce böyle metot taşır.
+    """
+    body = list(method.body)
+    first = body[0] if body else None
+    if (
+        isinstance(first, ast.Expr)
+        and isinstance(first.value, ast.Constant)
+        and isinstance(first.value.value, str)
+    ):
+        body = body[1:]
+    if not body:
+        return True
+    if len(body) != 1:
+        return False
+    statement = body[0]
+    if isinstance(statement, ast.Pass):
+        return True
+    if isinstance(statement, ast.Expr) and isinstance(statement.value, ast.Constant):
+        return statement.value.value is Ellipsis
+    if isinstance(statement, ast.Return):
+        return statement.value is None or (
+            isinstance(statement.value, ast.Constant) and statement.value.value is None
+        )
+    if isinstance(statement, ast.Raise) and statement.exc is not None:
+        target = statement.exc.func if isinstance(statement.exc, ast.Call) else statement.exc
+        return isinstance(target, ast.Name) and target.id == "NotImplementedError"
+    return False
+
+
+def stub_method_names(node: ast.ClassDef) -> set[str]:
+    """Bütün tanımları taslak olan metot adları (`class_methods` kümesi, adla).
+
+    Adla sayılır, çünkü `lcom4` de adla düğüm yapar: property getter/setter tek
+    addır. Tanımlardan biri bile gerçek gövdeliyse ad taslak değildir.
+    """
+    real: set[str] = set()
+    stubs: set[str] = set()
+    for method in class_methods(node):
+        (stubs if is_stub_body(method) else real).add(method.name)
+    return stubs - real
+
+
+def stub_method_share(node: ast.ClassDef) -> float | None:
+    """Taslak metot adlarının bütün metot adlarına payı; metot yoksa `None`."""
+    names = {method.name for method in class_methods(node)}
+    if not names:
+        return None
+    return round(len(stub_method_names(node)) / len(names), 4)
+
+
+# --------------------------------------------------------------------------- #
 # NOM — Number of Methods
 # --------------------------------------------------------------------------- #
 
@@ -654,6 +714,7 @@ def measure_class(
         dcc=dcc(node, project_classes, aliases),
         cam=cam_result.value,
         cam_skipped_reason=cam_result.skipped_reason,
+        stub_methods=len(stub_method_names(node)),
         methods=[
             measure_function(method, code_lines=code_lines, is_method=True)
             for method in class_methods(node)

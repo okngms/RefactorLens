@@ -48,6 +48,7 @@ from rlens.analysis.class_metrics import (
     accessed_attributes,
     called_methods,
     class_methods,
+    is_stub_body,
     self_parameter,
 )
 
@@ -116,38 +117,9 @@ def stateless_share(sets: dict[str, set[str]]) -> float | None:
 
 
 STATELESS_KINDS = ("stub", "no_receiver", "delegates", "self_unused")
-"""Durumsuz metodun türü, bu öncelikle: gövdesi taslak; alıcısı yok
-(`@staticmethod` ya da parametresiz); kardeş metodu çağırıyor; alıcısı var ama
-hiç kullanılmıyor."""
-
-
-def is_stub_body(method: ast.FunctionDef | ast.AsyncFunctionDef) -> bool:
-    """Docstring dışında yalnızca `pass`, `...`, `raise NotImplementedError` ya da `return`."""
-    body = list(method.body)
-    first = body[0] if body else None
-    if (
-        isinstance(first, ast.Expr)
-        and isinstance(first.value, ast.Constant)
-        and isinstance(first.value.value, str)
-    ):
-        body = body[1:]
-    if not body:
-        return True
-    if len(body) != 1:
-        return False
-    statement = body[0]
-    if isinstance(statement, ast.Pass):
-        return True
-    if isinstance(statement, ast.Expr) and isinstance(statement.value, ast.Constant):
-        return statement.value.value is Ellipsis
-    if isinstance(statement, ast.Return):
-        return statement.value is None or (
-            isinstance(statement.value, ast.Constant) and statement.value.value is None
-        )
-    if isinstance(statement, ast.Raise) and statement.exc is not None:
-        target = statement.exc.func if isinstance(statement.exc, ast.Call) else statement.exc
-        return isinstance(target, ast.Name) and target.id == "NotImplementedError"
-    return False
+"""Durumsuz metodun türü, bu öncelikle: gövdesi taslak (`is_stub_body`, K10'dan
+beri aracın kendi tanımı); alıcısı yok (`@staticmethod` ya da parametresiz);
+kardeş metodu çağırıyor; alıcısı var ama hiç kullanılmıyor."""
 
 
 def stateless_kinds(node: ast.ClassDef) -> dict[str, int]:

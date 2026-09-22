@@ -255,4 +255,15 @@ class TestGodClassGate:
         assert gate["fired"] == 0
         assert gate["gated_by_lcom4"] == 1
         assert gate["gated_only_because_of_call_edges"] == 1
+        assert gate["interfaces"] == 0
         assert gate["examples"] == ["big.py:Big nom=5 lcom4=1"]
+
+    def test_interfaces_pass_the_gate_but_are_counted_apart(self):
+        """K10: 6 taslak metot, LCOM4 6; kapı ateşler, koku verilmez."""
+        methods = "".join(f"    def m{i}(self, node):\n        pass\n" for i in range(6))
+        module = type(
+            "M", (), {"tree": ast.parse(f"class I:\n{methods}"), "relative_path": "i.py"}
+        )()
+        gate = god_class_gate([module], {"nom": 5, "wmc": 6, "lcom4": 3})
+        assert gate["fired"] == 1
+        assert gate["interfaces"] == 1

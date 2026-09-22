@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import json
 import statistics
+import sys
 import tempfile
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
@@ -279,7 +280,13 @@ def main() -> int:
             }
         )
 
-    gate_keys = ("size_qualified", "fired", "gated_by_lcom4", "gated_only_because_of_call_edges")
+    gate_keys = (
+        "size_qualified",
+        "fired",
+        "interfaces",
+        "gated_by_lcom4",
+        "gated_only_because_of_call_edges",
+    )
     for kind, names in names_by_type.items():
         summary["god_class_gate"][kind] = {
             k: sum(gates[name][k] for name in names) for k in gate_keys
@@ -310,6 +317,9 @@ def main() -> int:
     JSON_FILE.parent.mkdir(parents=True, exist_ok=True)
     JSON_FILE.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     TABLES_FILE.write_text(render_tables(summary), encoding="utf-8")
+    # Windows konsolu (cp1254) `≈` gibi karakterleri basamaz; dosyalar zaten
+    # yazıldı, konsol kopyası karakter yüzünden betiği düşürmemeli.
+    sys.stdout.reconfigure(errors="replace")
     print(render_tables(summary))
     return 0
 
@@ -387,14 +397,17 @@ def render_tables(summary: dict) -> str:
         "",
         "## `god_class` kapısı (K4)",
         "",
-        "| Tür | Boyut koşulunu geçen | Ateşlendi | LCOM4'te elendi "
+        "Ateşlendi: kapının metrik koşulu. Taslak arayüz (K10) koşulu geçer ama kokuyu "
+        "almaz; koku sayısı = ateşlendi - taslak arayüz.",
+        "",
+        "| Tür | Boyut koşulunu geçen | Ateşlendi | Taslak arayüz | LCOM4'te elendi "
         "| Yalnız çağrı kenarı yüzünden |",
-        "|---|---:|---:|---:|---:|",
+        "|---|---:|---:|---:|---:|---:|",
     ]
     for kind, gate in summary["god_class_gate"].items():
         lines.append(
-            f"| {kind} | {gate['size_qualified']} | {gate['fired']} | {gate['gated_by_lcom4']} | "
-            f"{gate['gated_only_because_of_call_edges']} |"
+            f"| {kind} | {gate['size_qualified']} | {gate['fired']} | {gate['interfaces']} | "
+            f"{gate['gated_by_lcom4']} | {gate['gated_only_because_of_call_edges']} |"
         )
     labels = sorted({label for rates in summary["smell_rates"].values() for label in rates})
     lines += [

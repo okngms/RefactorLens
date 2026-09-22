@@ -114,6 +114,10 @@ connections, so hub-method classes escape the smell (34 of 107 large classes on
 the corpus). This is known and documented. Changing the gate means a new
 density metric through the nine-item template in `docs/v2.2-python-metrikleri.md`,
 not a threshold picked today. `docs/v2-tanim-kararlari.md` K4.
+Two density candidates (Hitz–Montazeri LCOM3, direct TCC) were measured and
+rejected (K9). The one exception since then is narrow and leaves the gate
+alone: a class whose method names are at least half stubs (`pass`, `...`,
+`raise NotImplementedError`) is an interface and gets no `god_class` (K10).
 
 ---
 

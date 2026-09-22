@@ -956,30 +956,35 @@
     "library": {
       "size_qualified": 67,
       "fired": 52,
+      "interfaces": 1,
       "gated_by_lcom4": 15,
       "gated_only_because_of_call_edges": 15
     },
     "cli": {
       "size_qualified": 67,
       "fired": 31,
+      "interfaces": 2,
       "gated_by_lcom4": 36,
       "gated_only_because_of_call_edges": 34
     },
     "web_app": {
       "size_qualified": 23,
       "fired": 12,
+      "interfaces": 0,
       "gated_by_lcom4": 11,
       "gated_only_because_of_call_edges": 11
     },
     "ml_research": {
       "size_qualified": 2,
       "fired": 1,
+      "interfaces": 0,
       "gated_by_lcom4": 1,
       "gated_only_because_of_call_edges": 1
     },
     "all": {
       "size_qualified": 159,
       "fired": 96,
+      "interfaces": 3,
       "gated_by_lcom4": 63,
       "gated_only_because_of_call_edges": 61
     }

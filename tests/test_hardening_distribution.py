@@ -159,6 +159,7 @@ class TestThresholds:
                 "all": {
                     "size_qualified": 1,
                     "fired": 1,
+                    "interfaces": 0,
                     "gated_by_lcom4": 0,
                     "gated_only_because_of_call_edges": 0,
                 }

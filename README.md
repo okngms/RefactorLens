@@ -332,14 +332,23 @@ reports and the experiment data built on them. Measurement:
 ### Known limitation: `god_class` and stateless methods
 
 LCOM4 counts every method that touches no attribute as its own component. On
-the 26-project calibration corpus, 44 of the 96 classes flagged `god_class`
-are mostly made of such methods. Some are plausibly not god classes at all:
-abstract interfaces whose methods are all `pass` (mypy's `NodeVisitor`, 83
-stub methods) and GraphQL types whose resolvers are `@staticmethod` (five
-saleor classes). Two replacement gates from the literature (Hitz–Montazeri
-LCOM3 and Lanza–Marinescu TCC) were measured and rejected; the gate is
-unchanged. Measurement:
-[density-gate.md](https://github.com/okngms/RefactorLens/blob/main/experiments/hardening/density-gate.md).
+the 26-project calibration corpus, 44 of the 96 classes that pass the
+`god_class` metric gate are mostly made of such methods.
+
+- **Interfaces are exempt.** A class whose method names are at least half
+  stubs (`pass`, `...`, `return None`, `raise NotImplementedError`) has no
+  behaviour to split and gets no `god_class`; the report's `stub_methods`
+  field shows the count. This removed three classes on the corpus, among them
+  mypy's `NodeVisitor` (83 stub methods).
+- **Still flagged, possibly wrongly:** GraphQL types whose resolvers are
+  `@staticmethod` (five saleor classes), and large visitor or message-catalogue
+  classes whose methods only delegate to a shared helper.
+
+Two replacement gates from the literature (Hitz–Montazeri LCOM3 and
+Lanza–Marinescu TCC) and two stateful-method variants were measured; none is
+adopted without labelled data. Measurement:
+[density-gate.md](https://github.com/okngms/RefactorLens/blob/main/experiments/hardening/density-gate.md),
+[stateless-gate.md](https://github.com/okngms/RefactorLens/blob/main/experiments/hardening/stateless-gate.md).
 
 ### Known limitation: LCOM4 and data classes
 
