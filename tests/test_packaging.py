@@ -64,6 +64,30 @@ class TestReadmeSurvivesPyPI:
         assert f"pipx install {name}" in readme
 
 
+class TestChangelog:
+    """Yayınlanan her sürümün CHANGELOG'da bir girdisi var.
+
+    v2.0.0'dan sonra metrik değerleri şema değişmeden de değişti (uygulama
+    düzeltmeleri); bunu kullanıcıya söyleyen tek yer CHANGELOG. Sürüm artıp
+    girdi yazılmazsa değişiklik PyPI'da sessizce yayınlanır.
+    """
+
+    def test_current_version_is_the_first_entry(self):
+        changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+        first = re.search(r"^## (\d+\.\d+\.\d+)", changelog, re.MULTILINE)
+        assert first is not None
+        assert first.group(1) == __version__
+
+    def test_every_link_is_absolute(self):
+        changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+        relative = [
+            url
+            for url in re.findall(r"\]\(([^)]+)\)", changelog)
+            if not url.startswith(("http://", "https://", "#"))
+        ]
+        assert relative == []
+
+
 class TestPackagedMetadata:
     def test_the_cli_entry_point_exists(self, pyproject):
         assert pyproject["project"]["scripts"]["rlens"] == "rlens.cli:main"

@@ -25,9 +25,12 @@ Class metrics
 8 items over threshold.
 ```
 
-> **Status: v2.0.0 released.** Four commands: `scan` measures,
+> **Status: v2.1.0 released.** Four core commands: `scan` measures,
 > `arch` maps layers and violations, `advise` asks an LLM for advice grounded in
-> both, and `verify` checks whether the model's own prediction came true.
+> both, and `verify` checks whether the model's own prediction came true. A
+> fifth, `explain`, is experimental. v2.1 checked every metric against a
+> 26-project calibration corpus; see the
+> [changelog](https://github.com/okngms/RefactorLens/blob/main/CHANGELOG.md).
 > Two experiments are done — [FINDINGS.md](https://github.com/okngms/RefactorLens/blob/main/FINDINGS.md) and
 > [FINDINGS-2.md](https://github.com/okngms/RefactorLens/blob/main/FINDINGS-2.md).
 
@@ -196,6 +199,26 @@ RefactorLens, regenerate the `before` report with the new version. Schema 3
 changed the meaning of `loc`, of `lcom4` for classes without methods (`null`,
 previously `0`) and of `dcc`; see
 [v2-tanim-kararlari.md](https://github.com/okngms/RefactorLens/blob/main/docs/v2-tanim-kararlari.md).
+
+### Reading the measurements back (experimental)
+
+```bash
+rlens explain .                      # measure now, then describe
+rlens explain . --report reports/scan-....json
+rlens explain . --dry-run            # print the prompt, send nothing
+```
+
+`explain` asks the model to describe what the measurements say about the code
+as it stands — which metrics point at the same structure, which classes share a
+pattern — with no advice and no refactoring. Its output is **not scored** and
+never enters an accuracy figure: a sentence like "this class carries too many
+responsibilities" can be fluent and wrong, and nothing checks it. Each
+observation is tagged with the metrics it rests on; one that names none is
+marked `unlinked`.
+
+It is experimental for a measured reason: in two runs the model still graded
+values ("high", "low") it had been told not to grade, and its observations
+mostly restated the table. A deterministic template layer is planned.
 
 ### Exit codes
 
@@ -455,14 +478,17 @@ read, so a package typed that way (attrs) looks unannotated. Measurement:
 | 3 | AI advisor (`advise`) | — |
 | 4 | Verification loop (`verify`) | v0.2.0 |
 | 5 | Experiment and findings | v1.0.0 |
-| **v2** | **`arch`, smells, architectural context, calibration, second experiment** | **v2.0.0** |
+| v2 | `arch`, smells, architectural context, calibration, second experiment | v2.0.0 |
+| **v2.1** | **Metrics checked against a 26-project corpus: scan schema 3, percentile-based defaults, `explain` (experimental)** | **v2.1.0** |
 
 Phases 3 and 4 shipped together in v0.2.0. Both experiments live in
 [`experiments/`](https://github.com/okngms/RefactorLens/tree/main/experiments), with the raw data committed alongside them.
 
-Next: **v2.1** infers layers instead of requiring them to be declared — v2.0
-reads them from your config or from an existing `import-linter` contract, and
-reports `unknown` when neither is present. **v3** closes the loop (`apply`, a
+Next: a Python-specific metric set (each new measure pre-registered and
+checked against the corpus before it ships), and layer inference instead of
+requiring layers to be declared — today they come from your config or from an
+existing `import-linter` contract, and are reported `unknown` when neither is
+present. **v3** closes the loop (`apply`, a
 feedback round, a benchmark); **v4** adds history and other languages.
 
 Ideas deliberately out of scope live in [FUTURE.md](https://github.com/okngms/RefactorLens/blob/main/FUTURE.md).

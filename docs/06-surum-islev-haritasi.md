@@ -44,6 +44,11 @@ Bulgu: FINDINGS-1 (13 tahmin; subtractive metrikler 6/6, residue-dependent 0/7; 
 Katman **çıkarımı** (v2.1), tip çıkarımı, `apply`, Action, history.
 
 ### 2.3 v2.1 — Katman çıkarımı
+
+> **Kayma (2026-09-22):** 2.1.0 sertleştirme (şema 3, persentil eşikleri,
+> K1-K12) ve deneysel `explain` ile yayınlandı; katman çıkarımı girmedi ve bir
+> sonraki sürüme kaydı. Kabul kriteri değişmedi.
+
 Konvansiyon + framework tanıma + bağımlılık yönü → katman + güven; `unknown`; `tentative` ihlaller. Kabul: 3 gerçek projede elle doğrulanmış doğruluk ≥%80; altında "weak signal".
 
 ### 2.4 Bulgu

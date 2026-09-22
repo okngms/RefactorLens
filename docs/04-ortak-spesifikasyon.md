@@ -23,7 +23,7 @@
 
 | Rapor | Sürüm | Tarih | Değişen | Kaynak |
 |---|---|---|---|---|
-| scan | 3 | 2026-09-16 | alan yapısı aynı; `loc` boş/yorum/docstring saymaz, metotsuz sınıfta `lcom4` `null`, `dcc` kendi iç içe sınıflarını saymaz | `docs/v2-tanim-kararlari.md` K1-K3 |
+| scan | 3 | 2026-09-16 (yayın: 2.1.0) | alan yapısı aynı; `loc` boş/yorum/docstring saymaz, metotsuz sınıfta `lcom4` `null`, `dcc` kendi iç içe sınıflarını saymaz | `docs/v2-tanim-kararlari.md` K1-K3 |
 
 advice sürümünün artması salt alan eklemekten değil, **tüketim tarafından**
 gelir: kalibrasyon `confidence` alanına dayanır, v1 raporlarında bu alan yoktur

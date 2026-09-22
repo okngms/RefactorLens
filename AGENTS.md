@@ -47,6 +47,7 @@ structural effect of their own refactoring suggestions?**
 | 4 | Verification loop (`verify`) | done, released as v0.2.0 |
 | 5 | Experiment and `FINDINGS.md` | done, released as v1.0.0 |
 | v2 | Architecture, smells, calibration, `FINDINGS-2.md` | done, released as v2.0.0 |
+| v2.1 | Hardening against a 26-project corpus, `explain` (experimental) | done, released as v2.1.0 |
 
 Published on PyPI as `refactorlens`. All four commands work end to end against
 a real provider. ~1100 package tests plus the fixture's 91 behaviour tests,

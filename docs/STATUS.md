@@ -1,11 +1,42 @@
 # STATUS — 2026-09-22
 
 ## Sürüm
-**v2.0.0 PyPI'da.** `v2.0.0` tag'i ile GitHub Actions üzerinden, Trusted
-Publishing (OIDC) ile yayınlandı; API token kullanılmadı. CI matrisi
-(3.11/3.12/3.13) ilk kez bu sürümde koştu.
+**PyPI'da v2.0.0. v2.1.0 hazır, yayını kullanıcı yapacak.** `__version__` 2.1.0;
+`CHANGELOG.md` yazıldı. Yerelde: sdist + wheel derlendi, `twine check` geçti,
+wheel temiz bir 3.14 ortamında kuruldu (`rlens --version`, `scan`,
+`explain --dry-run`), açılmış sdist'te 1472 paket + 91 fikstür testi geçti.
+
+Yayın adımları (sırayla):
+1. Değişiklikleri gözden geçir ve commit'le.
+2. `git push` → CI matrisi (3.11/3.12/3.13/**3.14** — 3.14 ilk kez) yeşil olmalı.
+3. `git tag v2.1.0 && git push origin v2.1.0` → `publish` işi (OIDC, `pypi`
+   ortamı). Ortamda onay kuralı varsa GitHub'da onaylanır.
+4. Doğrula: `pipx install --force refactorlens==2.1.0 && rlens --version`
+   → `rlens 2.1.0 (report schema v3)`; PyPI sayfasında README'nin durum
+   satırı.
+5. İstersen GitHub Release notu olarak CHANGELOG'un 2.1.0 bölümü.
+
+Yayından sonra bu bölüm "v2.1.0 PyPI'da" diye güncellenir.
 
 ## Bitenler
+- **v2.1.0 yayın hazırlığı** (bu oturum). v2.0.0'dan bu yana pakete giren
+  şema 3, uygulama düzeltmeleri (import çözücü, CC, `@overload`, DCC), K6/K8/
+  K10/K11 ve `explain` PyPI'daki kullanıcıya ulaşmıyordu.
+  - `__version__` 2.1.0. Sürüm adı: yeni komut + şema değişikliği → minor
+    (semver); `docs/06` §2.3'e "katman çıkarımı 2.1.0'a girmedi, sonraki sürüme
+    kaydı" notu.
+  - `CHANGELOG.md` (yeni): kırılan şema, değişen varsayılan (LCOM4 5/10),
+    eklenen alanlar ve komut, koku kuralları, şema artırmayan uygulama
+    düzeltmeleri. STATUS'taki "bir sonraki yayında CHANGELOG'da yazılmalı"
+    maddesi bununla kapandı.
+  - **README'de `rlens explain` hiç yoktu**; "Reading the measurements back
+    (experimental)" bölümü eklendi, puanlanmadığı ve iki koşuda sıfat yasağına
+    uyulmadığı yazıldı. Durum satırı ve Roadmap v2.1.0.
+  - CI matrisine 3.14 (classifier beyan ediyordu; açık madde kapandı).
+  - `tests/test_packaging.py`: CHANGELOG'un ilk girdisi `__version__` olmalı,
+    linkler mutlak olmalı (2 test).
+  - AGENTS.md faz tablosu, `docs/04` §1 (şema 3 → 2.1.0).
+  - Durum: 1472 paket testi (10 atlandı), 91 fikstür testi, ruff temiz.
 - **v2.2, 4. oturum — DAM ve fiili açıklık, K12** (bu oturum). Ön kayıt ve
   ölçüm: `experiments/hardening/exposure.md`. Aracın koduna dokunulmadı.
   - **K7'nin çürütme koşulu tetiklenmedi** (kütüphanelerin 7'sinde 6
@@ -518,14 +549,10 @@ docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.
   `try: ... except ImportError:` altında tanımlı sınıflar ve iç içe sınıflar
   rapora girmez. Referans setinde 135 fonksiyon — küçük ama sessiz. Tanımda
   yazılı değil; ya tanıma yazılmalı ya kapsama alınmalı.
-- **Metrik değerleri `schema_version` artmadan değişti.** Bu oturumun
-  düzeltmeleri tanımı değil uygulamayı düzeltir, bu yüzden sürüm artmadı.
-  Sonucu: v2.0.0 ile üretilmiş bir raporla bu kodla üretilen rapor arasında
-  `verify`, kod değişmemiş olsa da `@overload`, string annotation veya
-  `@staticmethod` içeren sınıflarda fark gösterebilir. Raporlar
-  `rlens_version` taşıdığı için ayırt edilebilir; bir sonraki yayında
-  CHANGELOG/README'de yazılmalı, `verify`'ın farklı `rlens_version`'da uyarı
-  vermesi FUTURE.md'ye yazıldı (uygulanmadı).
+- ~~**Metrik değerleri `schema_version` artmadan değişti.**~~ CHANGELOG 2.1.0
+  "Fixed" bölümünde yazıldı. (Ayrıca şema 3 zaten 2.0.0 raporlarıyla
+  karşılaştırmayı reddediyor.) `verify`'ın farklı `rlens_version`'da uyarı
+  vermesi FUTURE.md'de, uygulanmadı.
 - **`match` ve `except*` CC farkları yalnızca sentetik testle doğrulandı.**
   Referans setinin tag'leri 3.8/3.9 destekliyor, iki deyim de sette yok.
   Blok 1b korpusu en az bir 3.10+ proje içermeli.
@@ -596,7 +623,10 @@ docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.
   koşudaki sahte gruplamanın sebebi buydu. `include: ["src/"]` ile temiz tarama
   66 sınıf veriyor, üçünde koku var: `ImportGraph`, `GroqProvider`,
   `OllamaProvider`. Bunlar Blok 3'ün ilk gerçek dogfooding verisi.
-- CI matrisi hiç koşmadı; ilk push'ta 3.11 ve 3.13'te sürpriz çıkabilir.
-  Yerelde yalnızca 3.12 denendi.
-- `pyproject.toml` 3.14 classifier'ı taşıyor ama matriste 3.14 yok — ya matrise
-  eklenmeli ya classifier düşmeli (Blok 4).
+- ~~CI matrisi hiç koşmadı.~~ v2.0.0'da koştu. ~~3.14 classifier'ı var ama
+  matriste yok.~~ 2.1.0 hazırlığında matrise eklendi; ilk koşusu 2.1.0 push'u.
+  Yerel testler 3.14.3'te koşuyor.
+- **sdist 337 KB → 554 KB.** Artış sertleştirme sonuç JSON'larından
+  (`experiments/hardening/results/`, en büyüğü `coverage.json` 141 KB). Testler
+  bunları okumuyor; sdist'ten çıkarmak mümkün, ama belgeler onlara mutlak
+  linkle değil göreli yolla atıf yapıyor. Karar verilmedi.
