@@ -142,7 +142,9 @@ hesaplanıyor ve uygun her projede yayılım gösteriyor. En sık değerin payı
 - Veri, DAM'ın bir sınıfın kapsülleme kararından çok **projenin adlandırma
   geleneğini** yansıttığı yorumuyla tutarlı: mod bazı projelerde 0, bazılarında
   1.0 ve yayılımsız projelerin hepsi 0'da. Proje içi / projeler arası varyans
-  ayrıştırması yapılmadı. Dogfooding gözlemi ("66 sınıfın hepsinde 0.00") web
+  ayrıştırması yapılmadı. *Sonrası (K12, `exposure.md`):* η² 0.74 (sınıf
+  ağırlıklı) / 0.50 (proje başına en fazla 200 sınıf); ön kayıtlı okumayla
+  kararsız. Dogfooding gözlemi ("66 sınıfın hepsinde 0.00") web
   uygulamaları için geçerli, kütüphaneler için değil.
 - `data_class` kokusu `DAM ≥ 0.5` koşulu taşıyor ve web_app'te koku oranı 0
   (`metric-distribution.md`); bu tabloyla tutarlı, ama kokunun neden

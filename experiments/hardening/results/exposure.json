@@ -1,0 +1,522 @@
+{
+  "schema_version": 3,
+  "q1": {
+    "eta_squared_all": 0.7361,
+    "eta_squared_capped": 0.4978,
+    "cap": 200,
+    "reading": "karars\u0131z"
+  },
+  "resolvable_median": 0.4466,
+  "silent_projects_with_spread": 7,
+  "naming_eligible": 15,
+  "naming_inconsistent": 2,
+  "exposed_pool": 4163,
+  "refutations": {
+    "a": true,
+    "b": false,
+    "c": false,
+    "d": false
+  },
+  "per_project": {
+    "requests": {
+      "type": "library",
+      "attributes": 63,
+      "resolvable_share": 0.6032,
+      "exposure_classes": 12,
+      "exposure_p10": 0.0,
+      "exposure_p50": 0.0,
+      "exposure_p90": 1.0,
+      "exposure_spread": null,
+      "private": [
+        3,
+        14
+      ],
+      "public": [
+        12,
+        24
+      ],
+      "naming_consistent": null
+    },
+    "httpx": {
+      "type": "library",
+      "attributes": 215,
+      "resolvable_share": 0.6651,
+      "exposure_classes": 34,
+      "exposure_p10": 0.0,
+      "exposure_p50": 0.0,
+      "exposure_p90": 1.0,
+      "exposure_spread": true,
+      "private": [
+        3,
+        27
+      ],
+      "public": [
+        34,
+        116
+      ],
+      "naming_consistent": true
+    },
+    "rich": {
+      "type": "library",
+      "attributes": 687,
+      "resolvable_share": 0.5342,
+      "exposure_classes": 94,
+      "exposure_p10": 0.0,
+      "exposure_p50": 0.3333,
+      "exposure_p90": 1.0,
+      "exposure_spread": true,
+      "private": [
+        18,
+        83
+      ],
+      "public": [
+        130,
+        284
+      ],
+      "naming_consistent": true
+    },
+    "pydantic": {
+      "type": "library",
+      "attributes": 472,
+      "resolvable_share": 0.3708,
+      "exposure_classes": 68,
+      "exposure_p10": 0.0,
+      "exposure_p50": 0.0,
+      "exposure_p90": 1.0,
+      "exposure_spread": true,
+      "private": [
+        3,
+        38
+      ],
+      "public": [
+        67,
+        137
+      ],
+      "naming_consistent": true
+    },
+    "fastapi": {
+      "type": "library",
+      "attributes": 404,
+      "resolvable_share": 0.4332,
+      "exposure_classes": 36,
+      "exposure_p10": 0.0,
+      "exposure_p50": 0.0,
+      "exposure_p90": 1.0,
+      "exposure_spread": true,
+      "private": [
+        0,
+        1
+      ],
+      "public": [
+        60,
+        174
+      ],
+      "naming_consistent": null
+    },
+    "attrs": {
+      "type": "library",
+      "attributes": 91,
+      "resolvable_share": 0.5934,
+      "exposure_classes": 20,
+      "exposure_p10": 0.0,
+      "exposure_p50": 0.0,
+      "exposure_p90": 1.0,
+      "exposure_spread": null,
+      "private": [
+        4,
+        24
+      ],
+      "public": [
+        10,
+        30
+      ],
+      "naming_consistent": true
+    },
+    "click": {
+      "type": "library",
+      "attributes": 268,
+      "resolvable_share": 0.6082,
+      "exposure_classes": 43,
+      "exposure_p10": 0.0,
+      "exposure_p50": 0.0,
+      "exposure_p90": 0.6674,
+      "exposure_spread": true,
+      "private": [
+        4,
+        28
+      ],
+      "public": [
+        42,
+        135
+      ],
+      "naming_consistent": true
+    },
+    "flask": {
+      "type": "library",
+      "attributes": 155,
+      "resolvable_share": 0.6581,
+      "exposure_classes": 23,
+      "exposure_p10": 0.0,
+      "exposure_p50": 0.3333,
+      "exposure_p90": 0.9286,
+      "exposure_spread": null,
+      "private": [
+        1,
+        13
+      ],
+      "public": [
+        41,
+        89
+      ],
+      "naming_consistent": null
+    },
+    "sqlalchemy": {
+      "type": "library",
+      "attributes": 1160,
+      "resolvable_share": 0.4466,
+      "exposure_classes": 104,
+      "exposure_p10": 0.0,
+      "exposure_p50": 0.6667,
+      "exposure_p90": 1.0,
+      "exposure_spread": true,
+      "private": [
+        123,
+        190
+      ],
+      "public": [
+        200,
+        328
+      ],
+      "naming_consistent": false
+    },
+    "pandas": {
+      "type": "library",
+      "attributes": 967,
+      "resolvable_share": 0.3195,
+      "exposure_classes": 92,
+      "exposure_p10": 0.0,
+      "exposure_p50": 0.3333,
+      "exposure_p90": 1.0,
+      "exposure_spread": true,
+      "private": [
+        27,
+        83
+      ],
+      "public": [
+        94,
+        226
+      ],
+      "naming_consistent": true
+    },
+    "black": {
+      "type": "cli",
+      "attributes": 170,
+      "resolvable_share": 0.8471,
+      "exposure_classes": 32,
+      "exposure_p10": 0.0,
+      "exposure_p50": 1.0,
+      "exposure_p90": 1.0,
+      "exposure_spread": true,
+      "private": [
+        0,
+        10
+      ],
+      "public": [
+        91,
+        134
+      ],
+      "naming_consistent": null
+    },
+    "mypy": {
+      "type": "cli",
+      "attributes": 1664,
+      "resolvable_share": 0.515,
+      "exposure_classes": 203,
+      "exposure_p10": 0.0,
+      "exposure_p50": 1.0,
+      "exposure_p90": 1.0,
+      "exposure_spread": true,
+      "private": [
+        8,
+        49
+      ],
+      "public": [
+        558,
+        808
+      ],
+      "naming_consistent": true
+    },
+    "httpie": {
+      "type": "cli",
+      "attributes": 287,
+      "resolvable_share": 0.5645,
+      "exposure_classes": 53,
+      "exposure_p10": 0.0,
+      "exposure_p50": 0.5,
+      "exposure_p90": 1.0,
+      "exposure_spread": true,
+      "private": [
+        0,
+        14
+      ],
+      "public": [
+        90,
+        148
+      ],
+      "naming_consistent": null
+    },
+    "yt-dlp": {
+      "type": "cli",
+      "attributes": 7113,
+      "resolvable_share": 0.1272,
+      "exposure_classes": 401,
+      "exposure_p10": 0.0,
+      "exposure_p50": 0.0,
+      "exposure_p90": 1.0,
+      "exposure_spread": true,
+      "private": [
+        39,
+        609
+      ],
+      "public": [
+        184,
+        296
+      ],
+      "naming_consistent": true
+    },
+    "awscli": {
+      "type": "cli",
+      "attributes": 3426,
+      "resolvable_share": 0.3844,
+      "exposure_classes": 494,
+      "exposure_p10": 0.0,
+      "exposure_p50": 0.0,
+      "exposure_p90": 0.8,
+      "exposure_spread": true,
+      "private": [
+        10,
+        768
+      ],
+      "public": [
+        218,
+        549
+      ],
+      "naming_consistent": true
+    },
+    "pipx": {
+      "type": "cli",
+      "attributes": 360,
+      "resolvable_share": 0.3472,
+      "exposure_classes": 46,
+      "exposure_p10": 0.0,
+      "exposure_p50": 1.0,
+      "exposure_p90": 1.0,
+      "exposure_spread": true,
+      "private": [
+        0,
+        25
+      ],
+      "public": [
+        74,
+        100
+      ],
+      "naming_consistent": true
+    },
+    "healthchecks": {
+      "type": "web_app",
+      "attributes": 598,
+      "resolvable_share": 0.2893,
+      "exposure_classes": 67,
+      "exposure_p10": 0.0,
+      "exposure_p50": 0.8125,
+      "exposure_p90": 1.0,
+      "exposure_spread": true,
+      "private": [
+        0,
+        4
+      ],
+      "public": [
+        86,
+        169
+      ],
+      "naming_consistent": null
+    },
+    "netbox": {
+      "type": "web_app",
+      "attributes": 16366,
+      "resolvable_share": 0.1148,
+      "exposure_classes": 425,
+      "exposure_p10": 0.0,
+      "exposure_p50": 0.0,
+      "exposure_p90": 1.0,
+      "exposure_spread": true,
+      "private": [
+        20,
+        72
+      ],
+      "public": [
+        294,
+        1806
+      ],
+      "naming_consistent": false
+    },
+    "saleor": {
+      "type": "web_app",
+      "attributes": 8323,
+      "resolvable_share": 0.2363,
+      "exposure_classes": 529,
+      "exposure_p10": 0.0,
+      "exposure_p50": 0.5,
+      "exposure_p90": 1.0,
+      "exposure_spread": true,
+      "private": [
+        2,
+        24
+      ],
+      "public": [
+        1083,
+        1943
+      ],
+      "naming_consistent": true
+    },
+    "redash": {
+      "type": "web_app",
+      "attributes": 470,
+      "resolvable_share": 0.3106,
+      "exposure_classes": 57,
+      "exposure_p10": 0.0,
+      "exposure_p50": 0.0,
+      "exposure_p90": 1.0,
+      "exposure_spread": true,
+      "private": [
+        0,
+        15
+      ],
+      "public": [
+        64,
+        131
+      ],
+      "naming_consistent": null
+    },
+    "mealie": {
+      "type": "web_app",
+      "attributes": 2203,
+      "resolvable_share": 0.2515,
+      "exposure_classes": 188,
+      "exposure_p10": 0.0,
+      "exposure_p50": 0.25,
+      "exposure_p90": 1.0,
+      "exposure_spread": true,
+      "private": [
+        5,
+        31
+      ],
+      "public": [
+        284,
+        523
+      ],
+      "naming_consistent": true
+    },
+    "nanogpt": {
+      "type": "ml_research",
+      "attributes": 28,
+      "resolvable_share": 0.6071,
+      "exposure_classes": 6,
+      "exposure_p10": 0.0,
+      "exposure_p50": 0.2916,
+      "exposure_p90": 1.0,
+      "exposure_spread": null,
+      "private": [
+        0,
+        0
+      ],
+      "public": [
+        6,
+        17
+      ],
+      "naming_consistent": null
+    },
+    "yolov5": {
+      "type": "ml_research",
+      "attributes": 429,
+      "resolvable_share": 0.3706,
+      "exposure_classes": 43,
+      "exposure_p10": 0.0,
+      "exposure_p50": 0.3158,
+      "exposure_p90": 1.0,
+      "exposure_spread": true,
+      "private": [
+        0,
+        2
+      ],
+      "public": [
+        49,
+        157
+      ],
+      "naming_consistent": null
+    },
+    "detectron2": {
+      "type": "ml_research",
+      "attributes": 641,
+      "resolvable_share": 0.4789,
+      "exposure_classes": 125,
+      "exposure_p10": 0.0,
+      "exposure_p50": 0.0,
+      "exposure_p90": 1.0,
+      "exposure_spread": true,
+      "private": [
+        5,
+        108
+      ],
+      "public": [
+        67,
+        199
+      ],
+      "naming_consistent": true
+    },
+    "whisper": {
+      "type": "ml_research",
+      "attributes": 146,
+      "resolvable_share": 0.6575,
+      "exposure_classes": 19,
+      "exposure_p10": 0.0,
+      "exposure_p50": 0.0,
+      "exposure_p90": 1.0,
+      "exposure_spread": null,
+      "private": [
+        0,
+        0
+      ],
+      "public": [
+        37,
+        96
+      ],
+      "naming_consistent": null
+    },
+    "segment-anything": {
+      "type": "ml_research",
+      "attributes": 106,
+      "resolvable_share": 0.783,
+      "exposure_classes": 17,
+      "exposure_p10": 0.0,
+      "exposure_p50": 0.0,
+      "exposure_p90": 0.44,
+      "exposure_spread": null,
+      "private": [
+        0,
+        1
+      ],
+      "public": [
+        13,
+        82
+      ],
+      "naming_consistent": null
+    }
+  },
+  "precision": {
+    "sample": 30,
+    "correct": 25,
+    "precision": 0.8333,
+    "d_refuted": false
+  }
+}

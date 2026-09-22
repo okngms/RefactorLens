@@ -6,7 +6,25 @@ Publishing (OIDC) ile yayınlandı; API token kullanılmadı. CI matrisi
 (3.11/3.12/3.13) ilk kez bu sürümde koştu.
 
 ## Bitenler
-- **v2.2, 3. oturum — anotasyon kapsamı (§3), K11** (bu oturum). Ön kayıt ve
+- **v2.2, 4. oturum — DAM ve fiili açıklık, K12** (bu oturum). Ön kayıt ve
+  ölçüm: `experiments/hardening/exposure.md`. Aracın koduna dokunulmadı.
+  - **K7'nin çürütme koşulu tetiklenmedi** (kütüphanelerin 7'sinde 6
+    yayılım); DAM kalır. DAM donmuş iki dosyada geçtiği için aday onun yanına
+    yazıldı.
+  - **DAM varyans ayrıştırması (K7'nin açık bıraktığı):** η² 0.74 sınıf
+    ağırlıklı, 0.50 proje başına en fazla 200 sınıf → ön kayıtlı okuma
+    **kararsız**. README'deki "mostly" cümlesi ölçülen aralıkla değiştirildi.
+  - **EXP (sınıf dışından `X.a` erişimi, ad tekse çözülür):** (a)
+    çözülebilirlik medyanı %44.7 < %50 → **reddedildi**. Diğerleri geçti:
+    DAM'ın sessiz olduğu 7 projenin 7'sinde yayılım, adlandırmayla tutarsız
+    proje 2/15, elle kesinlik 25/30 (%83; 5 yanlış isim çakışması, kararlar
+    dosya:satırla `exposure-verdicts.json`'da).
+  - **Bulgu:** `_` konvansiyonu kodda uyuluyor (15 projenin 13'ünde `_`
+    attribute'lar dışarıdan daha az erişiliyor); darboğaz `ast`-yalnız isim
+    çözümü. Annotation ile çözüm FUTURE.md'ye yazıldı.
+  - Testler: `test_exposure.py` 10. Durum: 1470 paket testi (10 atlandı), 91
+    fikstür testi, ruff temiz.
+- **v2.2, 3. oturum — anotasyon kapsamı (§3), K11**. Ön kayıt ve
   ölçüm: `experiments/hardening/annotation-coverage.md`.
   - **Ön kayıt ölçümden önce;** bağımsız sinyal PEP 561 `py.typed`. Sonuç:
     py.typed medyanı %100, diğerleri %59.6; 9'un 8'i genel medyanın üstünde;
@@ -421,16 +439,15 @@ framework deyiminden geliyor.**
 - **§2 PySmell kokuları:** önce her kokunun etiketi tek bir metrik eşiğiyle
   ayrılıyor mu kontrol edilir (Large Class'ta ayrılıyordu); etiket boyut
   kodluyorsa dış doğrulama sayılmaz.
-- **DAM'ın yeniden tanımı** (K7; çürütme koşulu kayıtta).
 - **§3 dinamik opaklık, modül düzeyi kohezyon, duck typing kuplajı.**
 - **§5b modül düzeyi kod ve koşullu tanımlar** (K5).
 - **PARAMS'ta yalnızca-anahtar parametreler** (FUTURE.md, K8 ölçümü).
 
-§3 anotasyon kapsamı bitti (K11). Önerilen sıra: etiketleme beklenirken
-**DAM'ın yeniden tanımı** (K7'nin çürütme koşulu ve `coverage.json` verisi
-hazır; K11'in kapsam alanı DAM'ın "adlandırma geleneği" yorumunu sınamak için
-proje düzeyi bir eş değişken verir), ardından §2 PySmell kokularının etiket
-kontrolü.
+§3 anotasyon kapsamı (K11) ve DAM sorusu (K12) bitti. Önerilen sıra:
+etiketleme beklenirken **§2 PySmell kokularının etiket kontrolü** (etiketler
+depoda; her koku için "etiket tek bir metrik eşiğiyle ayrılıyor mu" sorusu
+Large Class'taki gibi bir oturumluk iş), ardından §3 dinamik opaklık.
+Annotation'la çözülen açıklık (EXP-typed) FUTURE.md'de.
 
 Projeler yerelde yoksa: `python experiments/hardening/corpus.py fetch`
 (~850 MB). Kohezyon betiği ayrıca `pip install cohesion==1.2.0` ister.

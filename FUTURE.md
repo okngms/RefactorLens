@@ -39,6 +39,12 @@ eklenmez; amaç fikri kaybetmemek ama kapsamı şişirmemektir.
   kuralı reddedildi (`experiments/hardening/stateless-gate.md`); kör
   etiketler bu sınıfların god class olmadığını gösterirse framework'e özgü,
   dar bir kural (K6 deseni) yeniden tartılır.
+- **Annotation'la çözülen fiili açıklık (EXP-typed).** K12'de EXP, ad
+  projede tek sınıfa ait olmadıkça erişimi çözemediği için reddedildi
+  (medyan çözülebilirlik %44.7). Annotation'lı projelerde (`annotation_coverage`,
+  K11) alıcının türü imzadan okunabilir: `def f(order: Order): order.total`.
+  Kendi ön kaydıyla ölçülmeli; `ast`-yalnız kararını zorlamaz, çözüm yine
+  best-effort kalır.
 - **PARAMS'ta yalnızca-anahtar parametreler.** `*` sonrası parametreleri ayrı
   saymak `too_many_params`'ın %24.9'unu kaldırırdı (K8,
   `experiments/hardening/thresholds.md`). Tanım değişikliği, şema artışı;

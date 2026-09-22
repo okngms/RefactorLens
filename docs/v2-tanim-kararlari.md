@@ -10,7 +10,8 @@ kararıdır; alan eklediği için şema sürümü değiştirmez (`04` §1). K7, 
 (kapsama) kararıdır; hiçbir şey değiştirmez. K8 eşik kararıdır; eşik metrik
 değildir, şema sürümü değişmez. K9 v2.2'nin ilk ölçümüdür; bir adayı
 reddeder, hiçbir şey değiştirmez. K10 bir koku kuralıdır (K6 deseni); alan
-ekler, şema sürümü değişmez. K11 v2.2'nin ilk yeni ölçüsüdür; alan ekler. Blok 1b'nin dağılım tablosu metrik değerlerini
+ekler, şema sürümü değişmez. K11 v2.2'nin ilk yeni ölçüsüdür; alan ekler.
+K12 bir adayı reddeder; hiçbir şey değiştirmez. Blok 1b'nin dağılım tablosu metrik değerlerini
 ölçeceği için bu sorular **tablodan önce** kapanmalıydı; yoksa tablo iki kez
 üretilirdi. Beşi burada birlikte karara bağlandı ve metrik anlamını değiştiren
 üçü tek bir `schema_version` artışıyla (2 → 3) uygulandı.
@@ -406,6 +407,39 @@ sayılmaz. Üçü ön kayıtta yazılıydı.
 
 **Yan etki.** `param_count` artık `parameter_slots`'un uzunluğu; davranış
 aynı (bütün testler, uç durum testleri dahil, değişmeden geçti).
+
+## K12 — DAM kalır; fiili açıklık (EXP) adayı reddedildi
+
+> Karara bağlandı 2026-09-22. Kod, metrik, alan ve şema değişmez. Ön kayıt ve
+> ölçüm: `experiments/hardening/exposure.md`.
+
+**Soru.** K7 DAM'ı tuttu ama iki şey bıraktı: bir çürütme koşulu ve yapılmamış
+bir varyans ayrıştırması. v2.2 "DAM'ın yeniden tanımı"nı listeledi; DAM
+donmuş iki dosyada (kanıt alanı, prompt) geçtiği için "yeniden tanım" DAM'ın
+yanına yeni bir ölçü demekti.
+
+**Karar.** DAM aynen kalır. Aday EXP (sınıfın attribute'larından kaçına
+sınıf dışından `X.a` ile erişildiği; ad projede tek sınıfa aitse çözülür)
+ön kayıtlı (a) koşuluyla reddedildi ve araca eklenmedi.
+
+**Ölçüm.**
+- K7'nin çürütme koşulu tetiklenmedi (kütüphanelerin 7'sinde 6 yayılım,
+  `coverage.md`).
+- DAM η²: 0.74 (sınıf ağırlıklı), 0.50 (proje başına en fazla 200 sınıf) —
+  ön kayıtlı okumayla **kararsız**.
+- EXP: çözülebilir pay medyanı %44.7 (< %50, ret); DAM'ın sessiz olduğu 7
+  projenin 7'sinde yayılım, adlandırmayla tutarsız proje 2/15, elle kesinlik
+  25/30 (%83) — diğer üç koşul geçti.
+
+**Gerekçe.** Ön kayıt her koşulu eşit ağırlıkta yazdı ve biri tetiklendi.
+Bir ölçünün attribute'ların yarısından fazlasında tanımsız olması, en çok
+ihtiyaç duyulan projelerde (netbox %11.5, saleor %23.6) daha da kötü olması,
+raporda bir alan olarak taşınmasını haklı çıkarmaz.
+
+**Maliyet.** DAM'ın web uygulamalarında sınıfları ayırmaması (K7) açık
+kalıyor. EXP'nin çözülebildiği yerde işe yaradığı görüldü; darboğaz isim
+çözümü. Annotation'lı projelerde alıcının türünü imzadan okumak bu darboğazı
+gevşetebilir (FUTURE.md); `ast`-yalnız kararını zorlamaz.
 
 ## Korpustaki etki
 

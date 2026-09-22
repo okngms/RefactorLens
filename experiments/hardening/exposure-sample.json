@@ -1,0 +1,302 @@
+[
+  {
+    "id": "click:parser:Option._long_opts",
+    "project": "click",
+    "class": "Option",
+    "owner_file": "parser.py",
+    "owner_line": 161,
+    "attribute": "_long_opts",
+    "access_file": "parser.py",
+    "access_line": 315
+  },
+  {
+    "id": "yolov5:utils.metrics:ConfusionMatrix.matrix",
+    "project": "yolov5",
+    "class": "ConfusionMatrix",
+    "owner_file": "utils/metrics.py",
+    "owner_line": 126,
+    "attribute": "matrix",
+    "access_file": "utils/loggers/comet/__init__.py",
+    "access_line": 488
+  },
+  {
+    "id": "saleor:webhook.event_types:WebhookEventAsyncType.THUMBNAIL_CREATED",
+    "project": "saleor",
+    "class": "WebhookEventAsyncType",
+    "owner_file": "webhook/event_types.py",
+    "owner_line": 23,
+    "attribute": "THUMBNAIL_CREATED",
+    "access_file": "graphql/webhook/enums.py",
+    "access_line": 246
+  },
+  {
+    "id": "sqlalchemy:session:Session._nested_transaction",
+    "project": "sqlalchemy",
+    "class": "Session",
+    "owner_file": "session.py",
+    "owner_line": 1455,
+    "attribute": "_nested_transaction",
+    "access_file": "session.py",
+    "access_line": 952
+  },
+  {
+    "id": "saleor:graphql.order.bulk_mutations.order_bulk_create:ModelIdentifiers.variant_external_references",
+    "project": "saleor",
+    "class": "ModelIdentifiers",
+    "owner_file": "graphql/order/bulk_mutations/order_bulk_create.py",
+    "owner_line": 317,
+    "attribute": "variant_external_references",
+    "access_file": "graphql/order/bulk_mutations/order_bulk_create.py",
+    "access_line": 739
+  },
+  {
+    "id": "mypy:checkstrformat:ConversionSpecifier.flags",
+    "project": "mypy",
+    "class": "ConversionSpecifier",
+    "owner_file": "checkstrformat.py",
+    "owner_line": 142,
+    "attribute": "flags",
+    "access_file": "checkstrformat.py",
+    "access_line": 449
+  },
+  {
+    "id": "click:core:Parameter.required",
+    "project": "click",
+    "class": "Parameter",
+    "owner_file": "core.py",
+    "owner_line": 2017,
+    "attribute": "required",
+    "access_file": "core.py",
+    "access_line": 1542
+  },
+  {
+    "id": "awscli:customizations.commands:BasicCommand.FROM_FILE",
+    "project": "awscli",
+    "class": "BasicCommand",
+    "owner_file": "customizations/commands.py",
+    "owner_line": 44,
+    "attribute": "FROM_FILE",
+    "access_file": "customizations/cloudformation/deploy.py",
+    "access_line": 115
+  },
+  {
+    "id": "whisper:decoding:DecodingOptions.fp16",
+    "project": "whisper",
+    "class": "DecodingOptions",
+    "owner_file": "decoding.py",
+    "owner_line": 81,
+    "attribute": "fp16",
+    "access_file": "decoding.py",
+    "access_line": 645
+  },
+  {
+    "id": "netbox:netbox.metrics:Metrics.graphql_api_requests",
+    "project": "netbox",
+    "class": "Metrics",
+    "owner_file": "netbox/metrics.py",
+    "owner_line": 10,
+    "attribute": "graphql_api_requests",
+    "access_file": "netbox/middleware.py",
+    "access_line": 244
+  },
+  {
+    "id": "detectron2:utils.visualizer:VisImage.scale",
+    "project": "detectron2",
+    "class": "VisImage",
+    "owner_file": "utils/visualizer.py",
+    "owner_line": 257,
+    "attribute": "scale",
+    "access_file": "engine/train_loop.py",
+    "access_line": 403
+  },
+  {
+    "id": "yt-dlp:utils._utils:locked_file.close",
+    "project": "yt-dlp",
+    "class": "locked_file",
+    "owner_file": "utils/_utils.py",
+    "owner_line": 1621,
+    "attribute": "close",
+    "access_file": "YoutubeDL.py",
+    "access_line": 1066
+  },
+  {
+    "id": "rich:traceback:Frame.last_instruction",
+    "project": "rich",
+    "class": "Frame",
+    "owner_file": "traceback.py",
+    "owner_line": 178,
+    "attribute": "last_instruction",
+    "access_file": "traceback.py",
+    "access_line": 750
+  },
+  {
+    "id": "fastapi:dependencies.utils:SolvedDependency.values",
+    "project": "fastapi",
+    "class": "SolvedDependency",
+    "owner_file": "dependencies/utils.py",
+    "owner_line": 564,
+    "attribute": "values",
+    "access_file": "_compat.py",
+    "access_line": 526
+  },
+  {
+    "id": "netbox:utilities.forms.widgets.apiselect:APISelect.static_params",
+    "project": "netbox",
+    "class": "APISelect",
+    "owner_file": "utilities/forms/widgets/apiselect.py",
+    "owner_line": 13,
+    "attribute": "static_params",
+    "access_file": "utilities/forms/fields/generic.py",
+    "access_line": 160
+  },
+  {
+    "id": "awscli:customizations.agenttoolkit.agents:AgentConfig.mcp_config_path",
+    "project": "awscli",
+    "class": "AgentConfig",
+    "owner_file": "customizations/agenttoolkit/agents.py",
+    "owner_line": 58,
+    "attribute": "mcp_config_path",
+    "access_file": "customizations/agenttoolkit/agents.py",
+    "access_line": 183
+  },
+  {
+    "id": "awscli:s3transfer.bandwidth:RequestExceededException.retry_time",
+    "project": "awscli",
+    "class": "RequestExceededException",
+    "owner_file": "s3transfer/bandwidth.py",
+    "owner_line": 17,
+    "attribute": "retry_time",
+    "access_file": "s3transfer/bandwidth.py",
+    "access_line": 177
+  },
+  {
+    "id": "saleor:core.telemetry.utils:Unit.SECOND",
+    "project": "saleor",
+    "class": "Unit",
+    "owner_file": "core/telemetry/utils.py",
+    "owner_line": 31,
+    "attribute": "SECOND",
+    "access_file": "core/telemetry/utils.py",
+    "access_line": 45
+  },
+  {
+    "id": "mypy:types:ParamSpecType.flavor",
+    "project": "mypy",
+    "class": "ParamSpecType",
+    "owner_file": "types.py",
+    "owner_line": 705,
+    "attribute": "flavor",
+    "access_file": "checkexpr.py",
+    "access_line": 1780
+  },
+  {
+    "id": "mealie:services.parser_services.parser_utils.unit_utils:UnitConverter.ureg",
+    "project": "mealie",
+    "class": "UnitConverter",
+    "owner_file": "services/parser_services/parser_utils/unit_utils.py",
+    "owner_line": 22,
+    "attribute": "ureg",
+    "access_file": "services/parser_services/parser_utils/unit_utils.py",
+    "access_line": 137
+  },
+  {
+    "id": "mypy:build:BuildManager.metastore",
+    "project": "mypy",
+    "class": "BuildManager",
+    "owner_file": "build.py",
+    "owner_line": 553,
+    "attribute": "metastore",
+    "access_file": "build.py",
+    "access_line": 277
+  },
+  {
+    "id": "pipx:commands.manifest:_Manifest.path",
+    "project": "pipx",
+    "class": "_Manifest",
+    "owner_file": "commands/manifest.py",
+    "owner_line": 429,
+    "attribute": "path",
+    "access_file": "__main__.py",
+    "access_line": 11
+  },
+  {
+    "id": "mealie:core.settings.settings:AppSettings.SCRAPER_FLARESOLVERR_TIMEOUT",
+    "project": "mealie",
+    "class": "AppSettings",
+    "owner_file": "core/settings/settings.py",
+    "owner_line": 139,
+    "attribute": "SCRAPER_FLARESOLVERR_TIMEOUT",
+    "access_file": "pkgs/safehttp/fetch.py",
+    "access_line": 314
+  },
+  {
+    "id": "detectron2:export.caffe2_inference:ProtobufModel.net",
+    "project": "detectron2",
+    "class": "ProtobufModel",
+    "owner_file": "export/caffe2_inference.py",
+    "owner_line": 17,
+    "attribute": "net",
+    "access_file": "export/caffe2_inference.py",
+    "access_line": 160
+  },
+  {
+    "id": "saleor:product:ProductTypeKind.NORMAL",
+    "project": "saleor",
+    "class": "ProductTypeKind",
+    "owner_file": "product/__init__.py",
+    "owner_line": 14,
+    "attribute": "NORMAL",
+    "access_file": "graphql/product/mutations/product_type/product_type_create.py",
+    "access_line": 103
+  },
+  {
+    "id": "mypy:errors:Errors._watchers",
+    "project": "mypy",
+    "class": "Errors",
+    "owner_file": "errors.py",
+    "owner_line": 221,
+    "attribute": "_watchers",
+    "access_file": "errors.py",
+    "access_line": 182
+  },
+  {
+    "id": "saleor:plugins.sendgrid:SendgridConfiguration.account_change_email_request_template_id",
+    "project": "saleor",
+    "class": "SendgridConfiguration",
+    "owner_file": "plugins/sendgrid/__init__.py",
+    "owner_line": 5,
+    "attribute": "account_change_email_request_template_id",
+    "access_file": "plugins/sendgrid/tasks.py",
+    "access_line": 81
+  },
+  {
+    "id": "redash:models:Widget.text",
+    "project": "redash",
+    "class": "Widget",
+    "owner_file": "models/__init__.py",
+    "owner_line": 1270,
+    "attribute": "text",
+    "access_file": "authentication/saml_auth.py",
+    "access_line": 127
+  },
+  {
+    "id": "mypy:semanal:SemanticAnalyzer.saved_locals",
+    "project": "mypy",
+    "class": "SemanticAnalyzer",
+    "owner_file": "semanal.py",
+    "owner_line": 337,
+    "attribute": "saved_locals",
+    "access_file": "semanal_main.py",
+    "access_line": 304
+  },
+  {
+    "id": "awscli:customizations.wizard.app:WizardApp.save_details_visible",
+    "project": "awscli",
+    "class": "WizardApp",
+    "owner_file": "customizations/wizard/app.py",
+    "owner_line": 43,
+    "attribute": "save_details_visible",
+    "access_file": "customizations/wizard/ui/keybindings.py",
+    "access_line": 34
+  }
+]

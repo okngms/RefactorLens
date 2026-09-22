@@ -1,0 +1,122 @@
+{
+  "click:parser:Option._long_opts": {
+    "verdict": "correct",
+    "reason": "parser.py:315: option comes from add_option(Option); Option instance"
+  },
+  "yolov5:utils.metrics:ConfusionMatrix.matrix": {
+    "verdict": "correct",
+    "reason": "utils/loggers/comet/__init__.py:488: inferred from name and context: confusion_matrix is the ConfusionMatrix passed to the logger"
+  },
+  "saleor:webhook.event_types:WebhookEventAsyncType.THUMBNAIL_CREATED": {
+    "verdict": "correct",
+    "reason": "graphql/webhook/enums.py:246: access through the class itself: WebhookEventAsyncType.THUMBNAIL_CREATED"
+  },
+  "sqlalchemy:session:Session._nested_transaction": {
+    "verdict": "correct",
+    "reason": "session.py:952: session is the parent Session in SessionTransaction.__init__"
+  },
+  "saleor:graphql.order.bulk_mutations.order_bulk_create:ModelIdentifiers.variant_external_references": {
+    "verdict": "correct",
+    "reason": "graphql/order/bulk_mutations/order_bulk_create.py:739: inferred from context: identifiers built as ModelIdentifiers with the sibling variant_ids/variant_skus"
+  },
+  "mypy:checkstrformat:ConversionSpecifier.flags": {
+    "verdict": "correct",
+    "reason": "checkstrformat.py:449: spec is a ConversionSpecifier parsed a few lines above"
+  },
+  "click:core:Parameter.required": {
+    "verdict": "correct",
+    "reason": "core.py:1542: param is an Argument (isinstance check), a Parameter subclass"
+  },
+  "awscli:customizations.commands:BasicCommand.FROM_FILE": {
+    "verdict": "correct",
+    "reason": "customizations/cloudformation/deploy.py:115: access through the class itself: BasicCommand.FROM_FILE"
+  },
+  "whisper:decoding:DecodingOptions.fp16": {
+    "verdict": "correct",
+    "reason": "decoding.py:645: self.options is the DecodingOptions passed to DecodingTask"
+  },
+  "netbox:netbox.metrics:Metrics.graphql_api_requests": {
+    "verdict": "correct",
+    "reason": "netbox/middleware.py:244: inferred from name: self.metrics is the Metrics collector held by the middleware"
+  },
+  "detectron2:utils.visualizer:VisImage.scale": {
+    "verdict": "wrong",
+    "reason": "engine/train_loop.py:403: grad_scaler is torch GradScaler; .scale is its method, not VisImage.scale"
+  },
+  "yt-dlp:utils._utils:locked_file.close": {
+    "verdict": "wrong",
+    "reason": "YoutubeDL.py:1066: _request_director is a RequestDirector; .close() is its method, not locked_file.close"
+  },
+  "rich:traceback:Frame.last_instruction": {
+    "verdict": "correct",
+    "reason": "traceback.py:750: frame iterates stack.frames, which are Frame instances"
+  },
+  "fastapi:dependencies.utils:SolvedDependency.values": {
+    "verdict": "wrong",
+    "reason": "_compat.py:526: model.__fields__ is a dict; .values() is dict.values, not SolvedDependency.values"
+  },
+  "netbox:utilities.forms.widgets.apiselect:APISelect.static_params": {
+    "verdict": "correct",
+    "reason": "utilities/forms/fields/generic.py:160: inferred from context: DynamicModelChoiceField's widget is an APISelect"
+  },
+  "awscli:customizations.agenttoolkit.agents:AgentConfig.mcp_config_path": {
+    "verdict": "correct",
+    "reason": "customizations/agenttoolkit/agents.py:183: self.config is the AgentConfig of the agent"
+  },
+  "awscli:s3transfer.bandwidth:RequestExceededException.retry_time": {
+    "verdict": "correct",
+    "reason": "s3transfer/bandwidth.py:177: e is the caught RequestExceededException"
+  },
+  "saleor:core.telemetry.utils:Unit.SECOND": {
+    "verdict": "correct",
+    "reason": "core/telemetry/utils.py:45: access through the class itself: Unit.SECOND"
+  },
+  "mypy:types:ParamSpecType.flavor": {
+    "verdict": "correct",
+    "reason": "checkexpr.py:1780: arg1 is checked with isinstance(arg1, ParamSpecType)"
+  },
+  "mealie:services.parser_services.parser_utils.unit_utils:UnitConverter.ureg": {
+    "verdict": "correct",
+    "reason": "services/parser_services/parser_utils/unit_utils.py:137: uc is a UnitConverter created in the same function"
+  },
+  "mypy:build:BuildManager.metastore": {
+    "verdict": "correct",
+    "reason": "build.py:277: manager is the BuildManager built above"
+  },
+  "pipx:commands.manifest:_Manifest.path": {
+    "verdict": "wrong",
+    "reason": "__main__.py:11: sys.path is the interpreter search path, not _Manifest.path"
+  },
+  "mealie:core.settings.settings:AppSettings.SCRAPER_FLARESOLVERR_TIMEOUT": {
+    "verdict": "correct",
+    "reason": "pkgs/safehttp/fetch.py:314: settings is the AppSettings object from get_app_settings()"
+  },
+  "detectron2:export.caffe2_inference:ProtobufModel.net": {
+    "verdict": "correct",
+    "reason": "export/caffe2_inference.py:160: self.protobuf_model is a ProtobufModel"
+  },
+  "saleor:product:ProductTypeKind.NORMAL": {
+    "verdict": "correct",
+    "reason": "graphql/product/mutations/product_type/product_type_create.py:103: access through the class itself: ProductTypeKind.NORMAL"
+  },
+  "mypy:errors:Errors._watchers": {
+    "verdict": "correct",
+    "reason": "errors.py:182: self.errors is the Errors instance watched by ErrorWatcher"
+  },
+  "saleor:plugins.sendgrid:SendgridConfiguration.account_change_email_request_template_id": {
+    "verdict": "correct",
+    "reason": "plugins/sendgrid/tasks.py:81: configuration is the SendgridConfiguration passed to the task"
+  },
+  "redash:models:Widget.text": {
+    "verdict": "wrong",
+    "reason": "authentication/saml_auth.py:127: user_info is a SAML subject element; .text is its XML text, not Widget.text"
+  },
+  "mypy:semanal:SemanticAnalyzer.saved_locals": {
+    "verdict": "correct",
+    "reason": "semanal_main.py:304: analyzer is the SemanticAnalyzer"
+  },
+  "awscli:customizations.wizard.app:WizardApp.save_details_visible": {
+    "verdict": "correct",
+    "reason": "customizations/wizard/ui/keybindings.py:34: inferred from context: get_app() returns the running WizardApp"
+  }
+}
