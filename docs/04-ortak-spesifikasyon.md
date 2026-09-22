@@ -58,6 +58,7 @@ Sınıf gövdesinde doğrudan tanımlı metotlar; dunder'lar hariç; `@property/
 | NESTING | Maksimum blok derinliği; `elif` zinciri düz |
 | ANN (`annotation_coverage`) | Annotation'lı parametre yuvası payı; yuvalar PARAMS ile aynı; yuva yoksa `null`. Betimsel, eşiksiz (K11) |
 | RET (`returns_annotated`) | Dönüş annotation'ı yazılmış mı |
+| DUCK (`duck_coupling`) | Parametreler üzerinden erişilen farklı `(parametre, attribute)` çifti; yuvalar PARAMS ile aynı; yeniden bağlanan parametre sayılmaz; parametre yoksa `null`. Betimsel, eşiksiz (K14) |
 | DYN (`dynamic_sites`) | Statik analizin hedefini göremediği nokta sayısı: sabit olmayan adlı `getattr`/`setattr`/`delattr`/`hasattr`, `eval`/`exec`, sabit olmayan `__import__`/`importlib.import_module`, kendi `**kwargs`'ının aktarılması; iç içe tanımlara girilmez. Betimsel, eşiksiz (K13) |
 
 ### 2.4 Modül düzeyi (v2+)

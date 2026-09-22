@@ -1,0 +1,122 @@
+{
+  "yt-dlp:YoutubeDL:YoutubeDL.process_subtitles:normal_subtitles.keys": {
+    "verdict": "argument",
+    "reason": "YoutubeDL.py:3164: normal_subtitles is a parameter, not rebound; .keys on the dict the caller passed"
+  },
+  "saleor:webhook.transport.utils:attempt_update:attempt.status": {
+    "verdict": "argument",
+    "reason": "webhook/transport/utils.py:562: attempt is a parameter; attribute written on the caller's EventDeliveryAttempt"
+  },
+  "yt-dlp:extractor.acfun:AcFunVideoBaseIE._extract_metadata:video_info.get": {
+    "verdict": "argument",
+    "reason": "extractor/acfun.py:35: video_info is a parameter; .get on the caller's dict"
+  },
+  "netbox:ipam.views:FHRPGroupView.get_extra_context:instance.id": {
+    "verdict": "argument",
+    "reason": "ipam/views.py:1641: instance is the view's parameter; .id read from it"
+  },
+  "click:core:Group.group:kwargs.get": {
+    "verdict": "argument",
+    "reason": "core.py:1939: kwargs is the function's own **kwargs; .get on the caller's keywords"
+  },
+  "saleor:graphql.account.filters:CustomerWhereFilterInput.filter_customer_type:qs.filter": {
+    "verdict": "argument",
+    "reason": "graphql/account/filters.py:381: qs is a parameter (filter signature qs, _, value); .filter on the caller's queryset"
+  },
+  "awscli:bcdoc.docstringparser:TagNode._write_start:doc.style": {
+    "verdict": "argument",
+    "reason": "bcdoc/docstringparser.py:139: doc is a parameter; .style read from the caller's document"
+  },
+  "saleor:graphql.account.mutations.staff.customer_update:CustomerUpdate.update_gift_card_search_vector:instance.email": {
+    "verdict": "argument",
+    "reason": "graphql/account/mutations/staff/customer_update.py:130: instance is a parameter; .email read from it"
+  },
+  "awscli:customizations.s3.subscribers:SetAnnotationsSubscriber._on_success:future.set_exception": {
+    "verdict": "argument",
+    "reason": "customizations/s3/subscribers.py:551: future is the callback's parameter; .set_exception on the caller's future"
+  },
+  "saleor:graphql.giftcard.types:GiftCard.resolve_code:root.assigned_to_id": {
+    "verdict": "argument",
+    "reason": "graphql/giftcard/types.py:485: root is the resolver's parameter; read inside a tuple, not rebound"
+  },
+  "saleor:payment.utils:mark_checkout_search_index_dirty:checkout.pk": {
+    "verdict": "argument",
+    "reason": "payment/utils.py:1694: checkout is a parameter annotated Checkout; .pk read from it"
+  },
+  "saleor:graphql.app.types:AppProblemDismissed.resolve_user:root.dismissed_by_user_id": {
+    "verdict": "argument",
+    "reason": "graphql/app/types.py:592: root is the resolver's parameter annotated AppProblem"
+  },
+  "awscli:clidocs:CLIDocumentEventHandler.register:session.register": {
+    "verdict": "argument",
+    "reason": "clidocs.py:88: session is a parameter; .register passed on as a callback"
+  },
+  "awscli:customizations.emrcontainers.create_role_associations:CreateRoleAssociationsCommand._run_main:parsed_args.namespace": {
+    "verdict": "argument",
+    "reason": "customizations/emrcontainers/create_role_associations.py:105: parsed_args is a parameter; .namespace read from it"
+  },
+  "yt-dlp:extractor.mediaset:MediasetIE._parse_smil_formats_and_subtitles:smil.findall": {
+    "verdict": "argument",
+    "reason": "extractor/mediaset.py:162: smil is a parameter; .findall on the caller's XML element"
+  },
+  "sqlalchemy:events:AttributeEvents._set_dispatch:dispatch_cls._active_history": {
+    "verdict": "argument",
+    "reason": "events.py:2530: dispatch_cls is a parameter; attribute written on the caller's class"
+  },
+  "saleor:graphql.shop.types:Shop.resolve_account_confirm_merge_mode:site.settings": {
+    "verdict": "argument",
+    "reason": "graphql/shop/types.py:806: site is supplied to the resolver by the load_site_callback decorator as an argument"
+  },
+  "redash:query_runner.google_spreadsheets:parse_query:query.split": {
+    "verdict": "argument",
+    "reason": "query_runner/google_spreadsheets.py:102: query is a parameter; .split on the caller's string"
+  },
+  "saleor:webhook.payloads:generate_transaction_session_payload:transaction_object.__class__": {
+    "verdict": "argument",
+    "reason": "webhook/payloads.py:1274: transaction_object is a parameter; __class__ read from it"
+  },
+  "pandas:ops.array_ops:na_logical_op:op.__name__": {
+    "verdict": "argument",
+    "reason": "ops/array_ops.py:386: op is a parameter; __name__ read from the caller's function"
+  },
+  "sqlalchemy:identity:WeakInstanceDict.replace:state.key": {
+    "verdict": "argument",
+    "reason": "identity.py:162: state is a parameter annotated InstanceState"
+  },
+  "awscli:customizations.emr.command:override_args_required_option:argument_table.keys": {
+    "verdict": "argument",
+    "reason": "customizations/emr/command.py:140: argument_table is a parameter; .keys on the caller's dict"
+  },
+  "saleor:graphql.account.types:User.resolve_restricted_access_to_channels:info.context": {
+    "verdict": "argument",
+    "reason": "graphql/account/types.py:797: info is the resolver's parameter; .context read from it"
+  },
+  "saleor:graphql.product.types.products:Product.resolve_thumbnail:root.node": {
+    "verdict": "argument",
+    "reason": "graphql/product/types/products.py:1239: root is the resolver's parameter; .node read from it"
+  },
+  "mypy:fastparse:ASTConverter.visit_Delete:n.lineno": {
+    "verdict": "argument",
+    "reason": "fastparse.py:1222: n is the visitor's parameter annotated ast3.Delete"
+  },
+  "httpx:_transports.asgi:ASGITransport.handle_async_request:request.stream": {
+    "verdict": "argument",
+    "reason": "_transports/asgi.py:103: request is a parameter annotated Request"
+  },
+  "saleor:graphql.checkout.types:CheckoutLine.resolve_unit_price:root.node": {
+    "verdict": "argument",
+    "reason": "graphql/checkout/types.py:376: root is the resolver's parameter; .node read from it"
+  },
+  "saleor:graphql.attribute.mutations.attribute_value_create:AttributeValueCreate.perform_mutation:info.context": {
+    "verdict": "argument",
+    "reason": "graphql/attribute/mutations/attribute_value_create.py:112: info is the mutation's parameter; .context read from it"
+  },
+  "detectron2:evaluation.evaluator:inference_context:model.train": {
+    "verdict": "argument",
+    "reason": "evaluation/evaluator.py:224: model is a parameter; .train called on the caller's model"
+  },
+  "saleor:graphql.core.validators.mutation_count_limit_rule:MutationCountLimitRule.enter_OperationDefinition:node.selection_set": {
+    "verdict": "argument",
+    "reason": "graphql/core/validators/mutation_count_limit_rule.py:24: node is a parameter annotated OperationDefinition"
+  }
+}

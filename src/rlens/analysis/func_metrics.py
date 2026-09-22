@@ -419,6 +419,72 @@ def dynamic_sites(node: FunctionNode) -> list[tuple[int, str]]:
     return [(line, kind) for line, _, kind in sorted(found)]
 
 
+# --------------------------------------------------------------------------- #
+# Duck typing yapısal kuplajı (v2.2 §3, K14)
+# --------------------------------------------------------------------------- #
+
+
+def _rebound_parameters(node: FunctionNode, names: set[str]) -> set[str]:
+    """Kendi kapsamda yeniden bağlanan parametre adları.
+
+    Atama, `for`/`with` hedefi, `+=`, walrus, `del`; ayrıca adı düz metin olarak
+    saklayan `except ... as p`, `import x as p` ve `match` yakalamaları.
+    Kavrama (comprehension) hedefleri kendi kapsamındadır, parametreyi yeniden
+    bağlamaz. (`global p` parametrede derleme hatasıdır.)
+    """
+    walked = list(_walk_body(node))
+    comprehension_targets = {
+        id(target)
+        for child in walked
+        if isinstance(child, ast.comprehension)
+        for target in ast.walk(child.target)
+    }
+    rebound: set[str] = set()
+    for child in walked:
+        if (
+            isinstance(child, ast.Name)
+            and isinstance(child.ctx, (ast.Store, ast.Del))
+            and child.id in names
+            and id(child) not in comprehension_targets
+        ):
+            rebound.add(child.id)
+        elif isinstance(child, ast.ExceptHandler) and child.name in names:
+            rebound.add(child.name)
+        elif isinstance(child, (ast.Import, ast.ImportFrom)):
+            rebound |= {(alias.asname or alias.name.split(".")[0]) for alias in child.names} & names
+        elif isinstance(child, (ast.MatchAs, ast.MatchStar)) and child.name in names:
+            rebound.add(child.name)
+        elif isinstance(child, ast.MatchMapping) and child.rest in names:
+            rebound.add(child.rest)
+    return rebound
+
+
+def duck_pairs(node: FunctionNode, *, is_method: bool = False) -> set[tuple[str, str]] | None:
+    """Parametre üzerinden erişilen `(parametre, attribute)` çiftleri; yuva yoksa `None`.
+
+    Yuvalar `param_count` ile aynı (alıcı hariç). `p.a` okuması, yazması ve
+    `p.a()` çağrısı sayılır; `p.a.b`'nin yalnızca ilk halkası. Yeniden bağlanan
+    parametre tümüyle dışarıda. Ön kayıt: `experiments/hardening/duck-coupling.md`.
+    """
+    slots = {slot.arg for slot in parameter_slots(node, is_method=is_method)}
+    if not slots:
+        return None
+    usable = slots - _rebound_parameters(node, slots)
+    return {
+        (child.value.id, child.attr)
+        for child in _walk_body(node)
+        if isinstance(child, ast.Attribute)
+        and isinstance(child.value, ast.Name)
+        and child.value.id in usable
+    }
+
+
+def duck_coupling(node: FunctionNode, *, is_method: bool = False) -> int | None:
+    """Farklı `(parametre, attribute)` çifti sayısı; betimsel, eşiksiz (K14)."""
+    pairs = duck_pairs(node, is_method=is_method)
+    return None if pairs is None else len(pairs)
+
+
 def measure_function(
     node: FunctionNode, *, code_lines: frozenset[int], is_method: bool = False
 ) -> FunctionReport:
@@ -437,6 +503,7 @@ def measure_function(
         annotation_coverage=annotation_coverage(node, is_method=is_method),
         returns_annotated=returns_annotated(node),
         dynamic_sites=len(dynamic_sites(node)),
+        duck_coupling=duck_coupling(node, is_method=is_method),
     )
 
 

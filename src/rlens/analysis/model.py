@@ -90,6 +90,11 @@ class FunctionReport:
     kendi `**kwargs`'ının aktarılması. Betimseldir, eşiği yok
     (`v2-tanim-kararlari.md` K13)."""
 
+    duck_coupling: int | None = None
+    """Parametreler üzerinden erişilen farklı `(parametre, attribute)` çifti:
+    fonksiyonun argümanlarından beklediği arayüzün genişliği. Parametre yoksa
+    `None`. Betimseldir, eşiği yok (`v2-tanim-kararlari.md` K14)."""
+
 
 @dataclass
 class ClassReport:

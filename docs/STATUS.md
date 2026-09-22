@@ -1,4 +1,4 @@
-# STATUS — 2026-09-22
+# STATUS — 2026-09-23
 
 ## Sürüm
 **v2.1.0 PyPI'da** (2026-09-22). `v2.1.0` tag'i ile GitHub Actions üzerinden,
@@ -7,7 +7,25 @@ ilk kez). PyPI'da wheel ve sdist doğrulandı. İçerik: `CHANGELOG.md` 2.1.0.
 Önceki: v2.0.0 (2026-09-10).
 
 ## Bitenler
-- **v2.2, 6. oturum — dinamik opaklık (§3), K13** (bu oturum). Ön kayıt ve
+- **v2.2, 7. oturum — duck typing yapısal kuplajı (§3), K14** (bu oturum).
+  Ön kayıt ve ölçüm: `experiments/hardening/duck-coupling.md`.
+  - **Tanım:** parametreler üzerinden farklı `(parametre, attribute)` çifti;
+    plan "farklı ad" diyordu, sapma ön kayıtta gerekçeli.
+  - **Sonuç:** (b) tipli çiftlerde üye payı medyanı %90 (16 proje, eşik %60),
+    (c) yayılım 25/25, (a) kesinlik 30/30 → **çürütülmedi.** (a) zayıf kanıt
+    olarak kaydedildi (büyük ölçüde uygulamayı sınıyor); asıl kanıt (b).
+  - **Karardan önce düzeltilen kendi hatam:** yeniden bağlama kuralı `except
+    as`, `import as` ve `match` yakalamalarını görmüyordu (ad düz metin);
+    24 406 çiftin 5'i. Ön kaydın kuralı değişmedi, uygulama düzeltildi.
+    Gerçek kodda olamayan `global p` için yazdığım test kaldırıldı.
+  - **Rapora bir alan:** `functions[].duck_coupling` (şema 3 içinde). `src`'ye
+    taşındı; ölçüm yeniden koşuldu, aynı hash.
+  - **Bulgu:** parametreli fonksiyonların %31'i (tipik proje) argüman
+    attribute'una erişiyor; modül fonksiyonlarının %40'ında değer > 0 — DCC'nin
+    görmediği birimler.
+  - Testler: `test_duck_coupling.py` 11. Durum: 1504 paket testi (10
+    atlandı), 91 fikstür testi, ruff temiz.
+- **v2.2, 6. oturum — dinamik opaklık (§3), K13**. Ön kayıt ve
   ölçüm: `experiments/hardening/dynamic-opacity.md`.
   - **Ön kayıt:** v2.2'nin kendi çürütme koşulunun "bakımlı/ihmal edilmiş"
     yarısı korpusta ölçülemediği için ölçülebilir koşullarla yeniden yazıldı
@@ -500,18 +518,22 @@ framework deyiminden geliyor.**
 - **§2 PySmell kokuları:** etiket kontrolü bitti (`pysmell-labels.md`):
   etiketler literatür eşiği, dış doğrulama değil. Bir koku eklenecekse dokuz
   madde, eşik korpustan, geçerlilik başka bir bağımsız sinyalden.
-- **§3 modül düzeyi kohezyon, duck typing kuplajı** (dinamik opaklık K13 ile
-  eklendi).
+- **§3 modül düzeyi kohezyon** (dinamik opaklık K13, duck typing kuplajı K14
+  ile eklendi).
 - **§5b modül düzeyi kod ve koşullu tanımlar** (K5).
 - **PARAMS'ta yalnızca-anahtar parametreler** (FUTURE.md, K8 ölçümü).
 
-§3 anotasyon kapsamı (K11), DAM sorusu (K12), §2 etiket kontrolü ve §3
-dinamik opaklık (K13) bitti. Önerilen sıra: etiketleme beklenirken **§3 duck
-typing yapısal kuplajı** (parametreler üzerinde erişilen farklı attribute adı
-sayısı; K12'nin isim çözümü sorununu tip çözümü gerektirmeden atlıyor), sonra
-§3 modül düzeyi kohezyon (§5b K5 ile birlikte). Yayın: `CHANGELOG.md`
-"Unreleased" bölümünde K13 var; yeni alan eklendikçe küçük bir 2.1.x ya da
-2.2.0 yayını kullanıcıya önerilecek.
+§3'ün dört ölçüsünden üçü eklendi (K11 anotasyon kapsamı, K13 dinamik
+opaklık, K14 duck typing kuplajı); DAM sorusu (K12) ve §2 etiket kontrolü
+bitti. Önerilen sıra: etiketleme beklenirken **§3 modül düzeyi kohezyon,
+§5b modül düzeyi kod ve koşullu tanımlarla (K5) birlikte** — ikisi aynı soru
+(sınıfsız kod için bir ölçüm birimi) ve K5 bir kimlik tasarımı gerektiriyor;
+büyük iş, önce kapsam belgesi.
+
+**Yayın önerisi:** `CHANGELOG.md` "Unreleased" bölümünde üç yeni rapor alanı
+var (K13 iki, K14 bir). Kullanıcıya küçük bir sürüm (2.2.0: yalnız alan
+ekleme, şema 3, kırılma yok) önerilir; kullanıcı onaylarsa hazırlık 2.1.0
+deseniyle.
 
 Projeler yerelde yoksa: `python experiments/hardening/corpus.py fetch`
 (~850 MB). Kohezyon betiği ayrıca `pip install cohesion==1.2.0` ister.

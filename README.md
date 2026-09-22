@@ -456,6 +456,16 @@ Hand-checked on 30 sites, 27 were genuinely opaque; the three that were not
 looped over a literal list written in the same function. Measurement:
 [dynamic-opacity.md](https://github.com/okngms/RefactorLens/blob/main/experiments/hardening/dynamic-opacity.md).
 
+`duck_coupling` counts the distinct `(parameter, attribute)` pairs a function
+touches on its arguments — `order.total`, `customer.notify()` — so it measures
+how wide an interface the function expects from its collaborators without
+resolving any types. It works for module-level functions, which DCC never
+sees. Parameters that are reassigned inside the function are left out. Where
+parameters are annotated with a project class, 90% of the attributes a function
+touches are members of that class (median of 16 projects). Descriptive, no
+threshold. Measurement:
+[duck-coupling.md](https://github.com/okngms/RefactorLens/blob/main/experiments/hardening/duck-coupling.md).
+
 ## What RefactorLens does not do
 
 - **It does not run your code.** Files are parsed with `ast`, never executed.

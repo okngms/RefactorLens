@@ -12,6 +12,9 @@ regenerate any `before` report with the new version.
   `classes[].dynamic_attribute_hooks`: where static analysis cannot see the
   target (non-constant `getattr`/`setattr`, `eval`/`exec`, dynamic imports,
   forwarded `**kwargs`, attribute hooks). Descriptive, no threshold (K13).
+- Report field `functions[].duck_coupling`: distinct `(parameter,
+  attribute)` pairs a function touches on its arguments; `null` without
+  parameters. Descriptive, no threshold (K14).
 
 ## 2.1.0 — 2026-09-22
 

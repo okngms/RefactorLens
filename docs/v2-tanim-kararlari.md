@@ -12,7 +12,8 @@ değildir, şema sürümü değişmez. K9 v2.2'nin ilk ölçümüdür; bir aday�
 reddeder, hiçbir şey değiştirmez. K10 bir koku kuralıdır (K6 deseni); alan
 ekler, şema sürümü değişmez. K11 v2.2'nin ilk yeni ölçüsüdür; alan ekler.
 K12 bir adayı reddeder; hiçbir şey değiştirmez.
-K13 v2.2'nin ikinci yeni ölçüsüdür; alan ekler. Blok 1b'nin dağılım tablosu metrik değerlerini
+K13 v2.2'nin ikinci yeni ölçüsüdür; alan ekler.
+K14 üçüncüsüdür; alan ekler. Blok 1b'nin dağılım tablosu metrik değerlerini
 ölçeceği için bu sorular **tablodan önce** kapanmalıydı; yoksa tablo iki kez
 üretilirdi. Beşi burada birlikte karara bağlandı ve metrik anlamını değiştiren
 üçü tek bir `schema_version` artışıyla (2 → 3) uygulandı.
@@ -468,6 +469,31 @@ bu, ön kayıtta açıkça belirtildi.
 **Maliyet.** Aynı fonksiyonda sabit bir liste üzerinde dönen ad opak sayılıyor
 (örneklemde 3/30). `obj.__dict__[name]`, `vars()`, `attrgetter`, `type()` ile
 üretim sayılmıyor. (b) koşulunun kütüphane listesi bir önsel yargıydı.
+
+## K14 — Duck typing yapısal kuplajı rapora eklendi (betimsel, eşiksiz)
+
+> Karara bağlandı 2026-09-23. Şema 3 içinde: bir alan eklendi (`04` §1). Ön
+> kayıt ve ölçüm: `experiments/hardening/duck-coupling.md`. v2.2 §3'ün
+> üçüncü ölçüsü.
+
+**Karar.** `functions[].duck_coupling`: fonksiyonun parametreleri üzerinden
+eriştiği farklı `(parametre, attribute)` çifti sayısı; parametre yoksa `null`.
+Yeniden bağlanan parametre (atama, `for`/`with`, `except as`, `import as`,
+`match` yakalaması) sayılmaz. Eşik, koku, yön yok; prompt'a girmez.
+
+**Plandan sapma.** v2.2 "farklı attribute adı" diyordu; çift sayılıyor, çünkü
+iki parametrenin `.name`'i iki ayrı işbirlikçiye iki bağımlılıktır. Ön kayıtta
+yazılıydı.
+
+**Gerekçe.** Ön kayıtlı üç koşul geçti. Asıl kanıt (b): annotation'lı
+parametrelerde erişilen adların %90'ı (16 projenin medyanı) annotation'daki
+sınıfın kalıtım hariç üyesi. (a) 30/30 zayıf bir kanıt, çünkü büyük ölçüde
+uygulamayı sınıyor; öyle kaydedildi.
+
+**Maliyet.** Modül ya da sınıf nesnesi parametre olarak geçirilirse sayılır;
+`dict`/`list` protokolü (`d.get`, `xs.append`) işbirlikçi bağımlılığı gibi
+sayılır; yerel bir ada kopyalanan parametre (`o = p; o.a`) görülmez; kavrama
+içinde parametreyi gölgeleyen ad üzerinden erişim yanlışlıkla sayılır.
 
 ## Korpustaki etki
 

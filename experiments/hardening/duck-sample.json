@@ -1,0 +1,242 @@
+[
+  {
+    "id": "yt-dlp:YoutubeDL:YoutubeDL.process_subtitles:normal_subtitles.keys",
+    "project": "yt-dlp",
+    "file": "YoutubeDL.py",
+    "line": 3164,
+    "function": "YoutubeDL.process_subtitles",
+    "pair": "normal_subtitles.keys"
+  },
+  {
+    "id": "saleor:webhook.transport.utils:attempt_update:attempt.status",
+    "project": "saleor",
+    "file": "webhook/transport/utils.py",
+    "line": 562,
+    "function": "attempt_update",
+    "pair": "attempt.status"
+  },
+  {
+    "id": "yt-dlp:extractor.acfun:AcFunVideoBaseIE._extract_metadata:video_info.get",
+    "project": "yt-dlp",
+    "file": "extractor/acfun.py",
+    "line": 35,
+    "function": "AcFunVideoBaseIE._extract_metadata",
+    "pair": "video_info.get"
+  },
+  {
+    "id": "netbox:ipam.views:FHRPGroupView.get_extra_context:instance.id",
+    "project": "netbox",
+    "file": "ipam/views.py",
+    "line": 1641,
+    "function": "FHRPGroupView.get_extra_context",
+    "pair": "instance.id"
+  },
+  {
+    "id": "click:core:Group.group:kwargs.get",
+    "project": "click",
+    "file": "core.py",
+    "line": 1939,
+    "function": "Group.group",
+    "pair": "kwargs.get"
+  },
+  {
+    "id": "saleor:graphql.account.filters:CustomerWhereFilterInput.filter_customer_type:qs.filter",
+    "project": "saleor",
+    "file": "graphql/account/filters.py",
+    "line": 381,
+    "function": "CustomerWhereFilterInput.filter_customer_type",
+    "pair": "qs.filter"
+  },
+  {
+    "id": "awscli:bcdoc.docstringparser:TagNode._write_start:doc.style",
+    "project": "awscli",
+    "file": "bcdoc/docstringparser.py",
+    "line": 139,
+    "function": "TagNode._write_start",
+    "pair": "doc.style"
+  },
+  {
+    "id": "saleor:graphql.account.mutations.staff.customer_update:CustomerUpdate.update_gift_card_search_vector:instance.email",
+    "project": "saleor",
+    "file": "graphql/account/mutations/staff/customer_update.py",
+    "line": 130,
+    "function": "CustomerUpdate.update_gift_card_search_vector",
+    "pair": "instance.email"
+  },
+  {
+    "id": "awscli:customizations.s3.subscribers:SetAnnotationsSubscriber._on_success:future.set_exception",
+    "project": "awscli",
+    "file": "customizations/s3/subscribers.py",
+    "line": 551,
+    "function": "SetAnnotationsSubscriber._on_success",
+    "pair": "future.set_exception"
+  },
+  {
+    "id": "saleor:graphql.giftcard.types:GiftCard.resolve_code:root.assigned_to_id",
+    "project": "saleor",
+    "file": "graphql/giftcard/types.py",
+    "line": 485,
+    "function": "GiftCard.resolve_code",
+    "pair": "root.assigned_to_id"
+  },
+  {
+    "id": "saleor:payment.utils:mark_checkout_search_index_dirty:checkout.pk",
+    "project": "saleor",
+    "file": "payment/utils.py",
+    "line": 1694,
+    "function": "mark_checkout_search_index_dirty",
+    "pair": "checkout.pk"
+  },
+  {
+    "id": "saleor:graphql.app.types:AppProblemDismissed.resolve_user:root.dismissed_by_user_id",
+    "project": "saleor",
+    "file": "graphql/app/types.py",
+    "line": 592,
+    "function": "AppProblemDismissed.resolve_user",
+    "pair": "root.dismissed_by_user_id"
+  },
+  {
+    "id": "awscli:clidocs:CLIDocumentEventHandler.register:session.register",
+    "project": "awscli",
+    "file": "clidocs.py",
+    "line": 88,
+    "function": "CLIDocumentEventHandler.register",
+    "pair": "session.register"
+  },
+  {
+    "id": "awscli:customizations.emrcontainers.create_role_associations:CreateRoleAssociationsCommand._run_main:parsed_args.namespace",
+    "project": "awscli",
+    "file": "customizations/emrcontainers/create_role_associations.py",
+    "line": 105,
+    "function": "CreateRoleAssociationsCommand._run_main",
+    "pair": "parsed_args.namespace"
+  },
+  {
+    "id": "yt-dlp:extractor.mediaset:MediasetIE._parse_smil_formats_and_subtitles:smil.findall",
+    "project": "yt-dlp",
+    "file": "extractor/mediaset.py",
+    "line": 162,
+    "function": "MediasetIE._parse_smil_formats_and_subtitles",
+    "pair": "smil.findall"
+  },
+  {
+    "id": "sqlalchemy:events:AttributeEvents._set_dispatch:dispatch_cls._active_history",
+    "project": "sqlalchemy",
+    "file": "events.py",
+    "line": 2530,
+    "function": "AttributeEvents._set_dispatch",
+    "pair": "dispatch_cls._active_history"
+  },
+  {
+    "id": "saleor:graphql.shop.types:Shop.resolve_account_confirm_merge_mode:site.settings",
+    "project": "saleor",
+    "file": "graphql/shop/types.py",
+    "line": 806,
+    "function": "Shop.resolve_account_confirm_merge_mode",
+    "pair": "site.settings"
+  },
+  {
+    "id": "redash:query_runner.google_spreadsheets:parse_query:query.split",
+    "project": "redash",
+    "file": "query_runner/google_spreadsheets.py",
+    "line": 102,
+    "function": "parse_query",
+    "pair": "query.split"
+  },
+  {
+    "id": "saleor:webhook.payloads:generate_transaction_session_payload:transaction_object.__class__",
+    "project": "saleor",
+    "file": "webhook/payloads.py",
+    "line": 1274,
+    "function": "generate_transaction_session_payload",
+    "pair": "transaction_object.__class__"
+  },
+  {
+    "id": "pandas:ops.array_ops:na_logical_op:op.__name__",
+    "project": "pandas",
+    "file": "ops/array_ops.py",
+    "line": 386,
+    "function": "na_logical_op",
+    "pair": "op.__name__"
+  },
+  {
+    "id": "sqlalchemy:identity:WeakInstanceDict.replace:state.key",
+    "project": "sqlalchemy",
+    "file": "identity.py",
+    "line": 162,
+    "function": "WeakInstanceDict.replace",
+    "pair": "state.key"
+  },
+  {
+    "id": "awscli:customizations.emr.command:override_args_required_option:argument_table.keys",
+    "project": "awscli",
+    "file": "customizations/emr/command.py",
+    "line": 140,
+    "function": "override_args_required_option",
+    "pair": "argument_table.keys"
+  },
+  {
+    "id": "saleor:graphql.account.types:User.resolve_restricted_access_to_channels:info.context",
+    "project": "saleor",
+    "file": "graphql/account/types.py",
+    "line": 797,
+    "function": "User.resolve_restricted_access_to_channels",
+    "pair": "info.context"
+  },
+  {
+    "id": "saleor:graphql.product.types.products:Product.resolve_thumbnail:root.node",
+    "project": "saleor",
+    "file": "graphql/product/types/products.py",
+    "line": 1239,
+    "function": "Product.resolve_thumbnail",
+    "pair": "root.node"
+  },
+  {
+    "id": "mypy:fastparse:ASTConverter.visit_Delete:n.lineno",
+    "project": "mypy",
+    "file": "fastparse.py",
+    "line": 1222,
+    "function": "ASTConverter.visit_Delete",
+    "pair": "n.lineno"
+  },
+  {
+    "id": "httpx:_transports.asgi:ASGITransport.handle_async_request:request.stream",
+    "project": "httpx",
+    "file": "_transports/asgi.py",
+    "line": 103,
+    "function": "ASGITransport.handle_async_request",
+    "pair": "request.stream"
+  },
+  {
+    "id": "saleor:graphql.checkout.types:CheckoutLine.resolve_unit_price:root.node",
+    "project": "saleor",
+    "file": "graphql/checkout/types.py",
+    "line": 376,
+    "function": "CheckoutLine.resolve_unit_price",
+    "pair": "root.node"
+  },
+  {
+    "id": "saleor:graphql.attribute.mutations.attribute_value_create:AttributeValueCreate.perform_mutation:info.context",
+    "project": "saleor",
+    "file": "graphql/attribute/mutations/attribute_value_create.py",
+    "line": 112,
+    "function": "AttributeValueCreate.perform_mutation",
+    "pair": "info.context"
+  },
+  {
+    "id": "detectron2:evaluation.evaluator:inference_context:model.train",
+    "project": "detectron2",
+    "file": "evaluation/evaluator.py",
+    "line": 224,
+    "function": "inference_context",
+    "pair": "model.train"
+  },
+  {
+    "id": "saleor:graphql.core.validators.mutation_count_limit_rule:MutationCountLimitRule.enter_OperationDefinition:node.selection_set",
+    "project": "saleor",
+    "file": "graphql/core/validators/mutation_count_limit_rule.py",
+    "line": 24,
+    "function": "MutationCountLimitRule.enter_OperationDefinition",
+    "pair": "node.selection_set"
+  }
+]
