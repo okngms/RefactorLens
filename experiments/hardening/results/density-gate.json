@@ -1,0 +1,1129 @@
+{
+  "schema_version": 3,
+  "min_values": 30,
+  "stateless_share": 0.5,
+  "distribution": {
+    "projects": 17,
+    "tcc": {
+      "p5": 0.0,
+      "p10": 0.0,
+      "p25": 0.0,
+      "p50": 0.059,
+      "p75": 0.3678,
+      "p90": 1.0,
+      "p95": 1.0
+    },
+    "lcom3": {
+      "p5": 1.0,
+      "p10": 1.0,
+      "p25": 2.0,
+      "p50": 3.0,
+      "p75": 5.0,
+      "p90": 7.3,
+      "p95": 11.0
+    },
+    "tcc_below": {
+      "0.05": 0.4762,
+      "0.1": 0.5238,
+      "0.2": 0.5917,
+      "0.333": 0.7381
+    },
+    "lcom3_at_least": {
+      "3": 0.5352,
+      "5": 0.2623,
+      "10": 0.0745
+    }
+  },
+  "large_classes": 159,
+  "large_stateless": 65,
+  "stateless_kinds": {
+    "methods": {
+      "stub": 283,
+      "no_receiver": 285,
+      "delegates": 2481,
+      "self_unused": 1018
+    },
+    "dominant": {
+      "stub": 3,
+      "no_receiver": 6,
+      "delegates": 38,
+      "self_unused": 20
+    }
+  },
+  "gates": {
+    "lcom4 >= 3": {
+      "fired": 96,
+      "new": 0,
+      "lost": 0,
+      "new_stateless": 0,
+      "fired_stateless": 44,
+      "new_examples": [],
+      "lost_examples": []
+    },
+    "lcom3 >= 3": {
+      "fired": 157,
+      "new": 61,
+      "lost": 0,
+      "new_stateless": 21,
+      "fired_stateless": 65,
+      "new_examples": [
+        "mypy:checker.TypeChecker",
+        "saleor:plugins.manager.PluginsManager",
+        "mypy:messages.MessageBuilder",
+        "mypy:fastparse.ASTConverter",
+        "mypy:traverser.ExtendedTraverserVisitor",
+        "pydantic:_internal._generate_schema.GenerateSchema",
+        "awscli:bcdoc.style.ReSTStyle",
+        "awscli:botocore.docs.bcdoc.style.ReSTStyle"
+      ],
+      "lost_examples": []
+    },
+    "lcom3 >= 5": {
+      "fired": 151,
+      "new": 56,
+      "lost": 1,
+      "new_stateless": 21,
+      "fired_stateless": 65,
+      "new_examples": [
+        "mypy:checker.TypeChecker",
+        "saleor:plugins.manager.PluginsManager",
+        "mypy:messages.MessageBuilder",
+        "mypy:fastparse.ASTConverter",
+        "mypy:traverser.ExtendedTraverserVisitor",
+        "pydantic:_internal._generate_schema.GenerateSchema",
+        "awscli:bcdoc.style.ReSTStyle",
+        "awscli:botocore.docs.bcdoc.style.ReSTStyle"
+      ],
+      "lost_examples": [
+        "pandas:indexing._iLocIndexer"
+      ]
+    },
+    "lcom3 >= 10": {
+      "fired": 115,
+      "new": 35,
+      "lost": 16,
+      "new_stateless": 21,
+      "fired_stateless": 65,
+      "new_examples": [
+        "mypy:checker.TypeChecker",
+        "saleor:plugins.manager.PluginsManager",
+        "mypy:messages.MessageBuilder",
+        "mypy:fastparse.ASTConverter",
+        "mypy:traverser.ExtendedTraverserVisitor",
+        "pydantic:_internal._generate_schema.GenerateSchema",
+        "pandas:strings.object_array.ObjectStringArrayMixin",
+        "mypy:server.deps.DependencyVisitor"
+      ],
+      "lost_examples": [
+        "httpx:_models.Response",
+        "pandas:groupby.generic.SeriesGroupBy",
+        "pandas:groupby.generic.DataFrameGroupBy",
+        "pandas:internals.managers.BlockManager",
+        "netbox:extras.models.customfields.CustomField",
+        "pandas:arrays._mixins.NDArrayBackedExtensionArray",
+        "netbox:ipam.models.ip.Prefix",
+        "pandas:arrays.numpy_.NumpyExtensionArray"
+      ]
+    },
+    "tcc < 0.05": {
+      "fired": 56,
+      "new": 15,
+      "lost": 55,
+      "new_stateless": 15,
+      "fired_stateless": 53,
+      "new_examples": [
+        "saleor:plugins.manager.PluginsManager",
+        "mypy:fastparse.ASTConverter",
+        "mypy:traverser.ExtendedTraverserVisitor",
+        "pydantic:_internal._generate_schema.GenerateSchema",
+        "pandas:strings.object_array.ObjectStringArrayMixin",
+        "mypy:stats.StatisticsVisitor",
+        "saleor:plugins.avatax.plugin.DeprecatedAvataxPlugin",
+        "mypy:server.astmerge.NodeReplaceVisitor"
+      ],
+      "lost_examples": [
+        "saleor:plugins.webhook.plugin.WebhookPlugin",
+        "pandas:frame.DataFrame",
+        "pandas:generic.NDFrame",
+        "mypy:checkexpr.ExpressionChecker",
+        "pandas:series.Series",
+        "pandas:arrays.arrow.array.ArrowExtensionArray",
+        "yt-dlp:YoutubeDL.YoutubeDL",
+        "sqlalchemy:mapper.Mapper"
+      ]
+    },
+    "tcc < 0.1": {
+      "fired": 74,
+      "new": 20,
+      "lost": 42,
+      "new_stateless": 19,
+      "fired_stateless": 61,
+      "new_examples": [
+        "saleor:plugins.manager.PluginsManager",
+        "mypy:fastparse.ASTConverter",
+        "mypy:traverser.ExtendedTraverserVisitor",
+        "pydantic:_internal._generate_schema.GenerateSchema",
+        "pandas:strings.object_array.ObjectStringArrayMixin",
+        "mypy:server.deps.DependencyVisitor",
+        "mypy:stats.StatisticsVisitor",
+        "mypy:renaming.VariableRenameVisitor"
+      ],
+      "lost_examples": [
+        "saleor:plugins.webhook.plugin.WebhookPlugin",
+        "pandas:frame.DataFrame",
+        "mypy:checkexpr.ExpressionChecker",
+        "pandas:arrays.arrow.array.ArrowExtensionArray",
+        "yt-dlp:YoutubeDL.YoutubeDL",
+        "pandas:groupby.groupby.GroupBy",
+        "pandas:internals.blocks.Block",
+        "pandas:arrays.masked.BaseMaskedArray"
+      ]
+    },
+    "tcc < 0.2": {
+      "fired": 101,
+      "new": 32,
+      "lost": 27,
+      "new_stateless": 21,
+      "fired_stateless": 65,
+      "new_examples": [
+        "mypy:checker.TypeChecker",
+        "saleor:plugins.manager.PluginsManager",
+        "mypy:messages.MessageBuilder",
+        "mypy:fastparse.ASTConverter",
+        "mypy:traverser.ExtendedTraverserVisitor",
+        "pydantic:_internal._generate_schema.GenerateSchema",
+        "pandas:strings.object_array.ObjectStringArrayMixin",
+        "mypy:server.deps.DependencyVisitor"
+      ],
+      "lost_examples": [
+        "saleor:plugins.webhook.plugin.WebhookPlugin",
+        "mypy:checkexpr.ExpressionChecker",
+        "pandas:arrays.arrow.array.ArrowExtensionArray",
+        "yt-dlp:YoutubeDL.YoutubeDL",
+        "pandas:groupby.groupby.GroupBy",
+        "pandas:internals.blocks.Block",
+        "pandas:arrays.masked.BaseMaskedArray",
+        "yt-dlp:extractor.youtube._video.YoutubeIE"
+      ]
+    },
+    "tcc < 0.333": {
+      "fired": 125,
+      "new": 44,
+      "lost": 15,
+      "new_stateless": 21,
+      "fired_stateless": 65,
+      "new_examples": [
+        "mypy:checker.TypeChecker",
+        "saleor:plugins.manager.PluginsManager",
+        "mypy:messages.MessageBuilder",
+        "mypy:fastparse.ASTConverter",
+        "mypy:traverser.ExtendedTraverserVisitor",
+        "pydantic:_internal._generate_schema.GenerateSchema",
+        "pandas:strings.object_array.ObjectStringArrayMixin",
+        "mypy:server.deps.DependencyVisitor"
+      ],
+      "lost_examples": [
+        "saleor:plugins.webhook.plugin.WebhookPlugin",
+        "pandas:arrays.arrow.array.ArrowExtensionArray",
+        "pandas:groupby.groupby.GroupBy",
+        "pandas:internals.blocks.Block",
+        "pandas:arrays.masked.BaseMaskedArray",
+        "pandas:arrays.string_arrow.ArrowStringArray",
+        "pandas:internals.managers.BlockManager",
+        "pandas:arrays._mixins.NDArrayBackedExtensionArray"
+      ]
+    }
+  },
+  "by_type": {
+    "library": 67,
+    "cli": 67,
+    "web_app": 23,
+    "ml_research": 2
+  },
+  "per_project": {
+    "requests": {
+      "type": "library",
+      "classes": 13,
+      "eligible": false,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.0659,
+        "p50": 0.1538,
+        "p75": 1.0,
+        "p90": 1.0,
+        "p95": 1.0
+      },
+      "lcom3": {
+        "p5": 1.0,
+        "p10": 1.0,
+        "p25": 1.0,
+        "p50": 4.0,
+        "p75": 7.0,
+        "p90": 9.6,
+        "p95": 13.2
+      },
+      "tcc_below": {
+        "0.05": 0.2308,
+        "0.1": 0.3846,
+        "0.2": 0.6154,
+        "0.333": 0.6923
+      },
+      "lcom3_at_least": {
+        "3": 0.6154,
+        "5": 0.4615,
+        "10": 0.1538
+      }
+    },
+    "httpx": {
+      "type": "library",
+      "classes": 35,
+      "eligible": true,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.0129,
+        "p50": 0.415,
+        "p75": 1.0,
+        "p90": 1.0,
+        "p95": 1.0
+      },
+      "lcom3": {
+        "p5": 1.0,
+        "p10": 1.0,
+        "p25": 1.0,
+        "p50": 2.0,
+        "p75": 3.5,
+        "p90": 8.2,
+        "p95": 14.0
+      },
+      "tcc_below": {
+        "0.05": 0.3143,
+        "0.1": 0.3429,
+        "0.2": 0.4,
+        "0.333": 0.4857
+      },
+      "lcom3_at_least": {
+        "3": 0.3143,
+        "5": 0.2,
+        "10": 0.0857
+      }
+    },
+    "rich": {
+      "type": "library",
+      "classes": 61,
+      "eligible": true,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.3333,
+        "p90": 1.0,
+        "p95": 1.0
+      },
+      "lcom3": {
+        "p5": 1.0,
+        "p10": 1.0,
+        "p25": 2.0,
+        "p50": 2.0,
+        "p75": 5.0,
+        "p90": 7.0,
+        "p95": 15.0
+      },
+      "tcc_below": {
+        "0.05": 0.5246,
+        "0.1": 0.5246,
+        "0.2": 0.6393,
+        "0.333": 0.7541
+      },
+      "lcom3_at_least": {
+        "3": 0.4754,
+        "5": 0.2623,
+        "10": 0.082
+      }
+    },
+    "pydantic": {
+      "type": "library",
+      "classes": 42,
+      "eligible": true,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.059,
+        "p75": 0.65,
+        "p90": 1.0,
+        "p95": 1.0
+      },
+      "lcom3": {
+        "p5": 1.0,
+        "p10": 1.0,
+        "p25": 1.25,
+        "p50": 3.0,
+        "p75": 4.0,
+        "p90": 18.1,
+        "p95": 26.95
+      },
+      "tcc_below": {
+        "0.05": 0.4762,
+        "0.1": 0.5238,
+        "0.2": 0.5476,
+        "0.333": 0.6429
+      },
+      "lcom3_at_least": {
+        "3": 0.5476,
+        "5": 0.2381,
+        "10": 0.1429
+      }
+    },
+    "fastapi": {
+      "type": "library",
+      "classes": 4,
+      "eligible": false,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0209,
+        "p75": 0.1658,
+        "p90": 0.3891,
+        "p95": 0.4636
+      },
+      "lcom3": {
+        "p5": 2.45,
+        "p10": 2.9,
+        "p25": 4.25,
+        "p50": 5.5,
+        "p75": 7.25,
+        "p90": 9.5,
+        "p95": 10.25
+      },
+      "tcc_below": {
+        "0.05": 0.75,
+        "0.1": 0.75,
+        "0.2": 0.75,
+        "0.333": 0.75
+      },
+      "lcom3_at_least": {
+        "3": 0.75,
+        "5": 0.75,
+        "10": 0.25
+      }
+    },
+    "attrs": {
+      "type": "library",
+      "classes": 6,
+      "eligible": false,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.5813,
+        "p90": 0.8875,
+        "p95": 0.9437
+      },
+      "lcom3": {
+        "p5": 1.0,
+        "p10": 1.0,
+        "p25": 1.25,
+        "p50": 2.0,
+        "p75": 2.0,
+        "p90": 2.5,
+        "p95": 2.75
+      },
+      "tcc_below": {
+        "0.05": 0.6667,
+        "0.1": 0.6667,
+        "0.2": 0.6667,
+        "0.333": 0.6667
+      },
+      "lcom3_at_least": {
+        "3": 0.1667,
+        "5": 0.0,
+        "10": 0.0
+      }
+    },
+    "click": {
+      "type": "library",
+      "classes": 38,
+      "eligible": true,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.0086,
+        "p50": 0.3303,
+        "p75": 0.5625,
+        "p90": 1.0,
+        "p95": 1.0
+      },
+      "lcom3": {
+        "p5": 1.0,
+        "p10": 1.0,
+        "p25": 2.0,
+        "p50": 2.0,
+        "p75": 4.0,
+        "p90": 7.3,
+        "p95": 9.45
+      },
+      "tcc_below": {
+        "0.05": 0.2895,
+        "0.1": 0.3421,
+        "0.2": 0.4211,
+        "0.333": 0.5526
+      },
+      "lcom3_at_least": {
+        "3": 0.3684,
+        "5": 0.1842,
+        "10": 0.0526
+      }
+    },
+    "flask": {
+      "type": "library",
+      "classes": 30,
+      "eligible": true,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.002,
+        "p75": 0.2833,
+        "p90": 1.0,
+        "p95": 1.0
+      },
+      "lcom3": {
+        "p5": 1.0,
+        "p10": 1.0,
+        "p25": 2.0,
+        "p50": 3.0,
+        "p75": 5.75,
+        "p90": 18.3,
+        "p95": 21.55
+      },
+      "tcc_below": {
+        "0.05": 0.7,
+        "0.1": 0.7,
+        "0.2": 0.7333,
+        "0.333": 0.8
+      },
+      "lcom3_at_least": {
+        "3": 0.6,
+        "5": 0.3,
+        "10": 0.1667
+      }
+    },
+    "sqlalchemy": {
+      "type": "library",
+      "classes": 128,
+      "eligible": true,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.1526,
+        "p75": 0.4723,
+        "p90": 0.8666,
+        "p95": 1.0
+      },
+      "lcom3": {
+        "p5": 1.0,
+        "p10": 1.0,
+        "p25": 2.0,
+        "p50": 3.0,
+        "p75": 6.25,
+        "p90": 14.0,
+        "p95": 21.85
+      },
+      "tcc_below": {
+        "0.05": 0.3984,
+        "0.1": 0.4453,
+        "0.2": 0.5234,
+        "0.333": 0.6719
+      },
+      "lcom3_at_least": {
+        "3": 0.6016,
+        "5": 0.3359,
+        "10": 0.1484
+      }
+    },
+    "pandas": {
+      "type": "library",
+      "classes": 159,
+      "eligible": true,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.0025,
+        "p50": 0.2095,
+        "p75": 0.5046,
+        "p90": 1.0,
+        "p95": 1.0
+      },
+      "lcom3": {
+        "p5": 1.0,
+        "p10": 1.0,
+        "p25": 2.0,
+        "p50": 4.0,
+        "p75": 9.5,
+        "p90": 26.2,
+        "p95": 48.1
+      },
+      "tcc_below": {
+        "0.05": 0.3396,
+        "0.1": 0.3899,
+        "0.2": 0.4843,
+        "0.333": 0.6667
+      },
+      "lcom3_at_least": {
+        "3": 0.6792,
+        "5": 0.4969,
+        "10": 0.2516
+      }
+    },
+    "black": {
+      "type": "cli",
+      "classes": 18,
+      "eligible": false,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0611,
+        "p75": 0.525,
+        "p90": 1.0,
+        "p95": 1.0
+      },
+      "lcom3": {
+        "p5": 1.0,
+        "p10": 1.0,
+        "p25": 1.0,
+        "p50": 2.0,
+        "p75": 5.0,
+        "p90": 7.0,
+        "p95": 8.35
+      },
+      "tcc_below": {
+        "0.05": 0.4444,
+        "0.1": 0.6111,
+        "0.2": 0.6111,
+        "0.333": 0.6111
+      },
+      "lcom3_at_least": {
+        "3": 0.4444,
+        "5": 0.3333,
+        "10": 0.0556
+      }
+    },
+    "mypy": {
+      "type": "cli",
+      "classes": 218,
+      "eligible": true,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.1198,
+        "p75": 0.4367,
+        "p90": 1.0,
+        "p95": 1.0
+      },
+      "lcom3": {
+        "p5": 1.0,
+        "p10": 1.0,
+        "p25": 2.0,
+        "p50": 3.0,
+        "p75": 8.0,
+        "p90": 24.6,
+        "p95": 44.15
+      },
+      "tcc_below": {
+        "0.05": 0.4587,
+        "0.1": 0.4908,
+        "0.2": 0.5917,
+        "0.333": 0.7018
+      },
+      "lcom3_at_least": {
+        "3": 0.6422,
+        "5": 0.4037,
+        "10": 0.2339
+      }
+    },
+    "httpie": {
+      "type": "cli",
+      "classes": 37,
+      "eligible": true,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.2857,
+        "p75": 0.7193,
+        "p90": 1.0,
+        "p95": 1.0
+      },
+      "lcom3": {
+        "p5": 1.0,
+        "p10": 1.0,
+        "p25": 1.0,
+        "p50": 2.0,
+        "p75": 3.0,
+        "p90": 4.4,
+        "p95": 5.2
+      },
+      "tcc_below": {
+        "0.05": 0.3514,
+        "0.1": 0.3784,
+        "0.2": 0.4595,
+        "0.333": 0.5946
+      },
+      "lcom3_at_least": {
+        "3": 0.3243,
+        "5": 0.1081,
+        "10": 0.027
+      }
+    },
+    "yt-dlp": {
+      "type": "cli",
+      "classes": 766,
+      "eligible": true,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.3333,
+        "p90": 1.0,
+        "p95": 1.0
+      },
+      "lcom3": {
+        "p5": 1.0,
+        "p10": 1.0,
+        "p25": 2.0,
+        "p50": 2.0,
+        "p75": 3.0,
+        "p90": 4.0,
+        "p95": 6.0
+      },
+      "tcc_below": {
+        "0.05": 0.5548,
+        "0.1": 0.5796,
+        "0.2": 0.6397,
+        "0.333": 0.7637
+      },
+      "lcom3_at_least": {
+        "3": 0.3068,
+        "5": 0.0914,
+        "10": 0.017
+      }
+    },
+    "awscli": {
+      "type": "cli",
+      "classes": 671,
+      "eligible": true,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0545,
+        "p75": 0.3333,
+        "p90": 1.0,
+        "p95": 1.0
+      },
+      "lcom3": {
+        "p5": 1.0,
+        "p10": 1.0,
+        "p25": 2.0,
+        "p50": 3.0,
+        "p75": 5.0,
+        "p90": 8.0,
+        "p95": 12.0
+      },
+      "tcc_below": {
+        "0.05": 0.4918,
+        "0.1": 0.5484,
+        "0.2": 0.6587,
+        "0.333": 0.7824
+      },
+      "lcom3_at_least": {
+        "3": 0.5917,
+        "5": 0.2966,
+        "10": 0.0745
+      }
+    },
+    "pipx": {
+      "type": "cli",
+      "classes": 12,
+      "eligible": false,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.1597,
+        "p75": 0.4672,
+        "p90": 0.65,
+        "p95": 0.8167
+      },
+      "lcom3": {
+        "p5": 1.0,
+        "p10": 1.1,
+        "p25": 2.0,
+        "p50": 4.5,
+        "p75": 8.25,
+        "p90": 9.9,
+        "p95": 10.45
+      },
+      "tcc_below": {
+        "0.05": 0.4167,
+        "0.1": 0.5,
+        "0.2": 0.5,
+        "0.333": 0.6667
+      },
+      "lcom3_at_least": {
+        "3": 0.5833,
+        "5": 0.5,
+        "10": 0.1667
+      }
+    },
+    "healthchecks": {
+      "type": "web_app",
+      "classes": 77,
+      "eligible": true,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.3333,
+        "p90": 1.0,
+        "p95": 1.0
+      },
+      "lcom3": {
+        "p5": 1.0,
+        "p10": 1.0,
+        "p25": 2.0,
+        "p50": 2.0,
+        "p75": 3.0,
+        "p90": 5.0,
+        "p95": 8.2
+      },
+      "tcc_below": {
+        "0.05": 0.5195,
+        "0.1": 0.5584,
+        "0.2": 0.6104,
+        "0.333": 0.7532
+      },
+      "lcom3_at_least": {
+        "3": 0.3506,
+        "5": 0.1688,
+        "10": 0.039
+      }
+    },
+    "netbox": {
+      "type": "web_app",
+      "classes": 491,
+      "eligible": true,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.3333,
+        "p90": 1.0,
+        "p95": 1.0
+      },
+      "lcom3": {
+        "p5": 1.0,
+        "p10": 1.0,
+        "p25": 2.0,
+        "p50": 2.0,
+        "p75": 3.0,
+        "p90": 5.0,
+        "p95": 7.0
+      },
+      "tcc_below": {
+        "0.05": 0.5845,
+        "0.1": 0.6008,
+        "0.2": 0.668,
+        "0.333": 0.7739
+      },
+      "lcom3_at_least": {
+        "3": 0.3809,
+        "5": 0.1385,
+        "10": 0.0122
+      }
+    },
+    "saleor": {
+      "type": "web_app",
+      "classes": 611,
+      "eligible": true,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p90": 0.5,
+        "p95": 1.0
+      },
+      "lcom3": {
+        "p5": 1.0,
+        "p10": 2.0,
+        "p25": 2.0,
+        "p50": 3.0,
+        "p75": 5.0,
+        "p90": 8.0,
+        "p95": 11.0
+      },
+      "tcc_below": {
+        "0.05": 0.8101,
+        "0.1": 0.8232,
+        "0.2": 0.8625,
+        "0.333": 0.8903
+      },
+      "lcom3_at_least": {
+        "3": 0.5352,
+        "5": 0.2848,
+        "10": 0.0818
+      }
+    },
+    "redash": {
+      "type": "web_app",
+      "classes": 168,
+      "eligible": true,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0476,
+        "p75": 0.3678,
+        "p90": 1.0,
+        "p95": 1.0
+      },
+      "lcom3": {
+        "p5": 1.0,
+        "p10": 1.0,
+        "p25": 2.0,
+        "p50": 4.0,
+        "p75": 5.0,
+        "p90": 7.0,
+        "p95": 9.0
+      },
+      "tcc_below": {
+        "0.05": 0.5119,
+        "0.1": 0.5893,
+        "0.2": 0.6488,
+        "0.333": 0.7381
+      },
+      "lcom3_at_least": {
+        "3": 0.5952,
+        "5": 0.3929,
+        "10": 0.0417
+      }
+    },
+    "mealie": {
+      "type": "web_app",
+      "classes": 179,
+      "eligible": true,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0667,
+        "p75": 0.3333,
+        "p90": 1.0,
+        "p95": 1.0
+      },
+      "lcom3": {
+        "p5": 1.0,
+        "p10": 1.0,
+        "p25": 2.0,
+        "p50": 3.0,
+        "p75": 5.0,
+        "p90": 7.0,
+        "p95": 8.0
+      },
+      "tcc_below": {
+        "0.05": 0.4749,
+        "0.1": 0.514,
+        "0.2": 0.5866,
+        "0.333": 0.7542
+      },
+      "lcom3_at_least": {
+        "3": 0.5754,
+        "5": 0.2626,
+        "10": 0.0223
+      }
+    },
+    "nanogpt": {
+      "type": "ml_research",
+      "classes": 1,
+      "eligible": false,
+      "tcc": {
+        "p5": 0.2857,
+        "p10": 0.2857,
+        "p25": 0.2857,
+        "p50": 0.2857,
+        "p75": 0.2857,
+        "p90": 0.2857,
+        "p95": 0.2857
+      },
+      "lcom3": {
+        "p5": 4.0,
+        "p10": 4.0,
+        "p25": 4.0,
+        "p50": 4.0,
+        "p75": 4.0,
+        "p90": 4.0,
+        "p95": 4.0
+      },
+      "tcc_below": {
+        "0.05": 0.0,
+        "0.1": 0.0,
+        "0.2": 0.0,
+        "0.333": 1.0
+      },
+      "lcom3_at_least": {
+        "3": 1.0,
+        "5": 0.0,
+        "10": 0.0
+      }
+    },
+    "yolov5": {
+      "type": "ml_research",
+      "classes": 28,
+      "eligible": false,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.1947,
+        "p50": 0.3743,
+        "p75": 1.0,
+        "p90": 1.0,
+        "p95": 1.0
+      },
+      "lcom3": {
+        "p5": 1.0,
+        "p10": 1.0,
+        "p25": 1.0,
+        "p50": 2.0,
+        "p75": 3.0,
+        "p90": 3.6,
+        "p95": 5.0
+      },
+      "tcc_below": {
+        "0.05": 0.2143,
+        "0.1": 0.2143,
+        "0.2": 0.25,
+        "0.333": 0.4643
+      },
+      "lcom3_at_least": {
+        "3": 0.3214,
+        "5": 0.1071,
+        "10": 0.0357
+      }
+    },
+    "detectron2": {
+      "type": "ml_research",
+      "classes": 130,
+      "eligible": true,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.3333,
+        "p75": 0.7736,
+        "p90": 1.0,
+        "p95": 1.0
+      },
+      "lcom3": {
+        "p5": 1.0,
+        "p10": 1.0,
+        "p25": 1.0,
+        "p50": 2.0,
+        "p75": 3.0,
+        "p90": 4.0,
+        "p95": 5.55
+      },
+      "tcc_below": {
+        "0.05": 0.3308,
+        "0.1": 0.3538,
+        "0.2": 0.4308,
+        "0.333": 0.5923
+      },
+      "lcom3_at_least": {
+        "3": 0.3538,
+        "5": 0.0769,
+        "10": 0.0
+      }
+    },
+    "whisper": {
+      "type": "ml_research",
+      "classes": 11,
+      "eligible": false,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.3333,
+        "p75": 0.8334,
+        "p90": 1.0,
+        "p95": 1.0
+      },
+      "lcom3": {
+        "p5": 1.0,
+        "p10": 1.0,
+        "p25": 1.5,
+        "p50": 2.0,
+        "p75": 2.5,
+        "p90": 3.0,
+        "p95": 5.0
+      },
+      "tcc_below": {
+        "0.05": 0.3636,
+        "0.1": 0.3636,
+        "0.2": 0.3636,
+        "0.333": 0.5455
+      },
+      "lcom3_at_least": {
+        "3": 0.2727,
+        "5": 0.0909,
+        "10": 0.0
+      }
+    },
+    "segment-anything": {
+      "type": "ml_research",
+      "classes": 10,
+      "eligible": false,
+      "tcc": {
+        "p5": 0.0,
+        "p10": 0.0,
+        "p25": 0.2857,
+        "p50": 0.3166,
+        "p75": 0.6167,
+        "p90": 0.7857,
+        "p95": 0.8929
+      },
+      "lcom3": {
+        "p5": 1.0,
+        "p10": 1.0,
+        "p25": 1.25,
+        "p50": 2.0,
+        "p75": 2.75,
+        "p90": 3.1,
+        "p95": 3.55
+      },
+      "tcc_below": {
+        "0.05": 0.2,
+        "0.1": 0.2,
+        "0.2": 0.2,
+        "0.333": 0.6
+      },
+      "lcom3_at_least": {
+        "3": 0.3,
+        "5": 0.0,
+        "10": 0.0
+      }
+    }
+  }
+}

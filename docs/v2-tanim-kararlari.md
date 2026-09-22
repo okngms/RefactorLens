@@ -8,7 +8,8 @@ Sertleştirme Blok 1 ölçümleri, uygulama hatası olmayan ama tanımın
 cevaplamadığı beş soru bıraktı (K1-K5). K6, Blok 1b madde 4'ün koku kuralı
 kararıdır; alan eklediği için şema sürümü değiştirmez (`04` §1). K7, madde 3'ün
 (kapsama) kararıdır; hiçbir şey değiştirmez. K8 eşik kararıdır; eşik metrik
-değildir, şema sürümü değişmez. Blok 1b'nin dağılım tablosu metrik değerlerini
+değildir, şema sürümü değişmez. K9 v2.2'nin ilk ölçümüdür; bir adayı
+reddeder, hiçbir şey değiştirmez. Blok 1b'nin dağılım tablosu metrik değerlerini
 ölçeceği için bu sorular **tablodan önce** kapanmalıydı; yoksa tablo iki kez
 üretilirdi. Beşi burada birlikte karara bağlandı ve metrik anlamını değiştiren
 üçü tek bir `schema_version` artışıyla (2 → 3) uygulandı.
@@ -287,6 +288,54 @@ yakaladı). Deney yeniden koşulduğunda model farklı bir prompt görürdü.
 **Çürütme koşulu.** v2.2'nin genişleyen korpusunda LCOM4 ≥ 5 payı proje
 medyanında %6.9'u aşarsa ya da K4'ün yeni yoğunluk ölçüsü LCOM4'ün yerini
 alırsa eşik yeniden hesaplanır.
+
+## K9 — `god_class` kapısının iki yoğunluk adayı reddedildi; kapı değişmez
+
+> Karara bağlandı 2026-09-22. Kod, metrik, eşik ve şema değişmez. Ölçüm:
+> `experiments/hardening/density-gate.md`. v2.2 §5b'nin ilk sorusu.
+
+**Soru.** K4, LCOM4 kapısının çağrı kenarları yüzünden büyük sınıfların
+üçte birini kaçırdığını kaydetmiş ve yerine konacak yoğunluk ölçüsünü v2.2'ye
+bırakmıştı. İki literatür adayı dokuz maddeyle yazılıp korpusta ölçüldü:
+LCOM3-HM (Hitz ve Montazeri: çağrı kenarsız bileşen sayısı) ve doğrudan TCC
+(Lanza ve Marinescu'nun God Class stratejisindeki yoğunluk).
+
+**Karar.** İkisi de kabul edilmedi; `god_class` = NOM ≥ 20 ∧ WMC ≥ 50 ∧
+LCOM4 ≥ 3 aynen kalır.
+
+**Gerekçe.**
+- **LCOM3-HM kapıyı boyuta indiriyor:** `lcom3 >= 3` boyut koşulunu geçen 159
+  sınıfın 157'sinde ateşliyor. `lcom3 >= 10` bile 115'inde ateşliyor ve bugünkü
+  kapının 16 sınıfını kaybediyor.
+- **TCC'nin persentil eşiği yok:** tipik projede sınıfların en az dörtte
+  birinin TCC'si 0 (p25 = 0, medyan 0.059); 1/3 sınıfların %73.8'ini işaretliyor.
+- **Sorun çağrı kenarı değil durumsuz metot.** Büyük sınıfların %41'inde
+  metotların çoğu hiçbir `self.<attr>`'a dokunmuyor; en kalabalık tür kardeşine
+  devreden metot (2 481). Durum paylaşımına bakan hiçbir ölçü "tek
+  sorumluluğun uzun kataloğu" ile "ilgisiz sorumluluklar"ı ayıramaz; bu ayrım
+  için etiketli veri gerekiyor.
+
+**Kanıtın gücü.** Çürütme koşullarından biri (yeni ateşlenenlerin çoğunun
+durumsuz olması) ölçümden önce yazılmıştı ve **karşılanmadı** (61'in 21'i).
+Reddi taşıyan iki koşul (kapının ayırmaması, TCC'nin sabit bölgesi) sonuçlar
+görüldükten sonra formüle edildi. Ret bu yüzden "kanıtlandı" değil "kabul için
+yeterli gerekçe yok" diye okunmalı: kapı değiştirmek FINDINGS'in kanıt
+alanlarına dokunan yeni bir koku sürümü demek ve bu gerekçe ona yetmiyor.
+
+**Bulunan ek sorun.** Bugünkü kapı ateşlediği 96 sınıfın 44'ünde durumsuz sınıf
+yakalıyor; sekizi açıkça şüpheli: metotlarının çoğu taslak olan soyut arayüzler
+(`mypy.NodeVisitor`, 83 metodun 83'ü `pass`) ve metotlarının çoğu
+`@staticmethod` olan graphene tipleri (saleor, beş sınıf). README'ye sınırlılık
+olarak yazıldı.
+
+**Maliyet.** K4'ün yanlış negatifi (61 sınıf) açık kalıyor; şimdi yanında
+ölçülmüş bir yanlış pozitif ailesi de var.
+
+**Sıradaki soru.** Durumsuz metotlar: taslakları düğüm kümesinden çıkarmak
+(tanım değişikliği, şema artışı), kapıyı yalnızca durumlu metotlar üzerinde
+kurmak ya da `god_class`'ı etiketli veriyle doğrulamak. PySmell'in etiketli
+veri setinin Large Class için kullanılabilirliği incelenmedi; ilk bakılacak
+kaynak o.
 
 ## Korpustaki etki
 

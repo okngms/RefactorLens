@@ -1,4 +1,4 @@
-# STATUS — 2026-09-21
+# STATUS — 2026-09-22
 
 ## Sürüm
 **v2.0.0 PyPI'da.** `v2.0.0` tag'i ile GitHub Actions üzerinden, Trusted
@@ -6,8 +6,35 @@ Publishing (OIDC) ile yayınlandı; API token kullanılmadı. CI matrisi
 (3.11/3.12/3.13) ilk kez bu sürümde koştu.
 
 ## Bitenler
-- **Sertleştirme Blok 1b, 6. oturum — eşik kararı; Blok 1b kapandı** (bu
-  oturum). Karar: `docs/v2-tanim-kararlari.md` K8; ölçüm:
+- **v2.2, 1. oturum — `god_class` kapısı adayları (§5b); ikisi de reddedildi**
+  (bu oturum). Ölçüm: `experiments/hardening/density-gate.md`; karar:
+  `docs/v2-tanim-kararlari.md` K9. Aracın koduna, metriklere, eşiklere
+  dokunulmadı.
+  - **Dokuz madde iki literatür adayı için yazıldı:** LCOM3-HM (Hitz-Montazeri,
+    çağrı kenarsız bileşen) ve doğrudan TCC (Lanza-Marinescu God Class). TCC'nin
+    özgün dolaylı biçimi ortak yardımcıyla yine her şeyi bağladığı için aday
+    değil.
+  - **LCOM3-HM kapıyı boyuta indiriyor:** boyut koşulunu geçen 159 sınıfın
+    157'sinde ateşliyor; yeni ateşlenen 61 sınıf dağılım tablosunun "yalnız
+    çağrı kenarı yüzünden elenen" 61'iyle aynı (iki yol tutarlı).
+  - **TCC'nin persentil eşiği yok:** p5 = p10 = p25 = 0, medyan 0.059; 1/3
+    sınıfların %73.8'ini işaretliyor.
+  - **Asıl bulgu — durumsuz metot:** büyük sınıfların %41'inde (65/159)
+    metotların çoğu hiçbir `self.<attr>`'a dokunmuyor. Türleri: kardeşine
+    devreden 2 481, `self`'i kullanmayan 1 018, `@staticmethod` 285, taslak
+    283. Çağrı kenarı sorunu bunun öbür yüzü.
+  - **Bugünkü kapının yanlış pozitifleri:** ateşleyen 96 sınıfın 44'ü durumsuz;
+    sekizi açıkça şüpheli — taslak arayüzler (`mypy.NodeVisitor` 83/83 `pass`)
+    ve `@staticmethod` resolver'lı graphene tipleri (saleor, beş sınıf).
+    README'ye sınırlılık olarak yazıldı.
+  - **Kanıtın gücü açıkça yazıldı:** önceden yazılan çürütme koşulu (yeni
+    ateşlenenlerin çoğu durumsuz) karşılanmadı (61'in 21'i); reddi taşıyan iki
+    koşul sonuçlardan sonra formüle edildi. Ret "kabul için yeterli gerekçe
+    yok" diye kayıtlı.
+  - `density_gate.py`; `tests/test_hardening_density_gate.py`, 14 test (altın
+    değerler elle). Tekrar üretilebilir (aynı hash). Durum: 1380 paket testi
+    (10 atlandı), 91 fikstür testi, ruff temiz.
+- **Sertleştirme Blok 1b, 6. oturum — eşik kararı; Blok 1b kapandı**. Karar: `docs/v2-tanim-kararlari.md` K8; ölçüm:
   `experiments/hardening/thresholds.md`; persentil kaynakları `docs/04` §3.
   - **Kural korunan eşiklerden türetildi:** uyarı = proje medyanında payı
     ≤ %6.9 (CC ≥ 10'un payı), kritik = ≤ %1.2 (CC ≥ 20'nin payı) olan en küçük
@@ -316,39 +343,41 @@ framework deyiminden geliyor.**
   orkestrasyon modülleri.
 
 ## Sıradaki iş
-**Blok 1b kapandı** (kabul: dağılım ve kapsama tabloları, persentilden
-varsayılanlar ve `docs/04` §3 kaynağı, K7, giriş noktası testi). Sıra
-(`docs/v2-sertlestirme.md`, `docs/v2.2-python-metrikleri.md` §5):
-Blok 1b → **v2.2 Python ölçü seti** → `explain` Blok 2 → Blok 3/2/4/5.
+**v2.2 sürüyor.** Sıra: v2.2 → `explain` Blok 2 → Blok 3/2/4/5.
 
-**v2.2'nin ilk işi: dokuz madde, koddan önce.** `docs/v2.2-python-metrikleri.md`
-§3: her yeni ölçü için dokuz madde yazılır, 8 (eşik) ve 9 (çürütme) korpustan.
-Hangi ölçüyle başlanacağı açık; adaylar ve sertleştirmeden gelen girdiler:
-- **§5b `god_class` kapısı (K4):** sınıf içi yoğunluk (çağrı kenarsız bileşen
-  ya da TCC). Veri hazır: 159 büyük sınıfın 61'i yalnız çağrı kenarı yüzünden
-  eleniyor. Yeni koku sürümü olarak eklenir; FINDINGS kanıt alanları değişmez.
-- **§3 anotasyon kapsamı:** CAM'in kapsama sorununu (K7, `coverage.md` Bulgu 2)
-  doğrudan ölçer.
-- **DAM'ın yeniden tanımı** (K7): web uygulamalarında ayırmıyor; çürütme koşulu
-  kayıtta.
-- **§5b modül düzeyi kod ve koşullu tanımlar (K5).**
-- Girdi: PARAMS'ta yalnızca-anahtar parametreler (FUTURE.md, K8 ölçümü).
+İlk soru (`god_class` kapısı, K9) bir ret ve yeni bir soruyla kapandı:
+**durumsuz metotlar.** Sıradaki oturum için iki yol; hangisiyle
+başlanacağı kullanıcının kararı:
 
-Oturumun ilk adımı kullanıcıyla sıranın seçilmesi ya da §5b `god_class`
-kapısıyla başlanması (verisi en hazır olan).
+1. **Etiketli veri (önerilen ilk adım).** §2 PySmell'in etiketli veri setine
+   dayanıyor; Large Class etiketlerinin erişilebilir olup olmadığı ve
+   `god_class`'ı doğrulamaya yetip yetmediği **incelenmedi**. Yetiyorsa K4/K9
+   sorusu ölçümle cevaplanır; yetmiyorsa bu da bir bulgu.
+2. **Durumsuz metot adayları** (her biri dokuz madde): taslak metotları
+   NOM/LCOM4 düğüm kümesinden çıkarmak (tanım değişikliği, şema artışı; NOM
+   ve WMC'yi de değiştirir); kapıyı yalnızca durumlu metotlar üzerinde kurmak.
+   Veri `results/density-gate.json`'da.
+
+Diğer v2.2 adayları değişmedi: §3 anotasyon kapsamı (CAM'in kapsama sorunu,
+K7), DAM'ın yeniden tanımı (K7), §5b modül düzeyi kod ve koşullu tanımlar
+(K5), §2 PySmell kokuları, PARAMS'ta yalnızca-anahtar parametreler
+(FUTURE.md).
 
 Projeler yerelde yoksa: `python experiments/hardening/corpus.py fetch`
 (~850 MB). Kohezyon betiği ayrıca `pip install cohesion==1.2.0` ister.
 
 ## Okunacak dokümanlar (sırayla)
-AGENTS.md → bu dosya → docs/v2.2-python-metrikleri.md → docs/v2-tanim-kararlari.md
-(K4, K5, K7, K8) → experiments/hardening/coverage.md →
-experiments/hardening/metric-distribution.md (god_class kapısı)
+AGENTS.md → bu dosya → docs/v2.2-python-metrikleri.md (§2, §3, §5b) →
+experiments/hardening/density-gate.md → docs/v2-tanim-kararlari.md (K4, K9)
 Sonraki faz: docs/v2.1-explain.md (Blok 2).
 Deney protokolü: docs/v2-duzeltme-asama5.md. Metrik sınıfları:
 docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.
 
 ## Açık kararlar / bilinen sorunlar
+- **`god_class` durumsuz sınıflarda yanlış pozitif veriyor** (K9). Soyut
+  arayüzler ve `@staticmethod` resolver'lı sınıflar LCOM4'te her metodu ayrı
+  bileşen olarak alıyor; 96 kokunun 8'i açıkça şüpheli. README'de yazılı.
+  Düzeltme v2.2'nin durumsuz metot sorusuna bağlı.
 - **`explain` metni K8'den sonra tam doğru değil.** Talimat ve terminal notu
   "eşikler başka bir dil için kalibre edildi" diyor; varsayılanlar artık Python
   korpusunun persentillerine bakılarak doğrulandı. Sıfat yasağının kalkıp
@@ -411,7 +440,7 @@ docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.
   yazılı. Kapsam genişletmesi (modül düzeyi kod için bir birim) v2.2'nin
   "modül düzeyi kohezyon" ölçüsüyle birlikte düşünülmeli.
 - **`god_class` LCOM4 kapısı büyük sınıfların üçte birini kaçırıyor** (K4:
-  v2.2'ye kadar bilinçli olarak açık). Ortak
+  v2.2'ye kadar bilinçli olarak açık; K9: iki yoğunluk adayı reddedildi). Ortak
   yardımcı metodu olan sınıflarda çağrı kenarları LCOM4'ü 1-2'ye indiriyor;
   boyut koşulunu geçen 107 sınıfın 34'ü yalnızca bu yüzden elenir. Tanım
   kararı; sıradaki işte 2. madde. README'de sınırlılık olarak yazılı.

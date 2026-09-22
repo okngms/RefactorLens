@@ -329,6 +329,18 @@ Both are kept rather than dropped: removing a field would invalidate earlier
 reports and the experiment data built on them. Measurement:
 [coverage.md](https://github.com/okngms/RefactorLens/blob/main/experiments/hardening/coverage.md).
 
+### Known limitation: `god_class` and stateless methods
+
+LCOM4 counts every method that touches no attribute as its own component. On
+the 26-project calibration corpus, 44 of the 96 classes flagged `god_class`
+are mostly made of such methods. Some are plausibly not god classes at all:
+abstract interfaces whose methods are all `pass` (mypy's `NodeVisitor`, 83
+stub methods) and GraphQL types whose resolvers are `@staticmethod` (five
+saleor classes). Two replacement gates from the literature (Hitz–Montazeri
+LCOM3 and Lanza–Marinescu TCC) were measured and rejected; the gate is
+unchanged. Measurement:
+[density-gate.md](https://github.com/okngms/RefactorLens/blob/main/experiments/hardening/density-gate.md).
+
 ### Known limitation: LCOM4 and data classes
 
 LCOM4 flags well-written data-holder classes as uncohesive. A class with one

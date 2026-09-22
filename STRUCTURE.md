@@ -187,6 +187,7 @@ tests/
 ├── test_hardening_distribution.py  Percentiles, >= rule, per-project weighting, eligibility
 ├── test_hardening_coverage.py  Null / definitional / informative split, spread, trivial-value rules
 ├── test_hardening_thresholds.py  Candidate shares, pinned fixture thresholds, LCOM4 reaches no smell
+├── test_hardening_density_gate.py  LCOM3-HM, direct TCC, stub bodies, stateless kinds
 ├── test_entry_points.py    Entry point recognition; no too_many_params, no advice on params
 └── test_cli.py             All four commands end to end
 ```
@@ -205,6 +206,8 @@ experiments/hardening/
 ├── coverage.md             The coverage table; why CAM and DAM are kept (K7)
 ├── thresholds.py           Threshold candidates: LCOM4 shares, user-visible effect, kw-only params
 ├── thresholds.md           The threshold rule and why LCOM4 became 5/10 (K8)
+├── density_gate.py         god_class gate candidates: LCOM3-HM, TCC, stateless methods
+├── density-gate.md         Nine items for both candidates and why they were rejected (K9)
 ├── entry_points.py         How many entry points the corpus has; effect on too_many_params
 ├── entry-points.md         Why the rule is narrow, and what it changed
 ├── compare_radon.py        CC vs radon per function; classifies every difference
@@ -221,6 +224,7 @@ experiments/hardening/
 ├── results/entry-points.json
 ├── results/coverage.json, coverage-tables.md
 ├── results/threshold-candidates.json, threshold-candidates-tables.md
+├── results/density-gate.json, density-gate-tables.md
 └── .cache/                 Checked-out reference projects (gitignored, not in sdist)
 ```
 
