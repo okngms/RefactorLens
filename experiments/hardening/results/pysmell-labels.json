@@ -1,0 +1,419 @@
+{
+  "repo": "https://github.com/chenzhifei731/Pysmell",
+  "commit": "233afebac24c910be89d065ffa661ec72458a62c",
+  "smells": {
+    "ComplexContainerComprehension": {
+      "rows": 300,
+      "positives": 22,
+      "metrics": [
+        "NOC",
+        "NOFF",
+        "NOO"
+      ],
+      "single": {
+        "errors": 19,
+        "rule": "NOO >= 22"
+      },
+      "two": {
+        "errors": 10,
+        "combine": "and",
+        "rule": "NOC >= 86 and NOO >= 22"
+      },
+      "error_limit": 6,
+      "reading": "ba\u011f\u0131ms\u0131z yarg\u0131",
+      "agreement": {
+        "experience": 0.3767,
+        "statistics": 0.93
+      },
+      "posthoc_detector": {
+        "experience": {
+          "column_differs_from_rule": 32,
+          "rule_differs_from_manual": 219
+        },
+        "statistics": {
+          "column_differs_from_rule": 12,
+          "rule_differs_from_manual": 25
+        }
+      },
+      "subjects": [
+        "ansible v1.9.2-0.1.rc1",
+        "boto 2.38.0",
+        "django 1.8.2",
+        "ipython rel-3.1.0",
+        "matplotlib v1.4.3",
+        "nltk 3.0.2",
+        "numpy v1.9.2",
+        "scipy v0.16.0b2",
+        "tornado v4.2.0"
+      ]
+    },
+    "LargeClass": {
+      "rows": 300,
+      "positives": 11,
+      "metrics": [
+        "CLOC"
+      ],
+      "single": {
+        "errors": 1,
+        "rule": "CLOC >= 37"
+      },
+      "two": null,
+      "error_limit": 6,
+      "reading": "tek e\u015fi\u011fi kodluyor",
+      "agreement": {
+        "experience": 0.9,
+        "statistics": 0.98
+      },
+      "posthoc_detector": {
+        "experience": {
+          "column_differs_from_rule": 16,
+          "rule_differs_from_manual": 14
+        },
+        "statistics": {
+          "column_differs_from_rule": 0,
+          "rule_differs_from_manual": 6
+        }
+      },
+      "subjects": [
+        "ansible v1.9.2-0.1.rc1",
+        "boto 2.38.0",
+        "django 1.8.2",
+        "ipython rel-3.1.0",
+        "matplotlib v1.4.3",
+        "nltk 3.0.2",
+        "numpy v1.9.2",
+        "scipy v0.16.0b2",
+        "tornado v4.2.0"
+      ]
+    },
+    "LongBaseClassList": {
+      "rows": 300,
+      "positives": 0,
+      "metrics": [
+        "NBC"
+      ],
+      "single": {
+        "errors": 300,
+        "rule": "NBC >= 2"
+      },
+      "two": null,
+      "error_limit": 6,
+      "reading": "yetersiz pozitif",
+      "agreement": {
+        "experience": 1.0,
+        "statistics": 0.0
+      },
+      "posthoc_detector": {
+        "experience": {
+          "column_differs_from_rule": 0,
+          "rule_differs_from_manual": 0
+        },
+        "statistics": {
+          "column_differs_from_rule": 0,
+          "rule_differs_from_manual": 300
+        }
+      },
+      "subjects": [
+        "ansible v1.9.2-0.1.rc1",
+        "boto 2.38.0",
+        "django 1.8.2",
+        "ipython rel-3.1.0",
+        "matplotlib v1.4.3",
+        "nltk 3.0.2",
+        "numpy v1.9.2",
+        "scipy v0.16.0b2",
+        "tornado v4.2.0"
+      ]
+    },
+    "LongLambdaFunction": {
+      "rows": 200,
+      "positives": 16,
+      "metrics": [
+        "NOC",
+        "PAR",
+        "NOO"
+      ],
+      "single": {
+        "errors": 11,
+        "rule": "NOO >= 17"
+      },
+      "two": {
+        "errors": 4,
+        "combine": "and",
+        "rule": "NOC >= 72 and NOO >= 15"
+      },
+      "error_limit": 4,
+      "reading": "kural\u0131 kodluyor",
+      "agreement": {
+        "experience": 0.61,
+        "statistics": 0.98
+      },
+      "posthoc_detector": {
+        "experience": {
+          "column_differs_from_rule": 5,
+          "rule_differs_from_manual": 83
+        },
+        "statistics": {
+          "column_differs_from_rule": 0,
+          "rule_differs_from_manual": 4
+        }
+      },
+      "subjects": [
+        "ansible v1.9.2-0.1.rc1",
+        "boto 2.38.0",
+        "django 1.8.2",
+        "ipython rel-3.1.0",
+        "matplotlib v1.4.3",
+        "nltk 3.0.2",
+        "numpy v1.9.2",
+        "scipy v0.16.0b2",
+        "tornado v4.2.0"
+      ]
+    },
+    "LongMessageChain": {
+      "rows": 300,
+      "positives": 36,
+      "metrics": [
+        "LMC"
+      ],
+      "single": {
+        "errors": 7,
+        "rule": "LMC >= 4"
+      },
+      "two": null,
+      "error_limit": 6,
+      "reading": "ba\u011f\u0131ms\u0131z yarg\u0131",
+      "agreement": {
+        "experience": 0.88,
+        "statistics": 0.9767
+      },
+      "posthoc_detector": {
+        "experience": {
+          "column_differs_from_rule": 0,
+          "rule_differs_from_manual": 36
+        },
+        "statistics": {
+          "column_differs_from_rule": 0,
+          "rule_differs_from_manual": 7
+        }
+      },
+      "subjects": [
+        "ansible v1.9.2-0.1.rc1",
+        "boto 2.38.0",
+        "django 1.8.2",
+        "ipython rel-3.1.0",
+        "matplotlib v1.4.3",
+        "nltk 3.0.2",
+        "numpy v1.9.2",
+        "scipy v0.16.0b2",
+        "tornado v4.2.0"
+      ]
+    },
+    "LongMethod": {
+      "rows": 300,
+      "positives": 2,
+      "metrics": [
+        "MLOC"
+      ],
+      "single": {
+        "errors": 0,
+        "rule": "MLOC >= 53"
+      },
+      "two": null,
+      "error_limit": 6,
+      "reading": "yetersiz pozitif",
+      "agreement": {
+        "experience": 0.8267,
+        "statistics": 0.8867
+      },
+      "posthoc_detector": {
+        "experience": {
+          "column_differs_from_rule": 35,
+          "rule_differs_from_manual": 17
+        },
+        "statistics": {
+          "column_differs_from_rule": 0,
+          "rule_differs_from_manual": 34
+        }
+      },
+      "subjects": [
+        "ansible v1.9.2-0.1.rc1",
+        "boto 2.38.0",
+        "django 1.8.2",
+        "ipython rel-3.1.0",
+        "matplotlib v1.4.3",
+        "nltk 3.0.2",
+        "numpy v1.9.2",
+        "scipy v0.16.0b2",
+        "tornado v4.2.0"
+      ]
+    },
+    "LongParameterList": {
+      "rows": 300,
+      "positives": 31,
+      "metrics": [
+        "PAR"
+      ],
+      "single": {
+        "errors": 13,
+        "rule": "PAR >= 5"
+      },
+      "two": null,
+      "error_limit": 6,
+      "reading": "ba\u011f\u0131ms\u0131z yarg\u0131",
+      "agreement": {
+        "experience": 0.9567,
+        "statistics": 0.7733
+      },
+      "posthoc_detector": {
+        "experience": {
+          "column_differs_from_rule": 0,
+          "rule_differs_from_manual": 13
+        },
+        "statistics": {
+          "column_differs_from_rule": 0,
+          "rule_differs_from_manual": 68
+        }
+      },
+      "subjects": [
+        "ansible v1.9.2-0.1.rc1",
+        "boto 2.38.0",
+        "django 1.8.2",
+        "ipython rel-3.1.0",
+        "matplotlib v1.4.3",
+        "nltk 3.0.2",
+        "numpy v1.9.2",
+        "scipy v0.16.0b2",
+        "tornado v4.2.0"
+      ]
+    },
+    "LongScopeChaining": {
+      "rows": 69,
+      "positives": 6,
+      "metrics": [
+        "DOC"
+      ],
+      "single": {
+        "errors": 63,
+        "rule": "DOC >= 3"
+      },
+      "two": null,
+      "error_limit": 2,
+      "reading": "yetersiz pozitif",
+      "agreement": {
+        "experience": 0.087,
+        "statistics": 0.913
+      },
+      "posthoc_detector": {
+        "experience": {
+          "column_differs_from_rule": 0,
+          "rule_differs_from_manual": 63
+        },
+        "statistics": {
+          "column_differs_from_rule": 0,
+          "rule_differs_from_manual": 6
+        }
+      },
+      "subjects": [
+        "ansible v1.9.2-0.1.rc1",
+        "boto 2.38.0",
+        "django 1.8.2",
+        "ipython rel-3.1.0",
+        "matplotlib v1.4.3",
+        "nltk 3.0.2",
+        "numpy v1.9.2",
+        "scipy v0.16.0b2",
+        "tornado v4.2.0"
+      ]
+    },
+    "LongTernaryConditionalExpression": {
+      "rows": 201,
+      "positives": 11,
+      "metrics": [
+        "NOC",
+        "NOL"
+      ],
+      "single": {
+        "errors": 7,
+        "rule": "NOL >= 3"
+      },
+      "two": {
+        "errors": 5,
+        "combine": "or",
+        "rule": "NOC >= 98 or NOL >= 3"
+      },
+      "error_limit": 5,
+      "reading": "kural\u0131 kodluyor",
+      "agreement": {
+        "experience": 0.3284,
+        "statistics": 0.9751
+      },
+      "posthoc_detector": {
+        "experience": {
+          "column_differs_from_rule": 49,
+          "rule_differs_from_manual": 172
+        },
+        "statistics": {
+          "column_differs_from_rule": 0,
+          "rule_differs_from_manual": 5
+        }
+      },
+      "subjects": [
+        "ansible v1.9.2-0.1.rc1",
+        "boto 2.38.0",
+        "django 1.8.2",
+        "ipython rel-3.1.0",
+        "matplotlib v1.4.3",
+        "nltk 3.0.2",
+        "numpy v1.9.2",
+        "scipy v0.16.0b2",
+        "tornado v4.2.0"
+      ]
+    },
+    "MultiplyNestedContainer": {
+      "rows": 300,
+      "positives": 15,
+      "metrics": [
+        "LEC",
+        "DNC",
+        "NCT"
+      ],
+      "single": {
+        "errors": 2,
+        "rule": "DNC >= 3"
+      },
+      "two": {
+        "errors": 2,
+        "combine": "and",
+        "rule": "DNC >= 3 and NCT >= 2"
+      },
+      "error_limit": 6,
+      "reading": "tek e\u015fi\u011fi kodluyor",
+      "agreement": {
+        "experience": 0.95,
+        "statistics": 0.9733
+      },
+      "posthoc_detector": {
+        "experience": {
+          "column_differs_from_rule": 0,
+          "rule_differs_from_manual": 15
+        },
+        "statistics": {
+          "column_differs_from_rule": 0,
+          "rule_differs_from_manual": 8
+        }
+      },
+      "subjects": [
+        "ansible v1.9.2-0.1.rc1",
+        "boto 2.38.0",
+        "django 1.8.2",
+        "ipython rel-3.1.0",
+        "matplotlib v1.4.3",
+        "nltk 3.0.2",
+        "numpy v1.9.2",
+        "scipy v0.16.0b2",
+        "tornado v4.2.0"
+      ]
+    }
+  }
+}

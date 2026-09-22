@@ -1,25 +1,35 @@
 # STATUS — 2026-09-22
 
 ## Sürüm
-**PyPI'da v2.0.0. v2.1.0 hazır, yayını kullanıcı yapacak.** `__version__` 2.1.0;
-`CHANGELOG.md` yazıldı. Yerelde: sdist + wheel derlendi, `twine check` geçti,
-wheel temiz bir 3.14 ortamında kuruldu (`rlens --version`, `scan`,
-`explain --dry-run`), açılmış sdist'te 1472 paket + 91 fikstür testi geçti.
-
-Yayın adımları (sırayla):
-1. Değişiklikleri gözden geçir ve commit'le.
-2. `git push` → CI matrisi (3.11/3.12/3.13/**3.14** — 3.14 ilk kez) yeşil olmalı.
-3. `git tag v2.1.0 && git push origin v2.1.0` → `publish` işi (OIDC, `pypi`
-   ortamı). Ortamda onay kuralı varsa GitHub'da onaylanır.
-4. Doğrula: `pipx install --force refactorlens==2.1.0 && rlens --version`
-   → `rlens 2.1.0 (report schema v3)`; PyPI sayfasında README'nin durum
-   satırı.
-5. İstersen GitHub Release notu olarak CHANGELOG'un 2.1.0 bölümü.
-
-Yayından sonra bu bölüm "v2.1.0 PyPI'da" diye güncellenir.
+**v2.1.0 PyPI'da** (2026-09-22). `v2.1.0` tag'i ile GitHub Actions üzerinden,
+Trusted Publishing (OIDC) ile yayınlandı; CI matrisi 3.11/3.12/3.13/3.14 (3.14
+ilk kez). PyPI'da wheel ve sdist doğrulandı. İçerik: `CHANGELOG.md` 2.1.0.
+Önceki: v2.0.0 (2026-09-10).
 
 ## Bitenler
-- **v2.1.0 yayın hazırlığı** (bu oturum). v2.0.0'dan bu yana pakete giren
+- **v2.2, 5. oturum — PySmell etiketleri (§2)** (bu oturum). Ön kayıt ve
+  ölçüm: `experiments/hardening/pysmell-labels.md`. Aracın koduna dokunulmadı.
+  - **Soru:** on kokunun elle verilmiş etiketi PySmell'in kendi metrik
+    sütunlarıyla (tek eşik / iki eşikli `ve`-`veya`) yeniden üretilebiliyor mu;
+    okuma kuralı ölçümden önce (hata ≤ max(1, ⌈0.02·N⌉)).
+  - **Ön kayıtlı okuma:** tek eşik — LargeClass (1 hata), MultiplyNested (2);
+    kural — LongLambda (4), LongTernary (5); bağımsız — LongMessageChain (7,
+    sınır 6), LongParameterList (13), ComplexContainerComprehension (10);
+    yetersiz pozitif — LongMethod (2), LongScopeChaining (6), LongBaseClassList
+    (0).
+  - **Sonradan eklenen (ön kayıtta yok, ayrı yazıldı):** PySmell'in
+    `detector.py`'si okundu; dedektörler genel eşik kullanıyor. Elle etiket
+    statistics-based kuralından beş kokuda yalnızca 4-8 satırda ayrılıyor.
+  - **Sonuç:** etiketler §2'nin varsaydığı dış kehanet değil, PySmell'in
+    eşiklerinin uzman onayı. Yeni kokular için yalnızca literatür eşiği
+    (madde 8); geçerlilik (madde 9) başka bir bağımsız sinyalden gelmeli.
+    İstisnalar LongParameterList ve ComplexContainerComprehension.
+  - **Ölçüm sırasında yakalanan kendi hatam:** uyumu iki ondalıkla yazdığım
+    için 0.977 değeri 0.98 görünüp tek eşik sonucuyla çelişiyor sanıldı;
+    tablo artık farklı satır sayısını yazıyor.
+  - Testler: `test_hardening_pysmell_labels.py` 10. Durum: 1482 paket testi
+    (10 atlandı), 91 fikstür testi, ruff temiz.
+- **v2.1.0 yayını** — hazırlık asistan, yayın kullanıcı tarafından. v2.0.0'dan bu yana pakete giren
   şema 3, uygulama düzeltmeleri (import çözücü, CC, `@overload`, DCC), K6/K8/
   K10/K11 ve `explain` PyPI'daki kullanıcıya ulaşmıyordu.
   - `__version__` 2.1.0. Sürüm adı: yeni komut + şema değişikliği → minor
@@ -467,18 +477,19 @@ framework deyiminden geliyor.**
    etiketlerden okunur.
 
 ### Diğer v2.2 adayları (hiçbiri başlamadı)
-- **§2 PySmell kokuları:** önce her kokunun etiketi tek bir metrik eşiğiyle
-  ayrılıyor mu kontrol edilir (Large Class'ta ayrılıyordu); etiket boyut
-  kodluyorsa dış doğrulama sayılmaz.
+- **§2 PySmell kokuları:** etiket kontrolü bitti (`pysmell-labels.md`):
+  etiketler literatür eşiği, dış doğrulama değil. Bir koku eklenecekse dokuz
+  madde, eşik korpustan, geçerlilik başka bir bağımsız sinyalden.
 - **§3 dinamik opaklık, modül düzeyi kohezyon, duck typing kuplajı.**
 - **§5b modül düzeyi kod ve koşullu tanımlar** (K5).
 - **PARAMS'ta yalnızca-anahtar parametreler** (FUTURE.md, K8 ölçümü).
 
-§3 anotasyon kapsamı (K11) ve DAM sorusu (K12) bitti. Önerilen sıra:
-etiketleme beklenirken **§2 PySmell kokularının etiket kontrolü** (etiketler
-depoda; her koku için "etiket tek bir metrik eşiğiyle ayrılıyor mu" sorusu
-Large Class'taki gibi bir oturumluk iş), ardından §3 dinamik opaklık.
-Annotation'la çözülen açıklık (EXP-typed) FUTURE.md'de.
+§3 anotasyon kapsamı (K11), DAM sorusu (K12) ve §2 etiket kontrolü bitti.
+Önerilen sıra: etiketleme beklenirken **§3 dinamik opaklık**
+(`getattr`/`setattr`/`eval`, `**kwargs` geçişi, `__getattr__`; v2.2 §3'ün
+dokuz madde örneği zaten onu kullanıyor, bilinen yanlış pozitif listesi
+yazılı). Ardından §2'nin kokuları (literatür eşiğiyle, korpus
+kalibrasyonuyla). Annotation'la çözülen açıklık (EXP-typed) FUTURE.md'de.
 
 Projeler yerelde yoksa: `python experiments/hardening/corpus.py fetch`
 (~850 MB). Kohezyon betiği ayrıca `pip install cohesion==1.2.0` ister.

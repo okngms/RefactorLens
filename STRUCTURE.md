@@ -194,6 +194,7 @@ tests/
 ├── test_annotation_coverage.py  K11: slots, null rule, CAM agreement, fixture gold values
 ├── test_hardening_annotations.py  Pre-registered refutations, py.typed detection
 ├── test_exposure.py        EXP candidate: index, external access, eta squared
+├── test_hardening_pysmell_labels.py  Threshold search, reading rule, PySmell detector rules
 ├── test_entry_points.py    Entry point recognition; no too_many_params, no advice on params
 └── test_cli.py             All four commands end to end
 ```
@@ -226,6 +227,8 @@ experiments/hardening/
 ├── exposure.md             Pre-registration and result; EXP rejected (K12)
 ├── exposure-sample.json    30 exposed attributes drawn for the precision check
 ├── exposure-verdicts.json  Per-access verdicts with file, line and reason
+├── pysmell_labels.py       Can PySmell's manual labels be rebuilt from its own metrics
+├── pysmell-labels.md       Pre-registration and result: labels are thresholds, not an oracle
 ├── entry_points.py         How many entry points the corpus has; effect on too_many_params
 ├── entry-points.md         Why the rule is narrow, and what it changed
 ├── compare_radon.py        CC vs radon per function; classifies every difference
@@ -247,6 +250,7 @@ experiments/hardening/
 ├── results/god-class-strata.json  Strata of the sample; closed until labelling ends
 ├── results/annotation-coverage.json, annotation-coverage-tables.md
 ├── results/exposure.json, exposure-tables.md
+├── results/pysmell-labels.json, pysmell-labels-tables.md
 └── .cache/                 Checked-out reference projects (gitignored, not in sdist)
 ```
 
