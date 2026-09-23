@@ -1,13 +1,35 @@
 # STATUS — 2026-09-23
 
 ## Sürüm
-**v2.1.0 PyPI'da** (2026-09-22). `v2.1.0` tag'i ile GitHub Actions üzerinden,
-Trusted Publishing (OIDC) ile yayınlandı; CI matrisi 3.11/3.12/3.13/3.14 (3.14
-ilk kez). PyPI'da wheel ve sdist doğrulandı. İçerik: `CHANGELOG.md` 2.1.0.
-Önceki: v2.0.0 (2026-09-10).
+**PyPI'da v2.1.0. v2.2.0 hazır, yayını kullanıcı yapacak.** `__version__`
+2.2.0; `CHANGELOG.md` 2.2.0 bölümü ("Unreleased" kapatıldı). Yerel doğrulama bu
+oturumun "Bitenler" girdisinde.
+
+Yayın adımları (2.1.0 ile aynı yol):
+1. Değişiklikleri commit'le ve `git push`; CI matrisi (3.11-3.14) yeşil olmalı.
+2. `git tag v2.2.0 && git push origin v2.2.0` → `publish` işi (OIDC).
+3. Doğrula: `pipx install --force refactorlens==2.2.0 && rlens --version`
+   → `rlens 2.2.0 (report schema v3)`.
+
+Yayından sonra bu bölüm "v2.2.0 PyPI'da" diye güncellenir.
 
 ## Bitenler
-- **v2.2, 10. oturum — `god_class` kör etiketleri, K17** (bu oturum). Sonuç:
+- **v2.2.0 yayın hazırlığı** (bu oturum). Karar asistanın (kullanıcı yetkisiyle):
+  v2.2'nin ölçü işi bitti, "Unreleased"ta üç rapor alanı (K13, K14) ve
+  README'de kullanıcıya dönük `god_class` uyarısı (K17) vardı.
+  - `__version__` 2.2.0; `CHANGELOG.md` 2.2.0 (Added: K13/K14 alanları;
+    Documentation: K17 uyarısı, K15/K16 ölçüm kararları). Şema 3, 2.1.0
+    raporlarıyla karşılaştırılabilir.
+  - README durum satırı ve Roadmap v2.2 satırı; "Next" `explain` şablon
+    katmanı + katman çıkarımı. Anotasyon kapsamı 2.1.0'da çıktığı için v2.2
+    sürüm satırına yazılmadı (faz olarak v2.2, sürüm olarak 2.1.0).
+  - AGENTS faz tablosu v2.2; yaklaşık test sayısı ~1100 → ~1500.
+  - `docs/06` sürüm haritasına 2.2.0 notu; workflow yorumundaki tag örneği.
+  - **Yerel doğrulama:** sdist + wheel derlendi, `twine check` geçti; wheel
+    temiz 3.14 ortamında kuruldu (`rlens 2.2.0 (report schema v3)`, `scan`
+    çalışıyor, yeni alanlar raporda); açılmış sdist'te 1520 paket + 91 fikstür
+    testi geçti. sdist 653 KB, `.cache` yok.
+- **v2.2, 10. oturum — `god_class` kör etiketleri, K17**. Sonuç:
   `experiments/hardening/god-class-labels.md`.
   - **Etiketler** `yanitlar.md`'den `god-class-verdicts.json`'a işlendi (32/32,
     kimlikler örneklemle birebir). Etiketleyici **Claude Sonnet 5**, her sınıf
@@ -572,15 +594,12 @@ kohezyonu). DAM (K12), §2 etiket kontrolü ve K5 (K15) de kapandı. v2.2'de
 açık kalanlar: `god_class` için isteğe bağlı insan etiketi (K17) ve §2'nin
 kokuları (isteğe bağlı; literatür eşiği + korpus + bağımsız sinyal).
 
-Önerilen sıra: **v2.2'yi kapatmak ve 2.2.0'ı yayınlamak** (aşağıda), sonra
-yol haritasının sıradaki fazı `explain` Blok 2 (`docs/v2.1-explain.md`:
-deterministik şablon katmanı). Şablon katmanı artık K11/K13/K14'ün betimsel
+Önerilen sıra: 2.2.0 yayını (hazır; adımlar "Sürüm" bölümünde), sonra yol
+haritasının sıradaki fazı **`explain` Blok 2** (`docs/v2.1-explain.md`:
+deterministik şablon katmanı). Şablon katmanı K11/K13/K14'ün betimsel
 alanlarını da kullanabilir.
 
-**Yayın önerisi:** `CHANGELOG.md` "Unreleased" bölümünde üç yeni rapor alanı
-var (K13 iki, K14 bir). v2.2'nin ölçü işi tamamlandığı için 2.2.0 (yalnız alan
-ekleme, şema 3, kırılma yok) önerilir; kullanıcı onaylarsa hazırlık 2.1.0
-deseniyle, tag/push kullanıcıda.
+**Yayın:** 2.2.0 hazır ("Sürüm" bölümü).
 
 Projeler yerelde yoksa: `python experiments/hardening/corpus.py fetch`
 (~850 MB). Kohezyon betiği ayrıca `pip install cohesion==1.2.0` ister.

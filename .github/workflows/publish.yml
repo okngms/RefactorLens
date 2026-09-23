@@ -1,6 +1,6 @@
 name: test and publish
 
-# Yayın yolu: `git tag v2.1.0 && git push --tags`.
+# Yayın yolu: `git tag v2.2.0 && git push --tags`.
 #
 # Neden token yok: PyPI Trusted Publishing (OIDC) kullanılıyor. API token'ı bir
 # repo secret'ında tutmak, sızdığında geri alınana kadar herkesin `refactorlens`

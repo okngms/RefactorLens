@@ -4,7 +4,14 @@ Scan, advice and explain reports carry their own `schema_version`; `verify`
 refuses to compare scan reports whose schema versions differ. After upgrading,
 regenerate any `before` report with the new version.
 
-## Unreleased
+## 2.2.0 — 2026-09-23
+
+Three descriptive report fields from the Python-specific metric set. Each was
+pre-registered with its refutation conditions before it was measured on the
+26-project corpus, and checked against a signal the measure itself does not
+use. Only fields are added: scan schema stays 3, and 2.1.0 reports remain
+comparable with `verify`. None of the new fields has a threshold or a smell,
+and none reaches the `advise` prompt.
 
 ### Added
 
@@ -15,6 +22,17 @@ regenerate any `before` report with the new version.
 - Report field `functions[].duck_coupling`: distinct `(parameter,
   attribute)` pairs a function touches on its arguments; `null` without
   parameters. Descriptive, no threshold (K14).
+
+### Documentation
+
+- `god_class`: a blind sample of 32 large classes, labelled by an LLM
+  (Claude Sonnet 5) rather than a person, found that only about one in ten
+  flagged classes clearly holds several unrelated responsibilities. The gate
+  is unchanged — no alternative did measurably better — and the README now
+  says to read the smell as "large, look closer" (K17).
+- Measured and documented without changing the tool: classes and functions
+  defined under `if`/`try` stay out of the report (0.4% of functions; K15);
+  a module-level cohesion measure was tested and rejected (K16).
 
 ## 2.1.0 — 2026-09-22
 

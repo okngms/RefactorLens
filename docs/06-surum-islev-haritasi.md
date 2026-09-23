@@ -48,6 +48,9 @@ Katman **çıkarımı** (v2.1), tip çıkarımı, `apply`, Action, history.
 > **Kayma (2026-09-22):** 2.1.0 sertleştirme (şema 3, persentil eşikleri,
 > K1-K12) ve deneysel `explain` ile yayınlandı; katman çıkarımı girmedi ve bir
 > sonraki sürüme kaydı. Kabul kriteri değişmedi.
+>
+> **2.2.0 (2026-09-23):** Python'a özgü ölçü seti (K11, K13, K14 alanları;
+> K15-K17 ölçüm kararları). Katman çıkarımı yine girmedi.
 
 Konvansiyon + framework tanıma + bağımlılık yönü → katman + güven; `unknown`; `tentative` ihlaller. Kabul: 3 gerçek projede elle doğrulanmış doğruluk ≥%80; altında "weak signal".
 

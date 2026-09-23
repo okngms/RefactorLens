@@ -48,9 +48,10 @@ structural effect of their own refactoring suggestions?**
 | 5 | Experiment and `FINDINGS.md` | done, released as v1.0.0 |
 | v2 | Architecture, smells, calibration, `FINDINGS-2.md` | done, released as v2.0.0 |
 | v2.1 | Hardening against a 26-project corpus, `explain` (experimental) | done, released as v2.1.0 |
+| v2.2 | Python-specific measures, pre-registered (K11-K17) | done, released as v2.2.0 |
 
 Published on PyPI as `refactorlens`. All four commands work end to end against
-a real provider. ~1100 package tests plus the fixture's 91 behaviour tests,
+a real provider. ~1500 package tests plus the fixture's 91 behaviour tests,
 ruff clean.
 
 The package figure is deliberately approximate: an exact count rots on every

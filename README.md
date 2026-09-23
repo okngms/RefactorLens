@@ -25,11 +25,12 @@ Class metrics
 8 items over threshold.
 ```
 
-> **Status: v2.1.0 released.** Four core commands: `scan` measures,
+> **Status: v2.2.0 released.** Four core commands: `scan` measures,
 > `arch` maps layers and violations, `advise` asks an LLM for advice grounded in
 > both, and `verify` checks whether the model's own prediction came true. A
 > fifth, `explain`, is experimental. v2.1 checked every metric against a
-> 26-project calibration corpus; see the
+> 26-project calibration corpus; v2.2 added Python-specific descriptive
+> measures (dynamic opacity, duck-typing coupling); see the
 > [changelog](https://github.com/okngms/RefactorLens/blob/main/CHANGELOG.md).
 > Two experiments are done — [FINDINGS.md](https://github.com/okngms/RefactorLens/blob/main/FINDINGS.md) and
 > [FINDINGS-2.md](https://github.com/okngms/RefactorLens/blob/main/FINDINGS-2.md).
@@ -505,14 +506,14 @@ threshold. Measurement:
 | 4 | Verification loop (`verify`) | v0.2.0 |
 | 5 | Experiment and findings | v1.0.0 |
 | v2 | `arch`, smells, architectural context, calibration, second experiment | v2.0.0 |
-| **v2.1** | **Metrics checked against a 26-project corpus: scan schema 3, percentile-based defaults, `explain` (experimental)** | **v2.1.0** |
+| v2.1 | Metrics checked against a 26-project corpus: scan schema 3, percentile-based defaults, `explain` (experimental) | v2.1.0 |
+| **v2.2** | **Python-specific measures, each pre-registered and checked on the corpus: dynamic opacity, duck-typing coupling** | **v2.2.0** |
 
 Phases 3 and 4 shipped together in v0.2.0. Both experiments live in
 [`experiments/`](https://github.com/okngms/RefactorLens/tree/main/experiments), with the raw data committed alongside them.
 
-Next: a Python-specific metric set (each new measure pre-registered and
-checked against the corpus before it ships), and layer inference instead of
-requiring layers to be declared — today they come from your config or from an
+Next: a deterministic template layer for `explain`, and layer inference
+instead of requiring layers to be declared — today they come from your config or from an
 existing `import-linter` contract, and are reported `unknown` when neither is
 present. **v3** closes the loop (`apply`, a
 feedback round, a benchmark); **v4** adds history and other languages.
