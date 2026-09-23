@@ -13,7 +13,8 @@ reddeder, hiçbir şey değiştirmez. K10 bir koku kuralıdır (K6 deseni); alan
 ekler, şema sürümü değişmez. K11 v2.2'nin ilk yeni ölçüsüdür; alan ekler.
 K12 bir adayı reddeder; hiçbir şey değiştirmez.
 K13 v2.2'nin ikinci yeni ölçüsüdür; alan ekler.
-K14 üçüncüsüdür; alan ekler. Blok 1b'nin dağılım tablosu metrik değerlerini
+K14 üçüncüsüdür; alan ekler. K15 K5'i ölçümle kapatır;
+hiçbir şey değiştirmez. Blok 1b'nin dağılım tablosu metrik değerlerini
 ölçeceği için bu sorular **tablodan önce** kapanmalıydı; yoksa tablo iki kez
 üretilirdi. Beşi burada birlikte karara bağlandı ve metrik anlamını değiştiren
 üçü tek bir `schema_version` artışıyla (2 → 3) uygulandı.
@@ -494,6 +495,31 @@ uygulamayı sınıyor; öyle kaydedildi.
 `dict`/`list` protokolü (`d.get`, `xs.append`) işbirlikçi bağımlılığı gibi
 sayılır; yerel bir ada kopyalanan parametre (`o = p; o.a`) görülmez; kavrama
 içinde parametreyi gölgeleyen ad üzerinden erişim yanlışlıkla sayılır.
+
+## K15 — Koşullu tanımlar raporlanmaz; K5 ölçümle kapandı
+
+> Karara bağlandı 2026-09-23. Kod, alan, şema değişmez. Kapsam ve ölçüm:
+> `docs/v2.2-sinifsiz-kod.md`, `experiments/hardening/unreported.py`.
+
+**Soru.** K5, `if`/`try` altındaki tanımları raporlamayı "önce kimlik
+tasarımı gerekir" diyerek v2.2'ye bırakmıştı.
+
+**Ölçüm.** Korpusta 223 koşullu tanım (163 fonksiyon, 60 sınıf; fonksiyonların
+%0.4'ü). Tipik projede ölçülmeyen mantık %2.9, bunun %3'ü koşullu tanımlardan.
+Koşulların çoğu `TYPE_CHECKING` (63) ya da uyumluluk dalı (sürüm/platform 38,
+`PYDANTIC_V2` 44, `PY3` 22). Rapora alınsalardı aynı modülde aynı adla birden
+fazla birim görünen ad sayısı 1'den 48'e çıkardı.
+
+**Karar.** Koşullu tanımlar raporlanmaz (bugünkü davranış). Tek dal raporlama
+seçeneği (C) kimlik çakışmasını çözerdi ama uyumluluk dallarında hangi dalın
+"gerçek" olduğu seçimi keyfi ve kazanç mantığın yaklaşık 0.1 puanı.
+
+**Çürütme koşulu.** Genişleyen korpusta koşullu tanımların ölçülmeyen koddaki
+payı projelerin medyanında %20'yi geçerse ya da tipik bir projede önemli bir
+sınıfın görünmediği gösterilirse (C) yeniden tartılır.
+
+**Yan bulgu.** Bugünkü raporda bir kimlik çakışması var (awscli `plugin.py`,
+iki `_`); açık sorun.
 
 ## Korpustaki etki
 

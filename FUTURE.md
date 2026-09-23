@@ -45,6 +45,10 @@ eklenmez; amaç fikri kaybetmemek ama kapsamı şişirmemektir.
   K11) alıcının türü imzadan okunabilir: `def f(order: Order): order.total`.
   Kendi ön kaydıyla ölçülmeli; `ast`-yalnız kararını zorlamaz, çözüm yine
   best-effort kalır.
+- **Betik tarzı kod için "modül gövdesi" birimi.** Modül düzeyi deyimlerin
+  CC'si ve LOC'u. Korpusta tipik projede mantığın %2.6'sı hiçbir birime ait
+  değil; nanoGPT %54, httpie %17, rich %12 (`docs/v2.2-sinifsiz-kod.md` §2).
+  Yararlanacak proje az olduğu için v2.2 kapsamında değil.
 - **PARAMS'ta yalnızca-anahtar parametreler.** `*` sonrası parametreleri ayrı
   saymak `too_many_params`'ın %24.9'unu kaldırırdı (K8,
   `experiments/hardening/thresholds.md`). Tanım değişikliği, şema artışı;

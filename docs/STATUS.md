@@ -7,7 +7,27 @@ ilk kez). PyPI'da wheel ve sdist doğrulandı. İçerik: `CHANGELOG.md` 2.1.0.
 Önceki: v2.0.0 (2026-09-10).
 
 ## Bitenler
-- **v2.2, 7. oturum — duck typing yapısal kuplajı (§3), K14** (bu oturum).
+- **v2.2, 8. oturum — sınıfsız kod kapsamı, K15** (bu oturum). Kapsam:
+  `docs/v2.2-sinifsiz-kod.md`; ölçüm: `experiments/hardening/unreported.py`.
+  Aracın koduna dokunulmadı.
+  - **Soru üçe ayrıldı ve ölçüldü:** koşullu tanımlar (K5), betik tarzı modül
+    kodu, modül düzeyi kohezyon.
+  - **Koşullu tanımlar:** 223 (fonksiyonların %0.4'ü); çoğu `TYPE_CHECKING`
+    ya da uyumluluk dalı (`PYDANTIC_V2`, `PY3`, sürüm/platform). Rapora
+    alınsalar aynı adlı birim çakışması 1 → 48. **K15: raporlanmaz**, çürütme
+    koşulu kayıtta.
+  - **Betik kodu:** tipik projede mantığın %2.6'sı; nanoGPT %54, httpie %17,
+    rich %12. Yeni birim yok (FUTURE.md).
+  - **Modül düzeyi kohezyon:** sonraki ölçü; kenar adayları ve K9'un dersi
+    (çağrı kenarı / durumsuz birim) kapsam belgesinde.
+  - **Yakalanan kendi hatam:** ilk sayım `@overload` taslaklarını birim sayıp
+    109 kimlik çakışması gösterdi; rapor birimleriyle yeniden sayıldı (bugün
+    1, koşullularla 48).
+  - `corpus.line_coverage` küme döndüren `logic_sets`'e ayrıldı (sayımlar
+    aynı, testle).
+  - Testler: `test_hardening_unreported.py` 8. Durum: 1512 paket testi (10
+    atlandı), 91 fikstür testi, ruff temiz.
+- **v2.2, 7. oturum — duck typing yapısal kuplajı (§3), K14**.
   Ön kayıt ve ölçüm: `experiments/hardening/duck-coupling.md`.
   - **Tanım:** parametreler üzerinden farklı `(parametre, attribute)` çifti;
     plan "farklı ad" diyordu, sapma ön kayıtta gerekçeli.
@@ -520,15 +540,13 @@ framework deyiminden geliyor.**
   madde, eşik korpustan, geçerlilik başka bir bağımsız sinyalden.
 - **§3 modül düzeyi kohezyon** (dinamik opaklık K13, duck typing kuplajı K14
   ile eklendi).
-- **§5b modül düzeyi kod ve koşullu tanımlar** (K5).
 - **PARAMS'ta yalnızca-anahtar parametreler** (FUTURE.md, K8 ölçümü).
 
-§3'ün dört ölçüsünden üçü eklendi (K11 anotasyon kapsamı, K13 dinamik
-opaklık, K14 duck typing kuplajı); DAM sorusu (K12) ve §2 etiket kontrolü
-bitti. Önerilen sıra: etiketleme beklenirken **§3 modül düzeyi kohezyon,
-§5b modül düzeyi kod ve koşullu tanımlarla (K5) birlikte** — ikisi aynı soru
-(sınıfsız kod için bir ölçüm birimi) ve K5 bir kimlik tasarımı gerektiriyor;
-büyük iş, önce kapsam belgesi.
+§3'ün dört ölçüsünden üçü eklendi (K11, K13, K14); DAM (K12), §2 etiket
+kontrolü ve K5 (K15) kapandı. Önerilen sıra: etiketleme beklenirken **§3 modül
+düzeyi kohezyon**, dokuz maddeyle ön kayıt (`docs/v2.2-sinifsiz-kod.md` §3:
+düğümler, kenar adayları, çağrılı/çağrısız iki değişken, bağımsız sinyal
+adayı).
 
 **Yayın önerisi:** `CHANGELOG.md` "Unreleased" bölümünde üç yeni rapor alanı
 var (K13 iki, K14 bir). Kullanıcıya küçük bir sürüm (2.2.0: yalnız alan
@@ -549,6 +567,10 @@ Deney protokolü: docs/v2-duzeltme-asama5.md. Metrik sınıfları:
 docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.
 
 ## Açık kararlar / bilinen sorunlar
+- **Raporda bugün bir kimlik çakışması var** (K15 yan bulgusu): awscli
+  `plugin.py`'de iki `_` fonksiyonu (`@...register`). `verify` fonksiyonları
+  ada göre eşleştirdiği için ikisini aynı birim sayar. Korpusta tek örnek;
+  çözüm (ör. kimliğe sıra eklemek) kimlik tasarımı ister.
 - **`god_class` durumsuz sınıflarda yanlış pozitif veriyor** (K9). Taslak
   arayüzler K10 ile çıkarıldı (3 sınıf); `@staticmethod` resolver'lı graphene
   tipleri (5) ve yalnızca ortak yardımcıya devreden katalog sınıfları hâlâ
@@ -600,7 +622,8 @@ docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.
   eşiklerinin ve delta mantığının `None` karşılaştırmasını gerektirir.
   Deney protokolü açısından `smells.py` kanıt alanlarına dokunmadan
   yapılabilir mi, önce o incelenmeli. Mevcut davranış testte sabit.
-- **Bazı sınıflar hiç ölçülmüyor.** Modül düzeyinde `if TYPE_CHECKING:` /
+- ~~**Bazı sınıflar hiç ölçülmüyor.**~~ K15 ile ölçüldü ve karara bağlandı
+  (raporlanmaz). Eski not: modül düzeyinde `if TYPE_CHECKING:` /
   `try: ... except ImportError:` altında tanımlı sınıflar ve iç içe sınıflar
   rapora girmez. Referans setinde 135 fonksiyon — küçük ama sessiz. Tanımda
   yazılı değil; ya tanıma yazılmalı ya kapsama alınmalı.

@@ -125,7 +125,13 @@ def _is_literal(value: ast.expr) -> bool:
 
 
 def line_coverage(tree: ast.Module) -> tuple[int, int]:
-    """(mantık satırı, ölçülen mantık satırı) — bir modül için.
+    """(mantık satırı, ölçülen mantık satırı) sayıları; kümeler `logic_sets`'te."""
+    logic, measured = logic_sets(tree)
+    return len(logic), len(logic & measured)
+
+
+def logic_sets(tree: ast.Module) -> tuple[set[int], set[int]]:
+    """(mantık satırları, raporun birimlerinin kapsadığı satırlar) — bir modül için.
 
     **Mantık satırı:** herhangi bir ifadenin kapladığı satır; üç şey hariç:
     `import` satırları, birim dışındaki **serbest string ifadeleri** (modül
@@ -175,7 +181,7 @@ def line_coverage(tree: ast.Module) -> tuple[int, int]:
 
     # Birim içindeki veri ve string birimin parçasıdır; yalnızca dışarıdaki hariç.
     logic = code - excluded - (data - measured)
-    return len(logic), len(logic & measured)
+    return logic, measured
 
 
 def skip_category(reason: str) -> str:
