@@ -198,6 +198,7 @@ tests/
 ├── test_dynamic_opacity.py  K13: opaque site kinds, hooks, refutation rules, fixture gold values
 ├── test_duck_coupling.py   K14: pairs, rebinding forms, members, fixture gold values
 ├── test_hardening_unreported.py  Conditional units, duplicate identities, logic sets
+├── test_module_cohesion.py  Module globals, components, exact expectation
 ├── test_entry_points.py    Entry point recognition; no too_many_params, no advice on params
 └── test_cli.py             All four commands end to end
 ```
@@ -241,6 +242,8 @@ experiments/hardening/
 ├── duck-sample.json        30 parameter-attribute pairs drawn for the precision check
 ├── duck-verdicts.json      Per-pair verdicts with file, line and reason
 ├── unreported.py           Code no unit covers: conditional definitions, module-level code
+├── module_cohesion.py      Module cohesion candidates and the importer-usage signal
+├── module-cohesion.md      Pre-registration and result; both variants rejected (K16)
 ├── entry_points.py         How many entry points the corpus has; effect on too_many_params
 ├── entry-points.md         Why the rule is narrow, and what it changed
 ├── compare_radon.py        CC vs radon per function; classifies every difference
@@ -266,6 +269,7 @@ experiments/hardening/
 ├── results/dynamic-opacity.json, dynamic-opacity-tables.md
 ├── results/duck-coupling.json, duck-coupling-tables.md
 ├── results/unreported.json, unreported-tables.md
+├── results/module-cohesion.json, module-cohesion-tables.md
 └── .cache/                 Checked-out reference projects (gitignored, not in sdist)
 ```
 

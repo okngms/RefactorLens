@@ -7,7 +7,24 @@ ilk kez). PyPI'da wheel ve sdist doğrulandı. İçerik: `CHANGELOG.md` 2.1.0.
 Önceki: v2.0.0 (2026-09-10).
 
 ## Bitenler
-- **v2.2, 8. oturum — sınıfsız kod kapsamı, K15** (bu oturum). Kapsam:
+- **v2.2, 9. oturum — modül düzeyi kohezyon (§3), K16: reddedildi** (bu
+  oturum). Ön kayıt ve ölçüm: `experiments/hardening/module-cohesion.md`.
+  Aracın koduna dokunulmadı.
+  - **İki değişken** (K9'un dersiyle): MCOH (ortak global + kullanım kenarı),
+    MCOH-S (yalnız ortak global). **Bağımsız sinyal:** modülü
+    `from M import ...` ile kullananlar bileşenleri rastgeleden az kullanmalı;
+    beklenti kesin kombinatorikle (rastgelelik yok).
+  - **Sonuç:** R medyanı iki değişkende 1.0 (eşik < 0.95) → ikisi de ret;
+    MCOH-S ayrıca yozlaşıyor (modüllerin %79.5'i tamamen dağınık).
+  - **Sonradan eklenen analiz:** seçim yapılan çiftlerle sınırlanınca da aynı
+    (R medyanı 1.0). Yığılmanın nedeni kesin: tamamen dağınık modülde R tanım
+    gereği 1. Daha fazla ayıklama sonuca göre veri seçmek olurdu; yapılmadı.
+  - **Bulgu:** modül birimleri nadiren ortak bir modül global'i paylaşıyor;
+    bağ çoğunlukla çağrıyla. §3'ün "asıl birim modül" iddiası bu ölçüyle
+    desteklenmedi. İkinci deneme için tasarım dersi FUTURE.md'de.
+  - Testler: `test_module_cohesion.py` 8. Durum: 1520 paket testi (10
+    atlandı), 91 fikstür testi, ruff temiz.
+- **v2.2, 8. oturum — sınıfsız kod kapsamı, K15**. Kapsam:
   `docs/v2.2-sinifsiz-kod.md`; ölçüm: `experiments/hardening/unreported.py`.
   Aracın koduna dokunulmadı.
   - **Soru üçe ayrıldı ve ölçüldü:** koşullu tanımlar (K5), betik tarzı modül
@@ -538,20 +555,23 @@ framework deyiminden geliyor.**
 - **§2 PySmell kokuları:** etiket kontrolü bitti (`pysmell-labels.md`):
   etiketler literatür eşiği, dış doğrulama değil. Bir koku eklenecekse dokuz
   madde, eşik korpustan, geçerlilik başka bir bağımsız sinyalden.
-- **§3 modül düzeyi kohezyon** (dinamik opaklık K13, duck typing kuplajı K14
-  ile eklendi).
 - **PARAMS'ta yalnızca-anahtar parametreler** (FUTURE.md, K8 ölçümü).
 
-§3'ün dört ölçüsünden üçü eklendi (K11, K13, K14); DAM (K12), §2 etiket
-kontrolü ve K5 (K15) kapandı. Önerilen sıra: etiketleme beklenirken **§3 modül
-düzeyi kohezyon**, dokuz maddeyle ön kayıt (`docs/v2.2-sinifsiz-kod.md` §3:
-düğümler, kenar adayları, çağrılı/çağrısız iki değişken, bağımsız sinyal
-adayı).
+**v2.2 §3 kapandı:** dört ölçüden üçü eklendi (K11 anotasyon kapsamı, K13
+dinamik opaklık, K14 duck typing kuplajı), biri reddedildi (K16 modül
+kohezyonu). DAM (K12), §2 etiket kontrolü ve K5 (K15) de kapandı. v2.2'de
+açık kalanlar: `god_class` kör etiketlemesi (kullanıcı) ve §2'nin kokuları
+(isteğe bağlı; literatür eşiği + korpus + bağımsız sinyal).
+
+Önerilen sıra: **v2.2'yi kapatmak ve 2.2.0'ı yayınlamak** (aşağıda), sonra
+yol haritasının sıradaki fazı `explain` Blok 2 (`docs/v2.1-explain.md`:
+deterministik şablon katmanı). Şablon katmanı artık K11/K13/K14'ün betimsel
+alanlarını da kullanabilir.
 
 **Yayın önerisi:** `CHANGELOG.md` "Unreleased" bölümünde üç yeni rapor alanı
-var (K13 iki, K14 bir). Kullanıcıya küçük bir sürüm (2.2.0: yalnız alan
+var (K13 iki, K14 bir). v2.2'nin ölçü işi tamamlandığı için 2.2.0 (yalnız alan
 ekleme, şema 3, kırılma yok) önerilir; kullanıcı onaylarsa hazırlık 2.1.0
-deseniyle.
+deseniyle, tag/push kullanıcıda.
 
 Projeler yerelde yoksa: `python experiments/hardening/corpus.py fetch`
 (~850 MB). Kohezyon betiği ayrıca `pip install cohesion==1.2.0` ister.

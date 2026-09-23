@@ -1,0 +1,545 @@
+{
+  "schema_version": 3,
+  "variants": {
+    "mcoh": {
+      "pairs": 3193,
+      "median_ratio": 1.0,
+      "share_below_one": 0.3949,
+      "median_fragmented_share": 0.1255,
+      "posthoc_informative_pairs": 2811,
+      "posthoc_informative_median_ratio": 1.0,
+      "posthoc_informative_below_one": 0.4486,
+      "spread_projects": 16,
+      "eligible_projects": 16,
+      "by_type_p90": {
+        "library": 4.65,
+        "cli": 3.0,
+        "web_app": 5.0,
+        "ml_research": 4.0
+      },
+      "refutations": {
+        "a": true,
+        "b": false,
+        "c": false
+      }
+    },
+    "mcoh_s": {
+      "pairs": 4388,
+      "median_ratio": 1.0,
+      "share_below_one": 0.1798,
+      "median_fragmented_share": 0.7946,
+      "posthoc_informative_pairs": 3836,
+      "posthoc_informative_median_ratio": 1.0,
+      "posthoc_informative_below_one": 0.2057,
+      "spread_projects": 16,
+      "eligible_projects": 16,
+      "by_type_p90": {
+        "library": 17.45,
+        "cli": 16.1,
+        "web_app": 12.5,
+        "ml_research": 11.6
+      },
+      "refutations": {
+        "a": true,
+        "b": true,
+        "c": false
+      }
+    }
+  },
+  "per_project": {
+    "requests": {
+      "type": "library",
+      "mcoh": {
+        "modules": 13,
+        "p50": 2.0,
+        "p90": 2.8,
+        "spread": null,
+        "fragmented_share": 0.3077,
+        "pairs": 15
+      },
+      "mcoh_s": {
+        "modules": 13,
+        "p50": 5.0,
+        "p90": 22.4,
+        "spread": null,
+        "fragmented_share": 1.0,
+        "pairs": 17
+      }
+    },
+    "httpx": {
+      "type": "library",
+      "mcoh": {
+        "modules": 18,
+        "p50": 1.5,
+        "p90": 4.3,
+        "spread": null,
+        "fragmented_share": 0.1111,
+        "pairs": 22
+      },
+      "mcoh_s": {
+        "modules": 18,
+        "p50": 7.0,
+        "p90": 12.6,
+        "spread": null,
+        "fragmented_share": 0.8889,
+        "pairs": 35
+      }
+    },
+    "rich": {
+      "type": "library",
+      "mcoh": {
+        "modules": 37,
+        "p50": 1.0,
+        "p90": 3.0,
+        "spread": true,
+        "fragmented_share": 0.1081,
+        "pairs": 48
+      },
+      "mcoh_s": {
+        "modules": 37,
+        "p50": 3.0,
+        "p90": 13.2,
+        "spread": true,
+        "fragmented_share": 0.6757,
+        "pairs": 65
+      }
+    },
+    "pydantic": {
+      "type": "library",
+      "mcoh": {
+        "modules": 55,
+        "p50": 2.0,
+        "p90": 5.0,
+        "spread": true,
+        "fragmented_share": 0.1273,
+        "pairs": 37
+      },
+      "mcoh_s": {
+        "modules": 55,
+        "p50": 4.0,
+        "p90": 17.8,
+        "spread": true,
+        "fragmented_share": 0.6909,
+        "pairs": 57
+      }
+    },
+    "fastapi": {
+      "type": "library",
+      "mcoh": {
+        "modules": 18,
+        "p50": 2.5,
+        "p90": 4.0,
+        "spread": null,
+        "fragmented_share": 0.1667,
+        "pairs": 18
+      },
+      "mcoh_s": {
+        "modules": 18,
+        "p50": 5.0,
+        "p90": 16.8,
+        "spread": null,
+        "fragmented_share": 0.7778,
+        "pairs": 24
+      }
+    },
+    "attrs": {
+      "type": "library",
+      "mcoh": {
+        "modules": 12,
+        "p50": 2.5,
+        "p90": 6.7,
+        "spread": null,
+        "fragmented_share": 0.4167,
+        "pairs": 12
+      },
+      "mcoh_s": {
+        "modules": 12,
+        "p50": 4.0,
+        "p90": 29.7,
+        "spread": null,
+        "fragmented_share": 0.8333,
+        "pairs": 12
+      }
+    },
+    "click": {
+      "type": "library",
+      "mcoh": {
+        "modules": 14,
+        "p50": 2.0,
+        "p90": 8.8,
+        "spread": null,
+        "fragmented_share": 0.0,
+        "pairs": 20
+      },
+      "mcoh_s": {
+        "modules": 14,
+        "p50": 9.5,
+        "p90": 18.8,
+        "spread": null,
+        "fragmented_share": 0.5714,
+        "pairs": 30
+      }
+    },
+    "flask": {
+      "type": "library",
+      "mcoh": {
+        "modules": 18,
+        "p50": 2.0,
+        "p90": 5.0,
+        "spread": null,
+        "fragmented_share": 0.2222,
+        "pairs": 18
+      },
+      "mcoh_s": {
+        "modules": 18,
+        "p50": 4.0,
+        "p90": 11.5,
+        "spread": null,
+        "fragmented_share": 0.8889,
+        "pairs": 21
+      }
+    },
+    "sqlalchemy": {
+      "type": "library",
+      "mcoh": {
+        "modules": 37,
+        "p50": 2.0,
+        "p90": 8.0,
+        "spread": true,
+        "fragmented_share": 0.027,
+        "pairs": 82
+      },
+      "mcoh_s": {
+        "modules": 37,
+        "p50": 8.0,
+        "p90": 20.0,
+        "spread": true,
+        "fragmented_share": 0.3514,
+        "pairs": 94
+      }
+    },
+    "pandas": {
+      "type": "library",
+      "mcoh": {
+        "modules": 130,
+        "p50": 2.0,
+        "p90": 4.0,
+        "spread": true,
+        "fragmented_share": 0.1231,
+        "pairs": 223
+      },
+      "mcoh_s": {
+        "modules": 130,
+        "p50": 5.0,
+        "p90": 17.1,
+        "spread": true,
+        "fragmented_share": 0.8385,
+        "pairs": 300
+      }
+    },
+    "black": {
+      "type": "cli",
+      "mcoh": {
+        "modules": 19,
+        "p50": 2.0,
+        "p90": 4.2,
+        "spread": null,
+        "fragmented_share": 0.0526,
+        "pairs": 25
+      },
+      "mcoh_s": {
+        "modules": 19,
+        "p50": 9.0,
+        "p90": 18.2,
+        "spread": null,
+        "fragmented_share": 0.4737,
+        "pairs": 30
+      }
+    },
+    "mypy": {
+      "type": "cli",
+      "mcoh": {
+        "modules": 105,
+        "p50": 1.0,
+        "p90": 3.0,
+        "spread": true,
+        "fragmented_share": 0.0952,
+        "pairs": 145
+      },
+      "mcoh_s": {
+        "modules": 105,
+        "p50": 7.0,
+        "p90": 28.0,
+        "spread": true,
+        "fragmented_share": 0.6381,
+        "pairs": 277
+      }
+    },
+    "httpie": {
+      "type": "cli",
+      "mcoh": {
+        "modules": 52,
+        "p50": 1.0,
+        "p90": 3.0,
+        "spread": true,
+        "fragmented_share": 0.1538,
+        "pairs": 23
+      },
+      "mcoh_s": {
+        "modules": 52,
+        "p50": 4.0,
+        "p90": 9.0,
+        "spread": true,
+        "fragmented_share": 0.8654,
+        "pairs": 44
+      }
+    },
+    "yt-dlp": {
+      "type": "cli",
+      "mcoh": {
+        "modules": 441,
+        "p50": 1.0,
+        "p90": 2.0,
+        "spread": true,
+        "fragmented_share": 0.1633,
+        "pairs": 234
+      },
+      "mcoh_s": {
+        "modules": 441,
+        "p50": 3.0,
+        "p90": 8.0,
+        "spread": true,
+        "fragmented_share": 0.9592,
+        "pairs": 543
+      }
+    },
+    "awscli": {
+      "type": "cli",
+      "mcoh": {
+        "modules": 294,
+        "p50": 1.0,
+        "p90": 4.0,
+        "spread": true,
+        "fragmented_share": 0.068,
+        "pairs": 163
+      },
+      "mcoh_s": {
+        "modules": 294,
+        "p50": 4.0,
+        "p90": 14.0,
+        "spread": true,
+        "fragmented_share": 0.7891,
+        "pairs": 208
+      }
+    },
+    "pipx": {
+      "type": "cli",
+      "mcoh": {
+        "modules": 43,
+        "p50": 1.0,
+        "p90": 2.0,
+        "spread": true,
+        "fragmented_share": 0.0,
+        "pairs": 65
+      },
+      "mcoh_s": {
+        "modules": 43,
+        "p50": 9.0,
+        "p90": 18.4,
+        "spread": true,
+        "fragmented_share": 0.5349,
+        "pairs": 91
+      }
+    },
+    "healthchecks": {
+      "type": "web_app",
+      "mcoh": {
+        "modules": 68,
+        "p50": 2.0,
+        "p90": 4.0,
+        "spread": true,
+        "fragmented_share": 0.2647,
+        "pairs": 41
+      },
+      "mcoh_s": {
+        "modules": 68,
+        "p50": 3.0,
+        "p90": 12.5,
+        "spread": true,
+        "fragmented_share": 0.8529,
+        "pairs": 81
+      }
+    },
+    "netbox": {
+      "type": "web_app",
+      "mcoh": {
+        "modules": 446,
+        "p50": 3.0,
+        "p90": 13.0,
+        "spread": true,
+        "fragmented_share": 0.4664,
+        "pairs": 393
+      },
+      "mcoh_s": {
+        "modules": 446,
+        "p50": 4.0,
+        "p90": 17.0,
+        "spread": true,
+        "fragmented_share": 0.9417,
+        "pairs": 473
+      }
+    },
+    "saleor": {
+      "type": "web_app",
+      "mcoh": {
+        "modules": 652,
+        "p50": 2.0,
+        "p90": 6.0,
+        "spread": true,
+        "fragmented_share": 0.227,
+        "pairs": 1192
+      },
+      "mcoh_s": {
+        "modules": 652,
+        "p50": 4.0,
+        "p90": 14.0,
+        "spread": true,
+        "fragmented_share": 0.8727,
+        "pairs": 1460
+      }
+    },
+    "redash": {
+      "type": "web_app",
+      "mcoh": {
+        "modules": 105,
+        "p50": 1.0,
+        "p90": 5.0,
+        "spread": true,
+        "fragmented_share": 0.1238,
+        "pairs": 149
+      },
+      "mcoh_s": {
+        "modules": 105,
+        "p50": 3.0,
+        "p90": 11.0,
+        "spread": true,
+        "fragmented_share": 0.7143,
+        "pairs": 159
+      }
+    },
+    "mealie": {
+      "type": "web_app",
+      "mcoh": {
+        "modules": 150,
+        "p50": 1.0,
+        "p90": 3.0,
+        "spread": true,
+        "fragmented_share": 0.16,
+        "pairs": 156
+      },
+      "mcoh_s": {
+        "modules": 150,
+        "p50": 3.0,
+        "p90": 8.0,
+        "spread": true,
+        "fragmented_share": 0.8,
+        "pairs": 222
+      }
+    },
+    "nanogpt": {
+      "type": "ml_research",
+      "mcoh": {
+        "modules": 3,
+        "p50": 2.0,
+        "p90": 2.0,
+        "spread": null,
+        "fragmented_share": 0.3333,
+        "pairs": 0
+      },
+      "mcoh_s": {
+        "modules": 3,
+        "p50": 2.0,
+        "p90": 5.2,
+        "spread": null,
+        "fragmented_share": 0.6667,
+        "pairs": 3
+      }
+    },
+    "yolov5": {
+      "type": "ml_research",
+      "mcoh": {
+        "modules": 38,
+        "p50": 1.5,
+        "p90": 8.2,
+        "spread": true,
+        "fragmented_share": 0.1053,
+        "pairs": 69
+      },
+      "mcoh_s": {
+        "modules": 38,
+        "p50": 4.0,
+        "p90": 18.4,
+        "spread": true,
+        "fragmented_share": 0.5,
+        "pairs": 74
+      }
+    },
+    "detectron2": {
+      "type": "ml_research",
+      "mcoh": {
+        "modules": 97,
+        "p50": 1.0,
+        "p90": 4.0,
+        "spread": true,
+        "fragmented_share": 0.1237,
+        "pairs": 34
+      },
+      "mcoh_s": {
+        "modules": 97,
+        "p50": 4.0,
+        "p90": 8.0,
+        "spread": true,
+        "fragmented_share": 0.7526,
+        "pairs": 56
+      }
+    },
+    "whisper": {
+      "type": "ml_research",
+      "mcoh": {
+        "modules": 11,
+        "p50": 1.0,
+        "p90": 2.0,
+        "spread": null,
+        "fragmented_share": 0.0,
+        "pairs": 7
+      },
+      "mcoh_s": {
+        "modules": 11,
+        "p50": 3.0,
+        "p90": 16.0,
+        "spread": null,
+        "fragmented_share": 0.8182,
+        "pairs": 9
+      }
+    },
+    "segment-anything": {
+      "type": "ml_research",
+      "mcoh": {
+        "modules": 7,
+        "p50": 1.0,
+        "p90": 7.2,
+        "spread": null,
+        "fragmented_share": 0.1429,
+        "pairs": 2
+      },
+      "mcoh_s": {
+        "modules": 7,
+        "p50": 3.0,
+        "p90": 11.6,
+        "spread": null,
+        "fragmented_share": 1.0,
+        "pairs": 3
+      }
+    }
+  }
+}

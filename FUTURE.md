@@ -49,6 +49,11 @@ eklenmez; amaç fikri kaybetmemek ama kapsamı şişirmemektir.
   CC'si ve LOC'u. Korpusta tipik projede mantığın %2.6'sı hiçbir birime ait
   değil; nanoGPT %54, httpie %17, rich %12 (`docs/v2.2-sinifsiz-kod.md` §2).
   Yararlanacak proje az olduğu için v2.2 kapsamında değil.
+- **Modül düzeyi kohezyon, ikinci deneme.** K16'da iki değişken, modülü
+  kullananların bileşenleri rastgeleden az kullanmadığı için reddedildi.
+  Tasarım zaafı: tamamen dağınık modülde R tanım gereği 1. Yeni bir deneme
+  sinyali bileşeni en az iki birimli modüllerle sınırlamalı ya da dağınıklığı
+  ayrı bir koşula bağlamalı — ön kayıtta, sonuçlardan önce.
 - **PARAMS'ta yalnızca-anahtar parametreler.** `*` sonrası parametreleri ayrı
   saymak `too_many_params`'ın %24.9'unu kaldırırdı (K8,
   `experiments/hardening/thresholds.md`). Tanım değişikliği, şema artışı;

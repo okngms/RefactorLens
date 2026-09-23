@@ -14,7 +14,7 @@ ekler, şema sürümü değişmez. K11 v2.2'nin ilk yeni ölçüsüdür; alan ek
 K12 bir adayı reddeder; hiçbir şey değiştirmez.
 K13 v2.2'nin ikinci yeni ölçüsüdür; alan ekler.
 K14 üçüncüsüdür; alan ekler. K15 K5'i ölçümle kapatır;
-hiçbir şey değiştirmez. Blok 1b'nin dağılım tablosu metrik değerlerini
+hiçbir şey değiştirmez. K16 §3'ün dördüncü ölçüsünü reddeder. Blok 1b'nin dağılım tablosu metrik değerlerini
 ölçeceği için bu sorular **tablodan önce** kapanmalıydı; yoksa tablo iki kez
 üretilirdi. Beşi burada birlikte karara bağlandı ve metrik anlamını değiştiren
 üçü tek bir `schema_version` artışıyla (2 → 3) uygulandı.
@@ -520,6 +520,34 @@ sınıfın görünmediği gösterilirse (C) yeniden tartılır.
 
 **Yan bulgu.** Bugünkü raporda bir kimlik çakışması var (awscli `plugin.py`,
 iki `_`); açık sorun.
+
+## K16 — Modül düzeyi kohezyonun iki değişkeni reddedildi
+
+> Karara bağlandı 2026-09-23. Kod, alan, şema değişmez. Ön kayıt ve ölçüm:
+> `experiments/hardening/module-cohesion.md`. v2.2 §3'ün dördüncü ölçüsü.
+
+**Soru.** §3: "LCOM4'ün mantığı sınıf yerine modüle; Python'un asıl birimi
+budur". İki değişken: MCOH (modül birimleri arasında ortak global ve kullanım
+kenarı) ve MCOH-S (yalnız ortak global). Bağımsız sinyal: modülü
+`from M import ...` ile kullananlar, bileşenleri rastgeleden az kullanmalı.
+
+**Karar.** İkisi de eklenmedi.
+
+**Ölçüm.** R (dokunulan / beklenen bileşen) medyanı iki değişkende 1.0 (eşik
+< 0.95); MCOH-S ayrıca yozlaşıyor (modüllerin %79.5'i tamamen dağınık). Seçim
+yapılan çiftlerle sınırlanınca da (sonradan eklenen analiz) sonuç aynı.
+
+**Gerekçe.** Ön kayıtlı koşul tetiklendi. Sinyal tasarımının bir zaafı da
+bulundu: tamamen dağınık modülde R tanım gereği 1. Sinyalin dağınık olmayan
+modüllerle sınırlı hâli ölçülmedi; bu sınırlama sonuçtan sonra yapılırsa veri
+seçimi olurdu. Ret ön kayıtlı koşula dayanıyor.
+
+**Maliyet.** v2.2 §3'ün dört ölçüsünden biri eklenemedi; modül düzeyinde bir
+kohezyon ölçüsü yok. Bulgu olarak: modül birimleri nadiren ortak bir modül
+global'i paylaşıyor.
+
+**Sonraki aday için ders.** Dağınık modüllerde sinyalin tanım gereği nötr
+olduğu ön kayıtta ele alınmalı (FUTURE.md).
 
 ## Korpustaki etki
 
