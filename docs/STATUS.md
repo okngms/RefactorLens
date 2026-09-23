@@ -7,8 +7,23 @@ ilk kez). PyPI'da wheel ve sdist doğrulandı. İçerik: `CHANGELOG.md` 2.1.0.
 Önceki: v2.0.0 (2026-09-10).
 
 ## Bitenler
-- **v2.2, 9. oturum — modül düzeyi kohezyon (§3), K16: reddedildi** (bu
-  oturum). Ön kayıt ve ölçüm: `experiments/hardening/module-cohesion.md`.
+- **v2.2, 10. oturum — `god_class` kör etiketleri, K17** (bu oturum). Sonuç:
+  `experiments/hardening/god-class-labels.md`.
+  - **Etiketler** `yanitlar.md`'den `god-class-verdicts.json`'a işlendi (32/32,
+    kimlikler örneklemle birebir). Etiketleyici **Claude Sonnet 5**, her sınıf
+    ayrı sohbet — insan değil. #01'in JSON'unda kaçışsız tırnak vardı; yalnız
+    okurken kaçışlandı, karar değişmedi, kaynak dosyaya dokunulmadı.
+  - **Sonuç:** 4 god / 22 not_god / 6 unsure. Ağırlıklı kesinlik/duyarlılık:
+    bugünkü kapı %9.5 / %33.2, R4 %16.1 / %42.4; fark tek sınıf
+    (`healthchecks.Profile`). En yüksek god oranı hiçbir kapının ateşlemediği
+    hücrede (2/6).
+  - **K17:** R4 eklenmez (fark ölçülebilir değil, marj önceden yoktu); bugünkü
+    kapı değişmez. **Bulgu:** iki kapının da kesinliği bu etiketleyiciye göre
+    düşük — büyük sınıfların çoğu tek sorumluluğun kataloğu. README'ye
+    sınırlılık olarak yazıldı, LLM etiketleyici olduğu açıkça belirtildi.
+  - **Sınırlılık:** LLM etiketleyici (döngüsellik, aynı model ailesi), tek
+    etiketleyici, 26 kararlı etiket, körlük kayıttan doğrulanamıyor.
+- **v2.2, 9. oturum — modül düzeyi kohezyon (§3), K16: reddedildi**. Ön kayıt ve ölçüm: `experiments/hardening/module-cohesion.md`.
   Aracın koduna dokunulmadı.
   - **İki değişken** (K9'un dersiyle): MCOH (ortak global + kullanım kenarı),
     MCOH-S (yalnız ortak global). **Bağımsız sinyal:** modülü
@@ -539,17 +554,11 @@ framework deyiminden geliyor.**
 **v2.2 sürüyor.** Sıra: v2.2 → `explain` Blok 2 → Blok 3/2/4/5.
 
 ### `god_class` sorusunun açık kalan işi
-1. **Kör etiketleme — kullanıcı işi (asistan kör değil).** `god-class-sample.json`
-   ve `god-class-labeling.md` ile 32 sınıf etiketlenir, kararlar
-   `god-class-verdicts.json`'a yazılır; `results/` altındaki kapı çıktıları
-   etiketleme bitene kadar açılmaz. Sonra
-   `python experiments/hardening/god_class_sample.py summary`.
-   Mümkünse ikinci bir etiketleyici ve Cohen κ.
-2. **Etiketlerden sonra:** bugünkü kapı ile R4'ün ağırlıklı kesinlik/
-   duyarlılığı karşılaştırılır. R4 üstünse dokuz maddesi tamam (8 ve 9
-   korpustan, 5 testte), yeni koku sürümü olarak eklenir (FINDINGS kanıt
-   alanları değişmez). graphene/`@staticmethod` sınıflarının (R2) durumu da
-   etiketlerden okunur.
+Kör etiketler geldi ve değerlendirildi (K17): R4 eklenmedi, kapı değişmedi.
+Açık kalan tek adım **isteğe bağlı** ve kullanıcının: aynı 32 sınıfı kör
+etiketleyen bir **insan** (kılavuz `god-class-labeling.md`, sonuçları görmeden)
+ve LLM etiketleriyle uyum (Cohen κ). İnsan etiketleri düşük kesinliği
+doğrularsa `god_class`'ın yeniden tanımı v2.2 sonrasının konusu.
 
 ### Diğer v2.2 adayları (hiçbiri başlamadı)
 - **§2 PySmell kokuları:** etiket kontrolü bitti (`pysmell-labels.md`):
@@ -560,8 +569,8 @@ framework deyiminden geliyor.**
 **v2.2 §3 kapandı:** dört ölçüden üçü eklendi (K11 anotasyon kapsamı, K13
 dinamik opaklık, K14 duck typing kuplajı), biri reddedildi (K16 modül
 kohezyonu). DAM (K12), §2 etiket kontrolü ve K5 (K15) de kapandı. v2.2'de
-açık kalanlar: `god_class` kör etiketlemesi (kullanıcı) ve §2'nin kokuları
-(isteğe bağlı; literatür eşiği + korpus + bağımsız sinyal).
+açık kalanlar: `god_class` için isteğe bağlı insan etiketi (K17) ve §2'nin
+kokuları (isteğe bağlı; literatür eşiği + korpus + bağımsız sinyal).
 
 Önerilen sıra: **v2.2'yi kapatmak ve 2.2.0'ı yayınlamak** (aşağıda), sonra
 yol haritasının sıradaki fazı `explain` Blok 2 (`docs/v2.1-explain.md`:

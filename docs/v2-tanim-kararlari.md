@@ -14,7 +14,8 @@ ekler, şema sürümü değişmez. K11 v2.2'nin ilk yeni ölçüsüdür; alan ek
 K12 bir adayı reddeder; hiçbir şey değiştirmez.
 K13 v2.2'nin ikinci yeni ölçüsüdür; alan ekler.
 K14 üçüncüsüdür; alan ekler. K15 K5'i ölçümle kapatır;
-hiçbir şey değiştirmez. K16 §3'ün dördüncü ölçüsünü reddeder. Blok 1b'nin dağılım tablosu metrik değerlerini
+hiçbir şey değiştirmez. K16 §3'ün dördüncü ölçüsünü reddeder.
+K17 kör etiketlerle R4'ü değerlendirir; hiçbir şey değiştirmez. Blok 1b'nin dağılım tablosu metrik değerlerini
 ölçeceği için bu sorular **tablodan önce** kapanmalıydı; yoksa tablo iki kez
 üretilirdi. Beşi burada birlikte karara bağlandı ve metrik anlamını değiştiren
 üçü tek bir `schema_version` artışıyla (2 → 3) uygulandı.
@@ -548,6 +549,36 @@ global'i paylaşıyor.
 
 **Sonraki aday için ders.** Dağınık modüllerde sinyalin tanım gereği nötr
 olduğu ön kayıtta ele alınmalı (FUTURE.md).
+
+## K17 — Kör etiketler: R4 eklenmez, `god_class` kapısı değişmez
+
+> Karara bağlandı 2026-09-23. Kod, alan, şema değişmez. Sonuç ve
+> sınırlılıklar: `experiments/hardening/god-class-labels.md`.
+
+**Soru.** K10'un ön kaydı R4'ü (durumlu metotlarda LCOM3-HM) "etiketli
+örneklemle sınanacak aday" bırakmıştı. 32 sınıflık kör örneklem etiketlendi.
+
+**Etiketleyici.** Claude Sonnet 5, her sınıf ayrı sohbette; insan değil,
+ikinci etiketleyici yok.
+
+**Ölçüm.** 4 god, 22 not_god, 6 unsure. Ağırlıklı kesinlik/duyarlılık:
+bugünkü kapı %9.5 / %33.2, R4 %16.1 / %42.4. Kapıların ateşlediği hücrelerde
+kararlı god oranı 1/13 ve 2/13; hiçbirinin ateşlemediği hücrede 2/6.
+
+**Karar.** R4 eklenmez: fark tek sınıf, aralıklar örtüşüyor, "üstünlük" için
+marj önceden tanımlanmamıştı ve 4 pozitifle savunulamaz. Bugünkü kapı değişmez:
+yerine konacak desteklenmiş bir aday yok.
+
+**Bulgu.** İki kapının da kesinliği bu etiketleyiciye göre düşük; büyük
+sınıfların çoğu tek sorumluluğun kataloğu ya da framework arayüzü. Kohezyon
+koşulu god sınıfları zenginleştirmiyor (örneklem küçük). README'ye sınırlılık
+olarak yazıldı.
+
+**Maliyet.** `god_class` kokusu, "bölünebilir sınıf" iddiasını büyük
+sınıfların küçük bir kısmında taşıyor olabilir; bu, LLM tek etiketleyiciyle
+ölçüldü ve insan etiketiyle doğrulanmadan kapı değiştirilmez.
+
+**Sonraki adım.** Aynı 32 sınıf için kör insan etiketi ve LLM ile uyum (κ).
 
 ## Korpustaki etki
 

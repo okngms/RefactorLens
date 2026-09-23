@@ -166,3 +166,10 @@ yalnızca kimlik ve konum taşır; kılavuz `god-class-labeling.md`; kararlar
 ve kapıları ölçen asistan hangi sınıfta hangi kapının ateşlediğini gördü
 (yukarıdaki örnek listeler). Kör etiketleme için etiketleyen bu listeleri ve
 `results/` altındaki kapı çıktılarını görmemiş biri olmalı.
+
+## Etiketli örneklem — sonuç (K17)
+
+Etiketler geldi (Claude Sonnet 5, her sınıf ayrı sohbet; insan değil).
+Ağırlıklı kesinlik/duyarlılık: bugünkü kapı %9.5 / %33.2, R4 %16.1 / %42.4;
+fark tek sınıf. **R4 eklenmez.** Ayrıntı ve sınırlılıklar:
+`god-class-labels.md`.

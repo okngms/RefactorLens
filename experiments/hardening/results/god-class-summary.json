@@ -1,0 +1,28 @@
+{
+  "labelled": 32,
+  "verdicts": {
+    "god": 4,
+    "not_god": 22,
+    "unsure": 6
+  },
+  "current": {
+    "precision": 0.095,
+    "recall": 0.3321,
+    "labelled_per_cell": {
+      "both": 6,
+      "current_only": 7,
+      "r4_only": 7,
+      "neither": 6
+    }
+  },
+  "r4": {
+    "precision": 0.1609,
+    "recall": 0.4235,
+    "labelled_per_cell": {
+      "both": 6,
+      "current_only": 7,
+      "r4_only": 7,
+      "neither": 6
+    }
+  }
+}

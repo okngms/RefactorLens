@@ -373,8 +373,14 @@ the 26-project calibration corpus, 44 of the 96 classes that pass the
   classes whose methods only delegate to a shared helper.
 
 Two replacement gates from the literature (Hitz–Montazeri LCOM3 and
-Lanza–Marinescu TCC) and two stateful-method variants were measured; none is
-adopted without labelled data. Measurement:
+Lanza–Marinescu TCC) and two stateful-method variants were measured, and a
+blind sample of 32 large classes was labelled — by an LLM (Claude Sonnet 5),
+not a person, so treat this as a first signal. By those labels most large
+classes are one responsibility with many methods (a visitor, a DataFrame-like
+API, a framework base class), and only about one in ten classes flagged
+`god_class` clearly holds several unrelated responsibilities. No alternative
+gate did measurably better, so the gate is unchanged; treat a `god_class`
+finding as "large, look closer" rather than "should be split". Measurement:
 [density-gate.md](https://github.com/okngms/RefactorLens/blob/main/experiments/hardening/density-gate.md),
 [stateless-gate.md](https://github.com/okngms/RefactorLens/blob/main/experiments/hardening/stateless-gate.md).
 

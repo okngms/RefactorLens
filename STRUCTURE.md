@@ -224,7 +224,9 @@ experiments/hardening/
 ├── god_class_sample.py     Blind stratified god_class sample and weighted summary
 ├── god-class-labeling.md   Labelling guide, written before any label
 ├── god-class-sample.json   What the labeller sees: identity and location only
-├── god-class-verdicts.json Labels (empty until labelled)
+├── god-class-verdicts.json Labels from yanitlar.md (32 classes)
+├── yanitlar.md             Raw blind labels (LLM labeller, one chat per class)
+├── god-class-labels.md     Result of the blind labels; R4 not adopted (K17)
 ├── annotations.py          Annotation coverage on the corpus; py.typed cross-check
 ├── annotation-coverage.md  Pre-registration and result (K11)
 ├── exposure_measure.py     DAM variance split; usage-based exposure candidate (EXP)
@@ -262,7 +264,8 @@ experiments/hardening/
 ├── results/threshold-candidates.json, threshold-candidates-tables.md
 ├── results/density-gate.json, density-gate-tables.md
 ├── results/stateless-gate.json, stateless-gate-tables.md
-├── results/god-class-strata.json  Strata of the sample; closed until labelling ends
+├── results/god-class-strata.json  Strata of the sample
+├── results/god-class-summary.json  Weighted precision and recall per gate
 ├── results/annotation-coverage.json, annotation-coverage-tables.md
 ├── results/exposure.json, exposure-tables.md
 ├── results/pysmell-labels.json, pysmell-labels-tables.md
