@@ -80,6 +80,15 @@ eklenmez; amaç fikri kaybetmemek ama kapsamı şişirmemektir.
     (DCC, LCOM4, NOM, WMC, DAM, CAM) içeriyor; bu tahminler hiçbir zaman
     doğrulanamaz (friction F3). Hedef türüne göre liste.
 
+- **Paralel ölçüm.** Sınıf/fonksiyon ölçümü proje-geneli sözlükler (sınıf
+  adları, modül kümesi) kurulduktan sonra modül başına bağımsız; süreç
+  havuzuyla paralel çalışabilir. Bugün gerekmiyor: en büyük korpus projesinde
+  (yt-dlp, 2323 sınıf) `scan` 23–30 sn, hedef < 30 sn. Zamanın çoğu
+  `measure_class`'ta AST'nin metrik başına yeniden gezilmesinde
+  (`experiments/hardening/robustness.md` §2). Korpus büyür ya da hedef bir kez
+  aşılırsa ilk iş bu. Dosya başına tarama önbelleği **değil**: DCC ve Ca/Ce
+  proje-geneli girdilere bağlı, dosya hash'i yetmez.
+
 ## Sağlayıcılar
 - Çekirdek Groq + Ollama'dır. Gemini ve Anthropic adapter'ları opsiyoneldir
   (Faz 4). Diğer sağlayıcılar `providers/base.py` sözleşmesini uygulayan

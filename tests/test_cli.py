@@ -388,10 +388,14 @@ class TestAdviseBudgetAndCache:
         assert result.exit_code == 0
 
     def test_oversized_prompt_is_flagged_in_dry_run(self, messy, tmp_path):
-        """Çağrı başına token tavanı aşılıyorsa ağa çıkmadan önce söylenir."""
+        """Kırpmadan sonra bile tavanı aşan prompt ağa çıkmadan önce söylenir.
+
+        Tavan izin verilen en küçük değer: sınıfın iskeleti (imzalar) bile
+        sığmaz. Daha büyük bir tavanda gövdeler kısaltılır ve prompt sığar.
+        """
         config = tmp_path / "tight.yaml"
         config.write_text(
-            "scan:\n  exclude: ['tests/']\nbudget:\n  max_tokens_per_call: 500\n",
+            "scan:\n  exclude: ['tests/']\nbudget:\n  max_tokens_per_call: 100\n",
             encoding="utf-8",
         )
         result = runner.invoke(
@@ -399,6 +403,30 @@ class TestAdviseBudgetAndCache:
             ["advise", messy, "--config", str(config), "--dry-run", "--top-n", "1"],
         )
         assert "exceed the per-call token ceiling" in result.output
+
+    def test_context_is_cut_to_the_call_ceiling_not_skipped(self, messy, tmp_path):
+        """Bağlam bütçesi çağrı tavanını aşarsa bağlam tavana göre kurulur.
+
+        Blok 2 ölçümü: varsayılanlarla (bağlam 12000, tavan 4000) korpusun 74
+        hedefinden 31'i 4000'i aşan bir bağlamla kuruluyor ve hiç sorulmadan
+        atlanıyordu; kırpma politikası o aralıkta hiç çalışmıyordu. OrderManager
+        ~1747 token; tavan 900'de gövdeleri kısaltılıp sığmalı.
+        """
+        config = tmp_path / "ceiling.yaml"
+        config.write_text(
+            "scan:\n  exclude: ['tests/']\nthresholds:\n  lcom4: {warn: 2, critical: 4}\n"
+            "advise:\n  max_context_tokens: 12000\nbudget:\n  max_tokens_per_call: 900\n",
+            encoding="utf-8",
+        )
+        result = runner.invoke(
+            app,
+            ["advise", messy, "--config", str(config), "--dry-run", "--top-n", "1"],
+        )
+        assert result.exit_code == 0
+        output = flat(result.output)
+        assert "Target: god:OrderManager" in output
+        assert "exceed the per-call token ceiling" not in output
+        assert "body omitted" in output
 
 
 class TestArchCommand:
@@ -451,6 +479,50 @@ class TestArchCommand:
     def test_bad_config_exits_one(self, tmp_path):
         (tmp_path / "rlens.yaml").write_text("advise:\n  top_n: 0\n", encoding="utf-8")
         assert runner.invoke(app, ["arch", str(tmp_path)]).exit_code == 1
+
+
+class TestUndeclaredLayers:
+    """Katman beyanı yokken `arch` yine anlamlı olmalı (sertleştirme Blok 2, madde 3).
+
+    Döngüler ve Ca/Ce katman bilgisine ihtiyaç duymaz; katman kuralı yoktur,
+    dolayısıyla kenar ihlali de yoktur. Kullanıcıya beyanın nereye yazılacağı
+    söylenir. Ca/Ce elle: `a` → pkg, b; `b` → pkg, a; `c` → pkg, a.
+    """
+
+    @pytest.fixture
+    def report(self, tmp_path):
+        (tmp_path / "rlens.yaml").write_text("scan:\n  include: ['.']\n", encoding="utf-8")
+        package = tmp_path / "pkg"
+        package.mkdir()
+        (package / "__init__.py").write_text("", encoding="utf-8")
+        (package / "a.py").write_text("from pkg import b\n", encoding="utf-8")
+        (package / "b.py").write_text("from pkg import a\n", encoding="utf-8")
+        (package / "c.py").write_text("from pkg import a\n", encoding="utf-8")
+        out = tmp_path / "out"
+        result = runner.invoke(app, ["arch", str(tmp_path), "--output-dir", str(out)])
+        assert result.exit_code == 0, result.output
+        return json.loads(next(out.glob("arch-*.json")).read_text(encoding="utf-8")), result
+
+    def test_only_the_cycle_is_a_violation(self, report):
+        payload, _ = report
+        assert [(v["code"], v["members"]) for v in payload["violations"]] == [
+            ("LV-CYCLE", ["pkg.a", "pkg.b"])
+        ]
+
+    def test_coupling_is_still_measured(self, report):
+        payload, _ = report
+        coupling = {m["module"]: (m["ca"], m["ce"]) for m in payload["modules"]}
+        assert coupling == {"pkg": (3, 0), "pkg.a": (2, 2), "pkg.b": (1, 2), "pkg.c": (0, 2)}
+
+    def test_every_module_is_unknown(self, report):
+        payload, _ = report
+        assert {m["layer"] for m in payload["modules"]} == {"unknown"}
+
+    def test_the_note_says_where_to_declare(self, report):
+        _, result = report
+        output = flat(result.output)
+        assert "only import cycles are checked" in output
+        assert "`arch.layers` in rlens.yaml" in output
 
 
 class TestAdviseArchFlags:

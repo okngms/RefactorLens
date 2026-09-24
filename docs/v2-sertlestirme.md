@@ -67,6 +67,12 @@ var.
 
 ## Blok 2 — Gerçek projede dayanıklılık ve hız
 
+> **Durum (2026-09-24): yapıldı**, sonuç `experiments/hardening/robustness.md`.
+> Madde 2'den sapma, ölçümle: süre hedefi önbelleksiz ve paralelsiz
+> sağlandı (yt-dlp `scan` 23–30 sn). Dosya hash'li önbellek DCC/Ca/Ce
+> proje-geneli girdilere bağlı olduğu için yapılmadı; paralel ölçüm
+> FUTURE.md'de. "Önbellek hit testi" kabul maddesi bu yüzden uygulanamaz.
+
 **Neden:** Fikstürler küçük; gerçek projelerde parse hataları, süre ve boş-katman senaryosu görülmedi.
 
 **İş:**

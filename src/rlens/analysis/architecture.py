@@ -449,8 +449,9 @@ def analyse(
 
     if not arch.has_declaration:
         report.notes.append(
-            "No layers declared in `arch.layers`; every module is unknown. "
-            "Layer inference arrives in a later stage."
+            "No layers declared in `arch.layers`; every module is unknown, so only import "
+            "cycles are checked. To check layer rules, declare `arch.layers` in rlens.yaml "
+            "(see Configuration in the README) or keep an import-linter layers contract."
         )
         report.assignments = {m.module: _unknown(m.module) for m in modules}
     else:

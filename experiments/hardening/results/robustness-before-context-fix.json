@@ -1,0 +1,493 @@
+{
+  "projects": {
+    "requests": {
+      "type": "library",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 3,
+        "prompt_tokens": [
+          2398,
+          3148,
+          6054
+        ],
+        "oversized": 1
+      }
+    },
+    "httpx": {
+      "type": "library",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 3,
+        "prompt_tokens": [
+          6587,
+          7203,
+          1423
+        ],
+        "oversized": 2
+      }
+    },
+    "rich": {
+      "type": "library",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 3,
+        "prompt_tokens": [
+          5844,
+          11575,
+          11891
+        ],
+        "oversized": 3
+      }
+    },
+    "pydantic": {
+      "type": "library",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 3,
+        "prompt_tokens": [
+          11806,
+          7090,
+          2224
+        ],
+        "oversized": 2
+      }
+    },
+    "fastapi": {
+      "type": "library",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 3,
+        "prompt_tokens": [
+          2447,
+          2075,
+          969
+        ],
+        "oversized": 0
+      }
+    },
+    "attrs": {
+      "type": "library",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 3,
+        "prompt_tokens": [
+          2359,
+          933,
+          1025
+        ],
+        "oversized": 0
+      }
+    },
+    "click": {
+      "type": "library",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 3,
+        "prompt_tokens": [
+          7421,
+          1132,
+          712
+        ],
+        "oversized": 1
+      }
+    },
+    "flask": {
+      "type": "library",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 3,
+        "prompt_tokens": [
+          11697,
+          10914,
+          6295
+        ],
+        "oversized": 3
+      }
+    },
+    "sqlalchemy": {
+      "type": "library",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 3,
+        "prompt_tokens": [
+          10361,
+          10596,
+          3180
+        ],
+        "oversized": 2
+      }
+    },
+    "pandas": {
+      "type": "library",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 3,
+        "prompt_tokens": [
+          18216,
+          13080,
+          27858
+        ],
+        "oversized": 3
+      }
+    },
+    "black": {
+      "type": "cli",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 3,
+        "prompt_tokens": [
+          822,
+          1708,
+          1181
+        ],
+        "oversized": 0
+      }
+    },
+    "mypy": {
+      "type": "cli",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 3,
+        "prompt_tokens": [
+          12224,
+          11455,
+          11982
+        ],
+        "oversized": 3
+      }
+    },
+    "httpie": {
+      "type": "cli",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 3,
+        "prompt_tokens": [
+          998,
+          1057,
+          904
+        ],
+        "oversized": 0
+      }
+    },
+    "yt-dlp": {
+      "type": "cli",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 3,
+        "prompt_tokens": [
+          13418,
+          5427,
+          1170
+        ],
+        "oversized": 2
+      }
+    },
+    "awscli": {
+      "type": "cli",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 3,
+        "prompt_tokens": [
+          4831,
+          2849,
+          3438
+        ],
+        "oversized": 1
+      }
+    },
+    "pipx": {
+      "type": "cli",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 3,
+        "prompt_tokens": [
+          2572,
+          1104,
+          741
+        ],
+        "oversized": 0
+      }
+    },
+    "healthchecks": {
+      "type": "web_app",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 3,
+        "prompt_tokens": [
+          1745,
+          571,
+          5973
+        ],
+        "oversized": 1
+      }
+    },
+    "netbox": {
+      "type": "web_app",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 3,
+        "prompt_tokens": [
+          1140,
+          1166,
+          4921
+        ],
+        "oversized": 1
+      }
+    },
+    "saleor": {
+      "type": "web_app",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 3,
+        "prompt_tokens": [
+          11968,
+          10826,
+          4768
+        ],
+        "oversized": 3
+      }
+    },
+    "redash": {
+      "type": "web_app",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 3,
+        "prompt_tokens": [
+          5752,
+          595,
+          2554
+        ],
+        "oversized": 1
+      }
+    },
+    "mealie": {
+      "type": "web_app",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 3,
+        "prompt_tokens": [
+          3926,
+          3698,
+          10625
+        ],
+        "oversized": 1
+      }
+    },
+    "nanogpt": {
+      "type": "ml_research",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 0,
+        "prompt_tokens": [],
+        "oversized": 0
+      }
+    },
+    "yolov5": {
+      "type": "ml_research",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 3,
+        "prompt_tokens": [
+          3367,
+          2917,
+          2219
+        ],
+        "oversized": 0
+      }
+    },
+    "detectron2": {
+      "type": "ml_research",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 3,
+        "prompt_tokens": [
+          1413,
+          2280,
+          1542
+        ],
+        "oversized": 0
+      }
+    },
+    "whisper": {
+      "type": "ml_research",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 3,
+        "prompt_tokens": [
+          5305,
+          1110,
+          3937
+        ],
+        "oversized": 1
+      }
+    },
+    "segment-anything": {
+      "type": "ml_research",
+      "scan_exit": 0,
+      "skipped": {
+        "categories": {},
+        "files": []
+      },
+      "arch_exit": 0,
+      "advise_exit": 0,
+      "advise": {
+        "targets": 2,
+        "prompt_tokens": [
+          426,
+          354
+        ],
+        "oversized": 0
+      }
+    }
+  }
+}

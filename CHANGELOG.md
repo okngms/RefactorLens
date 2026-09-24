@@ -18,6 +18,17 @@ regenerate any `before` report with the new version.
 
 ### Fixed
 
+- `advise` skipped many targets without asking about them. The context was
+  built against `advise.max_context_tokens` (12000) while any prompt over
+  `budget.max_tokens_per_call` (4000) was skipped, so every context between
+  the two was dropped and truncation never ran there. The context is now
+  built against the smaller of the two. On the 26-project corpus, skipped
+  prompts went from 31 of 74 to 10; the rest are classes whose signatures
+  alone exceed the ceiling, and one long function. Both settings are
+  unchanged.
+- The context budget measured the code without the header and separators of
+  the dependency-signature block, so a context could come out a few tokens
+  over the ceiling and be skipped.
 - `advise` told the model that a **function** target's layer was `unknown`
   with confidence 0.00 even when the layer was declared; class targets were
   right. Function targets now carry the module's layer source and confidence.
@@ -30,6 +41,11 @@ regenerate any `before` report with the new version.
 
 ### Changed
 
+- `arch` without declared layers now says what it still checks (import
+  cycles) and where to declare layers, instead of promising inference.
+- `data_class` detection builds a class's public interface only when the
+  numeric conditions already hold; results are identical, scans are slightly
+  faster on large projects.
 - The `explain` warning about graded words no longer says the thresholds were
   calibrated for another language; since 2.1.0 every default is checked
   against the distribution of a 26-project Python corpus.

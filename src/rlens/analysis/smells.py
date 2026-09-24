@@ -106,18 +106,20 @@ def detect_data_class(node: ast.ClassDef, report: ClassReport, rules: SmellsConf
     belgelendiği gibi LCOM4, alan başına bir erişimcisi olan sınıfları
     kohezyonsuz gösterir. Sayı doğrudur; sorunu olduğu yorumu yanlıştır.
     """
-    interface = public_interface(node)
-    ratio = interface.accessor_ratio
-    conditions = (
+    small = (
         report.nom is not None
         and report.nom <= rules.data_class_max_nom
         and report.wmc is not None
         and report.wmc <= report.nom + 2
         and _meets(report.dam, rules.data_class_min_dam)
-        and ratio is not None
-        and ratio >= rules.data_class_accessor_ratio
     )
-    if not conditions:
+    # Arayüz yalnızca küçük sınıfta hesaplanır: saf bir fonksiyon, sonuç aynı;
+    # yt-dlp taramasında (2323 sınıf) her sınıf için ikinci kez kuruluyordu.
+    if not small:
+        return None
+    interface = public_interface(node)
+    ratio = interface.accessor_ratio
+    if ratio is None or ratio < rules.data_class_accessor_ratio:
         return None
 
     note = "a data holder; a high LCOM4 here is expected and not a defect"

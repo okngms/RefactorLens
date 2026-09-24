@@ -8,6 +8,7 @@ from rlens.advise.context import (
     TRUNCATION_MARKER,
     build_context,
     build_signature,
+    context_budget,
     estimate_tokens,
     find_dependencies,
 )
@@ -154,3 +155,39 @@ class TestDependencies:
         node = next(n for n in module.tree.body if isinstance(n, ast.ClassDef))
         found = find_dependencies(node, result.modules, result.project_classes, node.name)
         assert "OrderManager" not in {n.name for _, n in found}
+
+
+class TestContextBudget:
+    """Bağlam, çağrı tavanını aşacak biçimde kurulmaz (sertleştirme Blok 2)."""
+
+    def test_the_smaller_limit_wins(self, tmp_path):
+        (tmp_path / "rlens.yaml").write_text(
+            "advise:\n  max_context_tokens: 12000\nbudget:\n  max_tokens_per_call: 4000\n",
+            encoding="utf-8",
+        )
+        assert context_budget(load_config(search_from=tmp_path)) == 4000
+
+    def test_a_smaller_context_budget_is_kept(self, tmp_path):
+        (tmp_path / "rlens.yaml").write_text(
+            "advise:\n  max_context_tokens: 2000\nbudget:\n  max_tokens_per_call: 4000\n",
+            encoding="utf-8",
+        )
+        assert context_budget(load_config(search_from=tmp_path)) == 2000
+
+
+class TestBudgetInvariant:
+    """Bağlam ya bütçeye sığar ya da kısaltılacak hiçbir şey kalmamıştır.
+
+    Sertleştirme Blok 2'de bulundu: imzalar atılırken bütçe, gönderilen metnin
+    başlık satırı ve ayırıcıları olmadan ölçülüyordu; httpx `BaseClient`
+    bağlamı 4013 token çıktı, tavan 4000'di ve hedef hiç sorulmadan atlandı.
+    """
+
+    @pytest.mark.parametrize("budget", range(300, 2000, 25))
+    def test_fits_or_is_already_minimal(self, messy, god_target, budget):
+        result, _ = messy
+        context = build_context(god_target, result.modules, result.project_classes, budget)
+        if context.estimated_tokens <= budget:
+            return
+        assert context.dependency_signatures == []
+        assert "body omitted" in " ".join(context.truncation_notes)

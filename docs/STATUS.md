@@ -6,6 +6,30 @@ Trusted Publishing (OIDC) ile; PyPI'da wheel ve sdist doğrulandı. İçerik:
 `CHANGELOG.md` 2.2.0. Önceki: v2.1.0 (2026-09-22), v2.0.0 (2026-09-10).
 
 ## Bitenler
+- **Sertleştirme Blok 2 — gerçek projede dayanıklılık ve hız.** Sonuç:
+  `experiments/hardening/robustness.md`; betik `robustness.py` (26 projede
+  `scan`/`arch`/`advise --dry-run` CLI olarak, alt süreçte).
+  - **Madde 1:** çökme yok (78 komutun hepsi çıkış 0), atlanan dosya yok.
+  - **Madde 2 (süre):** yt-dlp `scan` 23–30 sn (beş ölçüm 23.3–29.9; ilk
+    35.0 sn'lik ölçüm eşzamanlı test koşusuyla kirlenmişti). Hedef < 30 sn
+    sağlandı, pay dar. `data_class` arayüzü yalnızca sayısal koşullar
+    geçince kuruyor (19.2 → 18.6 sn; korpus envanteri birebir aynı).
+    **Sapma:** dosya hash'li önbellek yapılmadı (DCC/Ca/Ce proje-geneli
+    girdilere bağlı, dosya başına önbellek bayat sonuç verir); paralel ölçüm
+    FUTURE.md'ye, profil sayılarıyla. Kabuldeki "önbellek hit testi"
+    uygulanamaz; `docs/v2-sertlestirme.md`'ye durum notu yazıldı.
+  - **Madde 3:** katmansız `arch` zaten anlamlıydı; uçtan uca 4 test
+    (`test_cli.py::TestUndeclaredLayers`), not metni yönlendiriyor.
+  - **Madde 4 — iki hata:** (a) bağlam 12000'e göre kuruluyor, 4000'i aşan
+    prompt atlanıyordu; 74 hedeften 31'i hiç sorulmuyordu. Bağlam artık
+    `min(max_context_tokens, max_tokens_per_call)` ile kuruluyor
+    (`context_budget`); varsayılan değerler değişmedi. (b) İmza bloğunun
+    başlığı bütçe kontrolünde yoktu (httpx 4013 > 4000); kontrol artık
+    gönderilen metni ölçüyor (`assemble`), değişmez testi 68 bütçede.
+    Sonuç: atlanan 31 → 10 (9 dev sınıf iskeleti + 1 fonksiyon).
+  - Testler: `test_context.py` +70 (değişmez 68, `context_budget` 2),
+    `test_cli.py` +5. Durum: 1617 paket testi (10 atlandı), 91 fikstür testi,
+    ruff temiz.
 - **Sertleştirme Blok 3 — dogfooding** (`docs/v2-sertlestirme.md`). Sonuç:
   `docs/self-architecture.md`; pürüzler `experiments/hardening/friction.md`;
   ham raporlar `experiments/hardening/self/`. Kabul kriterlerinin dördü de
@@ -622,12 +646,13 @@ framework deyiminden geliyor.**
   orkestrasyon modülleri.
 
 ## Sıradaki iş
-**Sertleştirme Blok 3 bitti.** Sıra (`docs/v2-sertlestirme.md`): Blok 3 →
-**Blok 2** → Blok 4 → Blok 5. Sıradaki: **sertleştirme Blok 2 — gerçek
-projede dayanıklılık ve hız** (referans setinde `scan`/`arch`/`advise
---dry-run`, `skipped_files` nedenleri ve süreler; dosya hash'li önbellek ve
-paralel parse; katmansız proje senaryosu; `advise` prompt kesme politikası).
-Korpus `.cache/`'te hazır.
+**Sertleştirme Blok 3 ve Blok 2 bitti.** Sıra (`docs/v2-sertlestirme.md`):
+Blok 3 → Blok 2 → **Blok 4** → Blok 5. Sıradaki: **sertleştirme Blok 4 —
+test ve hijyen** (terminal genişliğine bağlı CLI testleri; property-based
+testler `hypothesis` ile; `analysis` paketinde mutation testing; CI matrisi
+ve Trusted Publishing — sonuncusu 2.1.0'dan beri çalışıyor, kontrol edilip
+kapatılacak). Önce Blok 4'ün maddelerinden hangilerinin zaten kapandığı
+okunmalı.
 
 Blok 3'ten açık kalan iki mimari iş (döngünün hedef alamadığı modül
 yerleşimi): `class_violations`/`function_violations`'ı `report.terminal`'den
@@ -635,9 +660,10 @@ eşik mantığının yanına taşımak; `analysis`'in `importlinter` çağrısı
 `cli`/`scanner` sınırına çekmek. Blok 5 (rapor ve kullanım) ile birlikte
 yapılması uygun.
 
-**Yayın:** "Unreleased"ta `--no-llm`, F1 düzeltmesi (`advise` prompt'u) ve
-belge var. 2.3.0 olarak yayınlanabilir; acil değil. Öneri: Blok 2'den sonra
-(önbellek ve hız kullanıcıya görünür iyileştirme) birlikte.
+**Yayın:** kullanıcı şimdilik istemiyor (2026-09-24). "Unreleased"ta
+`--no-llm`, `advise`'ın iki bütçe düzeltmesi (hedeflerin %42'si
+atlanıyordu), fonksiyon hedefi katman düzeltmesi ve belge var. `advise`
+düzeltmesi gerçek projelerde görünür; yayın istendiğinde 2.3.0 hazırlanır.
 
 ### `god_class` sorusunun açık kalan işi
 Kör etiketler geldi ve değerlendirildi (K17): R4 eklenmedi, kapı değişmedi.
@@ -671,7 +697,8 @@ experiments/hardening/stateless-gate.md → experiments/hardening/density-gate.m
 → docs/v2-tanim-kararlari.md (K4, K7, K9, K10)
 Etiketleme: experiments/hardening/god-class-labeling.md (etiketleyen için;
 kapı çıktılarını okumadan).
-Sonraki faz: docs/v2-sertlestirme.md (Blok 2). Blok 3 sonucu: docs/self-architecture.md.
+Sonraki faz: docs/v2-sertlestirme.md (Blok 4). Blok 3 sonucu: docs/self-architecture.md;
+Blok 2 sonucu: experiments/hardening/robustness.md.
 Deney protokolü: docs/v2-duzeltme-asama5.md. Metrik sınıfları:
 docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.
 

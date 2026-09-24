@@ -22,7 +22,7 @@ from rich.console import Console
 
 from rlens import __version__
 from rlens.advise.advisor import AdviceDocument, request_advice
-from rlens.advise.context import build_context
+from rlens.advise.context import build_context, context_budget
 from rlens.advise.prompts import SYSTEM_INSTRUCTION, build_user_prompt
 from rlens.advise.selector import select_targets
 from rlens.analysis.architecture import analyse_project
@@ -327,9 +327,7 @@ def advise(
     for target in targets:
         try:
             contexts.append(
-                build_context(
-                    target, result.modules, result.project_classes, cfg.advise.max_context_tokens
-                )
+                build_context(target, result.modules, result.project_classes, context_budget(cfg))
             )
         except LookupError as exc:
             err_console.print(f"[yellow]Skipping {target.qualified_name}:[/] {exc}")

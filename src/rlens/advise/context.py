@@ -26,6 +26,9 @@ from rlens.analysis.parser import ParsedModule
 #: Kırpılan gövdelerin yerine konan işaret.
 TRUNCATION_MARKER = "# ... body truncated by rlens ..."
 
+#: İmza bloğunun başlığı; gönderilen metnin parçasıdır.
+SIGNATURES_HEADER = "# --- Signatures of coupled project classes (bodies omitted) ---"
+
 #: Bir token kabaca kaç karakter? Sağlayıcılar arasında değişir; bu yalnızca
 #: bütçe kararı için kullanılan bir yaklaşıklıktır, faturalandırma değil.
 _CHARS_PER_TOKEN = 4
@@ -55,11 +58,34 @@ class PromptContext:
 
     def as_text(self) -> str:
         """Prompt'a gömülecek nihai kod bloğu."""
-        parts = [self.source]
-        if self.dependency_signatures:
-            parts.append("# --- Signatures of coupled project classes (bodies omitted) ---")
-            parts.extend(self.dependency_signatures)
-        return "\n\n".join(parts)
+        return assemble(self.source, self.dependency_signatures)
+
+
+def assemble(source: str, signatures: list[str]) -> str:
+    """Kod bloğunu kurar. Bütçe kontrolü de **bu** metni ölçer.
+
+    Ayrı ölçülseydi başlık satırı ve ayırıcılar hesaba girmezdi: httpx
+    `BaseClient` bağlamı bu yüzden 4000'lik tavanı 13 token aştı ve hedef
+    sorulmadan atlandı (sertleştirme Blok 2).
+    """
+    parts = [source]
+    if signatures:
+        parts.append(SIGNATURES_HEADER)
+        parts.extend(signatures)
+    return "\n\n".join(parts)
+
+
+def context_budget(config) -> int:
+    """Bağlamın kurulacağı token bütçesi: bağlam bütçesi ile çağrı tavanının küçüğü.
+
+    `advise.max_context_tokens` ne kadar kod gösterileceğini, `budget.
+    max_tokens_per_call` bir çağrının en fazla ne kadar olabileceğini söyler.
+    İlki ikincisinden büyükse, aradaki boyutta kurulan bağlam hiç sorulmadan
+    atlanır ve kırpma politikası o aralıkta hiç çalışmaz. Varsayılanlar
+    (12000 / 4000) tam olarak bunu yapıyordu: korpusta seçilen 74 hedefin 31'i
+    atlanıyordu (sertleştirme Blok 2, `experiments/hardening/robustness.md`).
+    """
+    return min(config.advise.max_context_tokens, config.budget.max_tokens_per_call)
 
 
 def estimate_tokens(text: str) -> int:
@@ -233,7 +259,7 @@ def build_context(
         signatures = [build_signature(dependency) for _, dependency in dependencies]
 
     # 1. adım: imzalar bütçeyi aşıyorsa at (yardımcı bilgidir).
-    while signatures and estimate_tokens(source + "\n\n".join(signatures)) > max_tokens:
+    while signatures and estimate_tokens(assemble(source, signatures)) > max_tokens:
         signatures.pop()
         notes.append("dependency signatures dropped to fit the context budget")
         notes = list(dict.fromkeys(notes))
