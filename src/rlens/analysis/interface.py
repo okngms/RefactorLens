@@ -112,53 +112,48 @@ def _is_accessor(node: ast.FunctionDef | ast.AsyncFunctionDef) -> bool:
     )
 
 
-def public_interface(node: ast.ClassDef) -> PublicInterface:
-    """Bir sınıfın public metot, attribute ve erişimci kümesi.
-
-    Attribute kaynakları `class_metrics.assigned_attributes` ile aynıdır: sınıf
-    düzeyi atamalar, herhangi bir metottaki `self.x = ...` ve `__slots__`.
-    Burada yalnızca public olanlar tutulur.
-
-    Her public ad bir kez listelenir. Property getter/setter çifti ve
-    `@overload` taslakları aynı adı birden çok kez tanımlar; dışarıya açılan
-    ad yine tektir. Tekrar, `accessor_ratio`'nun paydasını şişirirdi.
-    İç içe sınıfların `self.x = ...` atamaları dıştaki sınıfın arayüzü
-    değildir ve alınmaz.
-    """
-    methods: list[str] = []
-    accessors: list[str] = []
-    attributes: set[str] = set()
-
+def _collect_methods_and_accessors(node: ast.ClassDef) -> tuple[list[str], list[str]]:
+    """Public metotlar ve erişimciler, ilk görülme sırasıyla ve tekrarsız."""
+    methods, accessors = [], []
     for item in node.body:
-        if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            if is_public(item.name) and not is_overload_stub(item):
-                if item.name not in methods:
-                    methods.append(item.name)
-                if _is_accessor(item) and item.name not in accessors:
-                    accessors.append(item.name)
-        elif isinstance(item, ast.Assign):
-            attributes.update(
-                target.id
-                for target in item.targets
-                if isinstance(target, ast.Name) and is_public(target.id)
-            )
+        if (
+            isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and is_public(item.name)
+            and not is_overload_stub(item)
+        ):
+            if item.name not in methods:
+                methods.append(item.name)
+            if _is_accessor(item) and item.name not in accessors:
+                accessors.append(item.name)
+    return methods, accessors
+
+
+def _collect_class_attributes(node: ast.ClassDef) -> set[str]:
+    """Public attribute'lar: sınıf düzeyi atamalar, `__slots__`, metotlarda `self.x = ...`."""
+    attrs: set[str] = set()
+    # 1. geçiş: sınıf düzeyi atamalar ve `__slots__`
+    for item in node.body:
+        if isinstance(item, ast.Assign):
+            attrs.update(t.id for t in item.targets if isinstance(t, ast.Name) and is_public(t.id))
         elif (
             isinstance(item, ast.AnnAssign)
             and isinstance(item.target, ast.Name)
             and is_public(item.target.id)
         ):
-            attributes.add(item.target.id)
-
+            attrs.add(item.target.id)
         # `__slots__` adın kendisi dunder'dır ama **içeriği** attribute'lardır;
         # `class_metrics` de bu kaynağı sayar, arayüz de saymalı.
         if isinstance(item, (ast.Assign, ast.AnnAssign)):
             targets = item.targets if isinstance(item, ast.Assign) else [item.target]
             if any(isinstance(x, ast.Name) and x.id == "__slots__" for x in targets):
-                for element in getattr(item.value, "elts", []):
-                    named = isinstance(element, ast.Constant) and isinstance(element.value, str)
-                    if named and is_public(element.value):
-                        attributes.add(element.value)
-
+                for el in getattr(item.value, "elts", []):
+                    if (
+                        isinstance(el, ast.Constant)
+                        and isinstance(el.value, str)
+                        and is_public(el.value)
+                    ):
+                        attrs.add(el.value)
+    # 2. geçiş: metotlardaki `self.x = ...` yazmaları
     for item in node.body:
         if not isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
             continue
@@ -173,7 +168,25 @@ def public_interface(node: ast.ClassDef) -> PublicInterface:
                 and isinstance(child.ctx, ast.Store)
                 and is_public(child.attr)
             ):
-                attributes.add(child.attr)
+                attrs.add(child.attr)
+    return attrs
+
+
+def public_interface(node: ast.ClassDef) -> PublicInterface:
+    """Bir sınıfın public metot, attribute ve erişimci kümesi.
+
+    Attribute kaynakları `class_metrics.assigned_attributes` ile aynıdır: sınıf
+    düzeyi atamalar, herhangi bir metottaki `self.x = ...` ve `__slots__`.
+    Burada yalnızca public olanlar tutulur.
+
+    Her public ad bir kez listelenir. Property getter/setter çifti ve
+    `@overload` taslakları aynı adı birden çok kez tanımlar; dışarıya açılan
+    ad yine tektir. Tekrar, `accessor_ratio`'nun paydasını şişirirdi.
+    İç içe sınıfların `self.x = ...` atamaları dıştaki sınıfın arayüzü
+    değildir ve alınmaz.
+    """
+    methods, accessors = _collect_methods_and_accessors(node)
+    attributes = _collect_class_attributes(node)
 
     return PublicInterface(
         methods=tuple(sorted(methods)),

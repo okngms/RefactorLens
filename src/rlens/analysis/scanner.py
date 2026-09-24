@@ -87,6 +87,7 @@ def scan_project_with_sources(root: Path, config: Config, *, no_arch: bool = Fal
     for module in modules:
         layer = architecture.layer_of(module.module) if architecture else None
         metrics = architecture.metrics.get(module.module) if architecture else None
+        module_assignment = architecture.assignments.get(module.module) if architecture else None
 
         classes = []
         aliases = class_aliases(module.tree, project_classes, is_project_module)
@@ -100,7 +101,7 @@ def scan_project_with_sources(root: Path, config: Config, *, no_arch: bool = Fal
                 aliases=aliases,
                 code_lines=lines,
             )
-            assignment = architecture.assignments.get(module.module) if architecture else None
+            assignment = module_assignment
             if assignment is not None:
                 measured.layer = layer
                 measured.layer_source = assignment.source
@@ -142,6 +143,8 @@ def scan_project_with_sources(root: Path, config: Config, *, no_arch: bool = Fal
                 classes=classes,
                 functions=functions,
                 layer=layer,
+                layer_source=module_assignment.source if module_assignment else None,
+                layer_confidence=module_assignment.confidence if module_assignment else None,
                 ca=metrics.ca if metrics else None,
                 ce=metrics.ce if metrics else None,
                 instability=metrics.instability if metrics else None,

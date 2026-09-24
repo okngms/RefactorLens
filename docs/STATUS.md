@@ -1,20 +1,69 @@
-# STATUS — 2026-09-23
+# STATUS — 2026-09-24
 
 ## Sürüm
-**PyPI'da v2.1.0. v2.2.0 hazır, yayını kullanıcı yapacak.** `__version__`
-2.2.0; `CHANGELOG.md` 2.2.0 bölümü ("Unreleased" kapatıldı). Yerel doğrulama bu
-oturumun "Bitenler" girdisinde.
-
-Yayın adımları (2.1.0 ile aynı yol):
-1. Değişiklikleri commit'le ve `git push`; CI matrisi (3.11-3.14) yeşil olmalı.
-2. `git tag v2.2.0 && git push origin v2.2.0` → `publish` işi (OIDC).
-3. Doğrula: `pipx install --force refactorlens==2.2.0 && rlens --version`
-   → `rlens 2.2.0 (report schema v3)`.
-
-Yayından sonra bu bölüm "v2.2.0 PyPI'da" diye güncellenir.
+**v2.2.0 PyPI'da** (2026-09-23). `v2.2.0` tag'i ile GitHub Actions üzerinden,
+Trusted Publishing (OIDC) ile; PyPI'da wheel ve sdist doğrulandı. İçerik:
+`CHANGELOG.md` 2.2.0. Önceki: v2.1.0 (2026-09-22), v2.0.0 (2026-09-10).
 
 ## Bitenler
-- **v2.2.0 yayın hazırlığı** (bu oturum). Karar asistanın (kullanıcı yetkisiyle):
+- **Sertleştirme Blok 3 — dogfooding** (`docs/v2-sertlestirme.md`). Sonuç:
+  `docs/self-architecture.md`; pürüzler `experiments/hardening/friction.md`;
+  ham raporlar `experiments/hardening/self/`. Kabul kriterlerinin dördü de
+  sağlandı (ihlal/koku listesi, 3 hedefli döngü ve `verify` raporu, README
+  "RefactorLens on itself", her pürüzün kararı).
+  - **Katman beyanı** kök `rlens.yaml`'da. Plandaki beyan (`report/`
+  altyapı) 25 ihlal, `report/` sunum 12 ihlal; ek 13'ünün hiçbiri tasarım
+  sorunu değil, B seçildi. 12'nin 9'u varsayılan şemanın (port/adaptör)
+  sonucu; 3'ü gerçek: `advise.selector → report.terminal` ve iki
+  `analysis → integrations.importlinter`.
+  - **Döngü:** Groq `openai/gpt-oss-120b`, üç fonksiyon hedefi
+  (`public_interface`, `translate`, `render_verify`), üçü de "yardımcı
+  çıkar". En dar yorumla uygulandı (iki sapma belgede). Davranış kapısı
+  geçti; tahmin 9/9, 1 doğrulanamayan (fonksiyon için DCC).
+  - **Bulgu:** hedefler "improved" ama modül toplam CC'si üçünde de arttı
+  (33→36, 23→26, 21→26); `_collect_class_attributes` CC 27 ile kritik
+  eşiğin üstünde ve `verify` tablosunda görünmüyor (F5 → FUTURE).
+  - **Düzeltilen hata (F1):** fonksiyon hedefinin katmanı prompt'a
+  "unknown, confidence 0.00" diye gidiyordu. `ModuleReport`'a
+  `layer_source`/`layer_confidence` eklendi (şema değişmez), `selector`
+  geçiriyor. Test: `test_selector.py::TestFunctionTargetLayer` (3).
+  - README: katman beyanı ve varsayılan şema (F6/F7; prefix'ler taranan
+  dizine göre — kodda doğrulandı), "RefactorLens on itself". FUTURE: F2/F3
+  (donmuş prompt), F5. `docs/04` §7 modül alanları; STRUCTURE.
+  - `pyproject.toml`: `experiments/hardening/self` ruff dışında. `ruff format .`
+    advice markdown'ındaki modelin kod bloğunu yeniden biçimlendirmişti; bloklar
+    JSON'daki özgün metinden geri yazıldı (üçü de JSON'la birebir).
+  - Durum: 1542 paket testi (10 atlandı), 91 fikstür testi, ruff temiz.
+- **`explain` Blok 2 — şablon katmanı, `rlens explain --no-llm`**
+  (`docs/v2.1-explain.md` Blok 2). Yayınlanmadı; CHANGELOG "Unreleased".
+  - `src/rlens/explain/template.py`: `translate(payload, config)` →
+    `TemplateReading` (özet, cümleler, hesaplanamayanlar). Her eşik bulgusu
+    (sınıf: NOM/WMC/LCOM4/DCC, katmana göre eşik; fonksiyon ve metot:
+    CC/PARAMS/NESTING) değer + eşik + metriğin tanımıyla; her koku kanıt
+    alanlarıyla (`SMELL_TEMPLATES`, tanınmayan etiket için genel cümle);
+    `null` metrikler nedenleriyle sayılır (CAM nedeni rapordan). Derecelendirme
+    sıfatı yok (`graded_terms` testle boş). Tanımlar kodla/`docs/04` §2 ile
+    karşılaştırıldı (NOM dunder hariç, PARAMS alıcı hariç).
+  - `report/explain.py`: `render_template`, `template_markdown` (başlık özneyi
+    söylediği için cümle başındaki "özne: " terminalde ve markdown'da
+    tekrarlanmaz; JSON'da tam). `report/files.py`: `write_explain_template`
+    (`explain-template-*.json/.md`, `"mode": "template"`).
+  - `cli.py`: `--no-llm` sağlayıcı, `.env`, önbellek ve bütçeye dokunmaz;
+    `--dry-run` ile birlikte çıkış 1.
+  - **Blok 2 kararı ("başka bir dil" metni):** terminal uyarısı düzeltildi
+    ("a threshold is a cut-off in the measured distribution, not a verdict on
+    the code"); sıfat yasağı kalmıyor, kalkmadı. Explain **prompt'undaki** aynı
+    ifade değişmedi — prompt hash'ini değiştirir; açık sorunlara yazıldı.
+  - Fikstürde (`messy_project`, LCOM4 2/4): 11 eşik bulgusu, 3 koku; altın
+    değerler elle (OrderManager NOM 25 uyarı, LCOM4 4 kritik, DCC 8 uyarı, WMC
+    49 bulgu yok; `mark_paid` 3/1; `build_shipping_label` 7/5).
+  - README (explain bölümü, "Next"), CHANGELOG "Unreleased", STRUCTURE
+    (`explain/` paketi hiç listelenmemişti, eklendi), `docs/v2.1-explain.md`
+    durum notu.
+  - Testler: `test_explain_template.py` 19, `test_explain_cli.py`'de bir
+    beklenti metni güncellendi. Durum: 1539 paket testi (10 atlandı), 91
+    fikstür testi, ruff temiz.
+- **v2.2.0 yayını** — hazırlık asistan, yayın kullanıcı. Karar asistanın (kullanıcı yetkisiyle):
   v2.2'nin ölçü işi bitti, "Unreleased"ta üç rapor alanı (K13, K14) ve
   README'de kullanıcıya dönük `god_class` uyarısı (K17) vardı.
   - `__version__` 2.2.0; `CHANGELOG.md` 2.2.0 (Added: K13/K14 alanları;
@@ -573,7 +622,22 @@ framework deyiminden geliyor.**
   orkestrasyon modülleri.
 
 ## Sıradaki iş
-**v2.2 sürüyor.** Sıra: v2.2 → `explain` Blok 2 → Blok 3/2/4/5.
+**Sertleştirme Blok 3 bitti.** Sıra (`docs/v2-sertlestirme.md`): Blok 3 →
+**Blok 2** → Blok 4 → Blok 5. Sıradaki: **sertleştirme Blok 2 — gerçek
+projede dayanıklılık ve hız** (referans setinde `scan`/`arch`/`advise
+--dry-run`, `skipped_files` nedenleri ve süreler; dosya hash'li önbellek ve
+paralel parse; katmansız proje senaryosu; `advise` prompt kesme politikası).
+Korpus `.cache/`'te hazır.
+
+Blok 3'ten açık kalan iki mimari iş (döngünün hedef alamadığı modül
+yerleşimi): `class_violations`/`function_violations`'ı `report.terminal`'den
+eşik mantığının yanına taşımak; `analysis`'in `importlinter` çağrısını
+`cli`/`scanner` sınırına çekmek. Blok 5 (rapor ve kullanım) ile birlikte
+yapılması uygun.
+
+**Yayın:** "Unreleased"ta `--no-llm`, F1 düzeltmesi (`advise` prompt'u) ve
+belge var. 2.3.0 olarak yayınlanabilir; acil değil. Öneri: Blok 2'den sonra
+(önbellek ve hız kullanıcıya görünür iyileştirme) birlikte.
 
 ### `god_class` sorusunun açık kalan işi
 Kör etiketler geldi ve değerlendirildi (K17): R4 eklenmedi, kapı değişmedi.
@@ -594,12 +658,9 @@ kohezyonu). DAM (K12), §2 etiket kontrolü ve K5 (K15) de kapandı. v2.2'de
 açık kalanlar: `god_class` için isteğe bağlı insan etiketi (K17) ve §2'nin
 kokuları (isteğe bağlı; literatür eşiği + korpus + bağımsız sinyal).
 
-Önerilen sıra: 2.2.0 yayını (hazır; adımlar "Sürüm" bölümünde), sonra yol
-haritasının sıradaki fazı **`explain` Blok 2** (`docs/v2.1-explain.md`:
-deterministik şablon katmanı). Şablon katmanı K11/K13/K14'ün betimsel
-alanlarını da kullanabilir.
-
-**Yayın:** 2.2.0 hazır ("Sürüm" bölümü).
+Şablon katmanı K11/K13/K14'ün betimsel alanlarını henüz söylemiyor; eklemek
+eşiksiz alanlar için ayrı bir cümle türü ister (FUTURE.md adayı değil, küçük
+bir iş — eşik bulgusu gibi görünmemeli).
 
 Projeler yerelde yoksa: `python experiments/hardening/corpus.py fetch`
 (~850 MB). Kohezyon betiği ayrıca `pip install cohesion==1.2.0` ister.
@@ -610,7 +671,7 @@ experiments/hardening/stateless-gate.md → experiments/hardening/density-gate.m
 → docs/v2-tanim-kararlari.md (K4, K7, K9, K10)
 Etiketleme: experiments/hardening/god-class-labeling.md (etiketleyen için;
 kapı çıktılarını okumadan).
-Sonraki faz: docs/v2.1-explain.md (Blok 2).
+Sonraki faz: docs/v2-sertlestirme.md (Blok 2). Blok 3 sonucu: docs/self-architecture.md.
 Deney protokolü: docs/v2-duzeltme-asama5.md. Metrik sınıfları:
 docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.
 
@@ -628,10 +689,14 @@ docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.
   korpusta böyle bir durum incelenmedi.
 - **Etiketleme kitinin körlüğü dürüstlüğe dayanıyor.** `results/god-class-strata.json`
   depoda duruyor; etiketleyenin açmaması gerekiyor. Teknik bir engel yok.
-- **`explain` metni K8'den sonra tam doğru değil.** Talimat ve terminal notu
-  "eşikler başka bir dil için kalibre edildi" diyor; varsayılanlar artık Python
-  korpusunun persentillerine bakılarak doğrulandı. Sıfat yasağının kalkıp
-  kalkmayacağı explain Blok 2'nin kararı; metin değiştirilmedi.
+- **`explain` prompt'u hâlâ "başka bir dil için kalibre edildi" diyor**
+  (`src/rlens/explain/prompts.py`). Terminal notu Blok 2'de düzeltildi; prompt
+  değişmedi çünkü prompt hash'ini ve önbelleği değiştirir ve kayıtlı iki
+  koşuyla karşılaştırmayı bozar. Düzeltme bir sonraki gerçek explain koşusuyla
+  birlikte yapılmalı. Sıfat yasağı kalıyor.
+- **`--no-llm` PARAMS'ı iki kez söylüyor**: aynı fonksiyon için eşik cümlesi
+  ve `too_many_params` koku cümlesi. İkisi de doğru; tekrar kasıtlı bırakıldı
+  (eşik cümlesi tanımı taşıyor, koku cümlesi kokunun verildiğini).
 - **`god_class` ile LCOM4 hücresi tutarsız görünebilir** (K8 maliyeti):
   koku LCOM4 ≥ 3 ile ateşler, uyarı rengi 5'ten başlar.
 - **Deney fikstürlerinin eşikleri varsayılandan farklı** (K8). Fikstürle demo

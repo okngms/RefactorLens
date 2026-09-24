@@ -12,3 +12,19 @@ scan:
     - "examples/"
     - "experiments/"
     - "tests/"
+
+# Kendi katman beyanı (docs/v2-sertlestirme.md Blok 3). Gerekçe ve alternatif
+# beyanın ölçümü: docs/self-architecture.md. `report/` sunum katmanıdır:
+# kullanıcının gördüğü her şeyi üretir ve üst katmanların sonuçlarını okur.
+arch:
+  layers:
+    presentation: ["src/rlens/cli.py", "src/rlens/report/"]
+    application: ["src/rlens/advise/", "src/rlens/verify/", "src/rlens/explain/"]
+    domain: ["src/rlens/analysis/"]
+    infrastructure: ["src/rlens/llm/", "src/rlens/integrations/", "src/rlens/providers/"]
+
+# Dogfooding döngüsü (Blok 3). Model adı koda gömülmez; FINDINGS-1/2'de
+# kullanılanla aynı.
+provider:
+  name: groq
+  model: openai/gpt-oss-120b

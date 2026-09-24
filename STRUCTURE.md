@@ -67,6 +67,11 @@ src/rlens/
 │   ├── prompts.py          System instruction, evidence block, output schema
 │   └── advisor.py          Call, parse, validate, one repair attempt
 │
+├── explain/                Reading the measurements back, no advice (experimental)
+│   ├── prompts.py          System instruction and measurement block for the model
+│   ├── explainer.py        Call, parse, tag unlinked and graded findings
+│   └── template.py         --no-llm: fixed sentence templates, never sent to a model
+│
 ├── llm/                    Cost control around the provider call
 │   ├── budget.py           Per-run call and token budget; partial reports
 │   └── cache.py            Prompt-hash keyed response cache
@@ -91,6 +96,7 @@ src/rlens/
     ├── architecture.py     arch output, terminal and markdown
     ├── advice.py           advise output, terminal and markdown
     ├── verify.py           verify output, terminal and markdown
+    ├── explain.py          explain output (model and template), terminal and markdown
     └── files.py            Writing and reading JSON/markdown reports
 ```
 
@@ -246,6 +252,8 @@ experiments/hardening/
 ├── unreported.py           Code no unit covers: conditional definitions, module-level code
 ├── module_cohesion.py      Module cohesion candidates and the importer-usage signal
 ├── module-cohesion.md      Pre-registration and result; both variants rejected (K16)
+├── friction.md             Rough edges found using the tool on itself, each with a decision
+├── self/                   RefactorLens on itself: scan, arch, advise and verify reports
 ├── entry_points.py         How many entry points the corpus has; effect on too_many_params
 ├── entry-points.md         Why the rule is narrow, and what it changed
 ├── compare_radon.py        CC vs radon per function; classifies every difference

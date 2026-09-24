@@ -1,0 +1,173 @@
+{
+  "schema_version": 2,
+  "rlens_version": "2.2.0",
+  "generated_at": "2026-09-24T17:28:45+00:00",
+  "root": "C:\\myProjects\\RefactorLens",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.2,
+  "budget": {
+    "calls": 3,
+    "max_calls": 10,
+    "cache_hits": 0,
+    "tokens_in": 3469,
+    "tokens_out": 2171,
+    "exhausted": false,
+    "skipped": 0
+  },
+  "cache": {
+    "enabled": false,
+    "hits": 0,
+    "misses": 0,
+    "writes": 0
+  },
+  "partial": false,
+  "advices": [
+    {
+      "target": "src.rlens.analysis.interface:public_interface",
+      "diagnosis": "The function has a critical cyclomatic complexity (CC=33) and a warning-level nesting depth (5), indicating many intertwined conditional branches and deep indentation. With 50 lines of code, the logic is dense, making it hard to read, test, and maintain. The high CC and nesting are the primary concerns; LOC is moderate but contributes to the overall cognitive load.",
+      "suggestions": [
+        {
+          "title": "Extract attribute and method collection into dedicated helpers",
+          "rationale_metric_link": [
+            "CC",
+            "NESTING",
+            "LOC",
+            "DCC"
+          ],
+          "expected_effect": [
+            {
+              "metric": "CC",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "NESTING",
+              "direction": "down",
+              "confidence": 0.8
+            },
+            {
+              "metric": "LOC",
+              "direction": "down",
+              "confidence": 0.7
+            },
+            {
+              "metric": "DCC",
+              "direction": "up",
+              "confidence": 0.4
+            }
+          ],
+          "sketch": "Create three private helpers:\n```python\ndef _collect_methods_and_accessors(node: ast.ClassDef) -> tuple[list[str], list[str]]:\n    methods, accessors = [], []\n    for item in node.body:\n        if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)) and is_public(item.name) and not is_overload_stub(item):\n            if item.name not in methods:\n                methods.append(item.name)\n            if _is_accessor(item) and item.name not in accessors:\n                accessors.append(item.name)\n    return methods, accessors\n\ndef _collect_class_attributes(node: ast.ClassDef) -> set[str]:\n    attrs: set[str] = set()\n    # first pass: assignments and __slots__\n    for item in node.body:\n        if isinstance(item, ast.Assign):\n            attrs.update(t.id for t in item.targets if isinstance(t, ast.Name) and is_public(t.id))\n        elif isinstance(item, ast.AnnAssign) and isinstance(item.target, ast.Name) and is_public(item.target.id):\n            attrs.add(item.target.id)\n        # __slots__ handling (same logic as original)\n        if isinstance(item, (ast.Assign, ast.AnnAssign)):\n            targets = item.targets if isinstance(item, ast.Assign) else [item.target]\n            if any(isinstance(x, ast.Name) and x.id == \"__slots__\" for x in targets):\n                for el in getattr(item.value, \"elts\", []):\n                    if isinstance(el, ast.Constant) and isinstance(el.value, str) and is_public(el.value):\n                        attrs.add(el.value)\n    # second pass: attribute writes inside methods\n    for item in node.body:\n        if not isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):\n            continue\n        receiver = self_parameter(item)\n        if receiver is None:\n            continue\n        for child in walk_receiver_scope(item, receiver):\n            if (\n                isinstance(child, ast.Attribute)\n                and isinstance(child.value, ast.Name)\n                and child.value.id == receiver\n                and isinstance(child.ctx, ast.Store)\n                and is_public(child.attr)\n            ):\n                attrs.add(child.attr)\n    return attrs\n```\nThen rewrite `public_interface` to call these helpers and only assemble the `PublicInterface` object. This flattens the original nesting and splits the decision tree, lowering CC and nesting while reducing the line count. The extra helper functions add a small amount of coupling (DCC up).",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Introducing helpers changes the execution order only if the original code relied on side‑effects between the two loops; thorough testing is required. The helpers must preserve the original ordering semantics (methods and attributes are later sorted, so order is not critical). If any external code imports the private helpers, their visibility could become an issue.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.rlens.analysis.interface:public_interface\",\n  \"diagnosis\": \"The function has a critical cyclomatic complexity (CC=33) and a warning-level nesting depth (5), indicating many intertwined conditional branches and deep indentation. With 50 lines of code, the logic is dense, making it hard to read, test, and maintain. The high CC and nesting are the primary concerns; LOC is moderate but contributes to the overall cognitive load.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract attribute and method collection into dedicated helpers\",\n      \"rationale_metric_link\": [\n        \"CC\",\n        \"NESTING\",\n        \"LOC\",\n        \"DCC\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"CC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"NESTING\",\n          \"direction\": \"down\",\n          \"confidence\": 0.8\n        },\n        {\n          \"metric\": \"LOC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        },\n        {\n          \"metric\": \"DCC\",\n          \"direction\": \"up\",\n          \"confidence\": 0.4\n        }\n      ],\n      \"sketch\": \"Create three private helpers:\\n```python\\ndef _collect_methods_and_accessors(node: ast.ClassDef) -> tuple[list[str], list[str]]:\\n    methods, accessors = [], []\\n    for item in node.body:\\n        if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)) and is_public(item.name) and not is_overload_stub(item):\\n            if item.name not in methods:\\n                methods.append(item.name)\\n            if _is_accessor(item) and item.name not in accessors:\\n                accessors.append(item.name)\\n    return methods, accessors\\n\\ndef _collect_class_attributes(node: ast.ClassDef) -> set[str]:\\n    attrs: set[str] = set()\\n    # first pass: assignments and __slots__\\n    for item in node.body:\\n        if isinstance(item, ast.Assign):\\n            attrs.update(t.id for t in item.targets if isinstance(t, ast.Name) and is_public(t.id))\\n        elif isinstance(item, ast.AnnAssign) and isinstance(item.target, ast.Name) and is_public(item.target.id):\\n            attrs.add(item.target.id)\\n        # __slots__ handling (same logic as original)\\n        if isinstance(item, (ast.Assign, ast.AnnAssign)):\\n            targets = item.targets if isinstance(item, ast.Assign) else [item.target]\\n            if any(isinstance(x, ast.Name) and x.id == \\\"__slots__\\\" for x in targets):\\n                for el in getattr(item.value, \\\"elts\\\", []):\\n                    if isinstance(el, ast.Constant) and isinstance(el.value, str) and is_public(el.value):\\n                        attrs.add(el.value)\\n    # second pass: attribute writes inside methods\\n    for item in node.body:\\n        if not isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):\\n            continue\\n        receiver = self_parameter(item)\\n        if receiver is None:\\n            continue\\n        for child in walk_receiver_scope(item, receiver):\\n            if (\\n                isinstance(child, ast.Attribute)\\n                and isinstance(child.value, ast.Name)\\n                and child.value.id == receiver\\n                and isinstance(child.ctx, ast.Store)\\n                and is_public(child.attr)\\n            ):\\n                attrs.add(child.attr)\\n    return attrs\\n```\\nThen rewrite `public_interface` to call these helpers and only assemble the `PublicInterface` object. This flattens the original nesting and splits the decision tree, lowering CC and nesting while reducing the line count. The extra helper functions add a small amount of coupling (DCC up).\"\n    }\n  ],\n  \"risk_notes\": \"Introducing helpers changes the execution order only if the original code relied on side‑effects between the two loops; thorough testing is required. The helpers must preserve the original ordering semantics (methods and attributes are later sorted, so order is not critical). If any external code imports the private helpers, their visibility could become an issue.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "7ec85c01345facc108eb642cab52705b90adb32065d6cb9c81ee88c851fffa56",
+      "from_cache": false
+    },
+    {
+      "target": "src.rlens.explain.template:translate",
+      "diagnosis": "The function has a cyclomatic complexity of 23 and a nesting depth of 4, both exceeding project thresholds, indicating that the control flow is too tangled. At 71 lines and handling several distinct responsibilities (module iteration, sentence collection, summary building, and not‑computed reporting) the function is also large, making it hard to understand, test, and maintain.",
+      "suggestions": [
+        {
+          "title": "Extract logical blocks into dedicated helper functions",
+          "rationale_metric_link": [
+            "CC",
+            "NESTING"
+          ],
+          "expected_effect": [
+            {
+              "metric": "CC",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "NESTING",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "LOC",
+              "direction": "down",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Create three private helpers:\n\n```python\ndef _collect_sentences(modules, config):\n    # contains the two nested loops over modules, functions, classes, methods\n    # returns (sentences, smell_counts, nulls, cam_reasons, classes, functions)\n    ...\n\ndef _build_summary(modules, classes, functions, findings, smell_counts, payload):\n    # replicates the current summary construction logic\n    ...\n\ndef _build_not_computed(nulls, cam_reasons):\n    # replicates the not_computed list creation\n    ...\n```\n\nThen rewrite `translate` to:\n```python\nsentences, smell_counts, nulls, cam_reasons, classes, functions = _collect_sentences(modules, config)\norder = {\"threshold\": 0, \"smell\": 1}\nsentences.sort(key=lambda s: (s.subject, order[s.kind], s.text))\nfindings = sum(1 for s in sentences if s.kind == \"threshold\")\nsummary = _build_summary(modules, classes, functions, findings, smell_counts, payload)\nnot_computed = _build_not_computed(nulls, cam_reasons)\nreturn TemplateReading(tuple(summary), tuple(sentences), tuple(not_computed))\n```",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Refactoring changes the internal data flow; any code that relied on side‑effects inside the original loops (e.g., mutation of external counters) must be updated to use the returned values. Tests that mock or inspect intermediate variables may need adjustment. If the helper functions are moved to another module, import cycles could appear, so keep them in the same file or respect layer boundaries.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.rlens.explain.template:translate\",\n  \"diagnosis\": \"The function has a cyclomatic complexity of 23 and a nesting depth of 4, both exceeding project thresholds, indicating that the control flow is too tangled. At 71 lines and handling several distinct responsibilities (module iteration, sentence collection, summary building, and not‑computed reporting) the function is also large, making it hard to understand, test, and maintain.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract logical blocks into dedicated helper functions\",\n      \"rationale_metric_link\": [\n        \"CC\",\n        \"NESTING\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"CC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"NESTING\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"LOC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Create three private helpers:\\n\\n```python\\ndef _collect_sentences(modules, config):\\n    # contains the two nested loops over modules, functions, classes, methods\\n    # returns (sentences, smell_counts, nulls, cam_reasons, classes, functions)\\n    ...\\n\\ndef _build_summary(modules, classes, functions, findings, smell_counts, payload):\\n    # replicates the current summary construction logic\\n    ...\\n\\ndef _build_not_computed(nulls, cam_reasons):\\n    # replicates the not_computed list creation\\n    ...\\n```\\n\\nThen rewrite `translate` to:\\n```python\\nsentences, smell_counts, nulls, cam_reasons, classes, functions = _collect_sentences(modules, config)\\norder = {\\\"threshold\\\": 0, \\\"smell\\\": 1}\\nsentences.sort(key=lambda s: (s.subject, order[s.kind], s.text))\\nfindings = sum(1 for s in sentences if s.kind == \\\"threshold\\\")\\nsummary = _build_summary(modules, classes, functions, findings, smell_counts, payload)\\nnot_computed = _build_not_computed(nulls, cam_reasons)\\nreturn TemplateReading(tuple(summary), tuple(sentences), tuple(not_computed))\\n```\"\n    }\n  ],\n  \"risk_notes\": \"Refactoring changes the internal data flow; any code that relied on side‑effects inside the original loops (e.g., mutation of external counters) must be updated to use the returned values. Tests that mock or inspect intermediate variables may need adjustment. If the helper functions are moved to another module, import cycles could appear, so keep them in the same file or respect layer boundaries.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "908516d0d29086381f62057c3f93fe101dd6d0a19e800806314d7e863fea6eb3",
+      "from_cache": false
+    },
+    {
+      "target": "src.rlens.report.verify:render_verify",
+      "diagnosis": "The function is 87 physical lines long, accepts five parameters, and has a cyclomatic complexity of 21, which is well above typical thresholds. The high CC indicates many independent decision points, making the routine difficult to read, test, and maintain. The combination of large LOC and a relatively high parameter count also suggests that the function is handling multiple responsibilities (header, delta table, set table, Goodhart warnings, prediction reporting, calibration reporting) in a single block.",
+      "suggestions": [
+        {
+          "title": "Extract sub‑render helpers to reduce CC and LOC",
+          "rationale_metric_link": [
+            "CC",
+            "LOC",
+            "PARAMS"
+          ],
+          "expected_effect": [
+            {
+              "metric": "CC",
+              "direction": "down",
+              "confidence": 0.9
+            },
+            {
+              "metric": "LOC",
+              "direction": "down",
+              "confidence": 0.85
+            },
+            {
+              "metric": "PARAMS",
+              "direction": "same",
+              "confidence": 0.7
+            }
+          ],
+          "sketch": "Create small private functions such as _render_header(delta, console), _render_delta_table(delta, console), _render_goodhart(goodhart, console), _render_predictions(predictions, console), and _render_calibration(calibration, console). Each helper contains the corresponding block of console.print calls and any early‑return logic. The main render_verify function becomes a thin orchestrator that validates inputs, calls the helpers in order, and prints the final reminder. This reduces the number of branches per function, shortens the main routine, and keeps the public signature unchanged.",
+          "status": "linked",
+          "addresses_smells": [],
+          "target_layer_after": null,
+          "claims_constraints_respected": null,
+          "constraint_agreement": null,
+          "notes": [],
+          "tags": []
+        }
+      ],
+      "risk_notes": "Splitting the function changes the order of side‑effects (console output). If helpers are not called in the exact original sequence, the visual layout could differ, potentially breaking user expectations or existing tests that assert on output ordering. Care must be taken to preserve the exact sequence of prints and to keep the helpers internal (prefixed with an underscore) to avoid leaking a new public API.",
+      "tags": [],
+      "raw_reply": "{\n  \"target\": \"src.rlens.report.verify:render_verify\",\n  \"diagnosis\": \"The function is 87 physical lines long, accepts five parameters, and has a cyclomatic complexity of 21, which is well above typical thresholds. The high CC indicates many independent decision points, making the routine difficult to read, test, and maintain. The combination of large LOC and a relatively high parameter count also suggests that the function is handling multiple responsibilities (header, delta table, set table, Goodhart warnings, prediction reporting, calibration reporting) in a single block.\",\n  \"suggestions\": [\n    {\n      \"title\": \"Extract sub‑render helpers to reduce CC and LOC\",\n      \"rationale_metric_link\": [\n        \"CC\",\n        \"LOC\",\n        \"PARAMS\"\n      ],\n      \"expected_effect\": [\n        {\n          \"metric\": \"CC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.9\n        },\n        {\n          \"metric\": \"LOC\",\n          \"direction\": \"down\",\n          \"confidence\": 0.85\n        },\n        {\n          \"metric\": \"PARAMS\",\n          \"direction\": \"same\",\n          \"confidence\": 0.7\n        }\n      ],\n      \"sketch\": \"Create small private functions such as _render_header(delta, console), _render_delta_table(delta, console), _render_goodhart(goodhart, console), _render_predictions(predictions, console), and _render_calibration(calibration, console). Each helper contains the corresponding block of console.print calls and any early‑return logic. The main render_verify function becomes a thin orchestrator that validates inputs, calls the helpers in order, and prints the final reminder. This reduces the number of branches per function, shortens the main routine, and keeps the public signature unchanged.\"\n    }\n  ],\n  \"risk_notes\": \"Splitting the function changes the order of side‑effects (console output). If helpers are not called in the exact original sequence, the visual layout could differ, potentially breaking user expectations or existing tests that assert on output ordering. Care must be taken to preserve the exact sequence of prints and to keep the helpers internal (prefixed with an underscore) to avoid leaking a new public API.\"\n}",
+      "truncation_notes": [],
+      "repaired": false,
+      "warnings": [],
+      "prompt_hash": "1cdc8442a43fe449fbf3fbc4fa0e911051160c833c72cbfce843fa274e387549",
+      "from_cache": false
+    }
+  ]
+}

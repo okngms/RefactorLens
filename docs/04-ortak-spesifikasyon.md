@@ -134,7 +134,7 @@ Varsayılan izin: presentation→{application, domain}; application→{domain}; 
 - `status ∈ {linked, unlinked, rejected}`; hiçbir öneri silinmez, oranlar raporlanır.
 
 ## 7. Rapor şemaları (özet)
-- **scan:** `{schema_version, project, generated_at, classes: [{qualname, module, layer?, layer_confidence?, metrics{…}, smells[]?, public_interface[]?, violations[]?}], functions: […], modules: [{path, layer?, ca, ce, instability}]?, summary{…}}`
+- **scan:** `{schema_version, project, generated_at, classes: [{qualname, module, layer?, layer_confidence?, metrics{…}, smells[]?, public_interface[]?, violations[]?}], functions: […], modules: [{path, layer?, layer_source?, layer_confidence?, ca, ce, instability}]?, summary{…}}`
 - **arch (v2+):** `{schema_version, scheme, modules[], classes[], graph{edges:[[from,to,weak]]}, violations:[{code, from, to, layers, confidence, tentative}]}`
 - **verify:** `{schema_version, before_ref, after_ref, classes:[{qualname, deltas{metric:{before,after,dir}}, outcome}], predictions:[{metric, predicted, actual, correct|unverifiable}], accuracy{arithmetic, structural, overall}, calibration{brier, buckets[]}?, behavior_gate{level, passed}?, interface_delta?, violation_deltas?, smell_deltas?, refactoring_type?}`
 - **history (v4):** `{schema_version, points:[{ref, date, summary{…}, classes{…}}], lineage:{…}}`

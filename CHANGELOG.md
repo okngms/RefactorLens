@@ -4,6 +4,36 @@ Scan, advice and explain reports carry their own `schema_version`; `verify`
 refuses to compare scan reports whose schema versions differ. After upgrading,
 regenerate any `before` report with the new version.
 
+## Unreleased
+
+### Added
+
+- `rlens explain --no-llm`: a deterministic reading of the report with fixed
+  sentence templates — threshold findings with the metric's definition, smells
+  with their evidence, and uncomputed metrics with their reasons. Calls no
+  model and needs no key; writes `explain-template-*.json` and `.md`. The text
+  never reaches a prompt.
+- Scan reports: `modules[].layer_source` and `modules[].layer_confidence`,
+  as classes already had. Adding fields does not change the schema version.
+
+### Fixed
+
+- `advise` told the model that a **function** target's layer was `unknown`
+  with confidence 0.00 even when the layer was declared; class targets were
+  right. Function targets now carry the module's layer source and confidence.
+
+### Documentation
+
+- README: how to declare layers and the default scheme, and a "RefactorLens
+  on itself" section — its own layer declaration and a full
+  `advise` → `verify` loop on three of its functions.
+
+### Changed
+
+- The `explain` warning about graded words no longer says the thresholds were
+  calibrated for another language; since 2.1.0 every default is checked
+  against the distribution of a 26-project Python corpus.
+
 ## 2.2.0 — 2026-09-23
 
 Three descriptive report fields from the Python-specific metric set. Each was

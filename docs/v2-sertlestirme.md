@@ -81,6 +81,10 @@ var.
 
 ## Blok 3 — Dogfooding: aracı kendi koduna uygula
 
+> **Durum (2026-09-24): yapıldı.** Sonuç `docs/self-architecture.md`,
+> pürüzler `experiments/hardening/friction.md`. Madde 3'teki "992 test"
+> bugün 1542 paket + 91 fikstür testi.
+
 **Neden:** Gerçek kullanıcı deneyimi ancak gerçek kullanımda görülür; README'nin en inandırıcı örneği kendi kodumuzdur; v3 `apply` için ilk gerçek deneme alanı.
 
 **İş:**

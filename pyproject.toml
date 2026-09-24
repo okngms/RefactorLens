@@ -78,6 +78,8 @@ extend-exclude = [
     "experiments/*/cases",
     "experiments/cases",
     "experiments/hardening/.cache",
+    # Ham rapor: modelin yazdığı kod bloğu olduğu gibi kalmalı.
+    "experiments/hardening/self",
 ]
 
 [tool.ruff.lint]

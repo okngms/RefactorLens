@@ -1,0 +1,16 @@
+# Kullanım pürüzleri (sertleştirme Blok 3)
+
+Araç kendi deposunda kullanılırken çıkan her pürüz. Kural
+(`docs/v2-sertlestirme.md` Blok 3): her madde ya bu blokta düzeltilir ya
+kararıyla bir yere gider. Bağlam: `docs/self-architecture.md`.
+
+| # | Pürüz | Nerede görüldü | Karar |
+|---|---|---|---|
+| F1 | Beyan edilmiş katmandaki **fonksiyon** hedefi için prompt `Target layer: domain (unknown, confidence 0.00)` diyordu. Sınıf hedefleri doğruydu. | `advise --dry-run` | **Düzeltildi.** `ModuleReport` artık `layer_source` ve `layer_confidence` taşıyor; `selector` bunları fonksiyon hedefine geçiriyor (`collect_targets` ve `target_for`). Test: `tests/test_selector.py::TestFunctionTargetLayer`. |
+| F2 | Prompt LOC'u `# physical lines` diye etiketliyor; K1'den (şema 3) beri LOC yorum, boş satır ve docstring saymıyor. Model etiketi kullanıcıya aynen aktardı ("87 physical lines"). | `advise` çıktısı | **Düzeltilmedi, kayıtlı.** Etiket `src/rlens/advise/prompts.py`'de; dosya deney protokolü gereği donmuş (CLAUDE.md). v3 prompt revizyonunda düzeltilecek (FUTURE.md). |
+| F3 | Kontrat bir **fonksiyon** hedefi için DCC tahminine izin veriyor; DCC sınıf metriği, tahmin hiçbir zaman doğrulanamaz. Model yaptı (1 doğrulanamayan). | `verify` | **FUTURE.md.** İzinli metrik listesi `prompts.py` ve `validate_constraints`'te; ikisi de donmuş. Doğrulanamayan tahminler zaten oranın dışında (invariant), sayılar bozulmuyor. |
+| F4 | Aynı birimin üç adı var: tarama ve `advise` `src.rlens.analysis.interface:public_interface`, `arch` tablosu `rlens.analysis.interface`, koku hedefi `src.rlens.analysis.interface.public_interface` (fonksiyonda nokta, sınıf metodunda iki nokta üst üste). | `scan`, `arch`, `advise` | **Blok 5 madde 1** (hedef adlandırma tek kural, `src/` önekinin kırpılması). Orada zaten planlı; bu gözlem oraya kanıt. |
+| F5 | `verify` yeni eklenen bir birimi yalnızca "added" diye listeliyor, metriklerini göstermiyor. `_collect_class_attributes` CC 27 (kritik) ve NESTING 5 ile eklendi, tabloda görünmedi; koku da almadı (LOC 37 < 40). Hedef "improved" oldu, sorun yandaki fonksiyona taşındı. | `verify` | **FUTURE.md** (önerilen: eklenen birim eşik aşıyorsa `verify` bunu ayrı bir satırda söylesin). `verify`'ın çıktı sözleşmesini değiştirir; tek örnekten tasarlanmaz. |
+| F6 | README katmanların nasıl beyan edileceğini hiç anlatmıyor (`arch.layers`, `arch.scheme`). Beyan için `config.py` ve `examples/layered_project/rlens.yaml` okunmak zorunda kalındı. | Beyan yazılırken | **Düzeltildi.** README "Configuration" bölümüne `arch` örneği ve varsayılan şema eklendi. Kapsamlı `arch` anlatımı Blok 5 madde 4'te. |
+| F7 | Varsayılan şema port/adaptör varsayar (`application → domain` yalnız); klasik katmanlı bir projede uygulama → altyapı her çağrı ihlal olur. RefactorLens'te 12 ihlalin 9'u bu. Araç bunun bir şema seçimi olduğunu söylemiyor. | `arch` | **Düzeltildi (belge).** F6'daki README örneği `allowed` satırının değiştirilebileceğini gösteriyor. Uyarı mesajı eklemek FUTURE değil: ihlalin şemadan mı koddan mı geldiğini araç bilemez. |
+| F8 | `rlens scan src/rlens` bu depoda 0 dosya buluyor (kökteki `include: ["src/"]` tarama köküne göre yorumlanıyor). | Bilinen | **Zaten açık sorun** (STATUS). Tasarım kararı gerekiyor; Blok 5'e bağlı (config yol çözümü). |

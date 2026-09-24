@@ -148,6 +148,85 @@ def build_calibration_table(report: CalibrationReport) -> Table | None:
     return table
 
 
+def _render_header(delta: ProjectDelta, console: Console) -> None:
+    console.print(
+        f"[bold]before[/bold] {delta.before_generated_at or '?'}  →  "
+        f"[bold]after[/bold] {delta.after_generated_at or '?'}"
+    )
+
+
+def _render_delta_table(delta: ProjectDelta, console: Console) -> None:
+    table = build_delta_table(delta)
+    if table is None:
+        console.print("\n[green]No metric changed.[/]")
+    else:
+        console.print()
+        console.print(table)
+
+
+def _render_goodhart(goodhart: GoodhartReport | None, console: Console) -> None:
+    if not (goodhart is not None and goodhart.any_suspicious):
+        return
+    console.print()
+    console.print(
+        f"[bold yellow]{len(goodhart.suspicious)} suspicious improvement(s)[/] — "
+        f"metrics got better while the public interface shrank:"
+    )
+    for check in goodhart.suspicious:
+        console.print(f"  [yellow]{check.qualified_name}[/] — {check.reason}")
+    console.print(
+        "[dim]This is a question, not a verdict: deleting dead code shrinks "
+        "the interface too. The behaviour tests decide.[/dim]"
+    )
+
+
+def _render_predictions(predictions: PredictionReport | None, console: Console) -> None:
+    if not (predictions is not None and predictions.scores):
+        return
+    console.print()
+    console.print(build_prediction_table(predictions))
+    console.print()
+
+    accuracy = predictions.accuracy
+    if accuracy is None:
+        console.print(
+            "[dim]No prediction could be verified — the metrics involved were not measurable.[/dim]"
+        )
+    else:
+        console.print(
+            f"[bold]prediction accuracy: {predictions.hits}/"
+            f"{predictions.verifiable} ({accuracy:.0%})[/bold]"
+        )
+    if predictions.unverifiable:
+        console.print(
+            f"[dim]{predictions.unverifiable} prediction(s) could not be "
+            f"verified; they are excluded from the ratio.[/dim]"
+        )
+    if not predictions.filtered:
+        console.print(
+            "[yellow]Note:[/] every suggestion was checked, including ones "
+            "you may not have applied. Use --applied to score only what you "
+            "actually did."
+        )
+
+
+def _render_calibration(calibration: CalibrationReport | None, console: Console) -> None:
+    if not (calibration is not None and calibration.points):
+        return
+    console.print()
+    console.print(build_calibration_table(calibration))
+    console.print(
+        f"[bold]Brier {calibration.brier:.3f} · ECE {calibration.ece:.3f}[/bold] "
+        f"(stated {calibration.mean_confidence:.2f}, actual "
+        f"{calibration.accuracy:.2f}, gap {calibration.overconfidence:+.2f})"
+    )
+    if calibration.without_confidence:
+        console.print(
+            f"[dim]{calibration.without_confidence} prediction(s) came without a "
+            f"confidence and are excluded.[/dim]"
+        )
+
+
 def render_verify(
     delta: ProjectDelta,
     console: Console,
@@ -156,10 +235,7 @@ def render_verify(
     calibration: CalibrationReport | None = None,
 ) -> None:
     """Doğrulama sonucunu terminale basar."""
-    console.print(
-        f"[bold]before[/bold] {delta.before_generated_at or '?'}  →  "
-        f"[bold]after[/bold] {delta.after_generated_at or '?'}"
-    )
+    _render_header(delta, console)
 
     if not delta.comparable:
         console.print()
@@ -169,12 +245,7 @@ def render_verify(
             "do not draw conclusions from them.[/]"
         )
 
-    table = build_delta_table(delta)
-    if table is None:
-        console.print("\n[green]No metric changed.[/]")
-    else:
-        console.print()
-        console.print(table)
+    _render_delta_table(delta, console)
 
     added = delta.with_status(ADDED)
     removed = delta.with_status(REMOVED)
@@ -188,60 +259,9 @@ def render_verify(
         console.print()
         console.print(sets)
 
-    if goodhart is not None and goodhart.any_suspicious:
-        console.print()
-        console.print(
-            f"[bold yellow]{len(goodhart.suspicious)} suspicious improvement(s)[/] — "
-            f"metrics got better while the public interface shrank:"
-        )
-        for check in goodhart.suspicious:
-            console.print(f"  [yellow]{check.qualified_name}[/] — {check.reason}")
-        console.print(
-            "[dim]This is a question, not a verdict: deleting dead code shrinks "
-            "the interface too. The behaviour tests decide.[/dim]"
-        )
-
-    if predictions is not None and predictions.scores:
-        console.print()
-        console.print(build_prediction_table(predictions))
-        console.print()
-
-        accuracy = predictions.accuracy
-        if accuracy is None:
-            console.print(
-                "[dim]No prediction could be verified — "
-                "the metrics involved were not measurable.[/dim]"
-            )
-        else:
-            console.print(
-                f"[bold]prediction accuracy: {predictions.hits}/"
-                f"{predictions.verifiable} ({accuracy:.0%})[/bold]"
-            )
-        if predictions.unverifiable:
-            console.print(
-                f"[dim]{predictions.unverifiable} prediction(s) could not be "
-                f"verified; they are excluded from the ratio.[/dim]"
-            )
-        if not predictions.filtered:
-            console.print(
-                "[yellow]Note:[/] every suggestion was checked, including ones "
-                "you may not have applied. Use --applied to score only what you "
-                "actually did."
-            )
-
-    if calibration is not None and calibration.points:
-        console.print()
-        console.print(build_calibration_table(calibration))
-        console.print(
-            f"[bold]Brier {calibration.brier:.3f} · ECE {calibration.ece:.3f}[/bold] "
-            f"(stated {calibration.mean_confidence:.2f}, actual "
-            f"{calibration.accuracy:.2f}, gap {calibration.overconfidence:+.2f})"
-        )
-        if calibration.without_confidence:
-            console.print(
-                f"[dim]{calibration.without_confidence} prediction(s) came without a "
-                f"confidence and are excluded.[/dim]"
-            )
+    _render_goodhart(goodhart, console)
+    _render_predictions(predictions, console)
+    _render_calibration(calibration, console)
 
     console.print()
     console.print(f"[dim]{BEHAVIOUR_REMINDER}[/dim]")

@@ -163,6 +163,8 @@ def collect_targets(report: ProjectReport, config: Config) -> list[AdviceTarget]
                         metrics=_function_metrics(fn),
                         score=score_violations(violations),
                         layer=module.layer,
+                        layer_source=module.layer_source,
+                        layer_confidence=module.layer_confidence,
                         smells=[s for s in module.smells if s["target"].endswith(f".{fn.name}")],
                         violations=list(related),
                     )
@@ -256,6 +258,8 @@ def target_for(report: ProjectReport, config: Config, qualified_name: str) -> Ad
                 metrics=_function_metrics(function),
                 score=score_violations(flags),
                 layer=module.layer,
+                layer_source=module.layer_source,
+                layer_confidence=module.layer_confidence,
                 smells=[s for s in module.smells if s["target"].endswith(f".{function.name}")],
                 violations=list(related),
             )

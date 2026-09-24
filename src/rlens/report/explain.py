@@ -13,6 +13,7 @@ from rich.markup import escape
 
 from rlens import __version__
 from rlens.explain.explainer import UNLINKED, Explanation
+from rlens.explain.template import TemplateReading
 
 
 def _safe(text: str) -> str:
@@ -82,8 +83,8 @@ def render_explanation(explanation: Explanation, console: Console) -> None:
     if explanation.graded_count:
         console.print(
             f"[yellow]{explanation.graded_count} finding(s) graded a value[/] — "
-            "the thresholds behind such words were calibrated for another language "
-            "and are not shown to the model."
+            "a threshold is a cut-off in the measured distribution, not a verdict "
+            "on the code, and it is not shown to the model."
         )
 
     console.print(
@@ -152,4 +153,78 @@ def explanation_markdown(explanation: Explanation, *, root: str, generated_at: s
         f"- {explanation.graded_count} using grading language the instruction forbids",
         "",
     ]
+    return "\n".join(lines)
+
+
+# --------------------------------------------------------------------------- #
+# `--no-llm`: şablon okuması
+# --------------------------------------------------------------------------- #
+
+_TEMPLATE_NOTE = (
+    "Template reading: each sentence restates a measured value, its definition and "
+    "the threshold it meets. No model was called. A threshold is a cut-off in the "
+    "measured distribution, not a verdict on the code."
+)
+
+
+def _without_subject(sentence) -> str:
+    """Başlık zaten özneyi söylüyor; cümle başındaki "özne: " tekrarlanmaz.
+
+    JSON'daki metin tam kalır: tek başına okunabilmeli.
+    """
+    prefix = f"{sentence.subject}: "
+    return sentence.text.removeprefix(prefix)
+
+
+def render_template(reading: TemplateReading, console: Console) -> None:
+    """Şablon okumasını terminale basar. Metin koddan türer; `escape` şart."""
+    for line in reading.summary:
+        console.print(_safe(line))
+    console.print()
+    subject = None
+    for sentence in reading.sentences:
+        if sentence.subject != subject:
+            subject = sentence.subject
+            console.print(f"[bold cyan]{_safe(subject)}[/bold cyan]")
+        console.print(f"  {_safe(_without_subject(sentence))}")
+    if reading.sentences:
+        console.print()
+    if reading.not_computed:
+        console.print("[dim]Not computed:[/dim]")
+        for note in reading.not_computed:
+            console.print(f"  {_safe(note)}")
+        console.print()
+    console.print(f"[dim]{_safe(_TEMPLATE_NOTE)}[/dim]")
+
+
+def template_markdown(reading: TemplateReading, *, root: str, generated_at: str) -> str:
+    """Şablon okumasının markdown hali."""
+    lines = [
+        "# Explanation (template)",
+        "",
+        f"- Project: `{root}`",
+        f"- Generated: {generated_at}",
+        f"- rlens: {__version__}",
+        "- Mode: template, no model called",
+        "",
+        f"> {_TEMPLATE_NOTE}",
+        "",
+        "## Summary",
+        "",
+        *(f"- {line}" for line in reading.summary),
+        "",
+        "## Findings",
+        "",
+    ]
+    subject = None
+    for sentence in reading.sentences:
+        if sentence.subject != subject:
+            subject = sentence.subject
+            lines += ["", f"### `{subject}`", ""]
+        lines.append(f"- {_without_subject(sentence)}")
+    if not reading.sentences:
+        lines.append("No threshold is met and no smell is flagged.")
+    lines.append("")
+    if reading.not_computed:
+        lines += ["## Not computed", "", *(f"- {note}" for note in reading.not_computed), ""]
     return "\n".join(lines)

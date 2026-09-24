@@ -24,6 +24,7 @@ ADVICE_PREFIX = "advice-"
 VERIFY_PREFIX = "verify-"
 ARCH_PREFIX = "arch-"
 EXPLAIN_PREFIX = "explain-"
+EXPLAIN_TEMPLATE_PREFIX = "explain-template-"
 TIMESTAMP_FORMAT = "%Y%m%d-%H%M%S"
 
 
@@ -186,6 +187,48 @@ def write_explain(
         markdown_path.write_text(
             explanation_markdown(explanation, root=root, generated_at=generated_at),
             encoding="utf-8",
+        )
+    except OSError as exc:
+        raise ReportError(f"Could not write explanation report: {exc}") from exc
+
+    return json_path, markdown_path
+
+
+def write_explain_template(
+    reading, output_dir: Path, *, root: str, generated_at: str
+) -> tuple[Path, Path]:
+    """`explain --no-llm` okumasını JSON ve Markdown olarak yazar.
+
+    Önek ayrı (`explain-template-`): model yorumuyla aynı klasörde durur ama
+    onunla karıştırılmaz; JSON'daki `mode` alanı da aynı şeyi söyler.
+
+    Returns:
+        (json_path, markdown_path)
+    """
+    from rlens import __version__
+    from rlens.report.explain import template_markdown
+
+    output_dir = Path(output_dir)
+    try:
+        output_dir.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise ReportError(f"Could not create report directory: {output_dir} ({exc})") from exc
+
+    stamp = datetime.now(UTC).strftime(TIMESTAMP_FORMAT)
+    json_path = output_dir / f"{EXPLAIN_TEMPLATE_PREFIX}{stamp}.json"
+    markdown_path = output_dir / f"{EXPLAIN_TEMPLATE_PREFIX}{stamp}.md"
+
+    payload = {"mode": "template", **reading.to_dict()}
+    payload["root"] = root
+    payload["generated_at"] = generated_at
+    payload["rlens_version"] = __version__
+
+    try:
+        json_path.write_text(
+            json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        )
+        markdown_path.write_text(
+            template_markdown(reading, root=root, generated_at=generated_at), encoding="utf-8"
         )
     except OSError as exc:
         raise ReportError(f"Could not write explanation report: {exc}") from exc

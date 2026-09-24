@@ -207,6 +207,7 @@ previously `0`) and of `dcc`; see
 rlens explain .                      # measure now, then describe
 rlens explain . --report reports/scan-....json
 rlens explain . --dry-run            # print the prompt, send nothing
+rlens explain . --no-llm             # fixed templates, no model, no key
 ```
 
 `explain` asks the model to describe what the measurements say about the code
@@ -219,7 +220,14 @@ marked `unlinked`.
 
 It is experimental for a measured reason: in two runs the model still graded
 values ("high", "low") it had been told not to grade, and its observations
-mostly restated the table. A deterministic template layer is planned.
+mostly restated the table.
+
+`--no-llm` needs no provider and no key. It translates the report with fixed
+sentence templates: each threshold a value meets, with the metric's
+definition; each smell with its evidence; and every metric that could not be
+computed, with the reason. The same report always gives the same text, and it
+uses no grading words. It writes `explain-template-*.json` and `.md`, and none
+of it is ever sent to a model.
 
 ### Exit codes
 
@@ -261,6 +269,33 @@ change; at 2 it flagged a third of all classes. Measurement:
 
 Unknown keys are an **error**, not a warning. A typo like `max_nestings` would
 otherwise leave you silently running on defaults.
+
+Layers are declared by path prefix, relative to the directory you scan. A
+declaration always wins over inference:
+
+```yaml
+arch:
+  layers:
+    presentation: ["src/myapp/cli.py", "src/myapp/views/"]
+    application: ["src/myapp/services/"]
+    domain: ["src/myapp/domain/"]
+    infrastructure: ["src/myapp/db/", "src/myapp/clients/"]
+  scheme:                              # the default, shown in full
+    layers: [presentation, application, domain, infrastructure]
+    allowed:
+      presentation: [application, domain]
+      application: [domain]
+      infrastructure: [domain]
+      domain: []
+    allow_skip: false
+```
+
+The default scheme assumes dependencies point inward, with infrastructure
+implementing interfaces the domain owns. In a classic layered project where
+services call a database client directly, every such call is a violation;
+if that is your design, add `infrastructure` to `application`'s `allowed`
+list. RefactorLens's own declaration keeps the default and reports those
+calls (see *RefactorLens on itself*).
 
 ## Metric definitions and adaptations
 
@@ -473,6 +508,25 @@ touches are members of that class (median of 16 projects). Descriptive, no
 threshold. Measurement:
 [duck-coupling.md](https://github.com/okngms/RefactorLens/blob/main/experiments/hardening/duck-coupling.md).
 
+## RefactorLens on itself
+
+The repository declares its own layers in
+[`rlens.yaml`](https://github.com/okngms/RefactorLens/blob/main/rlens.yaml)
+and runs the full loop on its own code. With the default scheme, `arch`
+reports 12 violations: 9 are services calling the provider and cache modules
+directly (a classic layered design, not a ports-and-adapters one), and 3 are
+genuine: target selection imports threshold logic from the terminal
+renderer, and the analysis layer calls the `import-linter` reader.
+
+`advise` picked three functions (CC 33, 23 and 21). The model suggested
+extracting helpers in each case, all nine verifiable predictions held, and
+the behaviour tests passed. But the complexity moved rather than shrank: the
+module totals went up (CC 33→36, 23→26, 21→26), and one new helper carries
+CC 27 — above the critical threshold — without showing up as a flagged row
+in `verify`. The target improved; the problem went next door. One model, one
+run, three targets: an example, not a finding. Details:
+[self-architecture.md](https://github.com/okngms/RefactorLens/blob/main/docs/self-architecture.md).
+
 ## What RefactorLens does not do
 
 - **It does not run your code.** Files are parsed with `ast`, never executed.
@@ -512,8 +566,7 @@ threshold. Measurement:
 Phases 3 and 4 shipped together in v0.2.0. Both experiments live in
 [`experiments/`](https://github.com/okngms/RefactorLens/tree/main/experiments), with the raw data committed alongside them.
 
-Next: a deterministic template layer for `explain`, and layer inference
-instead of requiring layers to be declared — today they come from your config or from an
+Next: layer inference instead of requiring layers to be declared — today they come from your config or from an
 existing `import-linter` contract, and are reported `unknown` when neither is
 present. **v3** closes the loop (`apply`, a
 feedback round, a benchmark); **v4** adds history and other languages.

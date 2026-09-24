@@ -151,6 +151,8 @@ class ModuleReport:
     functions: list[FunctionReport] = field(default_factory=list)
 
     layer: str | None = None
+    layer_source: str | None = None
+    layer_confidence: float | None = None
     ca: int | None = None
     ce: int | None = None
     instability: float | None = None

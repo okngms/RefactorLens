@@ -25,6 +25,12 @@ eklenmez; amaç fikri kaybetmemek ama kapsamı şişirmemektir.
   sertleştirme Blok 1: `@overload`, string annotation, `@staticmethod`) kod
   değişmeden delta üretebilir. Reddetmek değil, uyarmak. Kapsam dışı: Blok 1
   yeni özellik eklemez.
+- **`verify`'da eşik aşan yeni birim.** Eklenen fonksiyon/sınıf bugün
+  yalnızca "added" satırı; metrikleri görünmüyor. Dogfooding'de
+  (`experiments/hardening/friction.md` F5) hedef CC 33→1 "improved" oldu,
+  karmaşıklık CC 27'lik yeni bir yardımcıya taşındı ve hiçbir satırda
+  görünmedi. Önerilen: eklenen birim bir eşiği aşıyorsa ayrı satırda
+  söylensin. Çıktı sözleşmesi değişikliği; tek örnekten tasarlanmaz.
 - HTML rapor çıktısı, web arayüzü, veritabanı.
 - IDE eklentisi.
 
@@ -65,6 +71,14 @@ eklenmez; amaç fikri kaybetmemek ama kapsamı şişirmemektir.
   kalite modeli tanımlamak ve doğrulamak. Java için kalibre edilmiş eşiklerin
   Python'a taşınması v1/v2'nin bilinen sınırlılığı; bunu düzeltmek ayrı bir
   araştırma sorusu ve v3 çerçevesine aittir.
+
+- **v3 prompt revizyonu için birikenler** (`advise/prompts.py` ve
+  `validate_constraints` deney protokolü gereği donmuş):
+  - LOC etiketi `# physical lines` şema 3'ten (K1) beri yanlış; model
+    kullanıcıya aynen aktarıyor (friction F2).
+  - Fonksiyon hedefi için izinli metrik listesi sınıf metriklerini de
+    (DCC, LCOM4, NOM, WMC, DAM, CAM) içeriyor; bu tahminler hiçbir zaman
+    doğrulanamaz (friction F3). Hedef türüne göre liste.
 
 ## Sağlayıcılar
 - Çekirdek Groq + Ollama'dır. Gemini ve Anthropic adapter'ları opsiyoneldir

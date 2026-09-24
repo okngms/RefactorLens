@@ -174,3 +174,49 @@ class TestExplicitTargets:
         target = target_for(report, config, "src.domain.entities:Customer")
         assert target.layer == "domain"
         assert target.smell_labels == ["data_class"]
+
+
+class TestFunctionTargetLayer:
+    """Fonksiyon hedefi modülün katman kaynağını ve güvenini taşır.
+
+    Dogfooding'de (sertleştirme Blok 3) bulundu: beyan edilmiş bir katmandaki
+    fonksiyon için prompt "domain (unknown, confidence 0.00)" diyordu. Sınıf
+    hedefleri doğruydu; fonksiyon hedefine yalnızca katman adı geçiyordu.
+    """
+
+    @pytest.fixture
+    def layered(self, tmp_path):
+        (tmp_path / "rlens.yaml").write_text(
+            "scan:\n  include: ['.']\narch:\n  layers:\n    domain: ['core/']\n",
+            encoding="utf-8",
+        )
+        (tmp_path / "core").mkdir()
+        (tmp_path / "core" / "__init__.py").write_text("", encoding="utf-8")
+        (tmp_path / "core" / "calc.py").write_text(
+            "def wide(a, b, c, d, e, f, g, h):\n    return a\n", encoding="utf-8"
+        )
+        config = load_config(search_from=tmp_path)
+        return scan_project(tmp_path, config), config
+
+    def test_module_carries_source_and_confidence(self, layered):
+        report, _ = layered
+        module = next(m for m in report.modules if m.module == "core.calc")
+        assert (module.layer, module.layer_source, module.layer_confidence) == (
+            "domain",
+            "declared",
+            1.0,
+        )
+
+    def test_collected_function_target(self, layered):
+        report, config = layered
+        target = next(t for t in collect_targets(report, config) if t.name == "wide")
+        assert (target.layer, target.layer_source, target.layer_confidence) == (
+            "domain",
+            "declared",
+            1.0,
+        )
+
+    def test_named_function_target(self, layered):
+        report, config = layered
+        target = target_for(report, config, "core.calc:wide")
+        assert (target.layer_source, target.layer_confidence) == ("declared", 1.0)

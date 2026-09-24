@@ -32,12 +32,13 @@ from rlens.config import ConfigError, load_config
 from rlens.explain.explainer import request_explanation
 from rlens.explain.prompts import SYSTEM_INSTRUCTION as EXPLAIN_SYSTEM_INSTRUCTION
 from rlens.explain.prompts import build_user_prompt as build_explain_prompt
+from rlens.explain.template import translate
 from rlens.llm.budget import Budget, BudgetExceeded
 from rlens.llm.cache import ResponseCache, prompt_hash
 from rlens.providers import PROVIDERS, ProviderError, get_provider, load_env_file
 from rlens.report.advice import render_advice
 from rlens.report.architecture import render_architecture
-from rlens.report.explain import render_explanation
+from rlens.report.explain import render_explanation, render_template
 from rlens.report.files import (
     ReportError,
     latest_report,
@@ -45,6 +46,7 @@ from rlens.report.files import (
     write_advice,
     write_arch,
     write_explain,
+    write_explain_template,
     write_report,
     write_verify,
 )
@@ -489,8 +491,18 @@ def explain(
             help="Print the prompt that would be sent and stop. Needs no API key.",
         ),
     ] = False,
+    no_llm: Annotated[
+        bool,
+        typer.Option(
+            "--no-llm",
+            help="Translate the measurements with fixed templates. Calls no model.",
+        ),
+    ] = False,
 ) -> None:
     """Read the measurements back: what the metrics describe, with no advice."""
+    if no_llm and dry_run:
+        raise _fail("--no-llm sends no prompt, so --dry-run has nothing to show. Use one.")
+
     try:
         cfg = load_config(config, search_from=path)
     except ConfigError as exc:
@@ -512,6 +524,27 @@ def explain(
             raise _fail(str(exc)) from exc
     else:
         payload = scan_project_with_sources(path, cfg).report.to_dict()
+
+    if no_llm:
+        # Şablon katmanı: sağlayıcı, anahtar, önbellek ve bütçe yok. Çıktısı
+        # hiçbir prompt'a girmez (`docs/v2.1-explain.md` Blok 2).
+        reading = translate(payload, cfg)
+        console.print()
+        render_template(reading, console)
+        if not no_report:
+            target_dir = Path(output_dir) if output_dir else path / cfg.scan.output_dir
+            try:
+                json_path, markdown_path = write_explain_template(
+                    reading,
+                    target_dir,
+                    root=str(Path(path).resolve()),
+                    generated_at=datetime.now(UTC).isoformat(timespec="seconds"),
+                )
+            except ReportError as exc:
+                raise _fail(str(exc)) from exc
+            console.print(f"[dim]Report: {markdown_path}[/dim]")
+            console.print(f"[dim]Machine-readable: {json_path}[/dim]")
+        return
 
     if not any(module.get("classes") for module in payload.get("modules", [])):
         console.print(

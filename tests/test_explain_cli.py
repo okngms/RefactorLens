@@ -273,7 +273,7 @@ class TestGradedLanguageSurfaces:
         monkeypatch.setattr("rlens.cli.get_provider", lambda config: FakeProvider(reply))
         output = flat(runner.invoke(app, ["explain", str(project), "--no-report"]).output)
         assert "graded language: low" in output
-        assert "calibrated for another language" in output
+        assert "not a verdict on the code" in output
 
     def test_the_finding_is_not_dropped(self, project, monkeypatch):
         reply = json.dumps(

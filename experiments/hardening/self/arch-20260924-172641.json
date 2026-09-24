@@ -1,0 +1,1487 @@
+{
+  "schema_version": 1,
+  "rlens_version": "2.2.0",
+  "generated_at": "2026-09-24T17:26:41+00:00",
+  "root": "C:\\myProjects\\RefactorLens",
+  "scheme": {
+    "layers": [
+      "presentation",
+      "application",
+      "domain",
+      "infrastructure"
+    ],
+    "allowed": {
+      "presentation": [
+        "application",
+        "domain"
+      ],
+      "application": [
+        "domain"
+      ],
+      "infrastructure": [
+        "domain"
+      ],
+      "domain": []
+    },
+    "allow_skip": false
+  },
+  "modules": [
+    {
+      "module": "src.rlens",
+      "ca": 5,
+      "ce": 0,
+      "instability": 0.0,
+      "depth": 11,
+      "in_cycle": false,
+      "layer": "unknown",
+      "source": "unknown",
+      "confidence": 0.0,
+      "evidence": "no declared prefix matches this path"
+    },
+    {
+      "module": "src.rlens.advise",
+      "ca": 0,
+      "ce": 0,
+      "instability": null,
+      "depth": 0,
+      "in_cycle": false,
+      "layer": "application",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/advise/`"
+    },
+    {
+      "module": "src.rlens.advise.advisor",
+      "ca": 3,
+      "ce": 7,
+      "instability": 0.7,
+      "depth": 4,
+      "in_cycle": false,
+      "layer": "application",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/advise/`"
+    },
+    {
+      "module": "src.rlens.advise.context",
+      "ca": 3,
+      "ce": 3,
+      "instability": 0.5,
+      "depth": 6,
+      "in_cycle": false,
+      "layer": "application",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/advise/`"
+    },
+    {
+      "module": "src.rlens.advise.prompts",
+      "ca": 4,
+      "ce": 1,
+      "instability": 0.2,
+      "depth": 5,
+      "in_cycle": false,
+      "layer": "application",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/advise/`"
+    },
+    {
+      "module": "src.rlens.advise.selector",
+      "ca": 2,
+      "ce": 3,
+      "instability": 0.6,
+      "depth": 7,
+      "in_cycle": false,
+      "layer": "application",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/advise/`"
+    },
+    {
+      "module": "src.rlens.analysis",
+      "ca": 0,
+      "ce": 0,
+      "instability": null,
+      "depth": 0,
+      "in_cycle": false,
+      "layer": "domain",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/analysis/`"
+    },
+    {
+      "module": "src.rlens.analysis.architecture",
+      "ca": 3,
+      "ce": 7,
+      "instability": 0.7,
+      "depth": 10,
+      "in_cycle": false,
+      "layer": "domain",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/analysis/`"
+    },
+    {
+      "module": "src.rlens.analysis.class_metrics",
+      "ca": 4,
+      "ce": 2,
+      "instability": 0.3333,
+      "depth": 12,
+      "in_cycle": false,
+      "layer": "domain",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/analysis/`"
+    },
+    {
+      "module": "src.rlens.analysis.entry_points",
+      "ca": 1,
+      "ce": 0,
+      "instability": 0.0,
+      "depth": 14,
+      "in_cycle": false,
+      "layer": "domain",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/analysis/`"
+    },
+    {
+      "module": "src.rlens.analysis.func_metrics",
+      "ca": 3,
+      "ce": 2,
+      "instability": 0.4,
+      "depth": 13,
+      "in_cycle": false,
+      "layer": "domain",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/analysis/`"
+    },
+    {
+      "module": "src.rlens.analysis.graph",
+      "ca": 2,
+      "ce": 1,
+      "instability": 0.3333,
+      "depth": 11,
+      "in_cycle": false,
+      "layer": "domain",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/analysis/`"
+    },
+    {
+      "module": "src.rlens.analysis.imports",
+      "ca": 3,
+      "ce": 1,
+      "instability": 0.25,
+      "depth": 12,
+      "in_cycle": false,
+      "layer": "domain",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/analysis/`"
+    },
+    {
+      "module": "src.rlens.analysis.interface",
+      "ca": 3,
+      "ce": 2,
+      "instability": 0.4,
+      "depth": 11,
+      "in_cycle": false,
+      "layer": "domain",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/analysis/`"
+    },
+    {
+      "module": "src.rlens.analysis.model",
+      "ca": 11,
+      "ce": 0,
+      "instability": 0.0,
+      "depth": 14,
+      "in_cycle": false,
+      "layer": "domain",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/analysis/`"
+    },
+    {
+      "module": "src.rlens.analysis.parser",
+      "ca": 4,
+      "ce": 0,
+      "instability": 0.0,
+      "depth": 13,
+      "in_cycle": false,
+      "layer": "domain",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/analysis/`"
+    },
+    {
+      "module": "src.rlens.analysis.scanner",
+      "ca": 2,
+      "ce": 12,
+      "instability": 0.8571,
+      "depth": 9,
+      "in_cycle": false,
+      "layer": "domain",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/analysis/`"
+    },
+    {
+      "module": "src.rlens.analysis.smells",
+      "ca": 1,
+      "ce": 4,
+      "instability": 0.8,
+      "depth": 10,
+      "in_cycle": false,
+      "layer": "domain",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/analysis/`"
+    },
+    {
+      "module": "src.rlens.cli",
+      "ca": 0,
+      "ce": 26,
+      "instability": 1.0,
+      "depth": 0,
+      "in_cycle": false,
+      "layer": "presentation",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/cli.py`"
+    },
+    {
+      "module": "src.rlens.config",
+      "ca": 16,
+      "ce": 0,
+      "instability": 0.0,
+      "depth": 12,
+      "in_cycle": false,
+      "layer": "unknown",
+      "source": "unknown",
+      "confidence": 0.0,
+      "evidence": "no declared prefix matches this path"
+    },
+    {
+      "module": "src.rlens.explain",
+      "ca": 0,
+      "ce": 0,
+      "instability": null,
+      "depth": 0,
+      "in_cycle": false,
+      "layer": "application",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/explain/`"
+    },
+    {
+      "module": "src.rlens.explain.explainer",
+      "ca": 2,
+      "ce": 8,
+      "instability": 0.8,
+      "depth": 3,
+      "in_cycle": false,
+      "layer": "application",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/explain/`"
+    },
+    {
+      "module": "src.rlens.explain.prompts",
+      "ca": 2,
+      "ce": 1,
+      "instability": 0.3333,
+      "depth": 4,
+      "in_cycle": false,
+      "layer": "application",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/explain/`"
+    },
+    {
+      "module": "src.rlens.explain.template",
+      "ca": 2,
+      "ce": 1,
+      "instability": 0.3333,
+      "depth": 3,
+      "in_cycle": false,
+      "layer": "application",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/explain/`"
+    },
+    {
+      "module": "src.rlens.integrations",
+      "ca": 0,
+      "ce": 0,
+      "instability": null,
+      "depth": 0,
+      "in_cycle": false,
+      "layer": "infrastructure",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/integrations/`"
+    },
+    {
+      "module": "src.rlens.integrations.importlinter",
+      "ca": 2,
+      "ce": 1,
+      "instability": 0.3333,
+      "depth": 11,
+      "in_cycle": false,
+      "layer": "infrastructure",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/integrations/`"
+    },
+    {
+      "module": "src.rlens.llm",
+      "ca": 0,
+      "ce": 0,
+      "instability": null,
+      "depth": 0,
+      "in_cycle": false,
+      "layer": "infrastructure",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/llm/`"
+    },
+    {
+      "module": "src.rlens.llm.budget",
+      "ca": 3,
+      "ce": 1,
+      "instability": 0.25,
+      "depth": 5,
+      "in_cycle": false,
+      "layer": "infrastructure",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/llm/`"
+    },
+    {
+      "module": "src.rlens.llm.cache",
+      "ca": 3,
+      "ce": 1,
+      "instability": 0.25,
+      "depth": 5,
+      "in_cycle": false,
+      "layer": "infrastructure",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/llm/`"
+    },
+    {
+      "module": "src.rlens.providers",
+      "ca": 1,
+      "ce": 4,
+      "instability": 0.8,
+      "depth": 1,
+      "in_cycle": false,
+      "layer": "infrastructure",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/providers/`"
+    },
+    {
+      "module": "src.rlens.providers.base",
+      "ca": 5,
+      "ce": 1,
+      "instability": 0.1667,
+      "depth": 5,
+      "in_cycle": false,
+      "layer": "infrastructure",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/providers/`"
+    },
+    {
+      "module": "src.rlens.providers.groq",
+      "ca": 1,
+      "ce": 2,
+      "instability": 0.6667,
+      "depth": 2,
+      "in_cycle": false,
+      "layer": "infrastructure",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/providers/`"
+    },
+    {
+      "module": "src.rlens.providers.ollama",
+      "ca": 1,
+      "ce": 2,
+      "instability": 0.6667,
+      "depth": 2,
+      "in_cycle": false,
+      "layer": "infrastructure",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/providers/`"
+    },
+    {
+      "module": "src.rlens.report",
+      "ca": 0,
+      "ce": 0,
+      "instability": null,
+      "depth": 0,
+      "in_cycle": false,
+      "layer": "presentation",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/report/`"
+    },
+    {
+      "module": "src.rlens.report.advice",
+      "ca": 2,
+      "ce": 1,
+      "instability": 0.3333,
+      "depth": 2,
+      "in_cycle": false,
+      "layer": "presentation",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/report/`"
+    },
+    {
+      "module": "src.rlens.report.architecture",
+      "ca": 2,
+      "ce": 1,
+      "instability": 0.3333,
+      "depth": 9,
+      "in_cycle": false,
+      "layer": "presentation",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/report/`"
+    },
+    {
+      "module": "src.rlens.report.explain",
+      "ca": 2,
+      "ce": 3,
+      "instability": 0.6,
+      "depth": 2,
+      "in_cycle": false,
+      "layer": "presentation",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/report/`"
+    },
+    {
+      "module": "src.rlens.report.files",
+      "ca": 1,
+      "ce": 5,
+      "instability": 0.8333,
+      "depth": 1,
+      "in_cycle": false,
+      "layer": "presentation",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/report/`"
+    },
+    {
+      "module": "src.rlens.report.terminal",
+      "ca": 2,
+      "ce": 4,
+      "instability": 0.6667,
+      "depth": 8,
+      "in_cycle": false,
+      "layer": "presentation",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/report/`"
+    },
+    {
+      "module": "src.rlens.report.verify",
+      "ca": 2,
+      "ce": 4,
+      "instability": 0.6667,
+      "depth": 2,
+      "in_cycle": false,
+      "layer": "presentation",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/report/`"
+    },
+    {
+      "module": "src.rlens.verify",
+      "ca": 1,
+      "ce": 0,
+      "instability": 0.0,
+      "depth": 1,
+      "in_cycle": false,
+      "layer": "application",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/verify/`"
+    },
+    {
+      "module": "src.rlens.verify.calibration",
+      "ca": 2,
+      "ce": 1,
+      "instability": 0.3333,
+      "depth": 3,
+      "in_cycle": false,
+      "layer": "application",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/verify/`"
+    },
+    {
+      "module": "src.rlens.verify.diff",
+      "ca": 4,
+      "ce": 0,
+      "instability": 0.0,
+      "depth": 5,
+      "in_cycle": false,
+      "layer": "application",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/verify/`"
+    },
+    {
+      "module": "src.rlens.verify.goodhart",
+      "ca": 2,
+      "ce": 2,
+      "instability": 0.5,
+      "depth": 3,
+      "in_cycle": false,
+      "layer": "application",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/verify/`"
+    },
+    {
+      "module": "src.rlens.verify.prediction",
+      "ca": 3,
+      "ce": 1,
+      "instability": 0.25,
+      "depth": 4,
+      "in_cycle": false,
+      "layer": "application",
+      "source": "declared",
+      "confidence": 1.0,
+      "evidence": "declared prefix `src/rlens/verify/`"
+    }
+  ],
+  "graph": {
+    "modules": [
+      "src.rlens",
+      "src.rlens.advise",
+      "src.rlens.advise.advisor",
+      "src.rlens.advise.context",
+      "src.rlens.advise.prompts",
+      "src.rlens.advise.selector",
+      "src.rlens.analysis",
+      "src.rlens.analysis.architecture",
+      "src.rlens.analysis.class_metrics",
+      "src.rlens.analysis.entry_points",
+      "src.rlens.analysis.func_metrics",
+      "src.rlens.analysis.graph",
+      "src.rlens.analysis.imports",
+      "src.rlens.analysis.interface",
+      "src.rlens.analysis.model",
+      "src.rlens.analysis.parser",
+      "src.rlens.analysis.scanner",
+      "src.rlens.analysis.smells",
+      "src.rlens.cli",
+      "src.rlens.config",
+      "src.rlens.explain",
+      "src.rlens.explain.explainer",
+      "src.rlens.explain.prompts",
+      "src.rlens.explain.template",
+      "src.rlens.integrations",
+      "src.rlens.integrations.importlinter",
+      "src.rlens.llm",
+      "src.rlens.llm.budget",
+      "src.rlens.llm.cache",
+      "src.rlens.providers",
+      "src.rlens.providers.base",
+      "src.rlens.providers.groq",
+      "src.rlens.providers.ollama",
+      "src.rlens.report",
+      "src.rlens.report.advice",
+      "src.rlens.report.architecture",
+      "src.rlens.report.explain",
+      "src.rlens.report.files",
+      "src.rlens.report.terminal",
+      "src.rlens.report.verify",
+      "src.rlens.verify",
+      "src.rlens.verify.calibration",
+      "src.rlens.verify.diff",
+      "src.rlens.verify.goodhart",
+      "src.rlens.verify.prediction"
+    ],
+    "edges": [
+      {
+        "source": "src.rlens.advise.advisor",
+        "target": "src.rlens.advise.context",
+        "weak": false,
+        "lineno": 29
+      },
+      {
+        "source": "src.rlens.advise.advisor",
+        "target": "src.rlens.advise.prompts",
+        "weak": false,
+        "lineno": 30
+      },
+      {
+        "source": "src.rlens.advise.advisor",
+        "target": "src.rlens.analysis.model",
+        "weak": false,
+        "lineno": 37
+      },
+      {
+        "source": "src.rlens.advise.advisor",
+        "target": "src.rlens.config",
+        "weak": false,
+        "lineno": 38
+      },
+      {
+        "source": "src.rlens.advise.advisor",
+        "target": "src.rlens.llm.budget",
+        "weak": false,
+        "lineno": 39
+      },
+      {
+        "source": "src.rlens.advise.advisor",
+        "target": "src.rlens.llm.cache",
+        "weak": false,
+        "lineno": 40
+      },
+      {
+        "source": "src.rlens.advise.advisor",
+        "target": "src.rlens.providers.base",
+        "weak": false,
+        "lineno": 41
+      },
+      {
+        "source": "src.rlens.advise.context",
+        "target": "src.rlens.advise.selector",
+        "weak": false,
+        "lineno": 22
+      },
+      {
+        "source": "src.rlens.advise.context",
+        "target": "src.rlens.analysis.class_metrics",
+        "weak": false,
+        "lineno": 23
+      },
+      {
+        "source": "src.rlens.advise.context",
+        "target": "src.rlens.analysis.parser",
+        "weak": false,
+        "lineno": 24
+      },
+      {
+        "source": "src.rlens.advise.prompts",
+        "target": "src.rlens.advise.context",
+        "weak": false,
+        "lineno": 21
+      },
+      {
+        "source": "src.rlens.advise.selector",
+        "target": "src.rlens.analysis.model",
+        "weak": false,
+        "lineno": 18
+      },
+      {
+        "source": "src.rlens.advise.selector",
+        "target": "src.rlens.config",
+        "weak": false,
+        "lineno": 19
+      },
+      {
+        "source": "src.rlens.advise.selector",
+        "target": "src.rlens.report.terminal",
+        "weak": false,
+        "lineno": 20
+      },
+      {
+        "source": "src.rlens.analysis.architecture",
+        "target": "src.rlens",
+        "weak": true,
+        "lineno": 526
+      },
+      {
+        "source": "src.rlens.analysis.architecture",
+        "target": "src.rlens.analysis.graph",
+        "weak": false,
+        "lineno": 44
+      },
+      {
+        "source": "src.rlens.analysis.architecture",
+        "target": "src.rlens.analysis.imports",
+        "weak": false,
+        "lineno": 45
+      },
+      {
+        "source": "src.rlens.analysis.architecture",
+        "target": "src.rlens.analysis.model",
+        "weak": false,
+        "lineno": 46
+      },
+      {
+        "source": "src.rlens.analysis.architecture",
+        "target": "src.rlens.analysis.parser",
+        "weak": false,
+        "lineno": 47
+      },
+      {
+        "source": "src.rlens.analysis.architecture",
+        "target": "src.rlens.config",
+        "weak": false,
+        "lineno": 48
+      },
+      {
+        "source": "src.rlens.analysis.architecture",
+        "target": "src.rlens.integrations.importlinter",
+        "weak": true,
+        "lineno": 527
+      },
+      {
+        "source": "src.rlens.analysis.class_metrics",
+        "target": "src.rlens.analysis.func_metrics",
+        "weak": false,
+        "lineno": 23
+      },
+      {
+        "source": "src.rlens.analysis.class_metrics",
+        "target": "src.rlens.analysis.model",
+        "weak": false,
+        "lineno": 31
+      },
+      {
+        "source": "src.rlens.analysis.func_metrics",
+        "target": "src.rlens.analysis.entry_points",
+        "weak": false,
+        "lineno": 19
+      },
+      {
+        "source": "src.rlens.analysis.func_metrics",
+        "target": "src.rlens.analysis.model",
+        "weak": false,
+        "lineno": 20
+      },
+      {
+        "source": "src.rlens.analysis.graph",
+        "target": "src.rlens.analysis.imports",
+        "weak": false,
+        "lineno": 22
+      },
+      {
+        "source": "src.rlens.analysis.imports",
+        "target": "src.rlens.analysis.parser",
+        "weak": false,
+        "lineno": 27
+      },
+      {
+        "source": "src.rlens.analysis.interface",
+        "target": "src.rlens.analysis.class_metrics",
+        "weak": false,
+        "lineno": 21
+      },
+      {
+        "source": "src.rlens.analysis.interface",
+        "target": "src.rlens.analysis.func_metrics",
+        "weak": false,
+        "lineno": 22
+      },
+      {
+        "source": "src.rlens.analysis.scanner",
+        "target": "src.rlens",
+        "weak": false,
+        "lineno": 19
+      },
+      {
+        "source": "src.rlens.analysis.scanner",
+        "target": "src.rlens.analysis.architecture",
+        "weak": true,
+        "lineno": 189
+      },
+      {
+        "source": "src.rlens.analysis.scanner",
+        "target": "src.rlens.analysis.class_metrics",
+        "weak": false,
+        "lineno": 20
+      },
+      {
+        "source": "src.rlens.analysis.scanner",
+        "target": "src.rlens.analysis.func_metrics",
+        "weak": false,
+        "lineno": 26
+      },
+      {
+        "source": "src.rlens.analysis.scanner",
+        "target": "src.rlens.analysis.graph",
+        "weak": true,
+        "lineno": 190
+      },
+      {
+        "source": "src.rlens.analysis.scanner",
+        "target": "src.rlens.analysis.imports",
+        "weak": false,
+        "lineno": 27
+      },
+      {
+        "source": "src.rlens.analysis.scanner",
+        "target": "src.rlens.analysis.interface",
+        "weak": false,
+        "lineno": 32
+      },
+      {
+        "source": "src.rlens.analysis.scanner",
+        "target": "src.rlens.analysis.model",
+        "weak": false,
+        "lineno": 33
+      },
+      {
+        "source": "src.rlens.analysis.scanner",
+        "target": "src.rlens.analysis.parser",
+        "weak": false,
+        "lineno": 34
+      },
+      {
+        "source": "src.rlens.analysis.scanner",
+        "target": "src.rlens.analysis.smells",
+        "weak": false,
+        "lineno": 35
+      },
+      {
+        "source": "src.rlens.analysis.scanner",
+        "target": "src.rlens.config",
+        "weak": false,
+        "lineno": 36
+      },
+      {
+        "source": "src.rlens.analysis.scanner",
+        "target": "src.rlens.integrations.importlinter",
+        "weak": true,
+        "lineno": 191
+      },
+      {
+        "source": "src.rlens.analysis.smells",
+        "target": "src.rlens.analysis.class_metrics",
+        "weak": false,
+        "lineno": 29
+      },
+      {
+        "source": "src.rlens.analysis.smells",
+        "target": "src.rlens.analysis.interface",
+        "weak": false,
+        "lineno": 30
+      },
+      {
+        "source": "src.rlens.analysis.smells",
+        "target": "src.rlens.analysis.model",
+        "weak": false,
+        "lineno": 31
+      },
+      {
+        "source": "src.rlens.analysis.smells",
+        "target": "src.rlens.config",
+        "weak": false,
+        "lineno": 32
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens",
+        "weak": false,
+        "lineno": 23
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.advise.advisor",
+        "weak": false,
+        "lineno": 24
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.advise.context",
+        "weak": false,
+        "lineno": 25
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.advise.prompts",
+        "weak": false,
+        "lineno": 26
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.advise.selector",
+        "weak": false,
+        "lineno": 27
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.analysis.architecture",
+        "weak": false,
+        "lineno": 28
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.analysis.model",
+        "weak": false,
+        "lineno": 29
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.analysis.scanner",
+        "weak": false,
+        "lineno": 30
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.config",
+        "weak": false,
+        "lineno": 31
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.explain.explainer",
+        "weak": false,
+        "lineno": 32
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.explain.prompts",
+        "weak": false,
+        "lineno": 33
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.explain.template",
+        "weak": false,
+        "lineno": 35
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.llm.budget",
+        "weak": false,
+        "lineno": 36
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.llm.cache",
+        "weak": false,
+        "lineno": 37
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.providers",
+        "weak": false,
+        "lineno": 38
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.report.advice",
+        "weak": false,
+        "lineno": 39
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.report.architecture",
+        "weak": false,
+        "lineno": 40
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.report.explain",
+        "weak": false,
+        "lineno": 41
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.report.files",
+        "weak": false,
+        "lineno": 42
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.report.terminal",
+        "weak": false,
+        "lineno": 53
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.report.verify",
+        "weak": false,
+        "lineno": 54
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.verify",
+        "weak": false,
+        "lineno": 55
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.verify.calibration",
+        "weak": false,
+        "lineno": 56
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.verify.diff",
+        "weak": false,
+        "lineno": 57
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.verify.goodhart",
+        "weak": false,
+        "lineno": 55
+      },
+      {
+        "source": "src.rlens.cli",
+        "target": "src.rlens.verify.prediction",
+        "weak": false,
+        "lineno": 58
+      },
+      {
+        "source": "src.rlens.explain.explainer",
+        "target": "src.rlens.advise.advisor",
+        "weak": false,
+        "lineno": 25
+      },
+      {
+        "source": "src.rlens.explain.explainer",
+        "target": "src.rlens.advise.prompts",
+        "weak": false,
+        "lineno": 26
+      },
+      {
+        "source": "src.rlens.explain.explainer",
+        "target": "src.rlens.analysis.model",
+        "weak": false,
+        "lineno": 27
+      },
+      {
+        "source": "src.rlens.explain.explainer",
+        "target": "src.rlens.config",
+        "weak": false,
+        "lineno": 28
+      },
+      {
+        "source": "src.rlens.explain.explainer",
+        "target": "src.rlens.explain.prompts",
+        "weak": false,
+        "lineno": 29
+      },
+      {
+        "source": "src.rlens.explain.explainer",
+        "target": "src.rlens.llm.budget",
+        "weak": false,
+        "lineno": 30
+      },
+      {
+        "source": "src.rlens.explain.explainer",
+        "target": "src.rlens.llm.cache",
+        "weak": false,
+        "lineno": 31
+      },
+      {
+        "source": "src.rlens.explain.explainer",
+        "target": "src.rlens.providers.base",
+        "weak": false,
+        "lineno": 32
+      },
+      {
+        "source": "src.rlens.explain.prompts",
+        "target": "src.rlens.advise.prompts",
+        "weak": false,
+        "lineno": 25
+      },
+      {
+        "source": "src.rlens.explain.template",
+        "target": "src.rlens.config",
+        "weak": false,
+        "lineno": 27
+      },
+      {
+        "source": "src.rlens.integrations.importlinter",
+        "target": "src.rlens.config",
+        "weak": true,
+        "lineno": 211
+      },
+      {
+        "source": "src.rlens.llm.budget",
+        "target": "src.rlens.config",
+        "weak": false,
+        "lineno": 16
+      },
+      {
+        "source": "src.rlens.llm.cache",
+        "target": "src.rlens.config",
+        "weak": false,
+        "lineno": 25
+      },
+      {
+        "source": "src.rlens.providers",
+        "target": "src.rlens.config",
+        "weak": false,
+        "lineno": 9
+      },
+      {
+        "source": "src.rlens.providers",
+        "target": "src.rlens.providers.base",
+        "weak": false,
+        "lineno": 10
+      },
+      {
+        "source": "src.rlens.providers",
+        "target": "src.rlens.providers.groq",
+        "weak": false,
+        "lineno": 16
+      },
+      {
+        "source": "src.rlens.providers",
+        "target": "src.rlens.providers.ollama",
+        "weak": false,
+        "lineno": 17
+      },
+      {
+        "source": "src.rlens.providers.base",
+        "target": "src.rlens.config",
+        "weak": false,
+        "lineno": 18
+      },
+      {
+        "source": "src.rlens.providers.groq",
+        "target": "src.rlens.config",
+        "weak": false,
+        "lineno": 14
+      },
+      {
+        "source": "src.rlens.providers.groq",
+        "target": "src.rlens.providers.base",
+        "weak": false,
+        "lineno": 15
+      },
+      {
+        "source": "src.rlens.providers.ollama",
+        "target": "src.rlens.config",
+        "weak": false,
+        "lineno": 14
+      },
+      {
+        "source": "src.rlens.providers.ollama",
+        "target": "src.rlens.providers.base",
+        "weak": false,
+        "lineno": 15
+      },
+      {
+        "source": "src.rlens.report.advice",
+        "target": "src.rlens.advise.advisor",
+        "weak": false,
+        "lineno": 18
+      },
+      {
+        "source": "src.rlens.report.architecture",
+        "target": "src.rlens.analysis.architecture",
+        "weak": false,
+        "lineno": 19
+      },
+      {
+        "source": "src.rlens.report.explain",
+        "target": "src.rlens",
+        "weak": false,
+        "lineno": 14
+      },
+      {
+        "source": "src.rlens.report.explain",
+        "target": "src.rlens.explain.explainer",
+        "weak": false,
+        "lineno": 15
+      },
+      {
+        "source": "src.rlens.report.explain",
+        "target": "src.rlens.explain.template",
+        "weak": false,
+        "lineno": 16
+      },
+      {
+        "source": "src.rlens.report.files",
+        "target": "src.rlens",
+        "weak": true,
+        "lineno": 176
+      },
+      {
+        "source": "src.rlens.report.files",
+        "target": "src.rlens.analysis.model",
+        "weak": false,
+        "lineno": 19
+      },
+      {
+        "source": "src.rlens.report.files",
+        "target": "src.rlens.report.advice",
+        "weak": true,
+        "lineno": 123
+      },
+      {
+        "source": "src.rlens.report.files",
+        "target": "src.rlens.report.explain",
+        "weak": true,
+        "lineno": 160
+      },
+      {
+        "source": "src.rlens.report.files",
+        "target": "src.rlens.report.verify",
+        "weak": true,
+        "lineno": 259
+      },
+      {
+        "source": "src.rlens.report.terminal",
+        "target": "src.rlens.analysis.model",
+        "weak": false,
+        "lineno": 25
+      },
+      {
+        "source": "src.rlens.report.terminal",
+        "target": "src.rlens.analysis.scanner",
+        "weak": false,
+        "lineno": 26
+      },
+      {
+        "source": "src.rlens.report.terminal",
+        "target": "src.rlens.config",
+        "weak": false,
+        "lineno": 27
+      },
+      {
+        "source": "src.rlens.report.terminal",
+        "target": "src.rlens.report.architecture",
+        "weak": false,
+        "lineno": 28
+      },
+      {
+        "source": "src.rlens.report.verify",
+        "target": "src.rlens.verify.calibration",
+        "weak": false,
+        "lineno": 19
+      },
+      {
+        "source": "src.rlens.report.verify",
+        "target": "src.rlens.verify.diff",
+        "weak": false,
+        "lineno": 20
+      },
+      {
+        "source": "src.rlens.report.verify",
+        "target": "src.rlens.verify.goodhart",
+        "weak": false,
+        "lineno": 28
+      },
+      {
+        "source": "src.rlens.report.verify",
+        "target": "src.rlens.verify.prediction",
+        "weak": false,
+        "lineno": 29
+      },
+      {
+        "source": "src.rlens.verify.calibration",
+        "target": "src.rlens.verify.prediction",
+        "weak": true,
+        "lineno": 184
+      },
+      {
+        "source": "src.rlens.verify.goodhart",
+        "target": "src.rlens.analysis.interface",
+        "weak": false,
+        "lineno": 36
+      },
+      {
+        "source": "src.rlens.verify.goodhart",
+        "target": "src.rlens.verify.diff",
+        "weak": false,
+        "lineno": 37
+      },
+      {
+        "source": "src.rlens.verify.prediction",
+        "target": "src.rlens.verify.diff",
+        "weak": false,
+        "lineno": 25
+      }
+    ],
+    "unresolved": []
+  },
+  "violations": [
+    {
+      "code": "LV-DIR",
+      "alias": "back-call",
+      "source": "src.rlens.advise.selector",
+      "target": "src.rlens.report.terminal",
+      "layers": [
+        "application",
+        "presentation"
+      ],
+      "detail": "application must not import presentation",
+      "lineno": 20,
+      "tentative": false,
+      "members": []
+    },
+    {
+      "code": "LV-DIR",
+      "alias": "back-call",
+      "source": "src.rlens.analysis.architecture",
+      "target": "src.rlens.integrations.importlinter",
+      "layers": [
+        "domain",
+        "infrastructure"
+      ],
+      "detail": "domain must not import infrastructure (weak import: inside a function or conditional)",
+      "lineno": 527,
+      "tentative": false,
+      "members": []
+    },
+    {
+      "code": "LV-DIR",
+      "alias": "back-call",
+      "source": "src.rlens.analysis.scanner",
+      "target": "src.rlens.integrations.importlinter",
+      "layers": [
+        "domain",
+        "infrastructure"
+      ],
+      "detail": "domain must not import infrastructure (weak import: inside a function or conditional)",
+      "lineno": 191,
+      "tentative": false,
+      "members": []
+    },
+    {
+      "code": "LV-SKIP",
+      "alias": "skip-call",
+      "source": "src.rlens.advise.advisor",
+      "target": "src.rlens.llm.budget",
+      "layers": [
+        "application",
+        "infrastructure"
+      ],
+      "detail": "application must not import infrastructure",
+      "lineno": 39,
+      "tentative": false,
+      "members": []
+    },
+    {
+      "code": "LV-SKIP",
+      "alias": "skip-call",
+      "source": "src.rlens.advise.advisor",
+      "target": "src.rlens.llm.cache",
+      "layers": [
+        "application",
+        "infrastructure"
+      ],
+      "detail": "application must not import infrastructure",
+      "lineno": 40,
+      "tentative": false,
+      "members": []
+    },
+    {
+      "code": "LV-SKIP",
+      "alias": "skip-call",
+      "source": "src.rlens.advise.advisor",
+      "target": "src.rlens.providers.base",
+      "layers": [
+        "application",
+        "infrastructure"
+      ],
+      "detail": "application must not import infrastructure",
+      "lineno": 41,
+      "tentative": false,
+      "members": []
+    },
+    {
+      "code": "LV-SKIP",
+      "alias": "skip-call",
+      "source": "src.rlens.cli",
+      "target": "src.rlens.llm.budget",
+      "layers": [
+        "presentation",
+        "infrastructure"
+      ],
+      "detail": "presentation must not import infrastructure",
+      "lineno": 36,
+      "tentative": false,
+      "members": []
+    },
+    {
+      "code": "LV-SKIP",
+      "alias": "skip-call",
+      "source": "src.rlens.cli",
+      "target": "src.rlens.llm.cache",
+      "layers": [
+        "presentation",
+        "infrastructure"
+      ],
+      "detail": "presentation must not import infrastructure",
+      "lineno": 37,
+      "tentative": false,
+      "members": []
+    },
+    {
+      "code": "LV-SKIP",
+      "alias": "skip-call",
+      "source": "src.rlens.cli",
+      "target": "src.rlens.providers",
+      "layers": [
+        "presentation",
+        "infrastructure"
+      ],
+      "detail": "presentation must not import infrastructure",
+      "lineno": 38,
+      "tentative": false,
+      "members": []
+    },
+    {
+      "code": "LV-SKIP",
+      "alias": "skip-call",
+      "source": "src.rlens.explain.explainer",
+      "target": "src.rlens.llm.budget",
+      "layers": [
+        "application",
+        "infrastructure"
+      ],
+      "detail": "application must not import infrastructure",
+      "lineno": 30,
+      "tentative": false,
+      "members": []
+    },
+    {
+      "code": "LV-SKIP",
+      "alias": "skip-call",
+      "source": "src.rlens.explain.explainer",
+      "target": "src.rlens.llm.cache",
+      "layers": [
+        "application",
+        "infrastructure"
+      ],
+      "detail": "application must not import infrastructure",
+      "lineno": 31,
+      "tentative": false,
+      "members": []
+    },
+    {
+      "code": "LV-SKIP",
+      "alias": "skip-call",
+      "source": "src.rlens.explain.explainer",
+      "target": "src.rlens.providers.base",
+      "layers": [
+        "application",
+        "infrastructure"
+      ],
+      "detail": "application must not import infrastructure",
+      "lineno": 32,
+      "tentative": false,
+      "members": []
+    }
+  ],
+  "notes": [
+    "2 module(s) match no declared prefix and stay unknown; violations involving them are not reported",
+    "11 class(es) have no annotated public signature; interface leaks cannot be detected there"
+  ],
+  "skipped_files": []
+}
