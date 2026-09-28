@@ -6,6 +6,27 @@ Trusted Publishing (OIDC) ile; PyPI'da wheel ve sdist doğrulandı. İçerik:
 `CHANGELOG.md` 2.2.0. Önceki: v2.1.0 (2026-09-22), v2.0.0 (2026-09-10).
 
 ## Bitenler
+- **Sertleştirme Blok 4 — test ve hijyen.** Durum notu `docs/v2-sertlestirme.md`.
+  - **Madde 1:** `arch` ihlal tablosunun son sütunu `Certainty` (`firm` /
+    `tentative`). D3-D6 tek tek kontrol edildi: D4, D5, D6 kodda kapalıydı;
+    D3'ün `docs/04` §6 ayağı (`rejected` dar kuraldır) eklendi. Terminal
+    genişliği ve fikstür biçimi önceden çözülmüştü.
+  - **Madde 2:** `tests/test_properties.py`, 6 özellik (NOM, LCOM4, PARAMS,
+    metotsuz sınıf, Ce/Ca, rapor JSON round-trip). `derandomize=True`,
+    veritabanısız: CI'da flaky olmasın. `hypothesis` yalnız `dev` ekstrasında.
+  - **Madde 3:** `experiments/hardening/mutation.md`. mutmut 3 Windows'ta WSL
+    istiyor (WSL'de Python yok, Docker kapalı, başlatılmadı) → kendi `ast`
+    üreteci (`mutation.py`, kesilirse kayıttan sürer). 745 mutant: %85.2 →
+    %92.5. 110 hayatta kalanın 54'ü yeni testlerle öldü
+    (`tests/test_mutation_survivors.py`, 39 test); kalan 56'nın her biri
+    kategorili gerekçeyle belgede. İlk koşu oturum kapanırken 200/745'te
+    kesilmişti; kayıt dosyası bunun için eklendi.
+  - **Mutation'ın bulduğu kod sorunu:** aynı önek iki katmanda beyan edilirse
+    atama beyan sırasına kalıyordu; artık config hatası.
+  - **Madde 4:** CI 3.11-3.14 matrisi ve `ruff format --check` zaten vardı;
+    Trusted Publishing gerçek PyPI'da iki yayında çalıştı (TestPyPI denemesi
+    gereksiz kaldı).
+  - Durum: 1664 paket testi (10 atlandı), 91 fikstür testi, ruff temiz.
 - **Sertleştirme Blok 2 — gerçek projede dayanıklılık ve hız.** Sonuç:
   `experiments/hardening/robustness.md`; betik `robustness.py` (26 projede
   `scan`/`arch`/`advise --dry-run` CLI olarak, alt süreçte).
@@ -646,13 +667,14 @@ framework deyiminden geliyor.**
   orkestrasyon modülleri.
 
 ## Sıradaki iş
-**Sertleştirme Blok 3 ve Blok 2 bitti.** Sıra (`docs/v2-sertlestirme.md`):
-Blok 3 → Blok 2 → **Blok 4** → Blok 5. Sıradaki: **sertleştirme Blok 4 —
-test ve hijyen** (terminal genişliğine bağlı CLI testleri; property-based
-testler `hypothesis` ile; `analysis` paketinde mutation testing; CI matrisi
-ve Trusted Publishing — sonuncusu 2.1.0'dan beri çalışıyor, kontrol edilip
-kapatılacak). Önce Blok 4'ün maddelerinden hangilerinin zaten kapandığı
-okunmalı.
+**Sertleştirme Blok 3, 2 ve 4 bitti.** Sıra (`docs/v2-sertlestirme.md`):
+Blok 3 → Blok 2 → Blok 4 → **Blok 5**. Sıradaki: **sertleştirme Blok 5 —
+rapor, kullanım ve dokümantasyon** (hedef adlandırma tek kural ve `src/`
+önekinin kırpılması — friction F4; config hata mesajları; `--format
+json|markdown|table`; README'nin v2'ye göre gözden geçirilmesi;
+AGENTS/STRUCTURE/`docs/04`). Önce Blok 5'in maddelerinden hangilerinin
+zaten kapandığı okunmalı; README'nin büyük kısmı v2.1-v2.2'de yeniden
+yazıldı.
 
 Blok 3'ten açık kalan iki mimari iş (döngünün hedef alamadığı modül
 yerleşimi): `class_violations`/`function_violations`'ı `report.terminal`'den
@@ -697,7 +719,8 @@ experiments/hardening/stateless-gate.md → experiments/hardening/density-gate.m
 → docs/v2-tanim-kararlari.md (K4, K7, K9, K10)
 Etiketleme: experiments/hardening/god-class-labeling.md (etiketleyen için;
 kapı çıktılarını okumadan).
-Sonraki faz: docs/v2-sertlestirme.md (Blok 4). Blok 3 sonucu: docs/self-architecture.md;
+Sonraki faz: docs/v2-sertlestirme.md (Blok 5). Blok 4 sonucu:
+experiments/hardening/mutation.md. Blok 3 sonucu: docs/self-architecture.md;
 Blok 2 sonucu: experiments/hardening/robustness.md.
 Deney protokolü: docs/v2-duzeltme-asama5.md. Metrik sınıfları:
 docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.

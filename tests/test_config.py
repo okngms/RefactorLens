@@ -227,6 +227,18 @@ class TestArchScheme:
         with pytest.raises(ConfigError, match="not in arch.scheme.layers"):
             load_config(search_from=tmp_path)
 
+    def test_same_prefix_in_two_layers_is_rejected(self, tmp_path):
+        """Sertleştirme Blok 4 (mutation testing): eşit uzunlukta iki önek bir
+        modüle aynı anda uyarsa hangi katmanın kazanacağı beyan sırasına
+        kalıyordu, sessizce. Eşleştirmeyle aynı normalleştirme: `src/db/` ile
+        `src/db` aynı önektir."""
+        write_config(
+            tmp_path,
+            "arch:\n  layers:\n    domain: ['src/db/']\n    infrastructure: ['src/db']\n",
+        )
+        with pytest.raises(ConfigError, match="src/db.*domain.*infrastructure"):
+            load_config(search_from=tmp_path)
+
     def test_declaration_is_read(self, tmp_path):
         write_config(tmp_path, "arch:\n  layers:\n    domain: ['src/domain/']\n")
         arch = load_config(search_from=tmp_path).arch

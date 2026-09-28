@@ -82,6 +82,17 @@ class TestTerminalOutput:
     def test_cycle_uses_a_bidirectional_arrow(self, result):
         assert "↔" in render(result)
 
+    def test_certainty_column_has_a_header_and_no_blank_cells(self, result):
+        """Sertleştirme Blok 4: son sütunun başlığı yoktu, kesin ihlalde hücre boştu."""
+        from rlens.report.architecture import build_violation_table
+
+        table = build_violation_table(result)
+        column = table.columns[-1]
+        assert column.header == "Certainty"
+        cells = list(column.cells)
+        assert cells and all(cell for cell in cells)
+        assert "firm" in render(result)
+
     def test_module_coupling_table(self, result):
         text = render(result)
         assert "Module coupling" in text

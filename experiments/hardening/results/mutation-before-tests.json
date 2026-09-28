@@ -1,0 +1,945 @@
+{
+  "note": "own ast-based generator; not comparable to mutmut scores",
+  "mutants": 745,
+  "detected": 635,
+  "score": 0.8523,
+  "per_file": {
+    "architecture.py": {
+      "killed": 62,
+      "survived": 25,
+      "timeout": 0
+    },
+    "class_metrics.py": {
+      "killed": 144,
+      "survived": 16,
+      "timeout": 1
+    },
+    "entry_points.py": {
+      "killed": 45,
+      "survived": 7,
+      "timeout": 0
+    },
+    "func_metrics.py": {
+      "killed": 127,
+      "survived": 12,
+      "timeout": 0
+    },
+    "graph.py": {
+      "killed": 39,
+      "survived": 9,
+      "timeout": 1
+    },
+    "imports.py": {
+      "killed": 63,
+      "survived": 14,
+      "timeout": 0
+    },
+    "interface.py": {
+      "killed": 43,
+      "survived": 3,
+      "timeout": 0
+    },
+    "model.py": {
+      "killed": 5,
+      "survived": 5,
+      "timeout": 0
+    },
+    "parser.py": {
+      "killed": 34,
+      "survived": 6,
+      "timeout": 0
+    },
+    "scanner.py": {
+      "killed": 18,
+      "survived": 4,
+      "timeout": 0
+    },
+    "smells.py": {
+      "killed": 53,
+      "survived": 9,
+      "timeout": 0
+    }
+  },
+  "survivors": [
+    {
+      "file": "architecture.py",
+      "index": 2,
+      "lineno": 259,
+      "kind": "return",
+      "detail": "return None",
+      "line": "return LV_DIR"
+    },
+    {
+      "file": "architecture.py",
+      "index": 15,
+      "lineno": 118,
+      "kind": "constant",
+      "detail": "False->True",
+      "line": "tentative: bool = False"
+    },
+    {
+      "file": "architecture.py",
+      "index": 23,
+      "lineno": 252,
+      "kind": "boolop",
+      "detail": "And->Or",
+      "line": "source_depth is not None"
+    },
+    {
+      "file": "architecture.py",
+      "index": 25,
+      "lineno": 392,
+      "kind": "constant",
+      "detail": "0->1",
+      "line": "unannotated = 0"
+    },
+    {
+      "file": "architecture.py",
+      "index": 27,
+      "lineno": 461,
+      "kind": "boolop",
+      "detail": "And->Or",
+      "line": "if unassigned and arch.has_declaration:"
+    },
+    {
+      "file": "architecture.py",
+      "index": 32,
+      "lineno": 95,
+      "kind": "boolop",
+      "detail": "And->Or",
+      "line": "return self.source == INFERRED and self.confidence < TENTATIVE_BELOW"
+    },
+    {
+      "file": "architecture.py",
+      "index": 33,
+      "lineno": 78,
+      "kind": "constant",
+      "detail": "True->False",
+      "line": "@dataclass(frozen=True)"
+    },
+    {
+      "file": "architecture.py",
+      "index": 34,
+      "lineno": 107,
+      "kind": "constant",
+      "detail": "True->False",
+      "line": "@dataclass(frozen=True)"
+    },
+    {
+      "file": "architecture.py",
+      "index": 38,
+      "lineno": 254,
+      "kind": "compare",
+      "detail": "Gt->GtE",
+      "line": "and abs(source_depth - target_depth) > 1"
+    },
+    {
+      "file": "architecture.py",
+      "index": 45,
+      "lineno": 361,
+      "kind": "return",
+      "detail": "return None",
+      "line": "return set()"
+    },
+    {
+      "file": "architecture.py",
+      "index": 46,
+      "lineno": 396,
+      "kind": "boolop",
+      "detail": "Or->And",
+      "line": "if assignment is None or not assignment.is_known:"
+    },
+    {
+      "file": "architecture.py",
+      "index": 47,
+      "lineno": 95,
+      "kind": "compare",
+      "detail": "Eq->NotEq",
+      "line": "return self.source == INFERRED and self.confidence < TENTATIVE_BELOW"
+    },
+    {
+      "file": "architecture.py",
+      "index": 48,
+      "lineno": 95,
+      "kind": "compare",
+      "detail": "Lt->LtE",
+      "line": "return self.source == INFERRED and self.confidence < TENTATIVE_BELOW"
+    },
+    {
+      "file": "architecture.py",
+      "index": 51,
+      "lineno": 254,
+      "kind": "constant",
+      "detail": "1->2",
+      "line": "and abs(source_depth - target_depth) > 1"
+    },
+    {
+      "file": "architecture.py",
+      "index": 62,
+      "lineno": 460,
+      "kind": "not",
+      "detail": "drop not",
+      "line": "unassigned = [m for m, a in report.assignments.items() if not a.is_known]"
+    },
+    {
+      "file": "architecture.py",
+      "index": 67,
+      "lineno": 254,
+      "kind": "binop",
+      "detail": "Sub->Add",
+      "line": "and abs(source_depth - target_depth) > 1"
+    },
+    {
+      "file": "architecture.py",
+      "index": 68,
+      "lineno": 263,
+      "kind": "compare",
+      "detail": "IsNot->Is",
+      "line": "return any(x is not None and x.is_tentative for x in (a, b))"
+    },
+    {
+      "file": "architecture.py",
+      "index": 70,
+      "lineno": 404,
+      "kind": "constant",
+      "detail": "1->2",
+      "line": "unannotated += 1"
+    },
+    {
+      "file": "architecture.py",
+      "index": 74,
+      "lineno": 208,
+      "kind": "compare",
+      "detail": "Gt->GtE",
+      "line": "if matches and (best is None or len(prefix) > best[0]):"
+    },
+    {
+      "file": "architecture.py",
+      "index": 80,
+      "lineno": 319,
+      "kind": "constant",
+      "detail": "0->1",
+      "line": "source=members[0],"
+    },
+    {
+      "file": "architecture.py",
+      "index": 82,
+      "lineno": 320,
+      "kind": "constant",
+      "detail": "1->2",
+      "line": "target=members[-1],"
+    },
+    {
+      "file": "architecture.py",
+      "index": 83,
+      "lineno": 321,
+      "kind": "constant",
+      "detail": "0->1",
+      "line": "source_layer=assignments.get(members[0], _unknown(members[0])).layer,"
+    },
+    {
+      "file": "architecture.py",
+      "index": 84,
+      "lineno": 321,
+      "kind": "constant",
+      "detail": "0->1",
+      "line": "source_layer=assignments.get(members[0], _unknown(members[0])).layer,"
+    },
+    {
+      "file": "architecture.py",
+      "index": 85,
+      "lineno": 322,
+      "kind": "constant",
+      "detail": "1->2",
+      "line": "target_layer=assignments.get(members[-1], _unknown(members[-1])).layer,"
+    },
+    {
+      "file": "architecture.py",
+      "index": 86,
+      "lineno": 322,
+      "kind": "constant",
+      "detail": "1->2",
+      "line": "target_layer=assignments.get(members[-1], _unknown(members[-1])).layer,"
+    },
+    {
+      "file": "class_metrics.py",
+      "index": 3,
+      "lineno": 108,
+      "kind": "return",
+      "detail": "return None",
+      "line": "return False"
+    },
+    {
+      "file": "class_metrics.py",
+      "index": 34,
+      "lineno": 95,
+      "kind": "return",
+      "detail": "return None",
+      "line": "return False"
+    },
+    {
+      "file": "class_metrics.py",
+      "index": 63,
+      "lineno": 696,
+      "kind": "compare",
+      "detail": "Lt->LtE",
+      "line": "if coverage < min_annotation_coverage:"
+    },
+    {
+      "file": "class_metrics.py",
+      "index": 66,
+      "lineno": 703,
+      "kind": "return",
+      "detail": "return None",
+      "line": "return CamResult(None, CAM_NO_PARAMETERS, round(coverage, 4))"
+    },
+    {
+      "file": "class_metrics.py",
+      "index": 76,
+      "lineno": 129,
+      "kind": "constant",
+      "detail": "4->5",
+      "line": "return round(len(stub_method_names(node)) / len(names), 4)"
+    },
+    {
+      "file": "class_metrics.py",
+      "index": 89,
+      "lineno": 607,
+      "kind": "constant",
+      "detail": "True->False",
+      "line": "@dataclass(frozen=True)"
+    },
+    {
+      "file": "class_metrics.py",
+      "index": 107,
+      "lineno": 371,
+      "kind": "constant",
+      "detail": "4->5",
+      "line": "return round(loose, 4), round(strict, 4)"
+    },
+    {
+      "file": "class_metrics.py",
+      "index": 108,
+      "lineno": 371,
+      "kind": "constant",
+      "detail": "4->5",
+      "line": "return round(loose, 4), round(strict, 4)"
+    },
+    {
+      "file": "class_metrics.py",
+      "index": 117,
+      "lineno": 538,
+      "kind": "boolop",
+      "detail": "And->Or",
+      "line": "if alias.asname and alias.asname != alias.name and alias.name in project_classes:"
+    },
+    {
+      "file": "class_metrics.py",
+      "index": 125,
+      "lineno": 706,
+      "kind": "constant",
+      "detail": "4->5",
+      "line": "return CamResult(round(sum(ratios) / len(ratios), 4), None, round(coverage, 4))"
+    },
+    {
+      "file": "class_metrics.py",
+      "index": 126,
+      "lineno": 706,
+      "kind": "constant",
+      "detail": "4->5",
+      "line": "return CamResult(round(sum(ratios) / len(ratios), 4), None, round(coverage, 4))"
+    },
+    {
+      "file": "class_metrics.py",
+      "index": 129,
+      "lineno": 91,
+      "kind": "constant",
+      "detail": "1->2",
+      "line": "body = body[1:]"
+    },
+    {
+      "file": "class_metrics.py",
+      "index": 149,
+      "lineno": 703,
+      "kind": "constant",
+      "detail": "4->5",
+      "line": "return CamResult(None, CAM_NO_PARAMETERS, round(coverage, 4))"
+    },
+    {
+      "file": "class_metrics.py",
+      "index": 151,
+      "lineno": 476,
+      "kind": "boolop",
+      "detail": "And->Or",
+      "line": "first = inner.elts[0] if isinstance(inner, ast.Tuple) and inner.elts else inner"
+    },
+    {
+      "file": "class_metrics.py",
+      "index": 157,
+      "lineno": 476,
+      "kind": "constant",
+      "detail": "0->1",
+      "line": "first = inner.elts[0] if isinstance(inner, ast.Tuple) and inner.elts else inner"
+    },
+    {
+      "file": "class_metrics.py",
+      "index": 160,
+      "lineno": 262,
+      "kind": "boolop",
+      "detail": "And->Or",
+      "line": "if isinstance(element, ast.Constant) and isinstance(element.value, str)"
+    },
+    {
+      "file": "entry_points.py",
+      "index": 0,
+      "lineno": 84,
+      "kind": "return",
+      "detail": "return None",
+      "line": "return \"\", None, call"
+    },
+    {
+      "file": "entry_points.py",
+      "index": 19,
+      "lineno": 95,
+      "kind": "boolop",
+      "detail": "And->Or",
+      "line": "keyword.arg in keywords"
+    },
+    {
+      "file": "entry_points.py",
+      "index": 24,
+      "lineno": 110,
+      "kind": "boolop",
+      "detail": "Or->And",
+      "line": "if name in _CLI_REGISTRATION and (owner is not None or call is not None):"
+    },
+    {
+      "file": "entry_points.py",
+      "index": 31,
+      "lineno": 119,
+      "kind": "return",
+      "detail": "return None",
+      "line": "return CLI"
+    },
+    {
+      "file": "entry_points.py",
+      "index": 45,
+      "lineno": 110,
+      "kind": "compare",
+      "detail": "IsNot->Is",
+      "line": "if name in _CLI_REGISTRATION and (owner is not None or call is not None):"
+    },
+    {
+      "file": "entry_points.py",
+      "index": 46,
+      "lineno": 110,
+      "kind": "compare",
+      "detail": "IsNot->Is",
+      "line": "if name in _CLI_REGISTRATION and (owner is not None or call is not None):"
+    },
+    {
+      "file": "entry_points.py",
+      "index": 47,
+      "lineno": 118,
+      "kind": "compare",
+      "detail": "IsNot->Is",
+      "line": "if first is not None and first.startswith(\"-\"):"
+    },
+    {
+      "file": "func_metrics.py",
+      "index": 10,
+      "lineno": 291,
+      "kind": "return",
+      "detail": "return None",
+      "line": "return False"
+    },
+    {
+      "file": "func_metrics.py",
+      "index": 25,
+      "lineno": 67,
+      "kind": "return",
+      "detail": "return None",
+      "line": "return False"
+    },
+    {
+      "file": "func_metrics.py",
+      "index": 29,
+      "lineno": 187,
+      "kind": "return",
+      "detail": "return None",
+      "line": "return set()"
+    },
+    {
+      "file": "func_metrics.py",
+      "index": 35,
+      "lineno": 232,
+      "kind": "constant",
+      "detail": "False->True",
+      "line": "def parameter_slots(node: FunctionNode, *, is_method: bool = False) -> list[ast.arg]:"
+    },
+    {
+      "file": "func_metrics.py",
+      "index": 39,
+      "lineno": 256,
+      "kind": "constant",
+      "detail": "False->True",
+      "line": "def param_count(node: FunctionNode, *, is_method: bool = False) -> int:"
+    },
+    {
+      "file": "func_metrics.py",
+      "index": 40,
+      "lineno": 266,
+      "kind": "constant",
+      "detail": "False->True",
+      "line": "def annotation_coverage(node: FunctionNode, *, is_method: bool = False) -> float | None:"
+    },
+    {
+      "file": "func_metrics.py",
+      "index": 49,
+      "lineno": 462,
+      "kind": "constant",
+      "detail": "False->True",
+      "line": "def duck_pairs(node: FunctionNode, *, is_method: bool = False) -> set[tuple[str, str]] | None:"
+    },
+    {
+      "file": "func_metrics.py",
+      "index": 52,
+      "lineno": 482,
+      "kind": "constant",
+      "detail": "False->True",
+      "line": "def duck_coupling(node: FunctionNode, *, is_method: bool = False) -> int | None:"
+    },
+    {
+      "file": "func_metrics.py",
+      "index": 53,
+      "lineno": 489,
+      "kind": "constant",
+      "detail": "False->True",
+      "line": "node: FunctionNode, *, code_lines: frozenset[int], is_method: bool = False"
+    },
+    {
+      "file": "func_metrics.py",
+      "index": 64,
+      "lineno": 276,
+      "kind": "constant",
+      "detail": "4->5",
+      "line": "return round(sum(1 for slot in slots if slot.annotation is not None) / len(slots), 4)"
+    },
+    {
+      "file": "func_metrics.py",
+      "index": 95,
+      "lineno": 219,
+      "kind": "constant",
+      "detail": "1->2",
+      "line": "span = set(range(node.lineno, end + 1))"
+    },
+    {
+      "file": "func_metrics.py",
+      "index": 112,
+      "lineno": 350,
+      "kind": "binop",
+      "detail": "Add->Sub",
+      "line": "deepest = max(deepest, current + 1)"
+    },
+    {
+      "file": "graph.py",
+      "index": 6,
+      "lineno": 71,
+      "kind": "constant",
+      "detail": "0->1",
+      "line": "counter = 0"
+    },
+    {
+      "file": "graph.py",
+      "index": 9,
+      "lineno": 25,
+      "kind": "constant",
+      "detail": "True->False",
+      "line": "@dataclass(frozen=True)"
+    },
+    {
+      "file": "graph.py",
+      "index": 11,
+      "lineno": 80,
+      "kind": "constant",
+      "detail": "1->2",
+      "line": "counter += 1"
+    },
+    {
+      "file": "graph.py",
+      "index": 18,
+      "lineno": 202,
+      "kind": "constant",
+      "detail": "4->5",
+      "line": "return round(min(depth, maximum) / maximum, 4)"
+    },
+    {
+      "file": "graph.py",
+      "index": 22,
+      "lineno": 151,
+      "kind": "boolop",
+      "detail": "Or->And",
+      "line": "if target not in owner or source not in owner:"
+    },
+    {
+      "file": "graph.py",
+      "index": 23,
+      "lineno": 154,
+      "kind": "boolop",
+      "detail": "And->Or",
+      "line": "if a != b and b not in dag[a]:"
+    },
+    {
+      "file": "graph.py",
+      "index": 27,
+      "lineno": 200,
+      "kind": "constant",
+      "detail": "0->1",
+      "line": "if depth is None or maximum <= 0:"
+    },
+    {
+      "file": "graph.py",
+      "index": 41,
+      "lineno": 90,
+      "kind": "constant",
+      "detail": "1->2",
+      "line": "counter += 1"
+    },
+    {
+      "file": "graph.py",
+      "index": 47,
+      "lineno": 191,
+      "kind": "constant",
+      "detail": "4->5",
+      "line": "instability=round(ce / total, 4) if total else None,"
+    },
+    {
+      "file": "imports.py",
+      "index": 20,
+      "lineno": 30,
+      "kind": "constant",
+      "detail": "True->False",
+      "line": "@dataclass(frozen=True)"
+    },
+    {
+      "file": "imports.py",
+      "index": 21,
+      "lineno": 50,
+      "kind": "constant",
+      "detail": "True->False",
+      "line": "@dataclass(frozen=True)"
+    },
+    {
+      "file": "imports.py",
+      "index": 22,
+      "lineno": 68,
+      "kind": "constant",
+      "detail": "True->False",
+      "line": "def imports_of(self, module: str, *, include_weak: bool = True) -> set[str]:"
+    },
+    {
+      "file": "imports.py",
+      "index": 23,
+      "lineno": 76,
+      "kind": "constant",
+      "detail": "True->False",
+      "line": "def importers_of(self, module: str, *, include_weak: bool = True) -> set[str]:"
+    },
+    {
+      "file": "imports.py",
+      "index": 24,
+      "lineno": 84,
+      "kind": "constant",
+      "detail": "True->False",
+      "line": "def adjacency(self, *, include_weak: bool = True) -> dict[str, set[str]]:"
+    },
+    {
+      "file": "imports.py",
+      "index": 28,
+      "lineno": 145,
+      "kind": "return",
+      "detail": "return None",
+      "line": "return None, \"empty import target\""
+    },
+    {
+      "file": "imports.py",
+      "index": 33,
+      "lineno": 156,
+      "kind": "compare",
+      "detail": "Gt->GtE",
+      "line": "if len(candidates) > 1:"
+    },
+    {
+      "file": "imports.py",
+      "index": 39,
+      "lineno": 140,
+      "kind": "compare",
+      "detail": "Eq->NotEq",
+      "line": "return [self._root_package] if last == self._root_package else [self._root_package, last]"
+    },
+    {
+      "file": "imports.py",
+      "index": 47,
+      "lineno": 88,
+      "kind": "not",
+      "detail": "drop not",
+      "line": "if include_weak or not edge.weak:"
+    },
+    {
+      "file": "imports.py",
+      "index": 48,
+      "lineno": 93,
+      "kind": "boolop",
+      "detail": "And->Or",
+      "line": "return [e for e in self.edges if e.source == source and e.target == target]"
+    },
+    {
+      "file": "imports.py",
+      "index": 49,
+      "lineno": 139,
+      "kind": "constant",
+      "detail": "1->2",
+      "line": "last = self._root_package.rsplit(\".\", 1)[-1]"
+    },
+    {
+      "file": "imports.py",
+      "index": 58,
+      "lineno": 265,
+      "kind": "constant",
+      "detail": "True->False",
+      "line": "resolved_any = True"
+    },
+    {
+      "file": "imports.py",
+      "index": 64,
+      "lineno": 81,
+      "kind": "boolop",
+      "detail": "Or->And",
+      "line": "if edge.target == module and (include_weak or not edge.weak)"
+    },
+    {
+      "file": "imports.py",
+      "index": 73,
+      "lineno": 81,
+      "kind": "not",
+      "detail": "drop not",
+      "line": "if edge.target == module and (include_weak or not edge.weak)"
+    },
+    {
+      "file": "interface.py",
+      "index": 14,
+      "lineno": 103,
+      "kind": "return",
+      "detail": "return None",
+      "line": "return False"
+    },
+    {
+      "file": "interface.py",
+      "index": 18,
+      "lineno": 25,
+      "kind": "constant",
+      "detail": "True->False",
+      "line": "@dataclass(frozen=True)"
+    },
+    {
+      "file": "interface.py",
+      "index": 40,
+      "lineno": 148,
+      "kind": "boolop",
+      "detail": "And->Or",
+      "line": "if any(isinstance(x, ast.Name) and x.id == \"__slots__\" for x in targets):"
+    },
+    {
+      "file": "model.py",
+      "index": 1,
+      "lineno": 37,
+      "kind": "constant",
+      "detail": "1->2",
+      "line": "ARCH_SCHEMA_VERSION = 1"
+    },
+    {
+      "file": "model.py",
+      "index": 4,
+      "lineno": 87,
+      "kind": "constant",
+      "detail": "0->1",
+      "line": "dynamic_sites: int = 0"
+    },
+    {
+      "file": "model.py",
+      "index": 5,
+      "lineno": 122,
+      "kind": "constant",
+      "detail": "False->True",
+      "line": "dynamic_attribute_hooks: bool = False"
+    },
+    {
+      "file": "model.py",
+      "index": 6,
+      "lineno": 125,
+      "kind": "constant",
+      "detail": "0->1",
+      "line": "stub_methods: int = 0"
+    },
+    {
+      "file": "model.py",
+      "index": 8,
+      "lineno": 178,
+      "kind": "constant",
+      "detail": "False->True",
+      "line": "arch_enabled: bool = False"
+    },
+    {
+      "file": "parser.py",
+      "index": 16,
+      "lineno": 44,
+      "kind": "constant",
+      "detail": "True->False",
+      "line": "@dataclass(frozen=True)"
+    },
+    {
+      "file": "parser.py",
+      "index": 17,
+      "lineno": 64,
+      "kind": "constant",
+      "detail": "True->False",
+      "line": "@dataclass(frozen=True)"
+    },
+    {
+      "file": "parser.py",
+      "index": 24,
+      "lineno": 171,
+      "kind": "return",
+      "detail": "return None",
+      "line": "return SkippedFile(relative, f\"unreadable: {exc.strerror or exc}\")"
+    },
+    {
+      "file": "parser.py",
+      "index": 26,
+      "lineno": 180,
+      "kind": "return",
+      "detail": "return None",
+      "line": "return SkippedFile(relative, f\"could not parse: {type(exc).__name__}\")"
+    },
+    {
+      "file": "parser.py",
+      "index": 30,
+      "lineno": 176,
+      "kind": "boolop",
+      "detail": "Or->And",
+      "line": "line = exc.lineno or \"?\""
+    },
+    {
+      "file": "parser.py",
+      "index": 39,
+      "lineno": 171,
+      "kind": "boolop",
+      "detail": "Or->And",
+      "line": "return SkippedFile(relative, f\"unreadable: {exc.strerror or exc}\")"
+    },
+    {
+      "file": "scanner.py",
+      "index": 10,
+      "lineno": 39,
+      "kind": "constant",
+      "detail": "True->False",
+      "line": "@dataclass(frozen=True)"
+    },
+    {
+      "file": "scanner.py",
+      "index": 14,
+      "lineno": 168,
+      "kind": "constant",
+      "detail": "True->False",
+      "line": "@dataclass(frozen=True)"
+    },
+    {
+      "file": "scanner.py",
+      "index": 19,
+      "lineno": 202,
+      "kind": "compare",
+      "detail": "NotEq->Eq",
+      "line": "violating = {v.source for v in report.violations if v.code != LV_CYCLE}"
+    },
+    {
+      "file": "scanner.py",
+      "index": 21,
+      "lineno": 130,
+      "kind": "constant",
+      "detail": "False->True",
+      "line": "measure_function(node, code_lines=lines, is_method=False)"
+    },
+    {
+      "file": "smells.py",
+      "index": 21,
+      "lineno": 50,
+      "kind": "constant",
+      "detail": "True->False",
+      "line": "@dataclass(frozen=True)"
+    },
+    {
+      "file": "smells.py",
+      "index": 28,
+      "lineno": 113,
+      "kind": "compare",
+      "detail": "LtE->Lt",
+      "line": "and report.wmc <= report.nom + 2"
+    },
+    {
+      "file": "smells.py",
+      "index": 30,
+      "lineno": 122,
+      "kind": "compare",
+      "detail": "Lt->LtE",
+      "line": "if ratio is None or ratio < rules.data_class_accessor_ratio:"
+    },
+    {
+      "file": "smells.py",
+      "index": 41,
+      "lineno": 275,
+      "kind": "compare",
+      "detail": "Lt->LtE",
+      "line": "if not layer or layer == \"unknown\" or layer_confidence < MISFIT_MIN_CONFIDENCE:"
+    },
+    {
+      "file": "smells.py",
+      "index": 46,
+      "lineno": 329,
+      "kind": "boolop",
+      "detail": "Or->And",
+      "line": "report, layer, layer_confidence, violating_modules or set(), config"
+    },
+    {
+      "file": "smells.py",
+      "index": 50,
+      "lineno": 113,
+      "kind": "constant",
+      "detail": "2->3",
+      "line": "and report.wmc <= report.nom + 2"
+    },
+    {
+      "file": "smells.py",
+      "index": 56,
+      "lineno": 290,
+      "kind": "constant",
+      "detail": "True->False",
+      "line": "\"module_has_violation\": True,"
+    },
+    {
+      "file": "smells.py",
+      "index": 60,
+      "lineno": 180,
+      "kind": "constant",
+      "detail": "0->1",
+      "line": "target_name, count = max(others.items(), key=lambda item: (item[1], item[0]))"
+    },
+    {
+      "file": "smells.py",
+      "index": 61,
+      "lineno": 195,
+      "kind": "constant",
+      "detail": "2->3",
+      "line": "\"ratio\": round(ratio, 2),"
+    }
+  ]
+}

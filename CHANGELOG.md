@@ -41,6 +41,10 @@ regenerate any `before` report with the new version.
 
 ### Changed
 
+- A path prefix declared under two layers in `arch.layers` is now a config
+  error. Which layer won depended on declaration order, and nothing said so.
+- `arch`'s violation table names its last column (`Certainty`: `firm` or
+  `tentative`); the column had no header and firm violations left it blank.
 - `arch` without declared layers now says what it still checks (import
   cycles) and where to declare layers, instead of promising inference.
 - `data_class` detection builds a class's public interface only when the

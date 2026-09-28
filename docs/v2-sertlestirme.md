@@ -105,6 +105,15 @@ var.
 
 ## Blok 4 — Test ve hijyen
 
+> **Durum (2026-09-28): yapıldı.** Madde 1: `tentative` sütunu başlıklı
+> (`Certainty`); D3-D6 kapalı (D3'ün `docs/04` ayağı eklendi); terminal
+> genişliği ve fikstür biçimi önceden çözülmüştü. Madde 2:
+> `tests/test_properties.py` (6 özellik, deterministik). Madde 3:
+> `experiments/hardening/mutation.md`, skor %85.2 → %92.5; mutmut Windows'ta
+> WSL istediği için kendi `ast` üreteciyle (sapma, belgede). Madde 4: CI
+> 3.11-3.14 ve `ruff format --check` zaten vardı; Trusted Publishing
+> TestPyPI yerine doğrudan PyPI'da iki yayında (2.1.0, 2.2.0) çalıştı.
+
 **İş:**
 1. Bilinenler: terminal genişliğine bağımlı CLI testi (`COLUMNS` sabitle veya satır sonu bağımsız assert); 4 fikstür dosyasında `ruff format`; ihlal tablosundaki başlıksız `tentative` sütunu; D3–D6'dan açık kalanlar.
 2. **Property-based testler** (`hypothesis`, `tests/test_properties.py`): metot eklemek NOM'u düşürmez; metoda `self.x` erişimi eklemek LCOM4'ü artırmaz; parametre eklemek PARAMS'ı tam 1 artırır; boş sınıfın metrikleri tutarlı (`nom=0`, `lcom4=null`, `wmc=0`); iki modül arasına import eklemek Ce/Ca'yı tam 1 artırır; rapor `to_dict → from_dict` round-trip kayıpsız.

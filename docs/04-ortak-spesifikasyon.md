@@ -132,6 +132,10 @@ Varsayılan izin: presentation→{application, domain}; application→{domain}; 
 ```
 - `direction ∈ {up, down, same}`; `confidence` v3+ zorunlu (v2'de opsiyonel).
 - `status ∈ {linked, unlinked, rejected}`; hiçbir öneri silinmez, oranlar raporlanır.
+- `rejected` dar bir kuraldır (D3): hedef katman adı şemada yok, hedef katmandan
+  oraya taşıma izin matrisine aykırı, ya da model kuralı çiğnediğini kendisi
+  beyan ediyor. Import düzeyinde uyum v2'de ölçülmez; v3'te `apply` diff'inden
+  ölçülür. Gerekçe: `docs/docs-v2-duzeltme-asama5.md`.
 
 ## 7. Rapor şemaları (özet)
 - **scan:** `{schema_version, project, generated_at, classes: [{qualname, module, layer?, layer_confidence?, metrics{…}, smells[]?, public_interface[]?, violations[]?}], functions: […], modules: [{path, layer?, layer_source?, layer_confidence?, ca, ce, instability}]?, summary{…}}`

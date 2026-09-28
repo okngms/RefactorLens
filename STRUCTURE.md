@@ -186,6 +186,8 @@ tests/
 ├── test_prediction.py      Prediction scoring
 ├── test_verify_report.py   verify output
 ├── test_metric_edges.py    Real-world idioms: decorators, @overload, except*, string annotations
+├── test_properties.py     Metric relations on generated code (hypothesis, deterministic)
+├── test_mutation_survivors.py  Behaviours mutation testing found untested
 ├── test_hardening_compare.py  The radon cross-check classifier (radon optional)
 ├── test_hardening_dcc.py   DCC manual-count sampling, hints, verdict enforcement
 ├── test_hardening_cohesion_cam.py  CAM coverage split, Spearman, deviation categories
@@ -255,6 +257,8 @@ experiments/hardening/
 ├── friction.md             Rough edges found using the tool on itself, each with a decision
 ├── robustness.py           scan, arch and advise --dry-run on the corpus via the CLI; exits, skips, prompt sizes, time
 ├── robustness.md           Result: no crashes, timing, the context-budget fix
+├── mutation.py             ast-based mutation testing of src/rlens/analysis (mutmut needs WSL)
+├── mutation.md             Score, survivors and what each one means
 ├── self/                   RefactorLens on itself: scan, arch, advise and verify reports
 ├── entry_points.py         How many entry points the corpus has; effect on too_many_params
 ├── entry-points.md         Why the rule is narrow, and what it changed
@@ -285,6 +289,8 @@ experiments/hardening/
 ├── results/module-cohesion.json, module-cohesion-tables.md
 ├── results/robustness.json, robustness-tables.md, robustness-timing.json
 ├── results/robustness-before-context-fix.json  Record of the run before the budget fix
+├── results/mutation.json   Per-file counts and every surviving mutant
+├── results/mutation-before-tests.json  The same run before the survivor tests
 └── .cache/                 Checked-out reference projects (gitignored, not in sdist)
 ```
 

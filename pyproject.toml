@@ -38,6 +38,8 @@ Issues = "https://github.com/okngms/RefactorLens/issues"
 dev = [
     "pytest>=8.0",
     "ruff>=0.6",
+    # tests/test_properties.py; paket bağımlılığı değil.
+    "hypothesis>=6.100",
 ]
 
 [project.scripts]

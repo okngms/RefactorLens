@@ -656,9 +656,19 @@ def _build_arch(raw: dict[str, Any]) -> ArchConfig:
     declared_raw = raw["layers"]
     _require(isinstance(declared_raw, dict), "`arch.layers` must be a mapping")
     declared: dict[str, tuple[str, ...]] = {}
+    owners: dict[str, str] = {}
     for layer, paths in declared_raw.items():
         _require(layer in layers, f"`arch.layers.{layer}`: not in arch.scheme.layers")
         declared[layer] = _as_str_list(paths, f"arch.layers.{layer}")
+        # Aynı önek iki katmanda olursa atama beyan sırasına kalır ve kullanıcı
+        # bunu göremez. Normalleştirme `architecture._normalise` ile aynıdır.
+        for path in declared[layer]:
+            key = path.strip().replace("\\", "/").strip("/")
+            if key in owners and owners[key] != layer:
+                raise ConfigError(
+                    f"`arch.layers`: prefix `{key}` is declared in both {owners[key]} and {layer}"
+                )
+            owners[key] = layer
 
     conventions = raw["conventions"]
     extra_dirs = _layer_map(conventions["extra_dirs"], layers, "arch.conventions.extra_dirs")

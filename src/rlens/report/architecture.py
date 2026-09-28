@@ -94,7 +94,8 @@ def build_violation_table(result: ArchitectureResult, prefix: str = "") -> Table
     table.add_column("Alias")
     table.add_column("From → to", overflow="fold")
     table.add_column("Layers")
-    table.add_column("")
+    # Başlıksız sütun ve kesin ihlalde boş hücre okuyucuya bir şey söylemiyordu.
+    table.add_column("Certainty")
 
     for violation in result.report.violations:
         style = _CODE_STYLES.get(violation.code, "")
@@ -110,7 +111,7 @@ def build_violation_table(result: ArchitectureResult, prefix: str = "") -> Table
             violation.alias,
             arrow,
             layers,
-            "[dim]tentative[/dim]" if violation.tentative else "",
+            "[dim]tentative[/dim]" if violation.tentative else "firm",
         )
     return table
 
