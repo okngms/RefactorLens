@@ -126,6 +126,20 @@ var.
 
 ## Blok 5 — Rapor, kullanım ve dokümantasyon
 
+> **Durum (2026-09-28): yapıldı.** Madde 1 karar kaydıyla: ad zaten her
+> komutta `modül:Ad`; `src/` kırpılmadı (PEP 420 ad alanı paketlerinde dosya
+> sisteminden içe aktarma adı bilinemez; kimlikler değişirdi), koku hedefi
+> biçimi şema 4'e (`docs/v2-tanim-kararlari.md` K18); adlandırma testi
+> `test_cli.py::TestOneNamePerTarget`. Madde 2: mesajlar geçerli seçenekleri
+> ve en yakın adı söylüyor; bilinmeyen eşik adı artık hata (önceden sessizce
+> yok sayılıyordu), liste olarak yazılan bölüm çökme yerine hata; 8 mesaj
+> testi. Madde 3: `--format` (`scan`/`arch` json, `verify` json/markdown).
+> Madde 4: README'ye `arch`, koku tablosu, `--no-arch`, ihlal kodu/alias
+> tablosu ve Arcan ilişkisi, `suspicious`/`moved`, kalibrasyon, katman
+> eşikleri, `--format` eklendi; döngü geçici bir kopyada baştan sona
+> uygulandı. Madde 5: STRUCTURE test ağacı (17 eksik dosya), bayat test
+> sayıları, `docs/04` §7.
+
 **İş:**
 1. **Hedef adlandırma tek kural:** rapor, terminal, `advise --target`, `verify --applied` hepsi aynı biçimi kullanır (öneri: kök-göreli tam ad `services.order_service:OrderService`; `src/` layout tespit edilirse önek otomatik kırpılır ve raporda `root_package` alanı yazılır). Test: üç komut aynı adı kabul eder.
 2. Config hata mesajları: hangi anahtar, hangi bölümde, neden geçersiz, geçerli seçenekler neler. Test: 5 tipik hatalı config için mesaj snapshot'ı.

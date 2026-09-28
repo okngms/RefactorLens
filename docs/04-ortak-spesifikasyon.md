@@ -138,6 +138,15 @@ Varsayılan izin: presentation→{application, domain}; application→{domain}; 
   ölçülür. Gerekçe: `docs/docs-v2-duzeltme-asama5.md`.
 
 ## 7. Rapor şemaları (özet)
+
+**Hedef adı (K18).** Sınıf ve modül fonksiyonu `modül:Ad`, metot
+`modül:Sınıf.metot`; modül adı taranan köke göre yoldan türer, `src/`
+kırpılmaz. `scan`, `advise`, `verify --applied` aynı adı kullanır. Modül
+fonksiyonunun koku hedefi bugün `modül.fonk` biçimindedir; `:`'ya geçiş şema
+4'e ertelendi.
+
+**`--format`.** `scan` ve `arch` için `table|json`, `verify` için
+`table|json|markdown`. Yük, yazılan rapor dosyasıyla aynıdır; yeni alan yok.
 - **scan:** `{schema_version, project, generated_at, classes: [{qualname, module, layer?, layer_confidence?, metrics{…}, smells[]?, public_interface[]?, violations[]?}], functions: […], modules: [{path, layer?, layer_source?, layer_confidence?, ca, ce, instability}]?, summary{…}}`
 - **arch (v2+):** `{schema_version, scheme, modules[], classes[], graph{edges:[[from,to,weak]]}, violations:[{code, from, to, layers, confidence, tentative}]}`
 - **verify:** `{schema_version, before_ref, after_ref, classes:[{qualname, deltas{metric:{before,after,dir}}, outcome}], predictions:[{metric, predicted, actual, correct|unverifiable}], accuracy{arithmetic, structural, overall}, calibration{brier, buckets[]}?, behavior_gate{level, passed}?, interface_delta?, violation_deltas?, smell_deltas?, refactoring_type?}`

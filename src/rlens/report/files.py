@@ -245,6 +245,17 @@ def latest_advice(output_dir: Path) -> Path | None:
     return found[-1] if found else None
 
 
+def verify_payload(delta, predictions, goodhart=None, calibration=None) -> dict:
+    """`verify` JSON raporunun içeriği; dosya ve `--format json` aynısını kullanır."""
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "delta": delta.to_dict(),
+        "predictions": None if predictions is None else predictions.to_dict(),
+        "goodhart": None if goodhart is None else goodhart.to_dict(),
+        "calibration": None if calibration is None else calibration.to_dict(),
+    }
+
+
 def write_verify(
     delta, predictions, output_dir: Path, goodhart=None, calibration=None
 ) -> tuple[Path, Path]:
@@ -268,13 +279,7 @@ def write_verify(
     json_path = output_dir / f"{VERIFY_PREFIX}{stamp}.json"
     markdown_path = output_dir / f"{VERIFY_PREFIX}{stamp}.md"
 
-    payload = {
-        "schema_version": SCHEMA_VERSION,
-        "delta": delta.to_dict(),
-        "predictions": None if predictions is None else predictions.to_dict(),
-        "goodhart": None if goodhart is None else goodhart.to_dict(),
-        "calibration": None if calibration is None else calibration.to_dict(),
-    }
+    payload = verify_payload(delta, predictions, goodhart, calibration)
 
     try:
         json_path.write_text(

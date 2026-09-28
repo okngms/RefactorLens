@@ -525,6 +525,157 @@ class TestUndeclaredLayers:
         assert "`arch.layers` in rlens.yaml" in output
 
 
+class TestOutputFormat:
+    """`--format`: dosya raporu stdout'a da verilir (sertleştirme Blok 5, madde 3).
+
+    Yeni hesaplama yok: stdout'taki yük, yazılan dosyadakiyle aynı. Tablo
+    dışındaki biçimlerde stdout yalnızca yükü taşır; "Report: ..." gibi
+    mesajlar stderr'e gider ki `rlens scan . --format json | jq` çalışsın.
+    """
+
+    ROOT = Path(__file__).resolve().parent.parent / "examples"
+
+    def test_scan_json_is_the_report(self, tmp_path):
+        result = runner.invoke(
+            app,
+            ["scan", str(self.ROOT / "messy_project"), "--format", "json", "-o", str(tmp_path)],
+        )
+        assert result.exit_code == 0, result.output
+        payload = json.loads(result.stdout)
+        assert payload["schema_version"] == SCHEMA_VERSION
+        written = json.loads(next(tmp_path.glob("scan-*.json")).read_text(encoding="utf-8"))
+        assert payload["modules"] == written["modules"]
+        assert "Report:" in result.stderr
+
+    def test_scan_json_keeps_the_ci_gate(self):
+        result = runner.invoke(
+            app,
+            [
+                "scan",
+                str(self.ROOT / "messy_project"),
+                "--format",
+                "json",
+                "--no-report",
+                "--fail-on-violation",
+            ],
+        )
+        assert result.exit_code == 1
+        json.loads(result.stdout)
+
+    def test_arch_json(self):
+        result = runner.invoke(
+            app, ["arch", str(self.ROOT / "layered_project"), "--format", "json", "--no-report"]
+        )
+        assert result.exit_code == 0, result.output
+        assert len(json.loads(result.stdout)["violations"]) == 6
+
+    def test_unsupported_format_is_an_error(self):
+        result = runner.invoke(
+            app, ["scan", str(self.ROOT / "messy_project"), "--format", "markdown"]
+        )
+        assert result.exit_code == 1
+        assert "table or json" in flat(result.output)
+
+    @pytest.fixture
+    def baseline(self, tmp_path):
+        project = self.ROOT / "messy_project"
+        runner.invoke(app, ["scan", str(project), "-o", str(tmp_path)])
+        return project, next(tmp_path.glob("scan-*.json"))
+
+    def test_verify_json(self, baseline, tmp_path):
+        project, before = baseline
+        result = runner.invoke(
+            app,
+            ["verify", str(project), "-b", str(before), "--format", "json", "--no-report"],
+        )
+        assert result.exit_code == 0, result.output
+        payload = json.loads(result.stdout)
+        assert set(payload) >= {"schema_version", "delta", "predictions", "goodhart"}
+
+    def test_verify_markdown(self, baseline):
+        project, before = baseline
+        result = runner.invoke(
+            app,
+            ["verify", str(project), "-b", str(before), "--format", "markdown", "--no-report"],
+        )
+        assert result.exit_code == 0, result.output
+        assert result.stdout.startswith("# RefactorLens verification")
+
+
+class TestOneNamePerTarget:
+    """Bir hedefin adı `scan`, `advise` ve `verify --applied`'da aynıdır (K18).
+
+    Ad `modül:Ad`; modül adı taranan köke göre yoldan türer ve `src/` kırpılmaz.
+    Kullanıcı adı yazmaz, rapordan kopyalar: kopyaladığı ad her komutta aynı
+    şeyi göstermeli.
+    """
+
+    def test_the_same_name_travels_through_all_three(self, tmp_path):
+        project = tmp_path / "project"
+        (project / "src" / "app").mkdir(parents=True)
+        (project / "rlens.yaml").write_text(
+            "scan:\n  include: ['.']\nthresholds:\n  nom: {warn: 2}\n"
+            "provider:\n  model: placeholder\n",
+            encoding="utf-8",
+        )
+        (project / "src" / "app" / "orders.py").write_text(
+            "class Widget:\n"
+            "    def a(self):\n        return 1\n"
+            "    def b(self):\n        return 2\n"
+            "    def c(self):\n        return 3\n",
+            encoding="utf-8",
+        )
+        out = tmp_path / "reports"
+        runner.invoke(app, ["scan", str(project), "-o", str(out)])
+        report = json.loads(next(out.glob("scan-*.json")).read_text(encoding="utf-8"))
+        (cls,) = [c for m in report["modules"] for c in m["classes"]]
+        name = f"{cls['module']}:{cls['name']}"
+        assert name == "src.app.orders:Widget"
+
+        dry_run = runner.invoke(app, ["advise", str(project), "--dry-run"])
+        assert f"Target: {name}" in dry_run.output
+
+        advice = tmp_path / "advice.json"
+        advice.write_text(
+            json.dumps(
+                {
+                    "advices": [
+                        {
+                            "target": name,
+                            "suggestions": [
+                                {
+                                    "title": "Leave it",
+                                    "expected_effect": [{"metric": "NOM", "direction": "same"}],
+                                }
+                            ],
+                        }
+                    ]
+                }
+            ),
+            encoding="utf-8",
+        )
+        before = next(out.glob("scan-*.json"))
+        result = runner.invoke(
+            app,
+            [
+                "verify",
+                str(project),
+                "-b",
+                str(before),
+                "--advice",
+                str(advice),
+                "--applied",
+                f"{name}=1",
+                "--format",
+                "json",
+                "--no-report",
+            ],
+        )
+        predictions = json.loads(result.stdout)["predictions"]
+        assert predictions["filtered_to_applied"] is True
+        assert (predictions["hits"], predictions["unverifiable"]) == (1, 0)
+
+
 class TestAdviseArchFlags:
     """5a ve 5b'nin A/B eksenleri."""
 

@@ -106,6 +106,54 @@ rlens --version
 Values shown as `—` were **not computed**, which is different from zero. The
 footnote below the table says why.
 
+The **Smells** column labels patterns that need more than one number. Each
+label carries its evidence in the JSON report:
+
+| Label | When |
+|---|---|
+| `god_class` | NOM ≥ 20, WMC ≥ 50 and LCOM4 ≥ 3 together; not for interfaces (at least half the methods are stubs) |
+| `data_class` | NOM ≤ 5, WMC ≤ NOM + 2, DAM ≥ 0.5, and at least 70% of public methods are accessors |
+| `feature_envy_candidate` | a method touches one other object at least twice as often as its own class (and at least 3 times) |
+| `long_method` | CC and lines of code both over their limits |
+| `too_many_params` | PARAMS over its limit, except framework entry points (click/typer commands, route handlers, fixtures) |
+| `layer_misfit` | the module breaks a layer rule and the class's DCC is over the limit for its layer |
+
+`--no-arch` skips layer analysis and violations. Every smell except
+`layer_misfit` and the public interface (which `verify` uses) are still
+computed.
+
+### Mapping the architecture
+
+```bash
+rlens arch .                        # layers, violations, module coupling
+rlens arch . --fail-on-violation    # exit 1 on a firm violation (useful in CI)
+```
+
+`arch` assigns each module to a layer — from `arch.layers` in `rlens.yaml`, or
+from an existing `import-linter` layers contract — and checks every import
+against the layer rules (see *Configuration*). A declaration always wins; a
+module that matches no declared prefix is `unknown` and takes part in no
+layer rule.
+
+| Code | Alias | Meaning |
+|---|---|---|
+| `LV-DIR` | back-call | an import against the direction the scheme allows |
+| `LV-SKIP` | skip-call | a layer reaches past its neighbour |
+| `LV-CYCLE` | cyclic | modules import each other in a cycle |
+| `LV-LEAK` | leak | a public signature exposes a type from a lower layer (visible only where annotated) |
+
+The aliases follow the names used in the architecture-erosion literature
+(Sarkar et al.; HUSACCT). `LV-CYCLE` corresponds to Arcan's cyclic-dependency
+smell. RefactorLens reports Ca, Ce and instability per module but raises no
+unstable-dependency smell from them, and it does not detect hub-like
+dependencies.
+
+The `Certainty` column separates `firm` from `tentative` violations; only firm
+ones count for `--fail-on-violation`. Today every violation is firm:
+`tentative` is reserved for layers that were inferred rather than declared,
+and inference is not implemented yet. Without any declared layer, `arch` still
+reports import cycles and module coupling, and says where to declare layers.
+
 ### The full loop
 
 The three commands are meant to be used in sequence.
@@ -194,6 +242,23 @@ that no longer exists — are counted separately and **excluded** from the ratio
 Treating "we could not measure it" as "the model was wrong" would bias every
 number.
 
+**Suspicious improvements.** When a class's metrics improve while its public
+interface shrinks, `verify` flags the change as `suspicious`: part of the
+improvement may come from deleting work rather than restructuring it. Every
+member that disappeared is first searched for in the rest of the project;
+found elsewhere, it counts as `moved` (an Extract Class does exactly this) and
+raises no suspicion. Only members that are gone everywhere count as `deleted`.
+This is a question, not a verdict: deleting dead code shrinks the interface
+too, and it cannot see a broken call site. The behaviour tests decide. With
+the default `verify.treat_suspicious_as_regression: true`,
+`--fail-on-regression` also fails on a suspicious change.
+
+**Calibration.** A suggestion may state a `confidence` for each prediction.
+`verify` then reports a Brier score and the expected calibration error (ECE):
+does the model's "80% sure" come true about 80% of the time? A prediction
+without a confidence is left out of both and counted separately; it is never
+treated as low confidence.
+
 `verify` refuses to compare reports with different scan schema versions: the same
 code produces different numbers under different metric rules. After upgrading
 RefactorLens, regenerate the `before` report with the new version. Schema 3
@@ -229,12 +294,26 @@ computed, with the reason. The same report always gives the same text, and it
 uses no grading words. It writes `explain-template-*.json` and `.md`, and none
 of it is ever sent to a model.
 
+### Machine-readable output
+
+```bash
+rlens scan . --format json | jq '.modules[].classes[] | select(.lcom4 > 5) | .name'
+rlens arch . --format json
+rlens verify . --format markdown > verification.md
+```
+
+`--format` prints the report itself on stdout instead of the tables: `json`
+for `scan`, `arch` and `verify`, and `markdown` for `verify`. It is the same
+content as the report file, which is still written unless `--no-report` is
+given. Status lines go to stderr so the output can be piped. `advise` and
+`explain` write their JSON and markdown to files only.
+
 ### Exit codes
 
 | Code | Meaning |
 |---|---|
 | 0 | Success |
-| 1 | Config error, unwritable report, or `--fail-on-violation` triggered |
+| 1 | Config error, unwritable report, or a CI gate triggered (`--fail-on-violation`, `--fail-on-regression`) |
 | 2 | Invalid command usage |
 
 ## Configuration
@@ -296,6 +375,16 @@ services call a database client directly, every such call is a violation;
 if that is your design, add `infrastructure` to `application`'s `allowed`
 list. RefactorLens's own declaration keeps the default and reports those
 calls (see *RefactorLens on itself*).
+
+A threshold can differ per layer. Coupling that is normal for a presentation
+module can be a warning sign in the domain:
+
+```yaml
+thresholds:
+  by_layer:
+    domain:
+      dcc: {warn: 4}
+```
 
 ## Metric definitions and adaptations
 

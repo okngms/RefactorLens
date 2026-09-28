@@ -8,6 +8,10 @@ regenerate any `before` report with the new version.
 
 ### Added
 
+- `--format` on `scan`, `arch` (`json`) and `verify` (`json`, `markdown`):
+  print the report itself on stdout instead of the tables, for pipes and CI.
+  The content is the report file's; status lines go to stderr.
+
 - `rlens explain --no-llm`: a deterministic reading of the report with fixed
   sentence templates — threshold findings with the metric's definition, smells
   with their evidence, and uncomputed metrics with their reasons. Calls no
@@ -41,6 +45,12 @@ regenerate any `before` report with the new version.
 
 ### Changed
 
+- An unknown threshold name (`thresholds.max_nestings`, or one under
+  `thresholds.by_layer`) is now a config error; it was silently ignored and
+  the default threshold used — the very typo the README warns about.
+- Config errors say what is valid and suggest the nearest name (for example
+  "Did you mean `exclude`?"). A section written as a list or a string (`scan: ['.']`) is
+  a config error instead of a crash; an integer setting shows what it got.
 - A path prefix declared under two layers in `arch.layers` is now a config
   error. Which layer won depended on declaration order, and nothing said so.
 - `arch`'s violation table names its last column (`Certainty`: `firm` or

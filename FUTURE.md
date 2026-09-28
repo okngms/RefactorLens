@@ -89,6 +89,16 @@ eklenmez; amaç fikri kaybetmemek ama kapsamı şişirmemektir.
   aşılırsa ilk iş bu. Dosya başına tarama önbelleği **değil**: DCC ve Ca/Ce
   proje-geneli girdilere bağlı, dosya hash'i yetmez.
 
+- **Şema 4 paketi** (bir şema artışı, birlikte yapılacaklar; her biri
+  kullanıcının `before` raporunu yeniden üretmesini gerektirir):
+  - LOC imzaya gömülü belgeyi (PEP 727 `Doc(...)`) saymasın (STATUS açık
+    sorunlar; fastapi'de kod satırlarının %38'i).
+  - Modül fonksiyonlarının koku hedefi `modül.fonk` → `modül:fonk`, sınıf ve
+    metotlarla aynı ayraç (K18).
+  - İstenirse `root_package`: içe aktarma adı `pyproject.toml`'dan okunur ve
+    yalnızca orada yazıyorsa önek kırpılır (K18, dosya sisteminden tahmin
+    edilmez).
+
 ## Sağlayıcılar
 - Çekirdek Groq + Ollama'dır. Gemini ve Anthropic adapter'ları opsiyoneldir
   (Faz 4). Diğer sağlayıcılar `providers/base.py` sözleşmesini uygulayan

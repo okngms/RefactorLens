@@ -11,7 +11,9 @@ etkisini ve modelin tahmininin isabetini denetler.
 
 from __future__ import annotations
 
+import io
 import json
+import sys
 from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -43,6 +45,7 @@ from rlens.report.files import (
     ReportError,
     latest_report,
     read_report,
+    verify_payload,
     write_advice,
     write_arch,
     write_explain,
@@ -51,7 +54,7 @@ from rlens.report.files import (
     write_verify,
 )
 from rlens.report.terminal import render_report
-from rlens.report.verify import render_verify
+from rlens.report.verify import render_verify, verify_markdown
 from rlens.verify import goodhart as goodhart_module
 from rlens.verify.calibration import collect_points
 from rlens.verify.diff import REGRESSED, diff_reports
@@ -108,6 +111,48 @@ def _fail(message: str) -> typer.Exit:
     return typer.Exit(code=1)
 
 
+#: `--format` seçeneği. Yalnızca dosyaya zaten yazılan raporlar stdout'a
+#: verilir; yeni bir hesaplama ya da yeni bir biçim yoktur (sertleştirme Blok 5).
+FORMAT_HELP = "What to print on stdout: the tables, or the report itself."
+
+
+def _check_format(value: str, allowed: tuple[str, ...], command: str) -> None:
+    if value not in allowed:
+        choices = ", ".join(allowed[:-1]) + f" or {allowed[-1]}"
+        raise _fail(f"`rlens {command}` supports --format {choices}; got {value!r}.")
+
+
+def _status(output_format: str) -> Console:
+    """Durum mesajları: tabloyla birlikte stdout'a, aksi halde stderr'e.
+
+    JSON ya da markdown basılırken stdout yalnızca yükü taşımalı; `Report: ...`
+    satırı araya girerse `rlens scan . --format json | jq` bozulur.
+    """
+    return console if output_format == "table" else err_console
+
+
+def _emit(text: str) -> None:
+    """Yükü stdout'a düz metin ve UTF-8 olarak yazar.
+
+    rich kullanılmaz: köşeli parantezi biçim etiketi sanar ve satırı sarar.
+    UTF-8 zorunlu: Windows'ta yönlendirilen stdout'un kodlaması `→` gibi
+    karakterleri taşımaz.
+    """
+    data = text if text.endswith("\n") else text + "\n"
+    sys.stdout.flush()
+    buffer = getattr(sys.stdout, "buffer", None)
+    if buffer is None:
+        sys.stdout.write(data)
+        return
+    buffer.write(data.encode("utf-8"))
+    buffer.flush()
+
+
+def _quiet_count(render, *args) -> int:
+    """Tablo basmadan ihlal sayısını alır; `--fail-on-violation` biçimden bağımsızdır."""
+    return render(*args, Console(file=io.StringIO()))
+
+
 @app.command()
 def scan(
     path: Annotated[
@@ -155,15 +200,23 @@ def scan(
             help="Exit with code 1 if anything is over threshold (useful in CI).",
         ),
     ] = False,
+    output_format: Annotated[
+        str, typer.Option("--format", help=f"{FORMAT_HELP} table or json.")
+    ] = "table",
 ) -> None:
     """Scan a project, print the metric tables and write a JSON report."""
+    _check_format(output_format, ("table", "json"), "scan")
     try:
         cfg = load_config(config, search_from=path)
     except ConfigError as exc:
         raise _fail(str(exc)) from exc
 
     report = scan_project(path, cfg, no_arch=no_arch)
-    violations = render_report(report, cfg, console)
+    if output_format == "table":
+        violations = render_report(report, cfg, console)
+    else:
+        violations = _quiet_count(lambda c: render_report(report, cfg, c))
+        _emit(json.dumps(report.to_dict(), indent=2, ensure_ascii=False))
 
     if not no_report and report.modules:
         target = Path(output_dir) if output_dir else path / cfg.scan.output_dir
@@ -171,7 +224,7 @@ def scan(
             written = write_report(report, target)
         except ReportError as exc:
             raise _fail(str(exc)) from exc
-        console.print(f"[dim]Report: {written}[/dim]")
+        _status(output_format).print(f"[dim]Report: {written}[/dim]")
 
     if fail_on_violation and violations:
         raise typer.Exit(code=1)
@@ -208,15 +261,23 @@ def arch(
             help="Exit with code 1 if there is a non-tentative violation (useful in CI).",
         ),
     ] = False,
+    output_format: Annotated[
+        str, typer.Option("--format", help=f"{FORMAT_HELP} table or json.")
+    ] = "table",
 ) -> None:
     """Map layers, list architecture violations and module coupling."""
+    _check_format(output_format, ("table", "json"), "arch")
     try:
         cfg = load_config(config, search_from=path)
     except ConfigError as exc:
         raise _fail(str(exc)) from exc
 
     result = analyse_project(path, cfg)
-    blocking = render_architecture(result, console)
+    if output_format == "table":
+        blocking = render_architecture(result, console)
+    else:
+        blocking = _quiet_count(lambda c: render_architecture(result, c))
+        _emit(json.dumps(result.to_dict(), indent=2, ensure_ascii=False))
 
     if not no_report and result.report.assignments:
         target = Path(output_dir) if output_dir else path / cfg.scan.output_dir
@@ -224,7 +285,7 @@ def arch(
             written = write_arch(result, target)
         except ReportError as exc:
             raise _fail(str(exc)) from exc
-        console.print(f"[dim]Report: {written}[/dim]")
+        _status(output_format).print(f"[dim]Report: {written}[/dim]")
 
     if fail_on_violation and blocking:
         raise typer.Exit(code=1)
@@ -664,8 +725,12 @@ def verify(
             help="Exit with code 1 if anything regressed (useful in CI).",
         ),
     ] = False,
+    output_format: Annotated[
+        str, typer.Option("--format", help=f"{FORMAT_HELP} table, json or markdown.")
+    ] = "table",
 ) -> None:
     """Re-measure after a change and check whether the model's predictions held."""
+    _check_format(output_format, ("table", "json", "markdown"), "verify")
     try:
         cfg = load_config(config, search_from=path)
     except ConfigError as exc:
@@ -681,7 +746,7 @@ def verify(
                 f"No baseline report found in {report_dir}. "
                 f"Run `rlens scan {path}` before making changes, or pass --before."
             )
-        console.print(f"[dim]baseline: {baseline_path}[/dim]")
+        _status(output_format).print(f"[dim]baseline: {baseline_path}[/dim]")
 
     try:
         baseline = read_report(baseline_path)
@@ -707,7 +772,13 @@ def verify(
         predictions = check_predictions(advice_document, delta, applied_map)
         calibration = collect_points(predictions)
 
-    render_verify(delta, console, predictions, suspicions, calibration)
+    if output_format == "table":
+        render_verify(delta, console, predictions, suspicions, calibration)
+    elif output_format == "json":
+        payload = verify_payload(delta, predictions, suspicions, calibration)
+        _emit(json.dumps(payload, indent=2, ensure_ascii=False))
+    else:
+        _emit(verify_markdown(delta, predictions, suspicions, calibration))
 
     if not no_report:
         try:
@@ -716,8 +787,8 @@ def verify(
             )
         except ReportError as exc:
             raise _fail(str(exc)) from exc
-        console.print(f"[dim]Report: {markdown_path}[/dim]")
-        console.print(f"[dim]Machine-readable: {json_path}[/dim]")
+        _status(output_format).print(f"[dim]Report: {markdown_path}[/dim]")
+        _status(output_format).print(f"[dim]Machine-readable: {json_path}[/dim]")
 
     # Karşılaştırma geçersizse regresyon kontrolü yapılmaz: anlamsız sayılara
     # dayanarak derlemeyi kırmak, sessizce yanlış delta üretmek kadar zararlı.

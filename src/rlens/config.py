@@ -15,6 +15,7 @@ Tasarım kuralları (bkz. teknik doküman Bölüm 3–4):
 from __future__ import annotations
 
 import copy
+import difflib
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -95,6 +96,9 @@ DEFAULTS: dict[str, Any] = {
         "nom": {"warn": 20},
     },
 }
+
+#: Geçerli eşik adları: kodun okuduğu küme, varsayılanlardan türetilir.
+_METRIC_THRESHOLDS = frozenset(k for k in DEFAULTS["thresholds"] if k != "by_layer")
 
 
 class ConfigError(Exception):
@@ -384,20 +388,62 @@ def _reject_unknown_nested(raw: dict[str, Any]) -> None:
                 )
 
 
+def _did_you_mean(names: set[str], valid) -> str:
+    """Tek bir yanlış ad varsa en yakın geçerli adı önerir, yoksa boş."""
+    if len(names) != 1:
+        return ""
+    close = difflib.get_close_matches(next(iter(names)), list(valid), n=1, cutoff=0.6)
+    return f" Did you mean `{close[0]}`?" if close else ""
+
+
+_TYPE_NAMES = {
+    list: "a list",
+    str: "a string",
+    int: "a number",
+    float: "a number",
+    bool: "a boolean",
+}
+
+
+def _unknown_threshold(label: str, metric: str, valid) -> ConfigError:
+    return ConfigError(
+        f"Unknown threshold `{label}`.{_did_you_mean({metric}, valid)} "
+        f"Valid thresholds: {', '.join(sorted(valid))}"
+    )
+
+
 def _reject_unknown_keys(raw: dict[str, Any]) -> None:
-    """Yazım hatalarını sessizce yutmamak için bilinmeyen anahtarları reddeder."""
+    """Yazım hatalarını sessizce yutmamak için bilinmeyen anahtarları reddeder.
+
+    Mesaj neyin, nerede yanlış olduğunu ve geçerli seçenekleri söyler; tek bir
+    yanlış ad varsa en yakın geçerli adı önerir (sertleştirme Blok 5).
+    """
     unknown_top = set(raw) - set(DEFAULTS)
     if unknown_top:
         raise ConfigError(
-            f"Unknown config section: {', '.join(sorted(unknown_top))}. "
+            f"Unknown config section: {', '.join(sorted(unknown_top))}."
+            f"{_did_you_mean(unknown_top, DEFAULTS)} "
             f"Expected one of: {', '.join(sorted(DEFAULTS))}"
         )
+    for section in DEFAULTS:
+        value = raw.get(section)
+        # Boş bölüm (`scan:`) YAML'da None'dur ve varsayılanlara düşer.
+        if value is not None and not isinstance(value, dict):
+            kind = _TYPE_NAMES.get(type(value), type(value).__name__)
+            raise ConfigError(
+                f"`{section}` must be a mapping of settings, got {kind}. "
+                f"Write each setting on its own indented line under `{section}:`"
+            )
     for section in ("provider", "scan", "advise", "metrics", "arch", "budget", "cache", "verify"):
         value = raw.get(section)
         if isinstance(value, dict):
             unknown = set(value) - set(DEFAULTS[section])
             if unknown:
-                raise ConfigError(f"Unknown key under `{section}`: {', '.join(sorted(unknown))}")
+                raise ConfigError(
+                    f"Unknown key under `{section}`: {', '.join(sorted(unknown))}."
+                    f"{_did_you_mean(unknown, DEFAULTS[section])} "
+                    f"Valid keys: {', '.join(sorted(DEFAULTS[section]))}"
+                )
 
     _reject_unknown_nested(raw)
     thresholds = raw.get("thresholds")
@@ -411,6 +457,10 @@ def _reject_unknown_keys(raw: dict[str, Any]) -> None:
                 if not isinstance(metrics, dict):
                     raise ConfigError(f"`thresholds.by_layer.{layer}` must be a mapping")
                 for metric, spec in metrics.items():
+                    if metric not in _METRIC_THRESHOLDS:
+                        raise _unknown_threshold(
+                            f"thresholds.by_layer.{layer}.{metric}", metric, _METRIC_THRESHOLDS
+                        )
                     if not isinstance(spec, dict):
                         raise ConfigError(
                             f"`thresholds.by_layer.{layer}.{metric}` must be a mapping"
@@ -425,6 +475,12 @@ def _reject_unknown_keys(raw: dict[str, Any]) -> None:
         for metric, spec in thresholds.items():
             if metric == "by_layer":
                 continue
+            # Önceden metrik adı hiç denetlenmiyordu: README'nin kendi örneği
+            # `max_nestings` sessizce yok sayılıyor, varsayılan eşik kullanılıyordu.
+            if metric not in _METRIC_THRESHOLDS:
+                raise _unknown_threshold(
+                    f"thresholds.{metric}", metric, set(_METRIC_THRESHOLDS) | {"by_layer"}
+                )
             if not isinstance(spec, dict):
                 raise ConfigError(f"`thresholds.{metric}` must be a mapping (e.g. {{warn: 10}})")
             unknown = set(spec) - set(_THRESHOLD_KEYS)
@@ -446,7 +502,8 @@ def _require(condition: bool, message: str) -> None:
 
 def _as_int(value: Any, label: str, *, minimum: int = 1) -> int:
     _require(
-        isinstance(value, int) and not isinstance(value, bool), f"`{label}` must be an integer"
+        isinstance(value, int) and not isinstance(value, bool),
+        f"`{label}` must be an integer; got {value!r}",
     )
     _require(value >= minimum, f"`{label}` must be at least {minimum} (got: {value})")
     return int(value)
@@ -658,7 +715,11 @@ def _build_arch(raw: dict[str, Any]) -> ArchConfig:
     declared: dict[str, tuple[str, ...]] = {}
     owners: dict[str, str] = {}
     for layer, paths in declared_raw.items():
-        _require(layer in layers, f"`arch.layers.{layer}`: not in arch.scheme.layers")
+        _require(
+            layer in layers,
+            f"`arch.layers.{layer}`: not in arch.scheme.layers."
+            f"{_did_you_mean({layer}, layers)} Scheme layers: {', '.join(layers)}",
+        )
         declared[layer] = _as_str_list(paths, f"arch.layers.{layer}")
         # Aynı önek iki katmanda olursa atama beyan sırasına kalır ve kullanıcı
         # bunu göremez. Normalleştirme `architecture._normalise` ile aynıdır.

@@ -51,7 +51,7 @@ structural effect of their own refactoring suggestions?**
 | v2.2 | Python-specific measures, pre-registered (K11-K17) | done, released as v2.2.0 |
 
 Published on PyPI as `refactorlens`. All four commands work end to end against
-a real provider. ~1500 package tests plus the fixture's 91 behaviour tests,
+a real provider. ~1700 package tests plus the fixture's 91 behaviour tests,
 ruff clean.
 
 The package figure is deliberately approximate: an exact count rots on every
@@ -357,7 +357,7 @@ idea that leaves the test suite green — that is also the unit of a commit.
 Before every commit:
 
 ```bash
-pytest tests                        # 488
+pytest tests                        # ~1700
 pytest examples/messy_project/tests # 91
 ruff check . && ruff format --check .
 ```

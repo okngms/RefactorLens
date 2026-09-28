@@ -6,6 +6,31 @@ Trusted Publishing (OIDC) ile; PyPI'da wheel ve sdist doğrulandı. İçerik:
 `CHANGELOG.md` 2.2.0. Önceki: v2.1.0 (2026-09-22), v2.0.0 (2026-09-10).
 
 ## Bitenler
+- **Sertleştirme Blok 5 — rapor, kullanım ve dokümantasyon.** Durum notu
+  `docs/v2-sertlestirme.md`. Sertleştirme planının beş bloğu kapandı.
+  - **Madde 1 (adlandırma), K18:** sınıf/fonksiyon adı zaten her komutta
+    `modül:Ad`. `src/` kırpılmadı: layered_project'te hiçbir dizinde
+    `__init__.py` yok (PEP 420), dosya sisteminden içe aktarma adı
+    bilinemez; ayrıca v2 deney hedefleri bu adlarla kayıtlı. Modül
+    fonksiyonu koku hedefi `modül.fonk` → `modül:fonk` şema 4 paketine
+    (FUTURE.md; PEP 727 LOC ile birlikte). Test: `TestOneNamePerTarget`.
+  - **Madde 2 (config mesajları):** bilinmeyen eşik adı sessizce yok
+    sayılıyordu — README'nin kendi örneği `max_nestings` dahil; artık hata.
+    `scan: ['.']` yığın iziyle çöküyordu; artık hata. Mesajlar geçerli
+    seçenekleri ve en yakın adı söylüyor (uzak adda öneri yok). 8 test.
+  - **Madde 3 (`--format`):** `scan`/`arch` json, `verify` json/markdown;
+    stdout yalnız yük, durum satırları stderr; UTF-8 (Windows cp1254'te
+    yönlendirmeyle denendi). 6 test.
+  - **Madde 4 (README):** eksik olan `arch` bölümü, koku tablosu,
+    `--no-arch`, ihlal kodu/alias tablosu ve Arcan ilişkisi,
+    `suspicious`/`moved`, kalibrasyon, katman eşikleri, `--format`. Bugün
+    hiçbir ihlalin `tentative` olmadığı açıkça yazıldı. README döngüsü
+    geçici bir messy_project kopyasında baştan sona uygulandı (1 Groq
+    çağrısı; anahtarın kopyası silindi).
+  - **Madde 5:** STRUCTURE test ağacına 17 eksik dosya; bayat "488" (3 yer)
+    ve "under two seconds" düzeltildi; AGENTS ~1700; `docs/04` §7 ad kuralı
+    ve `--format`.
+  - Durum: 1679 paket testi (10 atlandı), 91 fikstür testi, ruff temiz.
 - **Sertleştirme Blok 4 — test ve hijyen.** Durum notu `docs/v2-sertlestirme.md`.
   - **Madde 1:** `arch` ihlal tablosunun son sütunu `Certainty` (`firm` /
     `tentative`). D3-D6 tek tek kontrol edildi: D4, D5, D6 kodda kapalıydı;
@@ -667,14 +692,22 @@ framework deyiminden geliyor.**
   orkestrasyon modülleri.
 
 ## Sıradaki iş
-**Sertleştirme Blok 3, 2 ve 4 bitti.** Sıra (`docs/v2-sertlestirme.md`):
-Blok 3 → Blok 2 → Blok 4 → **Blok 5**. Sıradaki: **sertleştirme Blok 5 —
-rapor, kullanım ve dokümantasyon** (hedef adlandırma tek kural ve `src/`
-önekinin kırpılması — friction F4; config hata mesajları; `--format
-json|markdown|table`; README'nin v2'ye göre gözden geçirilmesi;
-AGENTS/STRUCTURE/`docs/04`). Önce Blok 5'in maddelerinden hangilerinin
-zaten kapandığı okunmalı; README'nin büyük kısmı v2.1-v2.2'de yeniden
-yazıldı.
+**Sertleştirme planı (Blok 1-5) bitti.** `docs/v2-sertlestirme.md`'nin
+çıkışında sıradaki adım: **`docs/02` (v3) FINDINGS-2 bulgularına göre revize
+→ v3 başlar**. Önce `docs/02`'yi okuyup v3'ün ilk bloğunu (ön koşulları:
+`apply`, geri besleme turu, benchmark) netleştirmek gerekiyor.
+
+Bu arada açık kalan, küçük ve bağımsız işler: `report.terminal`'deki eşik
+mantığını taşımak ve `analysis`'in `importlinter` çağrısını sınıra çekmek
+(Blok 3'ün iki gerçek ihlali); `explain` prompt'undaki eski "başka bir dil"
+ifadesi (bir sonraki gerçek explain koşusuyla).
+
+**Yayın önerisi:** "Unreleased" artık büyük: `--no-llm`, `advise`'ın iki
+bütçe düzeltmesi (hedeflerin %42'si sorulmuyordu), fonksiyon hedefi katman
+düzeltmesi, `--format`, config hataları (bilinmeyen eşik adı artık hata —
+davranış değişikliği), önek çakışması hatası, `Certainty` sütunu. v3'e
+geçmeden önce **2.3.0** yayınlanması öneriliyor; kullanıcı onaylarsa
+hazırlanır.
 
 Blok 3'ten açık kalan iki mimari iş (döngünün hedef alamadığı modül
 yerleşimi): `class_violations`/`function_violations`'ı `report.terminal`'den
@@ -719,8 +752,9 @@ experiments/hardening/stateless-gate.md → experiments/hardening/density-gate.m
 → docs/v2-tanim-kararlari.md (K4, K7, K9, K10)
 Etiketleme: experiments/hardening/god-class-labeling.md (etiketleyen için;
 kapı çıktılarını okumadan).
-Sonraki faz: docs/v2-sertlestirme.md (Blok 5). Blok 4 sonucu:
-experiments/hardening/mutation.md. Blok 3 sonucu: docs/self-architecture.md;
+Sonraki faz: docs/02 (v3). Sertleştirme sonuçları: docs/self-architecture.md,
+experiments/hardening/robustness.md, experiments/hardening/mutation.md,
+docs/v2-tanim-kararlari.md K18. Blok 3 sonucu: docs/self-architecture.md;
 Blok 2 sonucu: experiments/hardening/robustness.md.
 Deney protokolü: docs/v2-duzeltme-asama5.md. Metrik sınıfları:
 docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.

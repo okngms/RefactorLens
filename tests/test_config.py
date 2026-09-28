@@ -110,6 +110,72 @@ class TestValidation:
             load_config(search_from=tmp_path)
 
 
+def error_for(tmp_path, text: str) -> str:
+    write_config(tmp_path, text)
+    with pytest.raises(ConfigError) as caught:
+        load_config(search_from=tmp_path)
+    return str(caught.value)
+
+
+class TestErrorMessages:
+    """Hata mesajı neyi, nerede, neden ve geçerli seçenekleri söyler (sertleştirme Blok 5).
+
+    Tam metin sabit: mesaj kullanıcının config'i düzeltmek için okuduğu tek şey.
+    """
+
+    def test_typo_in_a_section_key(self, tmp_path):
+        assert error_for(tmp_path, "scan:\n  exclud: ['tests/']\n") == (
+            "Unknown key under `scan`: exclud. Did you mean `exclude`? "
+            "Valid keys: exclude, include, output_dir"
+        )
+
+    def test_typo_in_a_threshold_name(self, tmp_path):
+        """README'nin kendi örneği: önceden sessizce varsayılanlarla çalışıyordu."""
+        assert error_for(tmp_path, "thresholds:\n  max_nestings: {warn: 4}\n") == (
+            "Unknown threshold `thresholds.max_nestings`. Did you mean `max_nesting`? "
+            "Valid thresholds: by_layer, cyclomatic_complexity, dcc, lcom4, max_nesting, "
+            "max_params, nom, wmc"
+        )
+
+    def test_unknown_threshold_under_a_layer(self, tmp_path):
+        text = "thresholds:\n  by_layer:\n    domain:\n      dc: {warn: 4}\n"
+        assert error_for(tmp_path, text) == (
+            "Unknown threshold `thresholds.by_layer.domain.dc`. Did you mean `dcc`? "
+            "Valid thresholds: cyclomatic_complexity, dcc, lcom4, max_nesting, "
+            "max_params, nom, wmc"
+        )
+
+    def test_a_section_that_is_not_a_mapping(self, tmp_path):
+        """Önceden yığın iziyle çöküyordu."""
+        assert error_for(tmp_path, "scan: ['.']\n") == (
+            "`scan` must be a mapping of settings, got a list. "
+            "Write each setting on its own indented line under `scan:`"
+        )
+
+    def test_an_integer_setting_shows_what_it_got(self, tmp_path):
+        assert error_for(tmp_path, "advise:\n  top_n: zero\n") == (
+            "`advise.top_n` must be an integer; got 'zero'"
+        )
+
+    def test_an_undeclared_layer_lists_the_scheme(self, tmp_path):
+        assert error_for(tmp_path, "arch:\n  layers:\n    domian: ['core/']\n") == (
+            "`arch.layers.domian`: not in arch.scheme.layers. Did you mean `domain`? "
+            "Scheme layers: presentation, application, domain, infrastructure"
+        )
+
+    def test_a_distant_name_gets_no_misleading_suggestion(self, tmp_path):
+        """`persistance` `presentation` değildir; kullanıcı şemada olmayan bir
+        katmanı kastediyor, yanlış bir öneri onu yanıltırdı."""
+        message = error_for(tmp_path, "arch:\n  layers:\n    persistance: ['db/']\n")
+        assert "Did you mean" not in message
+        assert message.endswith("Scheme layers: presentation, application, domain, infrastructure")
+
+    def test_no_suggestion_when_nothing_is_close(self, tmp_path):
+        assert error_for(tmp_path, "advise:\n  zzz: 1\n").startswith(
+            "Unknown key under `advise`: zzz. Valid keys: "
+        )
+
+
 class TestThreshold:
     @pytest.mark.parametrize(
         ("value", "expected"),

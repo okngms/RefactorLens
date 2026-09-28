@@ -185,8 +185,25 @@ tests/
 ├── test_diff.py            Metric deltas
 ├── test_prediction.py      Prediction scoring
 ├── test_verify_report.py   verify output
+├── test_goodhart.py        suspicious vs moved: vanished members searched project-wide
+├── test_calibration.py     Brier score and ECE over stated confidence
+├── test_budget.py          Per-run call and token budget
+├── test_cache.py           Prompt-hash keyed response cache
+├── test_interface.py       Public interface of a class
+├── test_smells.py          Smell rules and their evidence
+├── test_imports.py         Import graph: resolution, weak edges, unresolved imports
+├── test_graph.py           SCC, condensation depth, module metrics
+├── test_architecture.py    Layer assignment and the four violation kinds
+├── test_arch_report.py     arch output and report
+├── test_importlinter.py    Layer declarations read from import-linter contracts
+├── test_layered_fixture.py Gold values of examples/layered_project
+├── test_explain.py         explain prompt and parser
+├── test_explain_cli.py     rlens explain end to end
+├── test_explain_template.py  explain --no-llm: sentence templates, isolation from prompts
+├── test_experiments_v2.py  Logic of the phase-5a experiment scripts
+├── test_packaging.py       Published-package contract: links, version, entry point
 ├── test_metric_edges.py    Real-world idioms: decorators, @overload, except*, string annotations
-├── test_properties.py     Metric relations on generated code (hypothesis, deterministic)
+├── test_properties.py      Metric relations on generated code (hypothesis, deterministic)
 ├── test_mutation_survivors.py  Behaviours mutation testing found untested
 ├── test_hardening_compare.py  The radon cross-check classifier (radon optional)
 ├── test_hardening_dcc.py   DCC manual-count sampling, hints, verdict enforcement
@@ -208,7 +225,7 @@ tests/
 ├── test_hardening_unreported.py  Conditional units, duplicate identities, logic sets
 ├── test_module_cohesion.py  Module globals, components, exact expectation
 ├── test_entry_points.py    Entry point recognition; no too_many_params, no advice on params
-└── test_cli.py             All four commands end to end
+└── test_cli.py             Every command end to end, --format, one name per target
 ```
 
 ### `experiments/hardening/` — metric accuracy on real code
@@ -294,13 +311,14 @@ experiments/hardening/
 └── .cache/                 Checked-out reference projects (gitignored, not in sdist)
 ```
 
-488 tests. None of them touch the network: providers are faked and backoff
-delays are injected, so the suite runs offline in under two seconds.
+About 1,700 tests. None of them touch the network: providers are faked and backoff
+delays are injected, so the suite runs offline, in well under a minute on a
+laptop.
 
 Run both suites:
 
 ```bash
-pytest tests                        # 488
+pytest tests                        # ~1,700
 pytest examples/messy_project/tests # 91
 ```
 

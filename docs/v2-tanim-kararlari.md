@@ -580,6 +580,49 @@ sınıfların küçük bir kısmında taşıyor olabilir; bu, LLM tek etiketleyi
 
 **Sonraki adım.** Aynı 32 sınıf için kör insan etiketi ve LLM ile uyum (κ).
 
+## K18 — Hedef adı yoldan türer, `src/` kırpılmaz; koku hedefi biçimi şema 4'e
+
+> Karara bağlandı 2026-09-28 (sertleştirme Blok 5, madde 1). Kod ve şema
+> değişmez. Test: `tests/test_cli.py::TestOneNamePerTarget`.
+
+**Soru.** Plan tek bir ad kuralı istiyordu: rapor, terminal, `advise` ve
+`verify --applied` aynı biçimi kullansın, `src/` düzeni tespit edilirse önek
+kırpılsın ve raporda `root_package` yazılsın. Dogfooding'de aynı birimin üç
+adı görüldü (friction F4).
+
+**Bugünkü durum, ölçülerek.** Sınıf ve fonksiyonun adı zaten her komutta
+aynı: `modül:Ad`, modül adı taranan köke göre yoldan türer
+(`src.app.orders:Widget`). `advise` hedefi, `verify`'ın eşleştirmesi ve
+`--applied` bu adı kullanır; test üçünü tek adla uçtan uca sınar. Farklı
+görünen iki şey var: `arch` tablosu ortak öneki yalnızca gösterimde kırpar
+(başlıkta "under `src`" yazar), ve modül düzeyi fonksiyonların koku hedefi
+`modül.fonk` biçimindedir; sınıf ve metotlarda `modül:Sınıf`,
+`modül:Sınıf.metot`.
+
+**Karar 1: `src/` kırpılmaz.** İçe aktarma adını dosya sisteminden bilmek
+güvenilir değil. "`__init__.py` olmayan baştaki dizini at" kuralı ad alanı
+paketlerinde (PEP 420) yanlış: `examples/layered_project`'te hiçbir dizinde
+`__init__.py` yok, kural `src.domain.entities`'i `domain.entities` mi yoksa
+`entities` mi yapacağını söyleyemez. Doğru adı paketleme meta verisi
+(`pyproject.toml`) bilir; onu okumak ayrı bir iş. Kırpmak ayrıca her raporun
+kimliğini değiştirir: v2 deneyinin sabit hedefleri
+(`experiments/run_advice_v2.py`, `run_verify_v2.py`:
+`src.services.order_service:OrderService`) bu adla kayıtlı.
+
+**Karar 2: koku hedefi biçimi şema 4'e ertelenir.** `modül.fonk` →
+`modül:fonk` doğru düzeltme, ama `verify` kokuları iki rapor arasında
+`etiket @ hedef` dizgesiyle eşleştirir (`verify/diff.py::_smell_keys`). Aynı şema sürümünde biçim değişirse 2.x raporuyla
+karşılaştırmada her modül fonksiyonu kokusu "gitti" + "geldi" diye görünür;
+aritmetik geçerli, anlamca boş bir delta (invariant). Düzeltme şema artışı
+ister ve zaten bekleyen şema 4 paketine eklendi (PEP 727 LOC, FUTURE.md).
+
+**Maliyet.** Kullanıcı `src.` önekli adı görmeye devam eder. Koku listesinde
+iki ayraç biçimi yan yana durur. Bu deponun kendi taramasında 41 kokunun 37'si
+modül fonksiyonu kokusu (`experiments/hardening/self/scan-*.json`); hepsi
+`modül.fonk` biçiminde.
+
+**Etki.** Yok: kod ve şema değişmedi.
+
 ## Korpustaki etki
 
 26 projelik kalibrasyon korpusunda (13 738 sınıf, 39 485 fonksiyon+metot) şema
