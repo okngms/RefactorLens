@@ -1,6 +1,11 @@
 # RefactorLens — Sürümlere Göre Kod İşlev Haritası (v2 → v4)
 ### Doküman setini (`00`–`04`) güncelleyen özet — 2026-09-03
 
+> **Sürüm adlandırması (2026-09-29).** Bu planın içeriği değişmedi; yalnızca
+> sürüm adları v2 hattına alındı: **v3 → v2.4**, **v4 → v2.5**. Aşağıda
+> geçen "v3" v2.4'ü, "v4" v2.5'i; "v3.0.0" 2.4.0'ı, FINDINGS-3/4 aynı
+> adlarıyla kalır.
+
 > **Amaç:** Araştırma sentezi ve repo'nun gerçek durumu sonrasında kodun **her sürümde ne yapacağını** tek yerde, komut ve işlev düzeyinde tanımlamak. Bu dosya `00`–`04`'ün sürüm bölümlerini geçersiz kılar; §6'da o dosyalara uygulanacak somut değişiklikler listelenir. Kilitli ilkeler (kod çalıştırılmaz*, `—`≠0, bilinmeyen anahtar hatadır, model adı koda gömülmez, davranış kapısı) her sürümde korunur. (*v3 `apply` bilinçli istisnadır — kullanıcının kendi test komutu çalıştırılır.)
 
 ---

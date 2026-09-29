@@ -1,5 +1,11 @@
 # RefactorLens — Genel Bakış, Sürüm Haritası ve Literatür Konumu
 
+> **Sürüm adlandırması (2026-09-29).** Bu planın içeriği değişmedi; yalnızca
+> sürüm adları v2 hattına alındı: **v3 → v2.4**, **v4 → v2.5**. Aşağıda
+> geçen "v3" v2.4'ü, "v4" v2.5'i; "v3.0.0" 2.4.0'ı, FINDINGS-3/4 aynı
+> adlarıyla kalır.
+
+
 > **Doküman seti:** Bu dosya giriş noktasıdır. Diğer dosyalar:
 > `01-v2-katman-farkinda-yorumlama.md` · `02-v3-kapali-dongu-ve-benchmark.md` · `03-v4-zaman-ve-platform.md` · `04-ortak-spesifikasyon.md`
 >

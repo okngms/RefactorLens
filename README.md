@@ -657,8 +657,9 @@ Phases 3 and 4 shipped together in v0.2.0. Both experiments live in
 
 Next: layer inference instead of requiring layers to be declared — today they come from your config or from an
 existing `import-linter` contract, and are reported `unknown` when neither is
-present. **v3** closes the loop (`apply`, a
-feedback round, a benchmark); **v4** adds history and other languages.
+present. **v2.4** closes the loop (`apply` in an isolated git branch that a
+human reviews and merges, a feedback round, a benchmark); **v2.5** adds
+history. These were planned as v3 and v4 and stay in the 2.x line.
 
 Ideas deliberately out of scope live in [FUTURE.md](https://github.com/okngms/RefactorLens/blob/main/FUTURE.md).
 [STRUCTURE.md](https://github.com/okngms/RefactorLens/blob/main/STRUCTURE.md) maps the codebase file by file, and

@@ -8,6 +8,10 @@ regenerate any `before` report with the new version.
 
 ### Added
 
+- Config sections `tests` (`command`, `timeout`) and `apply` (`allow_files`,
+  `keep_failed`), groundwork for the upcoming `apply` command (v2.4). Nothing
+  reads them yet.
+
 - `--format` on `scan`, `arch` (`json`) and `verify` (`json`, `markdown`):
   print the report itself on stdout instead of the tables, for pipes and CI.
   The content is the report file's; status lines go to stderr.

@@ -6,6 +6,24 @@ Trusted Publishing (OIDC) ile; PyPI'da wheel ve sdist doğrulandı. İçerik:
 `CHANGELOG.md` 2.2.0. Önceki: v2.1.0 (2026-09-22), v2.0.0 (2026-09-10).
 
 ## Bitenler
+- **Sürüm adlandırması (kullanıcı kararı, 2026-09-29):** planlanan v3 ve v4
+  2.x hattında kalıyor: **v3 → v2.4**, **v4 → v2.5**. Plan içeriği değişmedi
+  (`docs/02`, `docs/03`; `00`, `06`'ya adlandırma notu). README yol haritası,
+  AGENTS faz tablosu ve "No auto-fix" kararının metni güncellendi: v2.4
+  `apply` yalnızca izole worktree/branch'e yazar, kullanıcının testleriyle
+  kapıdan geçer, asla merge etmez.
+- **v2.4 Aşama 0 — davranış kapısı ve worktree altyapısı** (`docs/02` §11).
+  - `src/rlens/apply/`: `worktree.py` (repo kontrolü, temiz ağaç — izlenmeyen
+    dosya da kirli —, `.rlens-work/<run-id>/` worktree ve `rlens/<run-id>/<hedef>`
+    branch, yerel `info/exclude`), `patch.py` (dokunulan dosyalar, izin kümesi,
+    depo dışına çıkan yol, `git apply --check`), `gate.py` (seviye 1: test
+    komutu, kabukta, zaman limitiyle).
+  - Config: `tests.command` (yoksa `apply` çalışmayacak), `tests.timeout`
+    (300), `apply.allow_files`, `apply.keep_failed`.
+  - Testler: `test_apply_worktree.py` 19 (gerçek git depoları; her senaryoda
+    kullanıcının HEAD, branch, `status` ve dosyası değişmiyor), config 4.
+  - Maliyet: paket test süresi ~23 → ~60 sn (worktree kurulumu, Windows).
+  - Durum: 1702 paket testi (10 atlandı), 91 fikstür testi, ruff temiz.
 - **Sertleştirme Blok 5 — rapor, kullanım ve dokümantasyon.** Durum notu
   `docs/v2-sertlestirme.md`. Sertleştirme planının beş bloğu kapandı.
   - **Madde 1 (adlandırma), K18:** sınıf/fonksiyon adı zaten her komutta
@@ -692,17 +710,20 @@ framework deyiminden geliyor.**
   orkestrasyon modülleri.
 
 ## Sıradaki iş
-**Sertleştirme planı (Blok 1-5) bitti.** `docs/v2-sertlestirme.md`'nin
-çıkışında sıradaki adım: **`docs/02` (v3) FINDINGS-2 bulgularına göre revize
-→ v3 başlar**. Önce `docs/02`'yi okuyup v3'ün ilk bloğunu (ön koşulları:
-`apply`, geri besleme turu, benchmark) netleştirmek gerekiyor.
+**v2.4 sürüyor** (planlanan v3; `docs/02`). Aşama 0 bitti. Sıradaki:
+**Aşama 1 — `apply`**: patch prompt şeması (yeni modül; `advise/prompts.py`
+donmuş kalır), tek onarım denemesi, kapı entegrasyonu, başarıda branch'e
+commit, `verify` çağrısı, rapor. **Bitti ⇔** `layered_project`'te bir öneri
+uçtan uca uygulanıp `improved|regressed|mixed|suspicious` sonucu alınıyor;
+kapı geçmeyen vaka temizleniyor. Sonra Aşama 2 (`chartests`), 3 (`loop`),
+4 (tür tespiti, typed), 5 (`diff`/Action), 6 (LensBench, FINDINGS-3).
 
 Bu arada açık kalan, küçük ve bağımsız işler: `report.terminal`'deki eşik
 mantığını taşımak ve `analysis`'in `importlinter` çağrısını sınıra çekmek
 (Blok 3'ün iki gerçek ihlali); `explain` prompt'undaki eski "başka bir dil"
 ifadesi (bir sonraki gerçek explain koşusuyla).
 
-**Yayın önerisi:** "Unreleased" artık büyük: `--no-llm`, `advise`'ın iki
+**Yayın:** kullanıcı "sonra bakalım" dedi (2026-09-29). Not: "Unreleased" artık büyük: `--no-llm`, `advise`'ın iki
 bütçe düzeltmesi (hedeflerin %42'si sorulmuyordu), fonksiyon hedefi katman
 düzeltmesi, `--format`, config hataları (bilinmeyen eşik adı artık hata —
 davranış değişikliği), önek çakışması hatası, `Certainty` sütunu. v3'e
@@ -752,7 +773,7 @@ experiments/hardening/stateless-gate.md → experiments/hardening/density-gate.m
 → docs/v2-tanim-kararlari.md (K4, K7, K9, K10)
 Etiketleme: experiments/hardening/god-class-labeling.md (etiketleyen için;
 kapı çıktılarını okumadan).
-Sonraki faz: docs/02 (v3). Sertleştirme sonuçları: docs/self-architecture.md,
+Sonraki faz: docs/02 (v2.4, planlanan v3). Sertleştirme sonuçları: docs/self-architecture.md,
 experiments/hardening/robustness.md, experiments/hardening/mutation.md,
 docs/v2-tanim-kararlari.md K18. Blok 3 sonucu: docs/self-architecture.md;
 Blok 2 sonucu: experiments/hardening/robustness.md.

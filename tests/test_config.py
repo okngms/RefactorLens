@@ -176,6 +176,33 @@ class TestErrorMessages:
         )
 
 
+class TestApplySettings:
+    """`tests` ve `apply` bölümleri (v2.4, `docs/02` §9)."""
+
+    def test_defaults(self, tmp_path):
+        config = load_config(search_from=tmp_path)
+        assert (config.tests.command, config.tests.timeout) == (None, 300)
+        assert (config.apply.allow_files, config.apply.keep_failed) == ((), False)
+
+    def test_values_are_read(self, tmp_path):
+        write_config(
+            tmp_path,
+            "tests:\n  command: 'pytest -q'\n  timeout: 60\n"
+            "apply:\n  allow_files: ['app/new.py']\n  keep_failed: true\n",
+        )
+        config = load_config(search_from=tmp_path)
+        assert (config.tests.command, config.tests.timeout) == ("pytest -q", 60)
+        assert (config.apply.allow_files, config.apply.keep_failed) == (("app/new.py",), True)
+
+    def test_command_must_be_text(self, tmp_path):
+        assert error_for(tmp_path, "tests:\n  command: [pytest]\n") == (
+            "`tests.command` must be a shell command as a string, e.g. 'pytest -q'"
+        )
+
+    def test_timeout_must_be_positive(self, tmp_path):
+        assert "`tests.timeout` must be at least 1" in error_for(tmp_path, "tests:\n  timeout: 0\n")
+
+
 class TestThreshold:
     @pytest.mark.parametrize(
         ("value", "expected"),

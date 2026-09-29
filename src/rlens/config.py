@@ -84,6 +84,10 @@ DEFAULTS: dict[str, Any] = {
     "budget": {"max_calls_per_run": 10, "max_tokens_per_call": 4000},
     "cache": {"enabled": True, "dir": ".rlens-cache/"},
     "verify": {"treat_suspicious_as_regression": True},
+    # v2.4 `apply` (`docs/02` §9). Test komutu yoksa `apply` çalışmaz: davranış
+    # kapısı olmadan uygulanan hiçbir öneri bir delta sayılamaz.
+    "tests": {"command": None, "timeout": 300},
+    "apply": {"allow_files": [], "keep_failed": False},
     "thresholds": {
         # Katman bazlı geçersiz kılma: `by_layer.<katman>.<metrik>.<warn|critical>`
         "by_layer": {},
@@ -241,6 +245,21 @@ class VerifyConfig:
 
 
 @dataclass(frozen=True)
+class TestsConfig:
+    command: str | None
+    """Kullanıcının test komutu (kabukta, worktree'de koşar); yoksa `apply` çalışmaz."""
+    timeout: int
+
+
+@dataclass(frozen=True)
+class ApplyConfig:
+    allow_files: tuple[str, ...]
+    """Hedefin dosyası dışında patch'in dokunabileceği dosyalar."""
+    keep_failed: bool
+    """Kapıyı geçemeyen worktree incelemek için tutulsun mu."""
+
+
+@dataclass(frozen=True)
 class Config:
     provider: ProviderConfig
     scan: ScanConfig
@@ -253,6 +272,8 @@ class Config:
     budget: BudgetConfig | None = None
     cache: CacheConfig | None = None
     verify: VerifyConfig | None = None
+    tests: TestsConfig | None = None
+    apply: ApplyConfig | None = None
     source_path: Path | None = None
 
     def threshold_for(self, metric: str, layer: str | None = None) -> Threshold | None:
@@ -434,7 +455,18 @@ def _reject_unknown_keys(raw: dict[str, Any]) -> None:
                 f"`{section}` must be a mapping of settings, got {kind}. "
                 f"Write each setting on its own indented line under `{section}:`"
             )
-    for section in ("provider", "scan", "advise", "metrics", "arch", "budget", "cache", "verify"):
+    for section in (
+        "provider",
+        "scan",
+        "advise",
+        "metrics",
+        "arch",
+        "budget",
+        "cache",
+        "verify",
+        "tests",
+        "apply",
+    ):
         value = raw.get(section)
         if isinstance(value, dict):
             unknown = set(value) - set(DEFAULTS[section])
@@ -643,6 +675,26 @@ def _build(data: dict[str, Any], source: Path | None) -> Config:
         treat_suspicious_as_regression=verify_raw["treat_suspicious_as_regression"]
     )
 
+    tests_raw = data["tests"]
+    command = tests_raw["command"]
+    _require(
+        command is None or isinstance(command, str),
+        "`tests.command` must be a shell command as a string, e.g. 'pytest -q'",
+    )
+    # Boş dize komut yok demektir; `apply` bunu "ayarlanmamış" diye reddeder.
+    if isinstance(command, str):
+        command = command.strip() or None
+    tests = TestsConfig(command=command, timeout=_as_int(tests_raw["timeout"], "tests.timeout"))
+
+    apply_raw = data["apply"]
+    _require(
+        isinstance(apply_raw["keep_failed"], bool), "`apply.keep_failed` must be true or false"
+    )
+    apply = ApplyConfig(
+        allow_files=_as_str_list(apply_raw["allow_files"], "apply.allow_files"),
+        keep_failed=apply_raw["keep_failed"],
+    )
+
     return Config(
         provider=provider,
         scan=scan,
@@ -655,6 +707,8 @@ def _build(data: dict[str, Any], source: Path | None) -> Config:
         budget=budget,
         cache=cache,
         verify=verify,
+        tests=tests,
+        apply=apply,
         source_path=source,
     )
 

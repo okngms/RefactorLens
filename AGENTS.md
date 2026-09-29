@@ -49,6 +49,8 @@ structural effect of their own refactoring suggestions?**
 | v2 | Architecture, smells, calibration, `FINDINGS-2.md` | done, released as v2.0.0 |
 | v2.1 | Hardening against a 26-project corpus, `explain` (experimental) | done, released as v2.1.0 |
 | v2.2 | Python-specific measures, pre-registered (K11-K17) | done, released as v2.2.0 |
+| v2.4 | Closed loop and LensBench (`docs/02`, planned as v3) | in progress |
+| v2.5 | Time axis and platform (`docs/03`, planned as v4) | planned |
 
 Published on PyPI as `refactorlens`. All four commands work end to end against
 a real provider. ~1700 package tests plus the fixture's 91 behaviour tests,
@@ -70,6 +72,10 @@ reintroduces a bug that was already fixed once.
 
 **No auto-fix.** The tool suggests; a human applies. Automatic application would
 make the behaviour-test rule unenforceable, and that rule is load-bearing.
+v2.4's `apply` (`docs/02`, §2) stays inside this rule: it writes a patch only
+into an isolated git worktree and branch, runs the user's own tests as a gate,
+and never touches the working tree or merges. A human reviews the branch and
+merges it.
 
 **No `history` command.** `reports/` is gitignored, so history lives on one
 machine and dies with it. `verify` covers the useful case.
@@ -164,7 +170,7 @@ the contract.
 
 Extract Class moves members to a new class. A check that only looks at the
 target's own interface calls every Extract Class suspicious — the tool would
-punish exactly the refactoring it recommends, and `apply` in v3 would reject
+punish exactly the refactoring it recommends, and `apply` (v2.4) would reject
 all of them.
 
 Vanished members are searched for elsewhere in the project first. Found →

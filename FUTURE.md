@@ -72,7 +72,7 @@ eklenmez; amaç fikri kaybetmemek ama kapsamı şişirmemektir.
   Python'a taşınması v1/v2'nin bilinen sınırlılığı; bunu düzeltmek ayrı bir
   araştırma sorusu ve v3 çerçevesine aittir.
 
-- **v3 prompt revizyonu için birikenler** (`advise/prompts.py` ve
+- **v2.4 prompt revizyonu için birikenler** (plan adıyla v3) (`advise/prompts.py` ve
   `validate_constraints` deney protokolü gereği donmuş):
   - LOC etiketi `# physical lines` şema 3'ten (K1) beri yanlış; model
     kullanıcıya aynen aktarıyor (friction F2).

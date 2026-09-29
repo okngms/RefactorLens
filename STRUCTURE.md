@@ -91,6 +91,11 @@ src/rlens/
 │   ├── calibration.py      Brier score and ECE over stated confidence
 │   └── goodhart.py         Metrics improved while the interface shrank
 │
+├── apply/                  v2.4: applying a suggestion in an isolated git worktree
+│   ├── worktree.py         Repository check, clean-tree check, worktree and branch
+│   ├── patch.py            Which files a patch touches; apply only if it applies cleanly
+│   └── gate.py             Behaviour gate level 1: the user's test command, with a timeout
+│
 └── report/                 Everything the user sees or reads later
     ├── terminal.py         scan tables
     ├── architecture.py     arch output, terminal and markdown
@@ -202,6 +207,7 @@ tests/
 ├── test_explain_template.py  explain --no-llm: sentence templates, isolation from prompts
 ├── test_experiments_v2.py  Logic of the phase-5a experiment scripts
 ├── test_packaging.py       Published-package contract: links, version, entry point
+├── test_apply_worktree.py  apply invariants on real git repos: the user's branch never changes
 ├── test_metric_edges.py    Real-world idioms: decorators, @overload, except*, string annotations
 ├── test_properties.py      Metric relations on generated code (hypothesis, deterministic)
 ├── test_mutation_survivors.py  Behaviours mutation testing found untested

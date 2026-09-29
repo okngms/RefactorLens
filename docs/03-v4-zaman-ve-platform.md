@@ -1,5 +1,10 @@
 # RefactorLens v4 — Zaman Ekseni ve Platform
 
+> **Sürüm adlandırması (2026-09-29).** Bu planın içeriği değişmedi; yalnızca
+> sürüm adları v2 hattına alındı: **v3 → v2.4**, **v4 → v2.5**. Aşağıda
+> geçen "v3" v2.4'ü, "v4" v2.5'i; "v3.0.0" 2.4.0'ı, FINDINGS-3/4 aynı
+> adlarıyla kalır.
+
 > **Önkoşul:** v3.0.0 yayında; LensBench ve FINDINGS-3 tamamlanmış; GitHub Action'ın gerçek kullanıcıları var. `00` ve `04` okunmuş.
 > **Tez:** v1-v3 kodun *anlık* fotoğrafını ölçer. Mimari borç ise zaman içinde birikir ve her sınıf eşit önemde değildir: sürekli değişen ve kötüleşen sınıf, hiç dokunulmayan kötü sınıftan daha önemlidir. v4 zaman eksenini ekler, çekirdeği dilden bağımsızlaştırır ve ekip kullanımına uygun raporlama/politika katmanı getirir.
 > **Uyarı:** v4'ün üçüncü bloğu (ekip katmanı) yalnızca v3'ün kullanıcı verisi "talep var" diyorsa yapılır. Talep yoksa v4 = zaman ekseni + eklenti protokolü.

@@ -1,5 +1,10 @@
 # RefactorLens v3 — Kapalı Döngü ve LensBench
 
+> **Sürüm adlandırması (2026-09-29).** Bu planın içeriği değişmedi; yalnızca
+> sürüm adları v2 hattına alındı: **v3 → v2.4**, **v4 → v2.5**. Aşağıda
+> geçen "v3" v2.4'ü, "v4" v2.5'i; "v3.0.0" 2.4.0'ı, FINDINGS-3/4 aynı
+> adlarıyla kalır.
+
 > **Önkoşul:** v2.0.0 yayında; FINDINGS-2 tamamlanmış. `00` ve `04` okunmuş.
 > **Tez:** v1-v2'de döngü elle kapanıyordu; bu, deney ölçeğini sınırlıyor ve aracın günlük kullanımını engelliyor. v3 döngüyü güvenli biçimde otomatik kapatır (`apply`), modele kendi hatasını geri besler ve ortaya çıkan veriyi tekrarlanabilir bir benchmark'a (**LensBench**) dönüştürür. Sonuç: RefactorLens "analizör"den "denetimli refactoring ajanı + ölçüm standardı"na geçer.
 
@@ -130,6 +135,14 @@ action/                       # GitHub Action (action.yml, entrypoint)
 ## 11. Aşama planı ve kabul kriterleri
 
 ### Aşama 0 — Davranış kapısı ve worktree altyapısı
+
+> **Durum (2026-09-29): yapıldı.** `src/rlens/apply/{worktree,patch,gate}.py`;
+> config `tests` ve `apply` bölümleri. Testler (`tests/test_apply_worktree.py`,
+> 19; gerçek git depolarıyla) dört ölçütü sabitler. Uygulama kararları:
+> izlenmeyen dosya da kirli sayılır; `.rlens-work/` kullanıcının
+> `.gitignore`'una değil deponun yerel `info/exclude`'una yazılır; test
+> komutu kabukta koşar (bileşik komutlar için; Windows'ta zaman aşımında
+> kabuğun alt süreçleri hayatta kalabilir). `runner.py` Aşama 1'de.
 Kapı seviye 1, worktree/branch yönetimi, patch doğrulama (dosya kısıtı, çakışma), invariant testleri.
 **Bitti ⇔** sahte bir patch worktree'de uygulanıp test koşuluyor; kirli ağaç reddediliyor; izinsiz dosya değişikliği reddediliyor; hiçbir testte kullanıcı branch'i değişmiyor (invariant testleri).
 
