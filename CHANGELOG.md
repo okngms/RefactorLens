@@ -4,25 +4,51 @@ Scan, advice and explain reports carry their own `schema_version`; `verify`
 refuses to compare scan reports whose schema versions differ. After upgrading,
 regenerate any `before` report with the new version.
 
-## Unreleased
+## 2.3.0 — 2026-09-30
+
+`advise` no longer skips most of the large targets it selects, `explain` gains
+a deterministic `--no-llm` reading, and `scan`, `arch` and `verify` can print
+their report on stdout for pipes and CI. Scan schema stays 3: 2.2.0 reports
+remain comparable with `verify`. One behaviour change: an unknown threshold
+name in `rlens.yaml` is now a config error instead of being silently ignored.
 
 ### Added
-
-- Config sections `tests` (`command`, `timeout`) and `apply` (`allow_files`,
-  `keep_failed`), groundwork for the upcoming `apply` command (v2.4). Nothing
-  reads them yet.
-
-- `--format` on `scan`, `arch` (`json`) and `verify` (`json`, `markdown`):
-  print the report itself on stdout instead of the tables, for pipes and CI.
-  The content is the report file's; status lines go to stderr.
 
 - `rlens explain --no-llm`: a deterministic reading of the report with fixed
   sentence templates — threshold findings with the metric's definition, smells
   with their evidence, and uncomputed metrics with their reasons. Calls no
   model and needs no key; writes `explain-template-*.json` and `.md`. The text
   never reaches a prompt.
+- `--format` on `scan`, `arch` (`json`) and `verify` (`json`, `markdown`):
+  print the report itself on stdout instead of the tables, for pipes and CI.
+  The content is the report file's; status lines go to stderr.
 - Scan reports: `modules[].layer_source` and `modules[].layer_confidence`,
   as classes already had. Adding fields does not change the schema version.
+- Config sections `tests` (`command`, `timeout`) and `apply` (`allow_files`,
+  `keep_failed`), groundwork for the upcoming `apply` command (v2.4). Nothing
+  reads them yet.
+
+### Changed
+
+- An unknown threshold name (`thresholds.max_nestings`, or one under
+  `thresholds.by_layer`) is now a config error; it was silently ignored and
+  the default threshold used — the very typo the README warns about.
+- Config errors say what is valid and suggest the nearest name (for example
+  "Did you mean `exclude`?"). A section written as a list or a string
+  (`scan: ['.']`) is a config error instead of a crash; an integer setting
+  shows what it got.
+- A path prefix declared under two layers in `arch.layers` is now a config
+  error. Which layer won depended on declaration order, and nothing said so.
+- `arch`'s violation table names its last column (`Certainty`: `firm` or
+  `tentative`); the column had no header and firm violations left it blank.
+- `arch` without declared layers now says what it still checks (import
+  cycles) and where to declare layers, instead of promising inference.
+- `data_class` detection builds a class's public interface only when the
+  numeric conditions already hold; results are identical, scans are slightly
+  faster on large projects.
+- The `explain` warning about graded words no longer says the thresholds were
+  calibrated for another language; since 2.1.0 every default is checked
+  against the distribution of a 26-project Python corpus.
 
 ### Fixed
 
@@ -43,30 +69,13 @@ regenerate any `before` report with the new version.
 
 ### Documentation
 
-- README: how to declare layers and the default scheme, and a "RefactorLens
-  on itself" section — its own layer declaration and a full
+- README: how to declare layers and the default scheme; the `arch` command,
+  its violation codes and their relation to Arcan; the smell labels and what
+  `--no-arch` turns off; `verify`'s suspicious-versus-moved check and
+  confidence calibration; per-layer thresholds; `--format`.
+- README pointed to `.env.example`; the file has always been `env.example`.
+- README: "RefactorLens on itself" — its own layer declaration and a full
   `advise` → `verify` loop on three of its functions.
-
-### Changed
-
-- An unknown threshold name (`thresholds.max_nestings`, or one under
-  `thresholds.by_layer`) is now a config error; it was silently ignored and
-  the default threshold used — the very typo the README warns about.
-- Config errors say what is valid and suggest the nearest name (for example
-  "Did you mean `exclude`?"). A section written as a list or a string (`scan: ['.']`) is
-  a config error instead of a crash; an integer setting shows what it got.
-- A path prefix declared under two layers in `arch.layers` is now a config
-  error. Which layer won depended on declaration order, and nothing said so.
-- `arch`'s violation table names its last column (`Certainty`: `firm` or
-  `tentative`); the column had no header and firm violations left it blank.
-- `arch` without declared layers now says what it still checks (import
-  cycles) and where to declare layers, instead of promising inference.
-- `data_class` detection builds a class's public interface only when the
-  numeric conditions already hold; results are identical, scans are slightly
-  faster on large projects.
-- The `explain` warning about graded words no longer says the thresholds were
-  calibrated for another language; since 2.1.0 every default is checked
-  against the distribution of a 26-project Python corpus.
 
 ## 2.2.0 — 2026-09-23
 

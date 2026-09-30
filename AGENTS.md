@@ -49,6 +49,7 @@ structural effect of their own refactoring suggestions?**
 | v2 | Architecture, smells, calibration, `FINDINGS-2.md` | done, released as v2.0.0 |
 | v2.1 | Hardening against a 26-project corpus, `explain` (experimental) | done, released as v2.1.0 |
 | v2.2 | Python-specific measures, pre-registered (K11-K17) | done, released as v2.2.0 |
+| v2.3 | `explain --no-llm`, hardening blocks 2-5 (robustness, dogfooding, tests, docs) | done, released as v2.3.0 |
 | v2.4 | Closed loop and LensBench (`docs/02`, planned as v3) | in progress |
 | v2.5 | Time axis and platform (`docs/03`, planned as v4) | planned |
 

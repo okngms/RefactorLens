@@ -25,7 +25,7 @@ Class metrics
 8 items over threshold.
 ```
 
-> **Status: v2.2.0 released.** Four core commands: `scan` measures,
+> **Status: v2.3.0 released.** Four core commands: `scan` measures,
 > `arch` maps layers and violations, `advise` asks an LLM for advice grounded in
 > both, and `verify` checks whether the model's own prediction came true. A
 > fifth, `explain`, is experimental. v2.1 checked every metric against a
@@ -189,7 +189,7 @@ rlens advise . --provider ollama --model llama3
 sent, which is the honest way to decide whether you want to send it.
 
 Configure the provider in `rlens.yaml` and put the key in `.env`
-(see `.env.example`):
+(see `env.example` in the repository):
 
 ```yaml
 provider:
@@ -650,7 +650,8 @@ run, three targets: an example, not a finding. Details:
 | 5 | Experiment and findings | v1.0.0 |
 | v2 | `arch`, smells, architectural context, calibration, second experiment | v2.0.0 |
 | v2.1 | Metrics checked against a 26-project corpus: scan schema 3, percentile-based defaults, `explain` (experimental) | v2.1.0 |
-| **v2.2** | **Python-specific measures, each pre-registered and checked on the corpus: dynamic opacity, duck-typing coupling** | **v2.2.0** |
+| v2.2 | Python-specific measures, each pre-registered and checked on the corpus: dynamic opacity, duck-typing coupling | v2.2.0 |
+| **v2.3** | **`explain --no-llm`; hardening on real projects: `advise` context budget, `--format`, config errors, mutation and property tests** | **v2.3.0** |
 
 Phases 3 and 4 shipped together in v0.2.0. Both experiments live in
 [`experiments/`](https://github.com/okngms/RefactorLens/tree/main/experiments), with the raw data committed alongside them.

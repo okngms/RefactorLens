@@ -64,6 +64,8 @@ exclude = [
     "experiments/*/cases",
     "experiments/*/runs",
     "experiments/hardening/.cache",
+    # Dogfooding raporları: ham veri, paketin kullanıcısına bir şey söylemez.
+    "experiments/hardening/self",
 ]
 
 [tool.ruff]

@@ -56,6 +56,10 @@ Katman **çıkarımı** (v2.1), tip çıkarımı, `apply`, Action, history.
 >
 > **2.2.0 (2026-09-23):** Python'a özgü ölçü seti (K11, K13, K14 alanları;
 > K15-K17 ölçüm kararları). Katman çıkarımı yine girmedi.
+>
+> **2.3.0 (2026-09-30):** `explain --no-llm`, sertleştirme Blok 2-5 (advise
+> bağlam bütçesi, `--format`, config hataları, mutation/property testleri,
+> K18). Katman çıkarımı yine girmedi. Sonraki faz v2.4 (planlanan v3).
 
 Konvansiyon + framework tanıma + bağımlılık yönü → katman + güven; `unknown`; `tentative` ihlaller. Kabul: 3 gerçek projede elle doğrulanmış doğruluk ≥%80; altında "weak signal".
 

@@ -96,3 +96,49 @@ class TestPackagedMetadata:
         # `readme` alanı düşerse PyPI sayfası boş çıkar ve bu, yayınlanana
         # kadar hiçbir yerde görünmez.
         assert pyproject["project"]["readme"] == "README.md"
+
+
+@pytest.fixture(scope="module")
+def steps():
+    """`publish.yml` yayın işinin adımları."""
+    import yaml
+
+    workflow = yaml.safe_load((ROOT / ".github/workflows/publish.yml").read_text("utf-8"))
+    return workflow["jobs"]["publish"]["steps"]
+
+
+class TestPublishGuard:
+    """Yayın işi, tag ile `__version__` uyuşmazsa derlemeden önce durur.
+
+    Bir sürüm numarası PyPI'da bir kez kullanılır; yanlış numarayla çıkan paket
+    geri alınamaz. Adım betiği bash varsa gerçekten çalıştırılır.
+    """
+
+    def test_the_check_runs_before_the_build(self, steps):
+        names = [step.get("name", "") for step in steps]
+        assert names.index("Check the tag matches __version__") < names.index("Build")
+
+    @pytest.mark.parametrize(("tag", "passes"), [(f"v{__version__}", True), ("v0.0.0", False)])
+    def test_the_check_script(self, steps, tag, passes, tmp_path):
+        import os
+        import shutil
+        import subprocess
+        import sys
+
+        bash = shutil.which("bash")
+        if bash is None:
+            pytest.skip("bash is not available")
+        script = next(s for s in steps if s.get("name") == "Check the tag matches __version__")
+        path = tmp_path / "check.sh"
+        path.write_text(script["run"], encoding="utf-8", newline="\n")
+        env = {
+            **os.environ,
+            "GITHUB_REF_NAME": tag,
+            "PATH": str(Path(sys.executable).parent) + os.pathsep + os.environ["PATH"],
+        }
+        done = subprocess.run(
+            [bash, str(path)], cwd=ROOT, env=env, capture_output=True, text=True, check=False
+        )
+        assert (done.returncode == 0) is passes
+        if not passes:
+            assert f"tag {tag} but __version__ is {__version__}" in done.stdout

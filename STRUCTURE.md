@@ -22,7 +22,7 @@ refactorlens/
 ├── CLAUDE.md               Claude Code entry point: imports AGENTS.md, adds the session workflow
 ├── FUTURE.md               Ideas deliberately kept out of scope
 ├── LICENSE                 MIT
-├── .env.example            Which API keys are needed; copy to .env
+├── env.example             Which API keys are needed; copy to .env
 ├── .gitignore
 ├── src/rlens/              The package pip installs
 ├── examples/               Test fixture and sample output

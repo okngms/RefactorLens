@@ -1,11 +1,43 @@
 # STATUS — 2026-09-24
 
 ## Sürüm
-**v2.2.0 PyPI'da** (2026-09-23). `v2.2.0` tag'i ile GitHub Actions üzerinden,
-Trusted Publishing (OIDC) ile; PyPI'da wheel ve sdist doğrulandı. İçerik:
-`CHANGELOG.md` 2.2.0. Önceki: v2.1.0 (2026-09-22), v2.0.0 (2026-09-10).
+**PyPI'da v2.2.0. v2.3.0 hazır, yayını kullanıcı yapacak.** `__version__`
+2.3.0; `CHANGELOG.md` 2.3.0 ("Unreleased" kapatıldı). Yerel doğrulama bu
+oturumun "Bitenler" girdisinde.
+
+Yayın adımları (2.2.0 ile aynı yol; yayın işi artık tag ile `__version__`'ı
+derlemeden önce karşılaştırıyor):
+1. Değişiklikleri commit'le ve `git push`; CI matrisi (3.11-3.14) yeşil olmalı.
+2. `git tag v2.3.0 && git push origin v2.3.0` → `publish` işi (OIDC).
+3. Doğrula: `pipx install --force refactorlens==2.3.0 && rlens --version`
+   → `rlens 2.3.0 (report schema v3)`.
+
+Yayından sonra bu bölüm "v2.3.0 PyPI'da" diye güncellenir.
 
 ## Bitenler
+- **v2.3.0 yayın hazırlığı** (kullanıcı isteğiyle, 2.1.0/2.2.0 deseni).
+  - `__version__` 2.3.0; CHANGELOG "Unreleased" → "2.3.0 — 2026-09-30" (giriş
+    paragrafı: şema 3 değişmedi; tek davranış değişikliği bilinmeyen eşik
+    adı). Bölüm sırası 2.1.0 ile aynı; Documentation'a Blok 5'in README
+    ekleri yazıldı.
+  - sdist dışlama listesine `experiments/hardening/self`.
+  - `publish.yml`: yayın işinde derlemeden önce tag ile `__version__`
+    karşılaştırması; uyuşmazsa `::error::tag vX but __version__ is Y` ile
+    durur. Yerelde iki durumla koşuldu; `test_packaging.py::TestPublishGuard`
+    (adım Build'den önce; betik bash varsa gerçekten koşulur, 3 test).
+  - README durum satırı ve yol haritası (v2.3 satırı), AGENTS faz tablosu,
+    workflow yorumu, `docs/06` 2.3.0 notu.
+  - **Yerel doğrulama:** sdist + wheel derlendi, `twine check` geçti. sdist
+    724 KB, 281 girdi; `hardening/self`, `.cache`, mutation kaydı,
+    `.rlens-work`, `.env` yok; `src/rlens/apply/` var. Wheel temiz bir 3.14
+    ortamında kuruldu (`rlens 2.3.0 (report schema v3)`, `scan --format json`
+    çalışıyor). Açılmış sdist'te, sdist'ten kurulan paketle 1705 paket + 91
+    fikstür testi geçti.
+  - README ve STRUCTURE `.env.example` diyordu; izlenen dosya ilk commit'ten beri
+    `env.example`. Belgeler dosyaya göre düzeltildi (dosya yeniden adlandırılmadı).
+  - Yan olay: ilk sdist açma denemesi (tar, Windows yolu) başarısız oldu ve
+    geçici sanal ortam repo kökünde oluştu; silindi, doğrulama Python ile
+    açılan sdist'te tekrarlandı.
 - **Sürüm adlandırması (kullanıcı kararı, 2026-09-29):** planlanan v3 ve v4
   2.x hattında kalıyor: **v3 → v2.4**, **v4 → v2.5**. Plan içeriği değişmedi
   (`docs/02`, `docs/03`; `00`, `06`'ya adlandırma notu). README yol haritası,
@@ -723,7 +755,7 @@ mantığını taşımak ve `analysis`'in `importlinter` çağrısını sınıra 
 (Blok 3'ün iki gerçek ihlali); `explain` prompt'undaki eski "başka bir dil"
 ifadesi (bir sonraki gerçek explain koşusuyla).
 
-**Yayın:** kullanıcı "sonra bakalım" dedi (2026-09-29). Not: "Unreleased" artık büyük: `--no-llm`, `advise`'ın iki
+**Yayın:** 2.3.0 hazırlandı (2026-09-30, "Sürüm" bölümü). Önceki not: "Unreleased" büyüktü: `--no-llm`, `advise`'ın iki
 bütçe düzeltmesi (hedeflerin %42'si sorulmuyordu), fonksiyon hedefi katman
 düzeltmesi, `--format`, config hataları (bilinmeyen eşik adı artık hata —
 davranış değişikliği), önek çakışması hatası, `Certainty` sütunu. v3'e
