@@ -30,6 +30,9 @@ from rlens.advise.selector import select_targets
 from rlens.analysis.architecture import analyse_project
 from rlens.analysis.model import SCHEMA_VERSION
 from rlens.analysis.scanner import scan_project, scan_project_with_sources
+from rlens.apply.prompts import SYSTEM_INSTRUCTION as APPLY_SYSTEM_INSTRUCTION
+from rlens.apply.runner import preview_prompt, run_apply
+from rlens.apply.worktree import ApplyError
 from rlens.config import ConfigError, load_config
 from rlens.explain.explainer import request_explanation
 from rlens.explain.prompts import SYSTEM_INSTRUCTION as EXPLAIN_SYSTEM_INSTRUCTION
@@ -38,7 +41,9 @@ from rlens.explain.template import translate
 from rlens.llm.budget import Budget, BudgetExceeded
 from rlens.llm.cache import ResponseCache, prompt_hash
 from rlens.providers import PROVIDERS, ProviderError, get_provider, load_env_file
+from rlens.providers.base import ProviderTruncated
 from rlens.report.advice import render_advice
+from rlens.report.apply import render_apply
 from rlens.report.architecture import render_architecture
 from rlens.report.explain import render_explanation, render_template
 from rlens.report.files import (
@@ -47,6 +52,7 @@ from rlens.report.files import (
     read_report,
     verify_payload,
     write_advice,
+    write_apply,
     write_arch,
     write_explain,
     write_explain_template,
@@ -460,6 +466,12 @@ def advise(
                 c.target.qualified_name for c in contexts[contexts.index(context) :]
             )
             break
+        except ProviderTruncated as exc:
+            # Kesilme bizim çıktı sınırımızdır, modelin sözleşme ihlali değil:
+            # yarım yanıt `unstructured` diye kaydedilmez, hedef atlanır.
+            err_console.print(f"[yellow]Skipping {name}:[/] {exc}")
+            budget.skipped.append(name)
+            continue
         except ProviderError as exc:
             raise _fail(str(exc)) from exc
         advice.warnings = warnings
@@ -801,6 +813,123 @@ def verify(
 
     if fail_on_regression and delta.comparable and blocking:
         raise typer.Exit(code=1)
+
+
+@app.command()
+def apply(
+    path: Annotated[
+        Path,
+        typer.Argument(
+            exists=True,
+            file_okay=False,
+            dir_okay=True,
+            readable=True,
+            help="Project directory, inside a git repository.",
+        ),
+    ],
+    advice: Annotated[
+        Path,
+        typer.Option(
+            "--advice", "-a", exists=True, dir_okay=False, help="Advice JSON from `rlens advise`."
+        ),
+    ],
+    target: Annotated[
+        str | None,
+        typer.Option("--target", "-t", help="Which target in the advice file (module:Name)."),
+    ] = None,
+    suggestion: Annotated[
+        int, typer.Option("--suggestion", "-s", min=1, help="Which suggestion of that target.")
+    ] = 1,
+    config: Annotated[
+        Path | None,
+        typer.Option("--config", "-c", exists=True, dir_okay=False, help="Path to rlens.yaml."),
+    ] = None,
+    provider: Annotated[
+        str | None, typer.Option("--provider", "-p", help="Override the configured provider.")
+    ] = None,
+    model: Annotated[
+        str | None, typer.Option("--model", "-m", help="Override the configured model name.")
+    ] = None,
+    output_dir: Annotated[
+        Path | None,
+        typer.Option("--output-dir", "-o", help="Report directory (overrides the config)."),
+    ] = None,
+    no_report: Annotated[bool, typer.Option("--no-report", help="Skip the report files.")] = False,
+    no_cache: Annotated[
+        bool, typer.Option("--no-cache", help="Ignore the response cache and always call.")
+    ] = False,
+    dry_run: Annotated[
+        bool,
+        typer.Option("--dry-run", help="Print the patch request and stop. Needs no API key."),
+    ] = False,
+) -> None:
+    """Apply one suggestion on a separate git branch, gated by your own tests."""
+    try:
+        cfg = load_config(config, search_from=path)
+    except ConfigError as exc:
+        raise _fail(str(exc)) from exc
+    if provider is not None:
+        if provider not in PROVIDERS:
+            raise _fail(
+                f"Unknown provider '{provider}'. Available: {', '.join(sorted(PROVIDERS))}."
+            )
+        cfg = replace(cfg, provider=replace(cfg.provider, name=provider))
+    if model is not None:
+        cfg = replace(cfg, provider=replace(cfg.provider, model=model))
+
+    try:
+        document = json.loads(Path(advice).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise _fail(f"Could not read the advice file: {exc}") from exc
+    targets = [entry.get("target", "") for entry in document.get("advices", [])]
+    if target is None:
+        if len(targets) != 1:
+            raise _fail(
+                f"The advice file has {len(targets)} targets; "
+                f"pick one with --target ({', '.join(targets)})."
+            )
+        target = targets[0]
+
+    try:
+        if dry_run:
+            console.print("[dim]--- system ---[/dim]")
+            console.print(APPLY_SYSTEM_INSTRUCTION, markup=False, highlight=False)
+            console.print("[dim]--- user ---[/dim]")
+            prompt = preview_prompt(path, document, target, suggestion, cfg)
+            console.print(prompt, markup=False, highlight=False)
+            return
+
+        load_env_file(path)
+        adapter = get_provider(cfg.provider)
+        result = run_apply(
+            path,
+            document,
+            target,
+            suggestion,
+            cfg,
+            adapter,
+            cache=_build_cache(cfg, path, disabled=no_cache),
+            budget=Budget(cfg.budget),
+        )
+    except ApplyError as exc:
+        raise _fail(str(exc)) from exc
+    except (ProviderError, BudgetExceeded) as exc:
+        raise _fail(str(exc)) from exc
+
+    render_apply(result, console)
+    if not no_report:
+        target_dir = Path(output_dir) if output_dir else path / cfg.scan.output_dir
+        try:
+            json_path, markdown_path = write_apply(
+                result,
+                target_dir,
+                root=str(Path(path).resolve()),
+                generated_at=datetime.now(UTC).isoformat(timespec="seconds"),
+            )
+        except ReportError as exc:
+            raise _fail(str(exc)) from exc
+        console.print(f"[dim]Report: {markdown_path}[/dim]")
+        console.print(f"[dim]Machine-readable: {json_path}[/dim]")
 
 
 def _build_cache(cfg, path: Path, *, disabled: bool) -> ResponseCache:

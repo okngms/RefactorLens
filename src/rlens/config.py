@@ -39,6 +39,9 @@ DEFAULTS: dict[str, Any] = {
         "base_url": None,  # ollama için örn. http://localhost:11434
         "timeout_seconds": 60,
         "max_retries": 3,
+        # Yoksa sağlayıcının kendi varsayılanı. Kesilen yanıt sessizce geçmez
+        # (`ProviderTruncated`); Groq'ta varsayılan uzun patch'lere yetmedi.
+        "max_output_tokens": None,
     },
     "scan": {
         # Varsayılan "her şey"dir, "src/" değil. Kullanıcı taranacak yolu zaten
@@ -87,7 +90,7 @@ DEFAULTS: dict[str, Any] = {
     # v2.4 `apply` (`docs/02` §9). Test komutu yoksa `apply` çalışmaz: davranış
     # kapısı olmadan uygulanan hiçbir öneri bir delta sayılamaz.
     "tests": {"command": None, "timeout": 300},
-    "apply": {"allow_files": [], "keep_failed": False},
+    "apply": {"allow_files": [], "keep_failed": False, "max_output_tokens": 16384},
     "thresholds": {
         # Katman bazlı geçersiz kılma: `by_layer.<katman>.<metrik>.<warn|critical>`
         "by_layer": {},
@@ -116,6 +119,8 @@ class ProviderConfig:
     base_url: str | None
     timeout_seconds: int
     max_retries: int
+    max_output_tokens: int | None = None
+    """Yanıt başına çıktı sınırı; `None` sağlayıcının varsayılanı."""
 
     @property
     def is_local(self) -> bool:
@@ -257,6 +262,8 @@ class ApplyConfig:
     """Hedefin dosyası dışında patch'in dokunabileceği dosyalar."""
     keep_failed: bool
     """Kapıyı geçemeyen worktree incelemek için tutulsun mu."""
+    max_output_tokens: int = 16384
+    """`apply` çağrılarının çıktı sınırı: patch'ler öneri yanıtlarından uzundur."""
 
 
 @dataclass(frozen=True)
@@ -576,6 +583,11 @@ def _build(data: dict[str, Any], source: Path | None) -> Config:
         base_url=base_url,
         timeout_seconds=_as_int(provider_raw["timeout_seconds"], "provider.timeout_seconds"),
         max_retries=_as_int(provider_raw["max_retries"], "provider.max_retries", minimum=0),
+        max_output_tokens=(
+            None
+            if provider_raw["max_output_tokens"] is None
+            else _as_int(provider_raw["max_output_tokens"], "provider.max_output_tokens")
+        ),
     )
 
     scan_raw = data["scan"]
@@ -693,6 +705,7 @@ def _build(data: dict[str, Any], source: Path | None) -> Config:
     apply = ApplyConfig(
         allow_files=_as_str_list(apply_raw["allow_files"], "apply.allow_files"),
         keep_failed=apply_raw["keep_failed"],
+        max_output_tokens=_as_int(apply_raw["max_output_tokens"], "apply.max_output_tokens"),
     )
 
     return Config(

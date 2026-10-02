@@ -12,6 +12,7 @@ from rlens.providers import PROVIDERS, get_provider
 from rlens.providers.base import (
     ProviderConfigError,
     ProviderError,
+    ProviderTruncated,
     load_env_file,
     post_with_retry,
     require_api_key,
@@ -356,3 +357,59 @@ class TestServerAdvisedBackoff:
             headers = {}
 
         assert advised_wait(Bare()) is None
+
+
+class TestOutputLimit:
+    """Kesilen yanıt sessizce geçmez (v2.4).
+
+    Groq yanıtı varsayılan çıktı sınırında kesip `finish_reason: length`
+    döndürüyordu; araç bunu görmüyordu. `apply`'da yarım patch "diff bloğu
+    yok" diye yanlış nedenle reddediliyordu; `advise`'da yarım JSON modelin
+    sözleşme ihlali (`unstructured`) sayılırdı — bu bizim sınırımızdır.
+    """
+
+    @pytest.fixture
+    def limited(self, tmp_path):
+        (tmp_path / "rlens.yaml").write_text(
+            "provider:\n  name: groq\n  model: m\n  max_output_tokens: 9000\n",
+            encoding="utf-8",
+        )
+        return load_config(search_from=tmp_path).provider
+
+    def test_groq_sends_the_limit(self, limited, monkeypatch):
+        recorder = Recorder(FakeResponse(200, {"choices": [{"message": {"content": "x"}}]}))
+        monkeypatch.setattr(httpx, "post", recorder)
+        monkeypatch.setenv("GROQ_API_KEY", "key")
+        GroqProvider().generate("s", "u", limited, 0.2, sleep=lambda _: None)
+        assert recorder.calls[0]["json"]["max_completion_tokens"] == 9000
+
+    def test_groq_sends_no_limit_by_default(self, provider_config, monkeypatch):
+        recorder = Recorder(FakeResponse(200, {"choices": [{"message": {"content": "x"}}]}))
+        monkeypatch.setattr(httpx, "post", recorder)
+        monkeypatch.setenv("GROQ_API_KEY", "key")
+        GroqProvider().generate("s", "u", provider_config, 0.2, sleep=lambda _: None)
+        assert "max_completion_tokens" not in recorder.calls[0]["json"]
+
+    def test_groq_truncation_is_raised_with_the_partial_text(self, provider_config, monkeypatch):
+        body = {
+            "choices": [{"message": {"content": "```diff\n--- a/x"}, "finish_reason": "length"}]
+        }
+        monkeypatch.setattr(httpx, "post", Recorder(FakeResponse(200, body)))
+        monkeypatch.setenv("GROQ_API_KEY", "key")
+        with pytest.raises(ProviderTruncated, match="output limit") as caught:
+            GroqProvider().generate("s", "u", provider_config, 0.2, sleep=lambda _: None)
+        assert caught.value.partial == "```diff\n--- a/x"
+        assert isinstance(caught.value, ProviderError)
+
+    def test_ollama_sends_the_limit_and_detects_truncation(self, tmp_path, monkeypatch):
+        (tmp_path / "rlens.yaml").write_text(
+            "provider:\n  name: ollama\n  model: llama3\n  max_output_tokens: 500\n",
+            encoding="utf-8",
+        )
+        config = load_config(search_from=tmp_path).provider
+        body = {"message": {"content": "part"}, "done_reason": "length"}
+        recorder = Recorder(FakeResponse(200, body))
+        monkeypatch.setattr(httpx, "post", recorder)
+        with pytest.raises(ProviderTruncated):
+            OllamaProvider().generate("s", "u", config, 0.2, sleep=lambda _: None)
+        assert recorder.calls[0]["json"]["options"]["num_predict"] == 500

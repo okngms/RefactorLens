@@ -14,6 +14,7 @@ import time
 from rlens.config import ProviderConfig
 from rlens.providers.base import (
     ProviderError,
+    ProviderTruncated,
     post_with_retry,
     require_api_key,
     require_model,
@@ -47,6 +48,8 @@ class GroqProvider:
                 {"role": "user", "content": user},
             ],
         }
+        if config.max_output_tokens:
+            payload["max_completion_tokens"] = config.max_output_tokens
         data = post_with_retry(
             f"{base_url}/chat/completions",
             payload,
@@ -56,8 +59,16 @@ class GroqProvider:
         )
 
         try:
-            return data["choices"][0]["message"]["content"]
+            choice = data["choices"][0]
+            content = choice["message"]["content"]
         except (KeyError, IndexError, TypeError) as exc:
             raise ProviderError(
                 "Unexpected response shape from Groq; no message content found."
             ) from exc
+        if choice.get("finish_reason") == "length":
+            raise ProviderTruncated(
+                "Groq stopped the reply at the model's output limit (finish_reason: length). "
+                "Raise `provider.max_output_tokens` in rlens.yaml.",
+                partial=content or "",
+            )
+        return content

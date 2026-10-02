@@ -4,6 +4,29 @@ Scan, advice and explain reports carry their own `schema_version`; `verify`
 refuses to compare scan reports whose schema versions differ. After upgrading,
 regenerate any `before` report with the new version.
 
+## Unreleased
+
+### Added
+
+- `rlens apply`: asks the model for a patch implementing one suggestion,
+  applies it in a separate git worktree, runs your `tests.command` there and
+  measures the result like `verify`. The result is a branch you review and
+  merge yourself; your working tree, branch and HEAD never change. A failed
+  test run deletes the worktree and the branch (`broken`). The patch may
+  touch only the target's file and `apply.allow_files`, and the commit holds
+  only the files it touched. Every reply is kept in `reports/apply-*.json`.
+- `provider.max_output_tokens`: the per-reply output limit sent to the
+  provider (by default the provider's own). `apply.max_output_tokens`
+  (16384) is used for patch requests.
+
+### Fixed
+
+- A reply cut off at the model's output limit passed silently. Groq returned
+  `finish_reason: length` and the text was treated as complete: in `advise` a
+  cut-off JSON reply counted as the model ignoring the contract
+  (`unstructured`). It is now detected; `advise` skips that target and marks
+  the report partial.
+
 ## 2.3.0 — 2026-09-30
 
 `advise` no longer skips most of the large targets it selects, `explain` gains

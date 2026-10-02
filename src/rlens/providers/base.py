@@ -26,6 +26,19 @@ class ProviderConfigError(ProviderError):
     """Eksik model adı veya API anahtarı gibi yapılandırma sorunları."""
 
 
+class ProviderTruncated(ProviderError):
+    """Model yanıtı çıktı sınırında kesildi; kısmi metin `partial`'da.
+
+    Sessizce geçseydi yarım bir yanıt modelin hatası gibi görünürdü: `advise`'da
+    sözleşme ihlali (`unstructured`), `apply`'da biçimsiz patch. Kesilme bizim
+    ayarımızdır (`provider.max_output_tokens`), modelin davranışı değil.
+    """
+
+    def __init__(self, message: str, *, partial: str = "") -> None:
+        super().__init__(message)
+        self.partial = partial
+
+
 @runtime_checkable
 class Provider(Protocol):
     """Tüm sağlayıcıların uyduğu tek metotlu sözleşme."""

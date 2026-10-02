@@ -1,20 +1,43 @@
 # STATUS — 2026-09-24
 
 ## Sürüm
-**PyPI'da v2.2.0. v2.3.0 hazır, yayını kullanıcı yapacak.** `__version__`
-2.3.0; `CHANGELOG.md` 2.3.0 ("Unreleased" kapatıldı). Yerel doğrulama bu
-oturumun "Bitenler" girdisinde.
-
-Yayın adımları (2.2.0 ile aynı yol; yayın işi artık tag ile `__version__`'ı
-derlemeden önce karşılaştırıyor):
-1. Değişiklikleri commit'le ve `git push`; CI matrisi (3.11-3.14) yeşil olmalı.
-2. `git tag v2.3.0 && git push origin v2.3.0` → `publish` işi (OIDC).
-3. Doğrula: `pipx install --force refactorlens==2.3.0 && rlens --version`
-   → `rlens 2.3.0 (report schema v3)`.
-
-Yayından sonra bu bölüm "v2.3.0 PyPI'da" diye güncellenir.
+**v2.3.0 PyPI'da** (doğrulandı 2026-10-02). `v2.3.0` tag'i ile GitHub Actions
+üzerinden, Trusted Publishing (OIDC) ile; yayın işi tag ile `__version__`'ı
+derlemeden önce karşılaştırıyor. İçerik: `CHANGELOG.md` 2.3.0. Önceki: v2.2.0
+(2026-09-23), v2.1.0 (2026-09-22), v2.0.0 (2026-09-10).
 
 ## Bitenler
+- **v2.4 Aşama 1 — `rlens apply`** (`docs/02` §11; kararlar `docs/02` Aşama 1
+  durum notunda).
+  - Yeni: `apply/prompts.py` (patch istemi `expected_effect` taşımaz; tek
+    ```diff bloğu; onarım istemi), `apply/runner.py` (worktree → patch → tek
+    onarım → kapı → yalnızca dokunulan dosyaları commit → `verify` ölçümü →
+    worktree kaldırılır, branch kalır; her hata yolunda iz kalmaz),
+    `report/apply.py`, `files.write_apply`, CLI `rlens apply` (`--advice`,
+    `--target`, `--suggestion`, `--dry-run`).
+  - **Gerçek koşunun bulduğu altı sorun, hepsi düzeltildi ve testli:**
+    1. Öneri metni prompt'a boş gidiyordu (`details` değil `sketch`); test
+       artık `advise`'ın kendi `Suggestion` sınıfından okuyor.
+    2. Groq yanıtı 3072 tokende sessizce kesiyordu (`finish_reason: length`,
+       doğrudan API çağrısıyla ölçüldü) → `ProviderTruncated`,
+       `provider.max_output_tokens`, `apply.max_output_tokens`; `advise`
+       kesilen hedefi atlıyor (önceden `unstructured` sayılırdı).
+    3. Ham yanıtlar saklanmıyordu → `replies` raporda.
+    4. Onarım istemi uzun patch'i tekrarlayıp Groq TPM sınırını (8000) aştı
+       ve koşuyu düşürdü → uzun patch tekrarlanmıyor, onarım hatası ilk
+       denemeyi silmiyor.
+    5. Model numarasız hunk yazdı, `git apply` konumlandıramadı → birebir
+       içerik eşleşmeli uygulayıcı (CRLF korunur, atomik).
+    6. `git add -A` 15 `.pyc`'yi branch'e koydu → yalnızca dokunulan dosyalar.
+  - **Kabul:** layered_project'in git kopyasında gerçek koşu: patch ilk
+    denemede kabul, 71 test geçti, `improved` (WMC 56→26, LCOM4 5→4), tahmin
+    2/4; NOM `same` — sınıfta delege eden sarmalayıcılar kaldı (FINDINGS'in
+    kalıntı gözleminin `apply` ile üretilmiş ilk örneği; tek koşu, bulgu
+    değil). Kullanıcının deposu her adımda temiz; commit tek dosya.
+  - Not: yanıt önbelleği `advise`'daki gibi projenin `.rlens-cache/`'ine
+    yazılır; `apply` onu temiz ağaç denetiminde saymaz.
+  - Durum: 1759 paket testi (10 atlandı), 91 fikstür testi, ruff temiz; paket
+    test süresi ~75 sn (gerçek git depolarıyla `apply` testleri).
 - **v2.3.0 yayın hazırlığı** (kullanıcı isteğiyle, 2.1.0/2.2.0 deseni).
   - `__version__` 2.3.0; CHANGELOG "Unreleased" → "2.3.0 — 2026-09-30" (giriş
     paragrafı: şema 3 değişmedi; tek davranış değişikliği bilinmeyen eşik
@@ -742,13 +765,15 @@ framework deyiminden geliyor.**
   orkestrasyon modülleri.
 
 ## Sıradaki iş
-**v2.4 sürüyor** (planlanan v3; `docs/02`). Aşama 0 bitti. Sıradaki:
-**Aşama 1 — `apply`**: patch prompt şeması (yeni modül; `advise/prompts.py`
-donmuş kalır), tek onarım denemesi, kapı entegrasyonu, başarıda branch'e
-commit, `verify` çağrısı, rapor. **Bitti ⇔** `layered_project`'te bir öneri
-uçtan uca uygulanıp `improved|regressed|mixed|suspicious` sonucu alınıyor;
-kapı geçmeyen vaka temizleniyor. Sonra Aşama 2 (`chartests`), 3 (`loop`),
-4 (tür tespiti, typed), 5 (`diff`/Action), 6 (LensBench, FINDINGS-3).
+**v2.4 sürüyor** (planlanan v3; `docs/02`). Aşama 0 ve 1 bitti. Sıradaki:
+**Aşama 2 — `chartests` ve davranış kapısı 2.0**: testsiz hedefler için
+LLM'e karakterizasyon testleri yazdırmak; testler refactoring'den önce
+üretilir ve mevcut kodda geçmek zorundadır, geçmeyenler atılır; testsiz
+projede `apply` bu seviyeyi zorunlu tutar; seviye 3 (hypothesis eşdeğerlik)
+opsiyonel. **Bitti ⇔** testsiz bir fikstürde (`examples/untested_project`)
+`apply` kapı 2 ile çalışıyor; üretilen testlerin mevcut kodda geçme oranı
+raporlanıyor. Sonra Aşama 3 (`loop`), 4 (tür tespiti, typed), 5
+(`diff`/Action), 6 (LensBench, FINDINGS-3).
 
 Bu arada açık kalan, küçük ve bağımsız işler: `report.terminal`'deki eşik
 mantığını taşımak ve `analysis`'in `importlinter` çağrısını sınıra çekmek

@@ -428,6 +428,33 @@ class TestAdviseBudgetAndCache:
         assert "exceed the per-call token ceiling" not in output
         assert "body omitted" in output
 
+    def test_a_cut_off_reply_skips_only_that_target(self, messy, monkeypatch):
+        """Kesilen yanıt modelin sözleşme ihlali sayılmaz ve koşuyu durdurmaz.
+
+        Hedef atlanır, rapor kısmi olduğunu söyler, diğer hedefler sorulur.
+        """
+        from rlens.providers.base import ProviderTruncated
+
+        class Provider:
+            name = "fake"
+            calls = 0
+
+            def generate(self, system, user, config, temperature=0.2):
+                Provider.calls += 1
+                if Provider.calls == 1:
+                    raise ProviderTruncated("stopped at the output limit", partial="{")
+                return "not json"
+
+        monkeypatch.setattr("rlens.cli.get_provider", lambda config: Provider())
+        result = runner.invoke(app, ["advise", messy, "--top-n", "2", "--no-cache", "--no-report"])
+        assert result.exit_code == 0, result.output
+        output = flat(result.output)
+        assert "Skipping god:OrderManager" in output
+        assert "output limit" in output
+        assert "Partial report: 1 target(s) were not asked about" in output
+        # İkinci hedef: ilk yanıt + `advise`'ın tek onarım denemesi.
+        assert Provider.calls == 3
+
 
 class TestArchCommand:
     """Aşama 1b kabul kriteri: altı ihlal kodlarıyla basılır, fazlası basılmaz."""

@@ -147,6 +147,28 @@ Kapı seviye 1, worktree/branch yönetimi, patch doğrulama (dosya kısıtı, ç
 **Bitti ⇔** sahte bir patch worktree'de uygulanıp test koşuluyor; kirli ağaç reddediliyor; izinsiz dosya değişikliği reddediliyor; hiçbir testte kullanıcı branch'i değişmiyor (invariant testleri).
 
 ### Aşama 1 — `apply`
+
+> **Durum (2026-10-02): yapıldı.** `rlens apply`; `src/rlens/apply/{prompts,runner}.py`,
+> `report/apply.py`. Kabul: `layered_project`'in git kopyasında gerçek Groq
+> koşusu (`openai/gpt-oss-120b`): patch ilk denemede kabul, 71 test geçti,
+> `improved` (WMC 56→26, LCOM4 5→4), tahmin 2/4 (NOM ve DCC `same`: sınıfta
+> delege eden sarmalayıcılar kaldı — FINDINGS'teki kalıntı gözlemi). Kapı
+> geçmeyen vaka testlerde temizleniyor. Plandan sapmalar ve kararlar:
+> - **Patch istemi tahmini taşımaz** (`expected_effect` yok): patch tahmini
+>   tutturacak biçimde yazılırsa ölçülen doğruluk şişer.
+> - **Uygulama `git apply` değil, birebir içerik eşleşmesi.** Model iki
+>   denemede de numarasız hunk (`@@`) yazdı; Windows'ta CRLF de uymazdı.
+>   Sözleşme hâlâ unified diff; eşleşme yoksa ya da belirsizse ret, atomik.
+> - **Commit yalnızca patch'in dokunduğu dosyaları taşır** (`git add -A`
+>   değil): ilk koşuda 15 `.pyc` branch'e girmişti.
+> - **Kesilen yanıt tanınır** (`ProviderTruncated`): Groq yanıtı 3072 tokende
+>   `finish_reason: length` ile kesiyordu, araç görmüyordu. `apply` için
+>   `apply.max_output_tokens` (16384); `advise` kesilen hedefi atlar.
+> - **Onarım istemi uzun patch'i tekrarlamaz** (Groq ücretsiz katmanında
+>   dakikalık token sınırı aşılmıştı); onarım çağrısı başarısızsa ilk
+>   denemenin kaydı korunur.
+> - Rapor ve önbellek dizinleri temiz ağaç denetiminde sayılmaz (aracın kendi
+>   çıktısı).
 Patch prompt şeması, onarım denemesi, kapı entegrasyonu, verify çağrısı, rapor.
 **Bitti ⇔** `layered_project`'te bir öneri uçtan uca uygulanıp `improved|regressed|mixed|suspicious` sonucu alınıyor; kapı geçmeyen vaka temizleniyor.
 

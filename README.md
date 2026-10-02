@@ -266,6 +266,47 @@ changed the meaning of `loc`, of `lcom4` for classes without methods (`null`,
 previously `0`) and of `dcc`; see
 [v2-tanim-kararlari.md](https://github.com/okngms/RefactorLens/blob/main/docs/v2-tanim-kararlari.md).
 
+### Applying a suggestion on a branch (new, v2.4)
+
+```bash
+rlens apply . --advice reports/advice-....json          # suggestion 1 of the only target
+rlens apply . --advice ... --target app.orders:Orders --suggestion 2
+rlens apply . --advice ... --dry-run                    # print the patch request, send nothing
+```
+
+`apply` asks the model for a patch that implements one suggestion, applies it
+in a separate git worktree, runs **your** test command there, and measures
+the result the way `verify` does. It needs a git repository with a clean
+working tree and a test command in `rlens.yaml`:
+
+```yaml
+tests:
+  command: "pytest -q"     # runs at the repository root of the worktree
+  timeout: 300
+apply:
+  allow_files: []          # files besides the target's own file the patch may touch
+  keep_failed: false       # keep a failed worktree for inspection
+  max_output_tokens: 16384 # patches are longer than advice replies
+```
+
+What it guarantees:
+
+- Your working tree, your branch and your HEAD never change. The patch lands
+  on a new branch, `rlens/<run-id>/<target>`, which you review and merge
+  yourself. **RefactorLens never merges.**
+- The patch may touch only the target's file and `apply.allow_files`; the
+  commit contains only the files the patch touched.
+- If your tests fail, the worktree and the branch are deleted and the outcome
+  is `broken`: no metric delta counts unless the behaviour tests pass.
+- The model gets one repair attempt for a reply that cannot be applied, and
+  every reply is kept in the report.
+- The patch request carries the suggestion's text but not the model's own
+  predictions, so the patch cannot be written to make them come true.
+
+Outcomes are `verify`'s (`improved`, `regressed`, `mixed`, `unchanged`,
+`suspicious`) plus `broken` (tests failed) and `rejected` (no applicable
+patch). Reports go to `reports/apply-*.json` and `.md`.
+
 ### Reading the measurements back (experimental)
 
 ```bash
@@ -618,10 +659,13 @@ run, three targets: an example, not a finding. Details:
 
 ## What RefactorLens does not do
 
-- **It does not run your code.** Files are parsed with `ast`, never executed.
-- **It does not fix anything.** `advise` suggests and `verify` checks; applying
-  a suggestion is a human's job, on purpose. Automatic application would make
-  the behaviour-test rule below unenforceable.
+- **It does not run your code**, with one deliberate exception. Files are
+  parsed with `ast`, never executed. `apply` runs the test command you put in
+  `rlens.yaml`, in an isolated worktree, with a timeout; it never runs your code
+  in any other way.
+- **It does not merge anything.** `advise` suggests and `verify` checks. `apply`
+  writes a patch to a separate branch after your tests pass; reviewing and
+  merging it is a human's job, on purpose.
 - **`scan` and `verify` send nothing anywhere.** They are entirely local.
   `advise` sends the selected class or function, plus the signatures of the
   project classes it depends on, to whichever provider you configure. Use

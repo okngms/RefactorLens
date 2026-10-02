@@ -14,6 +14,7 @@ import time
 from rlens.config import ProviderConfig
 from rlens.providers.base import (
     ProviderError,
+    ProviderTruncated,
     post_with_retry,
     require_model,
 )
@@ -45,6 +46,8 @@ class OllamaProvider:
                 {"role": "user", "content": user},
             ],
         }
+        if config.max_output_tokens:
+            payload["options"]["num_predict"] = config.max_output_tokens
         data = post_with_retry(
             f"{base_url}/api/chat",
             payload,
@@ -54,9 +57,16 @@ class OllamaProvider:
         )
 
         try:
-            return data["message"]["content"]
+            content = data["message"]["content"]
         except (KeyError, TypeError) as exc:
             raise ProviderError(
                 "Unexpected response shape from Ollama; no message content found. "
                 "Is the model pulled and the server running?"
             ) from exc
+        if data.get("done_reason") == "length":
+            raise ProviderTruncated(
+                "Ollama stopped the reply at the model's output limit (done_reason: length). "
+                "Raise `provider.max_output_tokens` in rlens.yaml.",
+                partial=content or "",
+            )
+        return content

@@ -95,6 +95,17 @@ class TestRepository:
     def test_clean_tree_passes(self, repo):
         ensure_clean(repo)
 
+    def test_the_tools_own_output_does_not_count(self, repo):
+        """Rapor ve önbellek dizini `.gitignore`'da olmasa da ağaç kirli sayılmaz."""
+        (repo / "reports").mkdir()
+        (repo / "reports" / "apply-1.json").write_text("{}", encoding="utf-8")
+        (repo / ".rlens-cache").mkdir()
+        (repo / ".rlens-cache" / "x.json").write_text("{}", encoding="utf-8")
+        ensure_clean(repo, ignore=("reports/", ".rlens-cache/"))
+        (repo / "notes.txt").write_text("todo\n", encoding="utf-8")
+        with pytest.raises(ApplyError, match="notes.txt"):
+            ensure_clean(repo, ignore=("reports/", ".rlens-cache/"))
+
 
 class TestWorktree:
     def test_branch_name_is_valid_for_git(self):

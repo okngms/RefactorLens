@@ -194,6 +194,16 @@ class TestApplySettings:
         assert (config.tests.command, config.tests.timeout) == ("pytest -q", 60)
         assert (config.apply.allow_files, config.apply.keep_failed) == (("app/new.py",), True)
 
+    def test_output_limits(self, tmp_path):
+        config = load_config(search_from=tmp_path)
+        assert config.provider.max_output_tokens is None
+        assert config.apply.max_output_tokens == 16384
+
+    def test_output_limit_must_be_positive(self, tmp_path):
+        assert "`provider.max_output_tokens` must be at least 1" in error_for(
+            tmp_path, "provider:\n  max_output_tokens: 0\n"
+        )
+
     def test_command_must_be_text(self, tmp_path):
         assert error_for(tmp_path, "tests:\n  command: [pytest]\n") == (
             "`tests.command` must be a shell command as a string, e.g. 'pytest -q'"

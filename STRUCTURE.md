@@ -93,14 +93,17 @@ src/rlens/
 │
 ├── apply/                  v2.4: applying a suggestion in an isolated git worktree
 │   ├── worktree.py         Repository check, clean-tree check, worktree and branch
-│   ├── patch.py            Which files a patch touches; apply only if it applies cleanly
-│   └── gate.py             Behaviour gate level 1: the user's test command, with a timeout
+│   ├── patch.py            Which files a patch touches; exact-match hunk applier
+│   ├── gate.py             Behaviour gate level 1: the user's test command, with a timeout
+│   ├── prompts.py          Patch request (no predictions in it) and reply parser
+│   └── runner.py           The whole run: worktree, patch, one repair, gate, commit, measure
 │
 └── report/                 Everything the user sees or reads later
     ├── terminal.py         scan tables
     ├── architecture.py     arch output, terminal and markdown
     ├── advice.py           advise output, terminal and markdown
     ├── verify.py           verify output, terminal and markdown
+    ├── apply.py            apply output, terminal and markdown
     ├── explain.py          explain output (model and template), terminal and markdown
     └── files.py            Writing and reading JSON/markdown reports
 ```
@@ -208,6 +211,11 @@ tests/
 ├── test_experiments_v2.py  Logic of the phase-5a experiment scripts
 ├── test_packaging.py       Published-package contract: links, version, entry point
 ├── test_apply_worktree.py  apply invariants on real git repos: the user's branch never changes
+├── test_apply_patch.py     Exact-match applier: numberless hunks, CRLF, ambiguity, atomicity
+├── test_apply_prompts.py   Patch request carries no prediction; reply parser; repair prompt
+├── test_apply_runner.py    apply end to end with a fake provider: improved, broken, rejected
+├── test_apply_cli.py       rlens apply: report, dry run, target choice, preconditions
+├── apply_support.py        Shared project and helpers for the apply tests
 ├── test_metric_edges.py    Real-world idioms: decorators, @overload, except*, string annotations
 ├── test_properties.py      Metric relations on generated code (hypothesis, deterministic)
 ├── test_mutation_survivors.py  Behaviours mutation testing found untested
