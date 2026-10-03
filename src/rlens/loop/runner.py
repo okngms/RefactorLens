@@ -29,6 +29,7 @@ from rlens.apply.worktree import ApplyError
 from rlens.config import Config
 from rlens.llm.budget import Budget, BudgetExceeded
 from rlens.loop.feedback import build_feedback
+from rlens.providers.base import ProviderRequestTooLarge, ProviderTruncated
 from rlens.verify.calibration import CalibrationPoint, CalibrationReport, calibrate
 
 LOOP_SCHEMA_VERSION = 1
@@ -38,6 +39,10 @@ MAX_ITER = "max_iter"
 BUDGET = "budget"
 STOP_NO_GATE = "no_gate"
 NO_SUGGESTION = "no_suggestion"
+PROVIDER_LIMIT = "provider_limit"
+OUTPUT_LIMIT = "output_limit"
+"""Öneri yanıtı çıktı sınırında kesildi; ölçüm boşluğu, modelin hatası değil."""
+"""Bir istek sağlayıcının istek başına sınırını aştı; ölçüm boşluğu, modelin hatası değil."""
 
 STOP_TEXT = {
     ALL_HELD: "every prediction held and the tests passed",
@@ -45,6 +50,8 @@ STOP_TEXT = {
     BUDGET: "the call budget ran out",
     STOP_NO_GATE: "no characterization test passed, so nothing could be gated",
     NO_SUGGESTION: "the model returned no usable suggestion",
+    PROVIDER_LIMIT: "a request exceeded the provider's per-request limit",
+    OUTPUT_LIMIT: "an advice reply was cut off at the output limit",
 }
 
 
@@ -238,6 +245,15 @@ def run_loop(
             )
         except BudgetExceeded:
             result.stop_reason = BUDGET
+            break
+        except ProviderRequestTooLarge:
+            # Yeniden denenmez: denemek yalnızca sığan örneklemleri seçerdi.
+            result.stop_reason = PROVIDER_LIMIT
+            break
+        except ProviderTruncated:
+            # Aynı mantık: kesilme bizim sınırımızdır, yeniden denemek kısa
+            # yanıtları seçerdi (ön kayıt N3).
+            result.stop_reason = OUTPUT_LIMIT
             break
         finally:
             item.calls = budget.calls - calls

@@ -38,7 +38,7 @@ from rlens.analysis.model import ADVICE_SCHEMA_VERSION
 from rlens.config import Config
 from rlens.llm.budget import Budget, BudgetExceeded
 from rlens.llm.cache import ResponseCache, prompt_hash
-from rlens.providers.base import Provider, ProviderError
+from rlens.providers.base import Provider, ProviderError, ProviderRequestTooLarge
 
 #: Öneri durumları (SPEC §6). Hiçbir öneri silinmez; oranlar raporlanır.
 LINKED = "linked"
@@ -589,6 +589,10 @@ def request_advice(
             f"{target_name} (repair)",
             cache_salt,
         )
+    except ProviderRequestTooLarge:
+        # Sağlayıcının sınırı modelin sözleşme ihlali değildir; `unstructured`
+        # diye kaydedilmez, çağırana gider.
+        raise
     except (ProviderError, BudgetExceeded):
         # Onarım bütçeye takılırsa ham metin yine saklanır; sessizce boş dönülmez.
         repaired_raw = ""

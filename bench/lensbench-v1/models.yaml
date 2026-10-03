@@ -1,0 +1,12 @@
+# LensBench v1 modelleri. Düzenlenebilir: yeni model eklemek için bir satır.
+#
+# `primary: true` ön kayıtlı settir (docs/lensbench-v1-onkayit.md §5):
+# hükümler (H1-H5) yalnızca bu setle verilir. İlk çağrıdan sonra birincil set
+# değişmez. Sonradan eklenen modeller `primary: false` ile eklenir; raporda
+# tablolarda görünür, hükmü değiştirmez (sonuç görüldükten sonra model eklemek
+# hükmü yönlendirebilirdi).
+models:
+  - {provider: groq, model: openai/gpt-oss-120b, primary: true}
+  - {provider: groq, model: openai/gpt-oss-20b, primary: true}
+  # qwen/qwen3.8-27b çıkarıldı: Groq ücretsiz katmanında hiçbir istek geçmiyor
+  # (ön kayıt §9 N4). Yerine bir Gemini modeli gelecek (GEMINI_API_KEY bekleniyor).

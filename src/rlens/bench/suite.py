@@ -51,6 +51,43 @@ class Suite:
     sha: str
 
 
+@dataclass(frozen=True)
+class ModelEntry:
+    provider: str
+    model: str
+    primary: bool
+    """Ön kayıtlı set: hükümler yalnızca bununla verilir."""
+
+    @property
+    def label(self) -> str:
+        return f"{self.provider}/{self.model}"
+
+
+def load_models(path: Path) -> list[ModelEntry]:
+    """Düzenlenebilir model listesi; her girdi `primary`'yi açıkça söyler.
+
+    `primary` varsayılanı yok: sonradan eklenen bir modelin sessizce birincil
+    sete girip hükmü değiştirmesi ön kaydı bozardı.
+    """
+    try:
+        raw = yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {}
+    except (OSError, yaml.YAMLError) as exc:
+        raise BenchError(f"Could not read the models file {path}: {exc}") from exc
+    entries = raw.get("models") if isinstance(raw, dict) else None
+    _require(isinstance(entries, list) and entries, f"{path}: needs a non-empty `models` list")
+    models = []
+    for item in entries:
+        _require(
+            isinstance(item, dict) and {"provider", "model", "primary"} <= set(item),
+            f"{path}: every model needs provider, model and primary (true or false): {item!r}",
+        )
+        _require(isinstance(item["primary"], bool), f"{path}: primary must be true or false")
+        models.append(ModelEntry(str(item["provider"]), str(item["model"]), item["primary"]))
+    labels = [m.label for m in models]
+    _require(len(labels) == len(set(labels)), f"{path}: a model is listed twice")
+    return models
+
+
 def _require(condition: bool, message: str) -> None:
     if not condition:
         raise BenchError(message)

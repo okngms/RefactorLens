@@ -1,4 +1,4 @@
-# STATUS — 2026-09-24
+# STATUS — 2026-10-03
 
 ## Sürüm
 **v2.3.0 PyPI'da** (doğrulandı 2026-10-02). `v2.3.0` tag'i ile GitHub Actions
@@ -7,6 +7,49 @@ derlemeden önce karşılaştırıyor. İçerik: `CHANGELOG.md` 2.3.0. Önceki: 
 (2026-09-23), v2.1.0 (2026-09-22), v2.0.0 (2026-09-10).
 
 ## Bitenler
+- **LensBench N4 — qwen kullanılamıyor, yerine Gemini (2026-10-03).**
+  - `qwen/qwen3.8-27b` Groq ücretsiz katmanında her isteği 429 "Request too
+    large … OTPM Limit 1000" ile reddediyor (tek cümlelik istek dahil); hiç
+    birim tamamlanmadı. Bu 429 kota sanılıp sonsuza dek bekleniyordu: gövdesi
+    "Request too large" diyen 429 artık `ProviderRequestTooLarge`, yeniden
+    denenmez (`providers/base.py`).
+  - Kullanıcı kararı: qwen yerine Gemini ücretsiz katmanından bir model.
+    Yeni `src/rlens/providers/gemini.py` (`generateContent`, anahtar başlıkta,
+    düşünme parçaları atlanır, `MAX_TOKENS` → `ProviderTruncated`);
+    `advised_wait` Gemini'nin "retry in Ns" ve `retryDelay` önerisini okur.
+  - Ön kayıt §9 N4 yazıldı. **Eksik:** `.env`'deki `GEMINI_API_KEY` boş;
+    model adı, `models.yaml` satırı ve yeni sha anahtar gelince.
+  - Bu arada iki gpt-oss modelinin koşusu geçici bir models dosyasıyla
+    sürüyor (sonuçlar aynı `bench/results/<model>/` kayıtlarına).
+  - Testler: `test_providers.py` +11. Durum: 1874 paket testi (10 atlandı),
+    91 fikstür testi, ruff temiz.
+- **Kullanıcı kararları (2026-10-03) ve ön kaydın dondurulması.**
+  - LensBench: şimdilik ücretsiz modeller, liste düzenlenebilir ve
+    genişletilebilir → `bench/lensbench-v1/models.yaml` (birincil set:
+    groq `openai/gpt-oss-120b`, `openai/gpt-oss-20b`, `qwen/qwen3.8-27b`;
+    Groq hesabında bu iş için kullanılabilir başka model yoktu, Ollama kurulu
+    değil). `rlens bench run --models`, `rlens bench report --models`:
+    hükümler yalnızca birincil setle; `primary: false` eklenen modeller
+    tablolarda görünür, hükmü değiştirmez (testle sabit).
+  - Ön kayıt taslaktan değişti (ilk çağrıdan önce): model eşiği 4 → 3,
+    "dörtte üç" üç modelde "hepsi"; karar eşikleri aynı. Belge **dondu**:
+    `prompt_hash` b4e04b5ebd198adb, `suite_hash` 05a5c58a0239ffc6.
+  - Yayın: 2.4.0 LensBench sonuçlarıyla. Tip çıkarımı atlandı (FUTURE.md).
+    Action Marketplace'te listelenmez, tag ile kullanılır (FUTURE.md).
+  - Bench koşusunda sağlayıcı yeniden denemesi 6 (ücretsiz katmanda
+    `Retry-After`'a uyulur); günlük kotaya takılan koşu aynı komutla sürer.
+  - Durum: 1853 paket testi (10 atlandı), 91 fikstür testi, ruff temiz.
+  - **LensBench v1 gerçek koşusu sürüyor** (üç model × 48 birim). Ön kayıt
+    işletme notları (§9): N1 — istek başına sınır (HTTP 413) ölçüm boşluğu,
+    birim `provider_limit`, yeniden denenmez; `apply`/`advise` onarım
+    çağrısındaki 413 artık `rejected`/`unstructured` sayılmaz. N2 — günlük
+    kota (429, `gpt-oss-120b` 200 000 token/gün, birim başına ~14 000):
+    birim yeniden koşulur; `--models` kotaya takılan modeli bırakıp sıradakine
+    geçer, `--wait-minutes` bekler. N3 — kesilen öneri yanıtı: bench'te
+    öneri çağrıları da 16 384 çıktı sınırıyla; aşan yanıt `output_limit`
+    boşluğu, yeniden denenmez. Komut:
+    `rlens bench run --suite bench/lensbench-v1/suite.yaml --models
+    bench/lensbench-v1/models.yaml --wait-minutes 30`.
 - **v2.4 Aşama 6 — LensBench altyapısı ve ön kayıt taslağı** (koşu yok).
   - Ön kayıt `docs/lensbench-v1-onkayit.md`: H1 (geri besleme), H3 (aşırı
     güven), H4 (tür), **H5 yeni** (kalıntı: NOM/LCOM4 "down" sarmalayıcı
@@ -857,13 +900,15 @@ framework deyiminden geliyor.**
 ## Sıradaki iş
 **v2.4 sürüyor** (planlanan v3; `docs/02`). Aşama 0-5 bitti (Aşama 4'ün
 tip çıkarımı ve Aşama 5'in Marketplace yayını kullanıcı kararı bekliyor).
-Sıradaki: **Aşama 6'nın koşuları** — kullanıcı modelleri ve bütçeyi
-seçince ön kayıt §5 doldurulur, belge donar (ilk çağrıdan sonra değişmez),
-`rlens bench run` her model için koşulur, `rlens bench report` ile
-FINDINGS-3 yazılır. Kullanıcı kararı bekleyenler: (1) LensBench modelleri ve
-bütçesi; (2) tip çıkarımı (`[typed]`, kilitli "yalnızca `ast`" ile çelişir);
-(3) Action'ın Marketplace yeri (kök/ayrı depo); (4) yayın: Aşama 0-5 + bench
-altyapısı 2.4.0 olarak şimdi mi, sonuçlarla mı.
+Sıradaki: `GEMINI_API_KEY` ile Gemini modelini seçip `models.yaml`'a birincil
+satır olarak yazmak, yeni sha'yı ön kayıt N4'e eklemek (qwen satırı
+çıkar); sonra **LensBench v1 koşusunu tamamlamak** —
+`rlens bench run --suite bench/lensbench-v1/suite.yaml --models
+bench/lensbench-v1/models.yaml` (kesilirse aynı komut kaldığı yerden sürer;
+sonuçlar `bench/results/<model>/`). Bitince `rlens bench report ...
+--models bench/lensbench-v1/models.yaml` ile rapor, sonra **FINDINGS-3**
+(ön kayıt §6 sırasıyla; ön kayıtta olmayan her analiz "sonradan" başlığı
+altında) ve **2.4.0 yayını**. Donan dosyalar değişmez (ön kayıt §8).
 
 Bu arada açık kalan, küçük ve bağımsız işler: `report.terminal`'deki eşik
 mantığını taşımak ve `analysis`'in `importlinter` çağrısını sınıra çekmek

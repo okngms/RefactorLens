@@ -20,7 +20,8 @@ from pathlib import Path
 from rlens.bench.suite import BenchError
 
 #: Ön kayıtlı eşikler.
-MIN_MODELS = 4
+#: Birincil set üç ücretsiz model (ön kayıt §5); "dörtte üç" üçte üç demektir.
+MIN_MODELS = 3
 MIN_PREDICTIONS = 10
 MIN_PER_KIND = 20
 H1_GAIN = 0.10
@@ -29,6 +30,9 @@ H4_SPREAD_SUPPORTED = 0.20
 H4_SPREAD_REFUTED = 0.10
 H5_GAP_SUPPORTED = 0.30
 H5_GAP_REFUTED = 0.10
+
+#: Ölçüm boşluğu sayılan durma nedenleri (ön kayıt N1, N3).
+LIMITS = ("provider_limit", "output_limit")
 
 SUPPORTED, REFUTED, INCONCLUSIVE, INSUFFICIENT = (
     "supported",
@@ -104,6 +108,13 @@ def predictions(results: list[dict]) -> list[Prediction]:
                             )
                         )
     return found
+
+
+def verdict_items(items: list[Prediction], primary: set[str] | None) -> list[Prediction]:
+    """Hükme giren tahminler: yalnızca birincil set (verilmişse)."""
+    if primary is None:
+        return items
+    return [p for p in items if p.model in primary]
 
 
 def _accuracy(items: list[Prediction]) -> tuple[float | None, int]:
@@ -203,8 +214,10 @@ def _fmt(value) -> str:
     return f"{value:.0%}" if isinstance(value, float) else str(value)
 
 
-def report_markdown(results: list[dict]) -> str:
+def report_markdown(results: list[dict], primary: set[str] | None = None) -> str:
+    """`primary`: ön kayıtlı modeller; hükümler yalnızca onlarla verilir."""
     items = predictions(results)
+    judged = verdict_items(items, primary)
     first = results[0]
     lines = [
         f"# LensBench report — {first['suite']}",
@@ -212,12 +225,14 @@ def report_markdown(results: list[dict]) -> str:
         f"- Suite hash `{first['suite_hash']}`, prompt hash `{first['prompt_hash']}`",
         f"- Result files: {len(results)}; models: {len({p.model for p in items}) or len(results)}",
         "- Only verifiable predictions count toward accuracy; unverifiable ones are listed.",
+        "- Provider limit: runs stopped by a request over the provider's per-request limit;"
+        " a measurement gap, not a model error, never retried.",
         "",
         "## Per model",
         "",
         "| Model | Units | Verifiable | Accuracy | Unverifiable | Tests passed "
-        "| Suspicious | Rejected advice |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|",
+        "| Suspicious | Rejected advice | Provider limit |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for result in results:
         model = f"{result['provider']}/{result['model']}"
@@ -236,7 +251,8 @@ def report_markdown(results: list[dict]) -> str:
         lines.append(
             f"| {model} | {len(result['units'])} | {n} | {_fmt(accuracy)} | "
             f"{sum(p.outcome not in ('hit', 'miss') for p in mine)} | {_fmt(passed)} | "
-            f"{_fmt(suspicious)} | {_fmt(rejected)} |"
+            f"{_fmt(suspicious)} | {_fmt(rejected)} | "
+            f"{sum(u['loop']['stop_reason'] in LIMITS for u in result['units'])} |"
         )
 
     metrics = sorted({p.metric for p in items})
@@ -262,11 +278,20 @@ def report_markdown(results: list[dict]) -> str:
         lines.append(f"| {condition} | " + " | ".join(cells) + " |")
 
     lines += ["", "## Pre-registered hypotheses", ""]
+    if primary is not None:
+        later = sorted({p.model for p in items} - primary)
+        lines += [
+            f"Verdicts use the pre-registered models only: {', '.join(sorted(primary))}."
+            + (f" Added later (tables only): {', '.join(later)}." if later else ""),
+            "",
+        ]
+    else:
+        lines += ["No models file given: verdicts use every result.", ""]
     for name, (verdict, data) in (
-        ("H1 feedback raises accuracy (loop3, last − first iteration)", h1(items)),
-        ("H3 models are overconfident (stated confidence − accuracy)", h3(items)),
-        ("H4 accuracy differs by refactoring kind", h4(items)),
-        ("H5 NOM/LCOM4 'down' misses more when delegating wrappers stay", h5(items)),
+        ("H1 feedback raises accuracy (loop3, last − first iteration)", h1(judged)),
+        ("H3 models are overconfident (stated confidence − accuracy)", h3(judged)),
+        ("H4 accuracy differs by refactoring kind", h4(judged)),
+        ("H5 NOM/LCOM4 'down' misses more when delegating wrappers stay", h5(judged)),
     ):
         lines.append(f"- **{name}: {verdict}.** {json.dumps(data, sort_keys=True)}")
     lines += [

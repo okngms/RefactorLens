@@ -13,13 +13,16 @@ from rlens.providers.base import (
     ProviderError,
     load_env_file,
 )
+from rlens.providers.gemini import GeminiProvider
 from rlens.providers.groq import GroqProvider
 from rlens.providers.ollama import OllamaProvider
 
-#: Çekirdek sağlayıcılar. Gemini ve Anthropic opsiyoneldir ve henüz eklenmemiştir.
+#: Çekirdek sağlayıcılar Groq ve Ollama; Gemini opsiyoneldir (LensBench v1, N4).
+#: Anthropic henüz eklenmedi.
 PROVIDERS = {
     GroqProvider.name: GroqProvider,
     OllamaProvider.name: OllamaProvider,
+    GeminiProvider.name: GeminiProvider,
 }
 
 __all__ = [

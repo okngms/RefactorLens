@@ -18,6 +18,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -80,7 +81,13 @@ def unit_config(project: Path, suite: Suite, target, provider: str, model: str, 
     command = target.tests.format(python=f'"{python}"') if target.tests else None
     return replace(
         config,
-        provider=replace(config.provider, name=provider, model=model),
+        # N3: öneri çağrıları da patch'lerle aynı çıktı sınırını alır.
+        provider=replace(
+            config.provider,
+            name=provider,
+            model=model,
+            max_output_tokens=config.apply.max_output_tokens,
+        ),
         advise=replace(config.advise, temperature=suite.temperature),
         tests=replace(config.tests, command=command),
         chartests=replace(config.chartests, enabled_when_no_tests=True, python=python),
@@ -180,3 +187,34 @@ def run_bench(
     payload = {**header, "generated_at": stamp, "units": units}
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return path
+
+
+def run_rotation(entries, run_one, *, wait_minutes: int = 0, sleep=time.sleep, log=print):
+    """Modelleri sırayla koşar; kotaya takılan modeli bırakıp sıradakine geçer.
+
+    Bütün kalan modeller takıldıysa ve `wait_minutes` > 0 ise o kadar bekleyip
+    takılanları yeniden dener: ücretsiz katmanın günlük sınırı kayan bir
+    pencere olduğu için her bekleme ilerleme getirir. Kota dışındaki
+    sağlayıcı hataları (yetki, model yok) koşuyu durdurur.
+
+    Returns:
+        (biten modeller {etiket: sonuç yolu}, takılı kalan modeller)
+    """
+    from rlens.providers.base import ProviderRateLimited
+
+    done = {}
+    pending = list(entries)
+    while pending:
+        blocked = []
+        for entry in pending:
+            try:
+                done[entry.label] = run_one(entry)
+            except ProviderRateLimited as exc:
+                log(f"{entry.label}: rate limited ({str(exc)[:160]}); moving on.")
+                blocked.append(entry)
+        if not blocked or wait_minutes <= 0:
+            return done, blocked
+        log(f"{len(blocked)} model(s) rate limited; waiting {wait_minutes} minutes.")
+        sleep(wait_minutes * 60)
+        pending = blocked
+    return done, []

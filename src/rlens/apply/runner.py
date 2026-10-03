@@ -58,7 +58,7 @@ from rlens.chartests.generator import (
     validate,
 )
 from rlens.config import Config
-from rlens.providers.base import ProviderError, ProviderTruncated
+from rlens.providers.base import ProviderError, ProviderRequestTooLarge, ProviderTruncated
 from rlens.verify import goodhart as goodhart_module
 from rlens.verify.diff import UNCHANGED, diff_reports
 from rlens.verify.prediction import check_predictions
@@ -358,6 +358,9 @@ def _patch_until_applied(result, work, original, allowed, config, provider, cach
             )
             result.outcome = REJECTED
             return False
+        except ProviderRequestTooLarge:
+            # Sağlayıcının sınırı, patch'in reddi sayılmaz (modelin hatası değil).
+            raise
         except ProviderError as exc:
             # İlk çağrı başarısızsa öğrenilen bir şey yok; hata yukarı gider.
             # Onarım çağrısı başarısızsa ilk denemenin kaydı kaybolmamalı.

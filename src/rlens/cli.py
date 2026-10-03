@@ -34,8 +34,8 @@ from rlens.apply.prompts import SYSTEM_INSTRUCTION as APPLY_SYSTEM_INSTRUCTION
 from rlens.apply.runner import preview_chartests, preview_prompt, run_apply, run_chartests_only
 from rlens.apply.worktree import ApplyError
 from rlens.bench.report import load_results, report_markdown
-from rlens.bench.runner import estimate_calls, plan, run_bench
-from rlens.bench.suite import BenchError, load_suite
+from rlens.bench.runner import estimate_calls, plan, run_bench, run_rotation
+from rlens.bench.suite import BenchError, ModelEntry, load_models, load_suite
 from rlens.chartests.generator import SYSTEM_INSTRUCTION as CHARTESTS_SYSTEM_INSTRUCTION
 from rlens.config import ConfigError, load_config
 from rlens.diff.baseline import BASELINE_FILE, findings, write_baseline
@@ -50,7 +50,7 @@ from rlens.llm.budget import Budget, BudgetExceeded
 from rlens.llm.cache import ResponseCache, prompt_hash
 from rlens.loop.runner import preview_loop_prompt, run_loop
 from rlens.providers import PROVIDERS, ProviderError, get_provider, load_env_file
-from rlens.providers.base import ProviderTruncated
+from rlens.providers.base import ProviderRequestTooLarge, ProviderTruncated
 from rlens.report.advice import render_advice
 from rlens.report.apply import chartests_line, render_apply
 from rlens.report.architecture import render_architecture
@@ -478,6 +478,11 @@ def advise(
                 c.target.qualified_name for c in contexts[contexts.index(context) :]
             )
             break
+        except ProviderRequestTooLarge as exc:
+            # Sağlayıcının istek başına sınırı: hedef atlanır, rapor kısmi olur.
+            err_console.print(f"[yellow]Skipping {name}:[/] {exc}")
+            budget.skipped.append(name)
+            continue
         except ProviderTruncated as exc:
             # Kesilme bizim çıktı sınırımızdır, modelin sözleşme ihlali değil:
             # yarım yanıt `unstructured` diye kaydedilmez, hedef atlanır.
@@ -1246,6 +1251,12 @@ def bench_run(
     ],
     provider: Annotated[str | None, typer.Option("--provider", "-p", help="Provider.")] = None,
     model: Annotated[str | None, typer.Option("--model", "-m", help="Model name.")] = None,
+    models: Annotated[
+        Path | None,
+        typer.Option(
+            "--models", exists=True, dir_okay=False, help="Models file; runs every model in it."
+        ),
+    ] = None,
     root: Annotated[
         Path,
         typer.Option("--root", exists=True, file_okay=False, help="Base for the suite's projects."),
@@ -1254,6 +1265,14 @@ def bench_run(
     dry_run: Annotated[
         bool, typer.Option("--dry-run", help="Print the plan and its call count, call nothing.")
     ] = False,
+    wait_minutes: Annotated[
+        int,
+        typer.Option(
+            "--wait-minutes",
+            min=0,
+            help="When every model is rate limited, wait this long and retry (0: stop).",
+        ),
+    ] = 0,
 ) -> None:
     """Run every target x condition x repeat of a suite as an `rlens loop`."""
     try:
@@ -1262,41 +1281,74 @@ def bench_run(
         raise _fail(str(exc)) from exc
     low, high = estimate_calls(loaded)
     runs = len(plan(loaded))
+    if models is not None:
+        try:
+            entries = load_models(models)
+        except BenchError as exc:
+            raise _fail(str(exc)) from exc
+    elif provider and model:
+        entries = [ModelEntry(provider, model, True)]
+    else:
+        entries = []
+    count = max(1, len(entries))
     console.print(
         f"{loaded.name}: {len(loaded.targets)} targets x {len(loaded.conditions)} conditions x "
-        f"{loaded.repeats} repeats = {runs} runs, between {low} and {high} model calls. "
-        "No response cache: repeats are independent samples."
+        f"{loaded.repeats} repeats = {runs} runs per model; {count} model"
+        f"{'s' if count > 1 else ''}, between {low * count} and {high * count} model calls"
+        f"{' in total' if count > 1 else ''}. No response cache: repeats are independent samples."
     )
     if dry_run:
+        for entry in entries:
+            console.print(f"  {entry.label}{'' if entry.primary else ' (added later)'}")
         return
-    if not provider or not model:
-        raise _fail("Give --provider and --model; a benchmark result is per model.")
-    if provider not in PROVIDERS:
-        raise _fail(f"Unknown provider '{provider}'. Available: {', '.join(sorted(PROVIDERS))}.")
+    if not entries:
+        raise _fail("Give --models, or --provider and --model; a result is per model.")
+    unknown = sorted({e.provider for e in entries} - set(PROVIDERS))
+    if unknown:
+        raise _fail(
+            f"Unknown provider(s): {', '.join(unknown)}. Available: {', '.join(sorted(PROVIDERS))}."
+        )
     from rlens.config import ProviderConfig
 
     load_env_file(Path(root))
-    try:
-        adapter = get_provider(
-            ProviderConfig(
-                name=provider, model=model, base_url=None, timeout_seconds=120, max_retries=3
+
+    def run_one(entry):
+        # Ücretsiz katmanlarda dakikalık sınır kuraldır; sunucunun bildirdiği
+        # bekleme süresine uyularak daha çok denenir (`post_with_retry`).
+        settings = ProviderConfig(
+            name=entry.provider,
+            model=entry.model,
+            base_url=None,
+            timeout_seconds=180,
+            max_retries=6,
+        )
+        adapter = get_provider(settings)
+        slug = "".join(ch if ch.isalnum() or ch in "-." else "-" for ch in entry.label)
+        target_dir = (out / slug) if out else Path(root) / "bench" / "results" / slug
+        console.print(f"[bold]{entry.label}[/bold]")
+
+        def progress(done: int, total: int, unit: dict) -> None:
+            console.print(
+                f"[dim]{done}/{total} {unit['target']} {unit['condition']} #{unit['repeat']}[/dim]"
             )
-        )
-    except ProviderError as exc:
-        raise _fail(str(exc)) from exc
-    slug = "".join(ch if ch.isalnum() or ch in "-." else "-" for ch in f"{provider}-{model}")
-    target_dir = out or Path(root) / "bench" / "results" / slug
 
-    def progress(done: int, total: int, unit: dict) -> None:
-        console.print(
-            f"[dim]{done}/{total} {unit['target']} {unit['condition']} #{unit['repeat']}[/dim]"
+        path = run_bench(
+            loaded, root, entry.provider, entry.model, adapter, target_dir, progress=progress
         )
+        console.print(f"Results: {path}")
+        return path
 
     try:
-        path = run_bench(loaded, root, provider, model, adapter, target_dir, progress=progress)
+        _, blocked = run_rotation(
+            entries, run_one, wait_minutes=wait_minutes, log=lambda line: console.print(line)
+        )
     except (BenchError, ApplyError, ProviderError) as exc:
         raise _fail(f"{exc} Finished runs are kept; rerun the same command to resume.") from exc
-    console.print(f"Results: {path}")
+    if blocked:
+        raise _fail(
+            f"Rate limited: {', '.join(e.label for e in blocked)}. Finished runs are kept; "
+            "rerun later, or pass --wait-minutes to wait."
+        )
 
 
 @bench_app.command("report")
@@ -1305,10 +1357,20 @@ def bench_report(
         list[Path], typer.Argument(exists=True, dir_okay=False, help="Result files.")
     ],
     output: Annotated[Path | None, typer.Option("--output", "-o", help="Markdown file.")] = None,
+    models: Annotated[
+        Path | None,
+        typer.Option(
+            "--models",
+            exists=True,
+            dir_okay=False,
+            help="Models file; verdicts use its pre-registered (primary) models only.",
+        ),
+    ] = None,
 ) -> None:
     """Tables and the pre-registered verdicts for one or more result files."""
     try:
-        text = report_markdown(load_results(results))
+        primary = {m.label for m in load_models(models) if m.primary} if models else None
+        text = report_markdown(load_results(results), primary)
     except BenchError as exc:
         raise _fail(str(exc)) from exc
     if output:

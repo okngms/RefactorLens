@@ -231,9 +231,8 @@ Geri besleme bloğu, durma koşulları, `confidence` alanı, Brier hesabı.
 > çağıranı küçültmez; Extract Method/Inline kuralı kaybedilen/kazanılan
 > deyimlere de bakar.
 >
-> **Açık:** tip çıkarımı (`[typed]`, jedi/pyright) kilitli "yalnızca `ast`"
-> kararıyla çelişir; opsiyonel extra olarak yapılıp yapılmayacağı kullanıcı
-> kararı. `verify` tür tespiti yapmaz: yalnızca rapor karşılaştırır, kaynak
+> **Tip çıkarımı atlandı** (kullanıcı kararı, 2026-10-03): kilitli "yalnızca
+> `ast`" kararıyla çelişir; FUTURE.md'de. `verify` tür tespiti yapmaz: yalnızca rapor karşılaştırır, kaynak
 > görmez (git ref'ten okuma Aşama 5 `diff` ile gelir).
 `refactoring_types.py` (fikstürde bilinen refactoring'lerle altın test); `[typed]` extra ile DCC/CAM `typed` çözümleme, `inferred` ile karşılaştırma raporu.
 **Bitti ⇔** 5 tür fikstürde doğru sınıflandırılıyor; typed modda CAM `null` oranı düşüyor (ölçülüp belgeleniyor).
@@ -253,9 +252,8 @@ Geri besleme bloğu, durma koşulları, `confidence` alanı, Brier hesabı.
 > - Değişen dosyalarda refactoring türü de raporlanır (Aşama 4'ün `verify`'da
 >   yapamadığı kısım).
 > - Plan `--format=pr-comment` diyordu; `table` ve `json` da var.
-> - **Marketplace:** listeleme `action.yml`'in depo kökünde olmasını ister;
->   action `action/` altında, `uses: okngms/RefactorLens/action@<tag>` ile
->   kullanılır. Kök mü, ayrı depo mu: kullanıcı kararı.
+> - **Marketplace'te listelenmez** (kullanıcı kararı, 2026-10-03); action
+>   `action/` altında, `uses: okngms/RefactorLens/action@<tag>` ile kullanılır.
 **Bitti ⇔** örnek PR'da yorum üretiliyor; ratchet mevcut ihlalleri geçirip yeni ihlali kırıyor (test); Action marketplace'te yayınlandı.
 
 ### Aşama 6 — LensBench ve FINDINGS-3
@@ -265,8 +263,10 @@ Geri besleme bloğu, durma koşulları, `confidence` alanı, Brier hesabı.
 > (4 hedef × 4 koşul × 3 tekrar = 48 birim; model başına 108-306 çağrı).
 > Ön kayıt: `docs/lensbench-v1-onkayit.md` (H1, H3, H4, yeni H5 kalıntı;
 > H2 ertelendi — iki kapıyı aynı patch'e uygulamayı ister). Karar kuralları
-> `bench/report.py`'de kodlu. Kullanıcı kararı: modeller ve bütçe; sonra ön
-> kayıt donar ve koşular başlar. Plandan sapma: açık kaynak hedefler v1'de
+> `bench/report.py`'de kodlu. Modeller (kullanıcı kararı): üç ücretsiz Groq
+> modeli birincil set, `bench/lensbench-v1/models.yaml`; sonradan eklenenler
+> hükmü değiştirmez. Ön kayıt 2026-10-03'te dondu. Yayın (2.4.0) LensBench
+> sonuçlarıyla. Plandan sapma: açık kaynak hedefler v1'de
 > yok (testleri bağımlılık kurulumu ister).
 Hedef seti dondurma, prosedür, `bench run/report`, en az 4 model (≥3 ücretsiz/lokal + 1 pahalı kontrol), tüm koşullar.
 **H1:** Geri besleme yapısal tahmin doğruluğunu iterasyonlar boyunca artırır.

@@ -202,3 +202,66 @@ class TestReport:
         assert "stopped: every prediction held" in output
         assert json.loads(next(out.glob("loop-*.json")).read_text("utf-8"))["iterations"]
         assert list(out.glob("loop-*.md"))
+
+
+class TestProviderLimit:
+    """Sağlayıcı sınırı ölçüm boşluğudur, modelin hatası değil (ön kayıt işletme notu)."""
+
+    def test_a_too_large_request_ends_the_run_and_keeps_finished_iterations(self, repo):
+        from rlens.loop.runner import PROVIDER_LIMIT
+        from rlens.providers.base import ProviderRequestTooLarge
+
+        class Limited(FakeProvider):
+            def generate(self, system, user, config, temperature):
+                if len(self.prompts) == 2:
+                    self.prompts.append(user)
+                    raise ProviderRequestTooLarge("HTTP 413: request too large")
+                return super().generate(system, user, config, temperature)
+
+        result = loop(repo, Limited(advice_reply("up"), PATCH, advice_reply("down"), PATCH))
+        assert result.stop_reason == PROVIDER_LIMIT
+        assert [i.outcome for i in result.iterations] == ["improved"]
+
+    def test_a_too_large_repair_is_not_counted_as_a_rejected_patch(self, repo):
+        from rlens.loop.runner import PROVIDER_LIMIT
+        from rlens.providers.base import ProviderRequestTooLarge
+
+        class Limited(FakeProvider):
+            def generate(self, system, user, config, temperature):
+                if len(self.prompts) == 2:  # öneri, patch, sonra onarım
+                    self.prompts.append(user)
+                    raise ProviderRequestTooLarge("HTTP 413")
+                return super().generate(system, user, config, temperature)
+
+        result = loop(repo, Limited(advice_reply("up"), "no diff here"))
+        assert result.stop_reason == PROVIDER_LIMIT
+        assert result.iterations == []
+
+    def test_a_too_large_advice_repair_is_not_an_unstructured_reply(self, repo):
+        from rlens.loop.runner import PROVIDER_LIMIT
+        from rlens.providers.base import ProviderRequestTooLarge
+
+        class Limited(FakeProvider):
+            def generate(self, system, user, config, temperature):
+                if len(self.prompts) == 1:
+                    self.prompts.append(user)
+                    raise ProviderRequestTooLarge("HTTP 413")
+                return super().generate(system, user, config, temperature)
+
+        result = loop(repo, Limited("not json"))
+        assert result.stop_reason == PROVIDER_LIMIT
+
+    def test_a_cut_off_advice_reply_is_a_measurement_gap(self, repo):
+        from rlens.loop.runner import OUTPUT_LIMIT
+        from rlens.providers.base import ProviderTruncated
+
+        class Cutting(FakeProvider):
+            def generate(self, system, user, config, temperature):
+                if len(self.prompts) == 2:
+                    self.prompts.append(user)
+                    raise ProviderTruncated("finish_reason: length", partial="{")
+                return super().generate(system, user, config, temperature)
+
+        result = loop(repo, Cutting(advice_reply("up"), PATCH, advice_reply("down"), PATCH))
+        assert result.stop_reason == OUTPUT_LIMIT
+        assert [i.outcome for i in result.iterations] == ["improved"]

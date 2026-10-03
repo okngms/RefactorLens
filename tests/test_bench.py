@@ -28,11 +28,12 @@ from rlens.bench.report import (
     report_markdown,
 )
 from rlens.bench.runner import JOURNAL, estimate_calls, plan, run_bench
-from rlens.bench.suite import BenchError, load_suite, project_hash
+from rlens.bench.suite import BenchError, load_models, load_suite, project_hash
 from rlens.cli import app
 
 ROOT = Path(__file__).resolve().parent.parent
 SUITE = ROOT / "bench" / "lensbench-v1" / "suite.yaml"
+MODELS = ROOT / "bench" / "lensbench-v1" / "models.yaml"
 needs_git = pytest.mark.skipif(shutil.which("git") is None, reason="git is not installed")
 
 
@@ -285,3 +286,116 @@ class TestReportAndCli:
         result = CliRunner().invoke(app, ["bench", "report", str(path), "-o", str(out)])
         assert result.exit_code == 0, result.output
         assert out.read_text(encoding="utf-8").startswith("# LensBench report")
+
+
+class TestModels:
+    def test_the_primary_set(self):
+        # N4: qwen çıktı (ücretsiz katmanda çağrılamıyor); Gemini satırı
+        # GEMINI_API_KEY gelince eklenecek ve bu liste üçe çıkacak.
+        models = load_models(MODELS)
+        assert [(m.provider, m.model) for m in models if m.primary] == [
+            ("groq", "openai/gpt-oss-120b"),
+            ("groq", "openai/gpt-oss-20b"),
+        ]
+        assert models[0].label == "groq/openai/gpt-oss-120b"
+
+    def test_a_model_without_primary_is_refused(self, tmp_path):
+        (tmp_path / "m.yaml").write_text(
+            "models:\n  - {provider: groq, model: x}\n", encoding="utf-8"
+        )
+        with pytest.raises(BenchError, match="primary"):
+            load_models(tmp_path / "m.yaml")
+
+    def test_models_added_later_never_change_a_verdict(self):
+        """Birincil üç model H3'te aşırı güvenli değil; sonradan eklenen bir model
+        ne kadar aşırı güvenli olursa olsun hüküm değişmez."""
+        items = []
+        for model in ("a", "b", "c"):
+            items += many(10, model=model, outcome="hit", confidence=0.6)
+        later = many(10, model="z", outcome="miss", confidence=0.99)
+        from rlens.bench.report import verdict_items
+
+        primary = verdict_items(items + later, {"a", "b", "c"})
+        assert h3(primary)[0] == REFUTED
+        assert {p.model for p in primary} == {"a", "b", "c"}
+
+    def test_three_models_are_enough_and_all_must_agree(self):
+        items = []
+        for model, outcome in (("a", "miss"), ("b", "miss"), ("c", "hit")):
+            items += many(10, model=model, outcome=outcome, confidence=0.9)
+        # İki model aşırı güvenli, biri değil: üçte üç şartı sağlanmaz.
+        from rlens.bench.report import INCONCLUSIVE
+
+        assert h3(items)[0] == INCONCLUSIVE
+
+    def test_dry_run_with_the_models_file(self):
+        result = CliRunner().invoke(
+            app, ["bench", "run", "--suite", str(SUITE), "--models", str(MODELS), "--dry-run"]
+        )
+        assert result.exit_code == 0, result.output
+        output = " ".join(result.output.split())
+        assert "2 models" in output
+        assert "between 216 and 612 model calls in total" in output
+
+
+class TestRotation:
+    """Kotaya takılan model bırakılır, sıradakine geçilir; hepsi takılınca beklenir."""
+
+    def entries(self):
+        from rlens.bench.suite import ModelEntry
+
+        return [ModelEntry("groq", "a", True), ModelEntry("groq", "b", True)]
+
+    def test_a_limited_model_does_not_stop_the_others(self):
+        from rlens.bench.runner import run_rotation
+        from rlens.providers.base import ProviderRateLimited
+
+        def run_one(entry):
+            if entry.model == "a":
+                raise ProviderRateLimited("HTTP 429 tokens per day")
+            return Path(f"{entry.model}.json")
+
+        done, blocked = run_rotation(self.entries(), run_one, log=lambda _: None)
+        assert done == {"groq/b": Path("b.json")}
+        assert [e.label for e in blocked] == ["groq/a"]
+
+    def test_waiting_retries_the_blocked_until_done(self):
+        from rlens.bench.runner import run_rotation
+        from rlens.providers.base import ProviderRateLimited
+
+        attempts = {"a": 0}
+        slept = []
+
+        def run_one(entry):
+            if entry.model == "a":
+                attempts["a"] += 1
+                if attempts["a"] < 3:
+                    raise ProviderRateLimited("HTTP 429")
+            return Path(f"{entry.model}.json")
+
+        done, blocked = run_rotation(
+            self.entries(), run_one, wait_minutes=10, sleep=slept.append, log=lambda _: None
+        )
+        assert blocked == []
+        assert set(done) == {"groq/a", "groq/b"}
+        assert slept == [600, 600]
+
+    def test_other_provider_errors_stop_the_run(self):
+        from rlens.bench.runner import run_rotation
+        from rlens.providers.base import ProviderError
+
+        def run_one(entry):
+            raise ProviderError("Authentication failed")
+
+        with pytest.raises(ProviderError, match="Authentication"):
+            run_rotation(self.entries(), run_one, wait_minutes=10, log=lambda _: None)
+
+
+def test_bench_advice_calls_get_the_patch_output_limit(mini):
+    """N3: `advise` çağrıları da `apply.max_output_tokens` ile; sağlayıcının
+    varsayılanı gpt-oss-20b'nin yanıtını kesiyordu."""
+    from rlens.bench.runner import unit_config
+
+    repo, suite = mini
+    config = unit_config(repo / "proj", suite, suite.targets[0], "groq", "m", "python")
+    assert config.provider.max_output_tokens == config.apply.max_output_tokens == 16384

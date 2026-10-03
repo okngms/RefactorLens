@@ -26,6 +26,24 @@ class ProviderConfigError(ProviderError):
     """Eksik model adı veya API anahtarı gibi yapılandırma sorunları."""
 
 
+class ProviderRateLimited(ProviderError):
+    """Yeniden denemeler tükendi ve sağlayıcı hâlâ oran sınırında (HTTP 429).
+
+    Günlük kotalar dakikalar ya da saatler sürer; etkileşimli komut bekleyemez.
+    LensBench bu hatada sıradaki modele geçer (`bench.runner.run_rotation`).
+    """
+
+
+class ProviderRequestTooLarge(ProviderError):
+    """İstek sağlayıcının istek başına sınırını aşıyor (HTTP 413, ya da gövdesi
+    "Request too large" diyen 429).
+
+    Yeniden denenmez: aynı istek her seferinde aynı boyuttadır. Modelin hatası
+    da değildir: bir onarım çağrısı buna takılırsa sonuç `rejected` ya da
+    `unstructured` sayılmamalı (LensBench ön kaydı, işletme notu).
+    """
+
+
 class ProviderTruncated(ProviderError):
     """Model yanıtı çıktı sınırında kesildi; kısmi metin `partial`'da.
 
@@ -119,8 +137,18 @@ RETRY_MARGIN_SECONDS = 1.0
 #: Sunucu saçma bir süre önerirse beklenecek üst sınır.
 MAX_RETRY_WAIT_SECONDS = 60.0
 
-#: Gövdedeki "Please try again in 5.04s" kalıbı.
-_RETRY_HINT = re.compile(r"try again in ([0-9]+(?:\.[0-9]+)?)\s*s", re.IGNORECASE)
+#: Gövdedeki bekleme önerisi: Groq "Please try again in 5.04s", Gemini
+#: "Please retry in 12.3s" ve `RetryInfo` ayrıntısında `"retryDelay": "12s"`.
+_RETRY_HINT = re.compile(
+    r"(?:try again|retry) in ([0-9]+(?:\.[0-9]+)?)\s*s"
+    r'|"retryDelay":\s*"([0-9]+(?:\.[0-9]+)?)s"',
+    re.IGNORECASE,
+)
+
+#: 429 gövdesinde istek başına sınır işareti. Groq dakikalık token sınırını tek
+#: istek aştığında 413 değil 429 döndürür ("Request too large ... Limit 1000,
+#: Requested 1069"); beklemek bunu çözmez, aynı istek yine aynı boyuttadır.
+_TOO_LARGE_HINT = re.compile(r"request too large", re.IGNORECASE)
 
 
 def advised_wait(response) -> float | None:
@@ -144,7 +172,7 @@ def advised_wait(response) -> float | None:
 
     body = getattr(response, "text", "") or ""
     match = _RETRY_HINT.search(body)
-    return float(match.group(1)) if match else None
+    return float(match.group(1) or match.group(2)) if match else None
 
 
 def backoff_delay(attempt: int, response=None) -> float:
@@ -206,6 +234,13 @@ def post_with_retry(
         except httpx.HTTPError as exc:
             raise ProviderError(f"Network error: {exc}") from exc
 
+        if response.status_code == 413 or (
+            response.status_code == 429 and _TOO_LARGE_HINT.search(response.text or "")
+        ):
+            raise ProviderRequestTooLarge(
+                f"Provider returned HTTP {response.status_code} (request too large): "
+                f"{response.text[:300]}"
+            )
         if response.status_code in RETRYABLE_STATUS and attempt < config.max_retries:
             sleep(backoff_delay(attempt, response))
             continue
@@ -216,6 +251,10 @@ def post_with_retry(
             raise ProviderError(
                 f"Endpoint or model not found ({url}). Check `provider.model` "
                 f"and `provider.base_url`."
+            )
+        if response.status_code == 429:
+            raise ProviderRateLimited(
+                f"Provider returned HTTP 429 (rate limit) after retries: {response.text[:300]}"
             )
         if response.status_code >= 400:
             raise ProviderError(

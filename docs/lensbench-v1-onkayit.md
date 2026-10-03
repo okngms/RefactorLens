@@ -1,6 +1,6 @@
 # LensBench v1 — ön kayıt
 
-> **Durum: TASLAK, model listesi ve bütçe kullanıcı onayı bekliyor.** Bu belge
+> **Durum: DONDU (2026-10-03), ilk model çağrısından önce.** Bu belge
 > sonuçlardan **önce** yazıldı. İlk gerçek model çağrısı yapıldığı anda
 > donar: hipotezler, ölçüler, eşikler, hedef seti, koşullar ve tekrar sayısı
 > değişmez. Değişiklik gerekirse yeni bir suite sürümü (`lensbench-v2`) ve
@@ -26,13 +26,16 @@ Her hipotez için üç sonuç vardır: **destekleniyor**, **çürütüldü**,
 Doğruluk = isabet / (isabet + ıska); doğrulanamayan tahmin hiçbir orana girmez,
 ayrıca sayılır (invariant).
 
+Hükümler yalnızca **birincil setle** verilir (§5). "Modellerin en az dörtte
+üçü" yukarı yuvarlanır: üç modelde üçte üç, yani hepsi.
+
 **H1 — Geri besleme doğruluğu artırır.** `loop3` koşulunda, model başına:
 son iterasyonun doğruluğu − ilk iterasyonun doğruluğu (her iki uçta ≥ 10
 doğrulanabilir tahmin olan modeller).
 - Destekleniyor: modellerin ortalama artışı ≥ 10 puan **ve** modellerin en
   az dörtte üçünde artış > 0.
 - Çürütüldü: ortalama artış ≤ 0 **ve** modellerin en az dörtte üçünde ≤ 0.
-- Yetersiz: koşulu sağlayan model sayısı < 4.
+- Yetersiz: koşulu sağlayan model sayısı < 3.
 
 **H2 — Karakterizasyon testleri davranış tutarsızlığını daha çok yakalar.**
 Ertelendi. Aynı patch'e iki kapının da uygulanmasını ister; v1 bunu yapmaz.
@@ -102,21 +105,32 @@ fikstürden oluşur ve sonuçlar bu kapsamla sınırlı raporlanır.
 - **Bütün tekrarlar raporlanır**; hiçbir koşu "kötü örnek" diye atılmaz.
   Sağlayıcı hatasıyla yarım kalan birim yeniden koşulur (kayıt dosyası).
 
-## 5. Modeller ve bütçe — kullanıcı kararı
+## 5. Modeller ve bütçe
 
-Plan: en az 4 model; ≥ 3 ücretsiz ya da lokal, 1 pahalı kontrol. Model
-adları koda gömülmez (kilitli karar); bu bölüm ilk çağrıdan önce
-doldurulur ve sonra değişmez.
+Kullanıcı kararı (2026-10-03): şimdilik ücretsiz modeller; liste düzenlenebilir
+ve genişletilebilir (`bench/lensbench-v1/models.yaml`). Model adları koda
+gömülmez (kilitli karar); dosyadadır.
 
-| # | Sağlayıcı | Model | Tür |
-|---|---|---|---|
-| 1 | _ | _ | _ |
-| 2 | _ | _ | _ |
-| 3 | _ | _ | _ |
-| 4 | _ | _ | kontrol |
+**Birincil set** (`primary: true`) — hükümler yalnızca bununla verilir ve
+ilk çağrıdan sonra değişmez:
+
+| # | Sağlayıcı | Model |
+|---|---|---|
+| 1 | groq | `openai/gpt-oss-120b` |
+| 2 | groq | `openai/gpt-oss-20b` |
+| 3 | groq | `qwen/qwen3.8-27b` |
+
+**Sonradan eklenen modeller** `primary: false` ile eklenir: raporda tablolarda
+görünür, **hükmü değiştirmez**. Sonuçlar görüldükten sonra model eklemek, bir
+hükmü istenen yöne çekmenin yoludur; bu kural onu kapatır.
+
+**Taslaktan değişiklik (ilk çağrıdan önce):** taslak "en az 4 model, biri
+pahalı kontrol" diyordu; kullanıcı ücretsiz modelleri seçti. Model eşiği
+4 → 3 indi (`report.MIN_MODELS`); karar kurallarının eşikleri değişmedi.
+Pahalı bir kontrol modelinin yokluğu bir sınırlılıktır (§7).
 
 Çağrı sayısı, model başına (`rlens bench run --dry-run`): **108 ile 306
-arası** (48 birim; en az: onarımsız, `loop3` erken durur; en çok: her çağrı
+arası**; üç model için 324 ile 918. (48 birim; en az: onarımsız, `loop3` erken durur; en çok: her çağrı
 bir onarım ister, `loop3` üç iterasyonun tamamını koşar). Groq ücretsiz
 katmanındaki dakikalık token sınırı (8000) koşuyu yavaşlatır; sağlayıcı
 hatasıyla kesilen koşu aynı komutla sürer.
@@ -131,6 +145,8 @@ hatasıyla kesilen koşu aynı komutla sürer.
 ## 7. Sınırlılıklar (FINDINGS-3'te açıkça yazılacak)
 
 - Hedef seti üç küçük fikstür; açık kaynak projeler yok.
+- Üç model de ücretsiz katmandan; pahalı bir kontrol modeli yok. Model
+  büyüklüğü ya da sağlayıcıyla ilgili genelleme yapılmaz.
 - Fikstürleri ve aracı tasarlayan aynı kişi/oturum; ön kayıt bu yanlılığa
   karşı tek savunma.
 - Metrikler Python'a uyarlanmıştır; metrik iyileşmesi tasarım iyileşmesi
@@ -143,7 +159,79 @@ hatasıyla kesilen koşu aynı komutla sürer.
 İlk çağrıdan sonra değişmez (değişirse `prompt_hash` değişir ve rapor
 sonuçları ayırır): `src/rlens/advise/prompts.py`, `src/rlens/apply/prompts.py`,
 `src/rlens/chartests/generator.py` (talimat), `src/rlens/loop/feedback.py`,
-`bench/lensbench-v1/suite.yaml`.
+`bench/lensbench-v1/suite.yaml`, `bench/lensbench-v1/models.yaml`'ın birincil
+satırları.
 
-Bu taslak yazıldığında: `prompt_hash` `b4e04b5ebd198adb`, `suite_hash`
-`05a5c58a0239ffc6`.
+Donduğunda: `prompt_hash` `b4e04b5ebd198adb`, `suite_hash` `05a5c58a0239ffc6`,
+`models.yaml` sha256 `95370c0ab9dbef65` (ilk 16 karakter).
+
+## 9. İşletme notları (koşu sırasında)
+
+Ön kayıttan sonra eklenen her kural burada, zamanı ve gerekçesiyle durur.
+Hiçbiri prompt'ları, hedefleri, koşulları ya da karar eşiklerini değiştirmez
+(`prompt_hash` ve `suite_hash` aynı kaldı).
+
+**N1 — Sağlayıcının istek başına sınırı (2026-10-03).** İlk modelin 4.
+biriminde Groq bir isteği HTTP 413 ile reddetti ("Request too large … Limit
+8000, Requested 8007"). O ana kadar 3 birim tamamlanmıştı ve sonuçları
+yalnızca kaydın doğru yazıldığını görmek için açılmıştı; hiçbir oran
+hesaplanmadı.
+- Kural: istek başına sınırı aşan istek **ölçüm boşluğudur**, modelin hatası
+  değildir. Birim `provider_limit` durma nedeniyle kaydedilir (tamamlanmış
+  iterasyonlar korunur), **yeniden denenmez** ve raporda model başına sayılır.
+- Neden yeniden denenmez: model sıcaklık 0.2 ile örneklenir; "sığana kadar
+  denemek" yalnızca kısa yanıtları seçer. 5a'daki 429 kayıpları tam olarak
+  bu yanlılığı üretmişti.
+- Aynı nedenle iki yol düzeltildi: `apply`'ın onarım çağrısı 413 alırsa
+  sonuç artık `rejected` (modelin başarısızlığı) sayılmaz; `advise`'ın onarım
+  çağrısı 413 alırsa öneri `unstructured` (sözleşme ihlali) sayılmaz.
+- Hangi isteğin sınırı aştığı bilinmiyor (birim kaydedilmeden düştü);
+  aday, modelin uzun yanıtını tekrarlayan `advise` onarım istemidir.
+
+**N2 — Günlük kota (2026-10-03).** İlk modelin 15. biriminde Groq günlük
+token sınırını bildirdi (HTTP 429, "tokens per day: Limit 200000"); birim
+başına ~14 000 token harcanıyor, model başına 48 birim birkaç güne yayılır.
+- Kural: 429 ile düşen birim **yeniden koşulur**. N1'den farkı: 429'da hiçbir
+  yanıt gözlenmez; yeniden koşmak yanıtlar arasından seçim yapmaz, yalnızca
+  zamanlamayı değiştirir. Yarım kalan birim (ör. `loop3`'ün 3. iterasyonu)
+  baştan koşulur; yarım hali kaydedilmez.
+- `rlens bench run --models` kotaya takılan modeli bırakıp sıradakine geçer;
+  `--wait-minutes` ile hepsi takılınca bekleyip yeniden dener.
+
+**N3 — Kesilen öneri yanıtı (2026-10-03).** `gpt-oss-20b`'nin 10. biriminde
+Groq bir `advise` yanıtını çıktı sınırında kesti (`finish_reason: length`);
+sınır sağlayıcının varsayılanıydı. Kesilme `loop` içinde yakalanmıyordu ve
+koşuyu düşürdü.
+- Bench'te öneri çağrıları artık patch çağrılarıyla aynı çıktı sınırını alır
+  (`apply.max_output_tokens`, 16 384). Biten birimler etkilenmez: o ana kadar
+  biten 24 birimin hiçbirinde kesilme olmadı (olsaydı koşu düşerdi); sınırı
+  yükseltmek yalnızca kesilecek yanıtları değiştirir.
+- Bu sınırı da aşan öneri yanıtı N1 gibi **ölçüm boşluğudur**: birim
+  `output_limit` ile kaydedilir, yeniden denenmez, raporda sağlayıcı sınırı
+  sütununda sayılır.
+- Patch yanıtının kesilmesi `apply`'da zaten `rejected` (gerekçesiyle) olarak
+  kaydediliyordu; ön kayıtlı hiçbir hipotez reddedilen patch sayısını
+  kullanmaz.
+
+**N4 — Kullanılamayan birincil model ve yerine geçen (2026-10-03).**
+`qwen/qwen3.8-27b` Groq ücretsiz katmanında hiçbir isteği geçiremiyor: Groq
+her isteği HTTP 429 "Request too large … output tokens per minute (OTPM):
+Limit 1000, Requested 1069" ile reddetti; tek cümlelik bir deneme istemi de
+aynı yanıtı aldı. Modelden **hiçbir birim tamamlanmadı**, hiçbir yanıt
+gözlenmedi; diğer iki modelden o ana kadar biten birimlerin (16 + 16) hiçbir
+oranı hesaplanmadı.
+- Kod hatası: bu 429 kota sanılıp `--wait-minutes` ile sonsuza dek yeniden
+  deneniyordu. Gövdesi "Request too large" diyen 429 artık N1'deki gibi
+  `ProviderRequestTooLarge`'tır, yeniden denenmez.
+- Birincil set değişikliği: qwen çıkar, yerine Gemini ücretsiz katmanından
+  bir model girer (`providers/gemini.py`, AGENTS.md'de öngörülen opsiyonel
+  adaptör). Kullanıcı kararı. Gerekçe: §5'in "ilk çağrıdan sonra değişmez"
+  kuralı sonuca bakarak model seçmeyi engellemek içindir; burada değişen
+  modelden hiç sonuç yok ve değiştirme kararı diğer modellerin sonuçları
+  görülmeden verildi. Değiştirilmeseydi iki birincil modelle H1 ve H3 kural
+  gereği "yetersiz veri" çıkardı.
+- Eşikler, hedefler, koşullar ve prompt'lar değişmedi (`prompt_hash`,
+  `suite_hash` aynı). Değişen yalnızca `models.yaml`'ın birincil satırı;
+  yeni sha aşağıda.
+- Yeni sınırlılık (§7): birincil set artık iki sağlayıcıdan; sağlayıcı ile
+  model farkı ayrıştırılamaz.

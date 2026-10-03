@@ -60,7 +60,10 @@ class Recorder:
 
 class TestRegistry:
     def test_core_providers_are_registered(self):
-        assert set(PROVIDERS) == {"groq", "ollama"}
+        assert {"groq", "ollama"} <= set(PROVIDERS)
+
+    def test_gemini_is_registered_as_optional(self):
+        assert "gemini" in PROVIDERS
 
     def test_get_provider_returns_an_instance(self, provider_config):
         assert isinstance(get_provider(provider_config), GroqProvider)
@@ -413,3 +416,136 @@ class TestOutputLimit:
         with pytest.raises(ProviderTruncated):
             OllamaProvider().generate("s", "u", config, 0.2, sleep=lambda _: None)
         assert recorder.calls[0]["json"]["options"]["num_predict"] == 500
+
+
+class TestRequestTooLarge:
+    """HTTP 413: istek sağlayıcının istek başına sınırını aşıyor (LensBench'te
+    Groq ücretsiz katmanı, dakikada 8000 token). Yeniden denenmez: aynı istek
+    her seferinde aynı boyuttadır."""
+
+    def test_413_is_its_own_error_and_is_not_retried(self, provider_config, monkeypatch):
+        from rlens.providers.base import ProviderRequestTooLarge
+
+        recorder = Recorder(FakeResponse(413, {"error": "too large"}, text="Request too large"))
+        monkeypatch.setattr(httpx, "post", recorder)
+        with pytest.raises(ProviderRequestTooLarge, match="413"):
+            post_with_retry("u", {}, {}, provider_config, sleep=lambda _: None)
+        assert len(recorder.calls) == 1
+
+
+class TestRateLimitedAfterRetries:
+    def test_exhausted_429_is_its_own_error(self, provider_config, monkeypatch):
+        from rlens.providers.base import ProviderRateLimited
+
+        monkeypatch.setattr(httpx, "post", Recorder(*[FakeResponse(429) for _ in range(5)]))
+        with pytest.raises(ProviderRateLimited, match="429"):
+            post_with_retry("u", {}, {}, provider_config, sleep=lambda _: None)
+
+
+class TestTooLargeDisguisedAs429:
+    """Groq, dakikalık token sınırını tek istek aştığında 413 değil 429 döndürür
+    (qwen/qwen3.8-27b ücretsiz katman: "Limit 1000, Requested 1069"). Bu bir
+    kota değildir; beklemek çözmez (ön kayıt N4)."""
+
+    BODY = (
+        '{"error":{"message":"Request too large for model `qwen/qwen3.8-27b` ... on '
+        'output tokens per minute (OTPM): Limit 1000, Requested 1069",'
+        '"code":"rate_limit_exceeded"}}'
+    )
+
+    def test_is_request_too_large_and_not_retried(self, provider_config, monkeypatch):
+        from rlens.providers.base import ProviderRequestTooLarge
+
+        recorder = Recorder(FakeResponse(429, text=self.BODY), FakeResponse(200, {"ok": 1}))
+        monkeypatch.setattr(httpx, "post", recorder)
+        with pytest.raises(ProviderRequestTooLarge, match="429"):
+            post_with_retry("u", {}, {}, provider_config, sleep=lambda _: None)
+        assert len(recorder.calls) == 1
+
+    def test_an_ordinary_429_is_still_retried(self, provider_config, monkeypatch):
+        recorder = Recorder(
+            FakeResponse(429, text="Rate limit reached. Please try again in 2s."),
+            FakeResponse(200, {"ok": 1}),
+        )
+        monkeypatch.setattr(httpx, "post", recorder)
+        assert post_with_retry("u", {}, {}, provider_config, sleep=lambda _: None) == {"ok": 1}
+
+
+class TestGeminiRetryHints:
+    def test_retry_in_text(self):
+        from rlens.providers.base import advised_wait
+
+        assert advised_wait(FakeResponse(429, text="Please retry in 12.5s.")) == 12.5
+
+    def test_retry_delay_detail(self):
+        from rlens.providers.base import advised_wait
+
+        body = '{"details": [{"@type": "RetryInfo", "retryDelay": "37s"}]}'
+        assert advised_wait(FakeResponse(429, text=body)) == 37.0
+
+
+def gemini_body(text="hello", reason="STOP", parts=None):
+    return {
+        "candidates": [
+            {
+                "content": {"role": "model", "parts": parts or [{"text": text}]},
+                "finishReason": reason,
+            }
+        ]
+    }
+
+
+class TestGemini:
+    @pytest.fixture
+    def config(self, tmp_path, monkeypatch):
+        monkeypatch.setenv("GEMINI_API_KEY", "secret")
+        (tmp_path / "rlens.yaml").write_text(
+            "provider:\n  name: gemini\n  model: gemini-test\n  max_output_tokens: 700\n",
+            encoding="utf-8",
+        )
+        return load_config(search_from=tmp_path).provider
+
+    def generate(self, config, monkeypatch, *responses):
+        from rlens.providers.gemini import GeminiProvider
+
+        recorder = Recorder(*responses)
+        monkeypatch.setattr(httpx, "post", recorder)
+        reply = GeminiProvider().generate("sys", "usr", config, 0.2, sleep=lambda _: None)
+        return reply, recorder
+
+    def test_request_shape(self, config, monkeypatch):
+        reply, recorder = self.generate(config, monkeypatch, FakeResponse(200, gemini_body()))
+        assert reply == "hello"
+        call = recorder.calls[0]
+        assert call["url"].endswith("/models/gemini-test:generateContent")
+        assert call["headers"]["x-goog-api-key"] == "secret"
+        assert "secret" not in call["url"]
+        body = call["json"]
+        assert body["systemInstruction"] == {"parts": [{"text": "sys"}]}
+        assert body["contents"] == [{"role": "user", "parts": [{"text": "usr"}]}]
+        assert body["generationConfig"] == {"temperature": 0.2, "maxOutputTokens": 700}
+
+    def test_thought_parts_are_not_the_reply(self, config, monkeypatch):
+        parts = [{"text": "thinking...", "thought": True}, {"text": "a"}, {"text": "b"}]
+        reply, _ = self.generate(config, monkeypatch, FakeResponse(200, gemini_body(parts=parts)))
+        assert reply == "ab"
+
+    def test_max_tokens_is_truncation_with_partial(self, config, monkeypatch):
+        with pytest.raises(ProviderTruncated) as caught:
+            self.generate(config, monkeypatch, FakeResponse(200, gemini_body("half", "MAX_TOKENS")))
+        assert caught.value.partial == "half"
+
+    def test_empty_reply_is_an_error_not_empty_text(self, config, monkeypatch):
+        body = {"candidates": [{"finishReason": "SAFETY"}]}
+        with pytest.raises(ProviderError, match="SAFETY"):
+            self.generate(config, monkeypatch, FakeResponse(200, body))
+
+    def test_blocked_prompt_is_reported(self, config, monkeypatch):
+        body = {"promptFeedback": {"blockReason": "OTHER"}}
+        with pytest.raises(ProviderError, match="blocked: OTHER"):
+            self.generate(config, monkeypatch, FakeResponse(200, body))
+
+    def test_missing_key_explains_itself(self, config, monkeypatch):
+        monkeypatch.delenv("GEMINI_API_KEY")
+        with pytest.raises(ProviderConfigError, match="GEMINI_API_KEY"):
+            self.generate(config, monkeypatch, FakeResponse(200, gemini_body()))

@@ -99,6 +99,15 @@ eklenmez; amaç fikri kaybetmemek ama kapsamı şişirmemektir.
     yalnızca orada yazıyorsa önek kırpılır (K18, dosya sisteminden tahmin
     edilmez).
 
+- **Tip çıkarımı (`[typed]` extra, jedi/pyright).** `docs/02` Aşama 4'ün bir
+  parçasıydı: DCC/CAM'i `typed` çözümlemeyle kesinleştirmek. Kullanıcı kararıyla
+  atlandı (2026-10-03): kilitli "yalnızca `ast`, üçüncü taraf ayrıştırıcı yok"
+  kararıyla çelişir. Yeniden açılırsa çekirdek `ast`'de kalmalı, extra yalnızca
+  isteyene kurulmalı ve `inferred` ile karşılaştırma raporu ölçülmeli.
+- **Action'ın Marketplace listelemesi.** Kullanıcı kararıyla yok (2026-10-03):
+  action `action/` altında, `uses: okngms/RefactorLens/action@<tag>` ile
+  kullanılır. Listeleme `action.yml`'i bir depo kökünde ister.
+
 ## Sağlayıcılar
 - Çekirdek Groq + Ollama'dır. Gemini ve Anthropic adapter'ları opsiyoneldir
   (Faz 4). Diğer sağlayıcılar `providers/base.py` sözleşmesini uygulayan
