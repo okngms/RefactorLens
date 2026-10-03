@@ -25,6 +25,7 @@ refactorlens/
 ├── env.example             Which API keys are needed; copy to .env
 ├── .gitignore
 ├── src/rlens/              The package pip installs
+├── action/                 GitHub Action running rlens diff on pull requests (v2.4)
 ├── examples/               Test fixture and sample output
 ├── experiments/            Research scripts and data; import rlens, never ship to users
 └── tests/                  The package's own tests
@@ -100,6 +101,12 @@ src/rlens/
 │   ├── gate.py             Behaviour gate level 1: the user's test command, with a timeout
 │   ├── prompts.py          Patch request (no predictions in it) and reply parser
 │   └── runner.py           The whole run: worktree, patch, one repair, gate, commit, measure
+│
+├── diff/                   v2.4: two git revisions compared, ratchet, PR comment
+│   ├── git_refs.py         base..head; detached worktrees outside the repository
+│   ├── baseline.py         Findings (violations, smells, thresholds); .rlens-baseline.json
+│   ├── compare.py          Scan both sides, verify's delta, refactorings, new/resolved
+│   └── pr_comment.py       Short markdown for a pull request
 │
 ├── loop/                   v2.4: advise → apply → measure, with feedback
 │   ├── feedback.py         What the previous attempt did: directions, gate, interface
@@ -229,6 +236,8 @@ tests/
 ├── test_chartests.py       Characterization tests: prompt, pruning, rerun, gate level 2
 ├── test_loop.py            loop: stop rules, feedback without thresholds, Brier gold value
 ├── test_refactoring_types.py  Five kinds on hand-written pairs, delegating wrappers, unknown
+├── test_diff_command.py    rlens diff on a real two-commit repo; ratchet; baseline; PR comment
+├── test_action.py          action.yml: inputs, and its diff script run locally on a repo
 ├── test_apply_chartests.py apply on examples/untested_project: gate level 2, no_gate, rlens chartests
 ├── apply_support.py        Shared project and helpers for the apply tests
 ├── test_metric_edges.py    Real-world idioms: decorators, @overload, except*, string annotations

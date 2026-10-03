@@ -366,6 +366,29 @@ prediction accuracy, whether the tests passed, the suspicious rate, the Brier
 score of the stated confidences, and the number of calls. Each iteration that
 passes the tests leaves its own branch.
 
+### Comparing two revisions: `diff` and the ratchet (new, v2.4)
+
+```bash
+rlens diff origin/main..HEAD                          # tables
+rlens diff origin/main..HEAD --format pr-comment      # markdown for a pull request
+rlens diff origin/main..HEAD --fail-on new-violation  # CI gate: new findings only
+rlens baseline update                                 # accept today's findings
+```
+
+`diff` checks out both revisions in temporary worktrees outside your
+repository, scans them with today's config, and reports what `verify`
+reports — metric changes, violation and smell changes, suspicious
+improvements — plus the refactorings detected in the changed files. It calls
+no model.
+
+A *finding* is an architecture violation, a smell, or a value over its
+threshold. `--fail-on new-violation` fails only on findings that are not
+accepted: by `.rlens-baseline.json` when it exists, otherwise by the base
+revision. That is a ratchet: an existing codebase is not blocked by what it
+already has, but nothing new gets in. `--fail-on regression` fails when a
+metric got worse. A GitHub Action that comments on pull requests lives in
+[`action/`](https://github.com/okngms/RefactorLens/tree/main/action).
+
 ### Reading the measurements back (experimental)
 
 ```bash

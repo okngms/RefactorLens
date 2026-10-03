@@ -24,6 +24,16 @@ regenerate any `before` report with the new version.
   `reports/chartests-*.py`. This runs model-written test code in an isolated
   worktree; `--dry-run` shows the request.
 - `examples/untested_project`: a fixture with no tests, for the above.
+- `rlens diff base..head`: compares two git revisions in temporary worktrees
+  (your tree is untouched) — metric changes, violation and smell changes,
+  suspicious improvements, detected refactorings, and new and resolved
+  findings. `--format table|json|pr-comment`. No model call.
+- Ratchet: `--fail-on new-violation` fails only on findings not accepted by
+  `.rlens-baseline.json` (or by the base revision when there is none);
+  `rlens baseline update` writes the file. `--fail-on regression` fails when a
+  metric got worse.
+- A GitHub Action in `action/` that runs `rlens diff` on pull requests,
+  comments with the result and applies the `fail-on` gate.
 - Refactoring kind detection in `apply` and `loop` reports: `extract_method`,
   `move_method`, `extract_class`, `inline`, `rename` or `unknown`, each with a
   confidence, from an `ast` comparison of the touched files. An Extract Class

@@ -239,6 +239,23 @@ Geri besleme bloğu, durma koşulları, `confidence` alanı, Brier hesabı.
 **Bitti ⇔** 5 tür fikstürde doğru sınıflandırılıyor; typed modda CAM `null` oranı düşüyor (ölçülüp belgeleniyor).
 
 ### Aşama 5 — `diff`, baseline, GitHub Action
+
+> **Durum (2026-10-03): yapıldı; Marketplace yayını kullanıcının.**
+> `src/rlens/diff/{git_refs,baseline,compare,pr_comment}.py`, `rlens diff`,
+> `rlens baseline update`, `action/action.yml` (+ README, gerçek örnek yorum).
+> Ref'ler deponun dışında geçici, ayrık worktree'lerde açılır. Bulgu = ihlal,
+> koku ya da eşik aşımı; kimlikler `verify` ile aynı. Ratchet testle sabit:
+> baseline mevcut bulguları geçirir, yeni bulguda çıkış 1. Action'ın
+> karşılaştırma betiği girdileri yalnızca env'den alır ve yerelde gerçek bir
+> depoda koşularak test edilir. Örnek PR yorumu gerçek veriden
+> (`action/example-comment.md`). Kararlar:
+> - İki taraf **bugünkü** config ile taranır (aynı kural, iki kod).
+> - Değişen dosyalarda refactoring türü de raporlanır (Aşama 4'ün `verify`'da
+>   yapamadığı kısım).
+> - Plan `--format=pr-comment` diyordu; `table` ve `json` da var.
+> - **Marketplace:** listeleme `action.yml`'in depo kökünde olmasını ister;
+>   action `action/` altında, `uses: okngms/RefactorLens/action@<tag>` ile
+>   kullanılır. Kök mü, ayrı depo mu: kullanıcı kararı.
 **Bitti ⇔** örnek PR'da yorum üretiliyor; ratchet mevcut ihlalleri geçirip yeni ihlali kırıyor (test); Action marketplace'te yayınlandı.
 
 ### Aşama 6 — LensBench ve FINDINGS-3

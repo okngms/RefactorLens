@@ -35,6 +35,10 @@ from rlens.apply.runner import preview_chartests, preview_prompt, run_apply, run
 from rlens.apply.worktree import ApplyError
 from rlens.chartests.generator import SYSTEM_INSTRUCTION as CHARTESTS_SYSTEM_INSTRUCTION
 from rlens.config import ConfigError, load_config
+from rlens.diff.baseline import BASELINE_FILE, findings, write_baseline
+from rlens.diff.compare import run_diff
+from rlens.diff.git_refs import parse_range
+from rlens.diff.pr_comment import pr_comment
 from rlens.explain.explainer import request_explanation
 from rlens.explain.prompts import SYSTEM_INSTRUCTION as EXPLAIN_SYSTEM_INSTRUCTION
 from rlens.explain.prompts import build_user_prompt as build_explain_prompt
@@ -1113,6 +1117,119 @@ def loop(
             raise _fail(str(exc)) from exc
         console.print(f"[dim]Report: {markdown_path}[/dim]")
         console.print(f"[dim]Machine-readable: {json_path}[/dim]")
+
+
+FAIL_ON = ("none", "regression", "new-violation")
+
+
+@app.command("diff")
+def diff_command(
+    revisions: Annotated[
+        str, typer.Argument(help="Range to compare, e.g. origin/main..HEAD (base..head).")
+    ],
+    path: Annotated[
+        Path,
+        typer.Option(
+            "--path",
+            exists=True,
+            file_okay=False,
+            dir_okay=True,
+            help="Directory to scan on both sides, inside the repository.",
+        ),
+    ] = Path("."),
+    config: Annotated[
+        Path | None,
+        typer.Option("--config", "-c", exists=True, dir_okay=False, help="Path to rlens.yaml."),
+    ] = None,
+    output_format: Annotated[
+        str, typer.Option("--format", help="table, json or pr-comment (markdown for a PR).")
+    ] = "table",
+    fail_on: Annotated[
+        str,
+        typer.Option(
+            "--fail-on",
+            help="Exit 1 on: none, regression (a metric got worse), new-violation "
+            "(a finding not in the baseline, or not in base).",
+        ),
+    ] = "none",
+    baseline: Annotated[
+        Path | None,
+        typer.Option(
+            "--baseline",
+            exists=True,
+            dir_okay=False,
+            help=f"Accepted findings. Defaults to {BASELINE_FILE} in --path if it exists.",
+        ),
+    ] = None,
+) -> None:
+    """Compare two git revisions: metrics, findings and refactorings. Calls no model."""
+    _check_format(output_format, ("table", "json", "pr-comment"), "diff")
+    if fail_on not in FAIL_ON:
+        raise _fail(f"--fail-on must be one of {', '.join(FAIL_ON)}; got {fail_on!r}.")
+    try:
+        cfg = load_config(config, search_from=path)
+    except ConfigError as exc:
+        raise _fail(str(exc)) from exc
+    if baseline is None and (Path(path) / BASELINE_FILE).is_file():
+        baseline = Path(path) / BASELINE_FILE
+    try:
+        base, head = parse_range(revisions)
+        result = run_diff(path, base, head, cfg, baseline=baseline)
+    except ApplyError as exc:
+        raise _fail(str(exc)) from exc
+
+    if output_format == "json":
+        _emit(json.dumps(result.to_dict(), indent=2, ensure_ascii=False))
+    elif output_format == "pr-comment":
+        _emit(pr_comment(result))
+    else:
+        render_verify(result.delta, console, None, result.goodhart, None)
+        source = "the baseline" if result.accepted_from == "baseline" else base
+        console.print(f"[bold]{len(result.new_findings)} new finding(s)[/bold] (not in {source})")
+        for item in result.new_findings:
+            console.print(f"  [yellow]+[/] {item}", markup=False, highlight=False)
+        for item in result.fixed_findings:
+            console.print(f"  [green]-[/] {item}", markup=False, highlight=False)
+        for item in result.refactorings:
+            console.print(
+                f"  {item.kind} {item.source} -> {item.target} ({item.confidence:.2f})",
+                markup=False,
+                highlight=False,
+            )
+
+    treat_suspicious = cfg.verify is not None and cfg.verify.treat_suspicious_as_regression
+    failed = (
+        fail_on == "regression"
+        and (result.regressed or (treat_suspicious and result.goodhart.any_suspicious))
+    ) or (fail_on == "new-violation" and bool(result.new_findings))
+    if failed and result.delta.comparable:
+        _status(output_format).print(f"[red]Failing: --fail-on {fail_on}.[/]")
+        raise typer.Exit(code=1)
+
+
+baseline_app = typer.Typer(help="Accepted findings for the `rlens diff` ratchet.")
+app.add_typer(baseline_app, name="baseline")
+
+
+@baseline_app.command("update")
+def baseline_update(
+    path: Annotated[
+        Path,
+        typer.Argument(exists=True, file_okay=False, dir_okay=True, help="Project directory."),
+    ] = Path("."),
+    config: Annotated[
+        Path | None,
+        typer.Option("--config", "-c", exists=True, dir_okay=False, help="Path to rlens.yaml."),
+    ] = None,
+) -> None:
+    """Accept every current finding, so `diff --fail-on new-violation` fails only on new ones."""
+    try:
+        cfg = load_config(config, search_from=path)
+    except ConfigError as exc:
+        raise _fail(str(exc)) from exc
+    accepted = findings(scan_project(path, cfg).to_dict(), cfg)
+    written = write_baseline(path, accepted)
+    console.print(f"{len(accepted)} finding(s) accepted in {written}. Commit it with your code.")
 
 
 def _build_cache(cfg, path: Path, *, disabled: bool) -> ResponseCache:

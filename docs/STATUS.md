@@ -7,6 +7,25 @@ derlemeden önce karşılaştırıyor. İçerik: `CHANGELOG.md` 2.3.0. Önceki: 
 (2026-09-23), v2.1.0 (2026-09-22), v2.0.0 (2026-09-10).
 
 ## Bitenler
+- **v2.4 Aşama 5 — `rlens diff`, baseline/ratchet, GitHub Action** (kararlar
+  `docs/02` Aşama 5 durum notunda).
+  - Yeni: `src/rlens/diff/` (ref'ler depo dışında ayrık worktree'lerde;
+    `verify` deltası, Goodhart, değişen dosyalarda refactoring türü; bulgu
+    kümeleri ve ratchet; PR yorumu), CLI `rlens diff base..head`
+    (`--path`, `--format table|json|pr-comment`, `--fail-on
+    none|regression|new-violation`, `--baseline`), `rlens baseline update`,
+    `action/action.yml` + `action/README.md` + gerçek örnek yorum.
+    `verify/diff.py`'deki iki anahtar fonksiyonu herkese açık adla verildi.
+  - Testler: `test_diff_command.py` 13 (gerçek iki commit'lik depo; ağaç
+    temiz, worktree kalmıyor; ratchet; baseline), `test_action.py` 6
+    (action'ın betiği yerelde koşuldu: yorum dosyası, çıkış kodu).
+  - Örnek PR yorumu (layered kopyası, `main` → `loop` branch'i): OrderService
+    improved (WMC 56→26), `god_class` çözüldü, PricingService'te yeni LCOM4
+    eşik aşımı, 4 Extract Class / 26 sarmalayıcı.
+  - **Kullanıcı kararı:** Marketplace listelemesi `action.yml`'i depo kökünde
+    ister; şu an `action/` altında (tag ile kullanılabilir).
+  - Durum: 1830 paket testi (10 atlandı), 91 fikstür testi, ruff temiz; paket
+    test süresi ~3 dk (gerçek git depolu testler).
 - **v2.4 Aşama 4 — refactoring türü tespiti** (tip çıkarımı hariç; kararlar
   `docs/02` Aşama 4 durum notunda).
   - Yeni: `analysis/refactoring_types.py` (rename, extract class, move method,
@@ -819,15 +838,17 @@ framework deyiminden geliyor.**
   orkestrasyon modülleri.
 
 ## Sıradaki iş
-**v2.4 sürüyor** (planlanan v3; `docs/02`). Aşama 0-3 ve 4'ün tür tespiti
-bitti; tip çıkarımı kullanıcı kararı bekliyor. Sıradaki: **Aşama 5 —
-`rlens diff`, baseline/ratchet, GitHub Action** (`docs/02` §8): iki git ref'i
-arasında metrik/ihlal/koku deltası, `--format=pr-comment`, `.rlens-baseline.json`
-ile yalnızca yeni ihlallerin CI'ı kırması (`rlens baseline update`), Action
-girdileri `path`, `fail-on`, `comment`. LLM gerektirmez. **Bitti ⇔** örnek
-PR'da yorum üretiliyor; ratchet mevcut ihlalleri geçirip yeni ihlali kırıyor
-(test); Action marketplace'te yayınlandı (son adım kullanıcının). Sonra
-Aşama 6 (LensBench, FINDINGS-3).
+**v2.4 sürüyor** (planlanan v3; `docs/02`). Aşama 0-5 bitti (Aşama 4'ün
+tip çıkarımı ve Aşama 5'in Marketplace yayını kullanıcı kararı bekliyor).
+Sıradaki: **Aşama 6 — LensBench ve FINDINGS-3** (`docs/02` §7): hedef setini
+dondurma (layered + messy + seçilmiş açık kaynak projelerin dondurulmuş
+commit'leri), prompt sürümü hash'li, koşullar (arch-context on/off,
+metric-rules on/off, loop 1/3 iter), hedef başına ≥3 tekrar, `rlens bench
+run/report`, en az 4 model (≥3 ücretsiz/lokal + 1 pahalı kontrol), H1-H4.
+Bu aşama **ön kayıt** ister (protokol sonuçtan önce yazılır, AGENTS Faz 5
+kuralı) ve gerçek model koşuları/maliyet içerir: koşulara başlamadan önce
+ön kayıt belgesi ve bütçe kullanıcıyla netleştirilmeli. Yayın: Aşama 0-5
+2.4.0 olarak çıkabilir mi, yoksa LensBench ile mi — kullanıcı kararı.
 
 Bu arada açık kalan, küçük ve bağımsız işler: `report.terminal`'deki eşik
 mantığını taşımak ve `analysis`'in `importlinter` çağrısını sınıra çekmek

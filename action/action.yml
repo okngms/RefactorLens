@@ -1,0 +1,97 @@
+name: RefactorLens diff
+description: >-
+  Compare a pull request with its base: metric changes, new and resolved
+  findings, detected refactorings. Comments on the PR and can fail the build
+  on new findings only (ratchet). Calls no model.
+author: okngms
+branding:
+  icon: git-pull-request
+  color: blue
+
+inputs:
+  path:
+    description: Directory to scan on both sides, relative to the repository root.
+    default: "."
+  base:
+    description: Base revision. Defaults to the pull request's base commit.
+    default: ""
+  fail-on:
+    description: "none, regression (a metric got worse) or new-violation (a finding not in the baseline, or not in base)."
+    default: "none"
+  comment:
+    description: Post the result as a pull request comment ("true" or "false").
+    default: "true"
+  version:
+    description: refactorlens version to install, e.g. "2.4.0". Empty installs the latest.
+    default: ""
+  python-version:
+    description: Python used to run RefactorLens.
+    default: "3.12"
+  github-token:
+    description: Token used to post the comment.
+    default: ${{ github.token }}
+
+outputs:
+  exit-code:
+    description: Exit code of `rlens diff` (1 when --fail-on triggered).
+    value: ${{ steps.diff.outputs.exit-code }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install RefactorLens
+      shell: bash
+      env:
+        RLENS_VERSION: ${{ inputs.version }}
+      run: |
+        python -m pip install --quiet --upgrade pip
+        if [ -n "$RLENS_VERSION" ]; then
+          python -m pip install --quiet "refactorlens==$RLENS_VERSION"
+        else
+          python -m pip install --quiet refactorlens
+        fi
+
+    # Girdiler yalnızca env üzerinden gelir: betik yerelde aynen çalıştırılıp
+    # test edilebilir (tests/test_action.py).
+    - id: diff
+      name: Compare with the base
+      shell: bash
+      env:
+        RLENS_BASE: ${{ inputs.base || github.event.pull_request.base.sha }}
+        RLENS_PATH: ${{ inputs.path }}
+        RLENS_FAIL_ON: ${{ inputs.fail-on }}
+      run: |
+        if [ -z "$RLENS_BASE" ]; then
+          echo "::error::No base revision. Set the 'base' input, or run on pull_request."
+          exit 1
+        fi
+        comment="${RUNNER_TEMP:-/tmp}/rlens-comment.md"
+        set +e
+        rlens diff "$RLENS_BASE..HEAD" --path "$RLENS_PATH" --format pr-comment \
+          --fail-on "$RLENS_FAIL_ON" > "$comment"
+        status=$?
+        set -e
+        echo "exit-code=$status" >> "$GITHUB_OUTPUT"
+        echo "comment=$comment" >> "$GITHUB_OUTPUT"
+        cat "$comment" >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Comment on the pull request
+      if: ${{ inputs.comment == 'true' && github.event_name == 'pull_request' }}
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        RLENS_PR: ${{ github.event.pull_request.number }}
+        RLENS_COMMENT: ${{ steps.diff.outputs.comment }}
+      run: |
+        gh pr comment "$RLENS_PR" --body-file "$RLENS_COMMENT" --edit-last \
+          || gh pr comment "$RLENS_PR" --body-file "$RLENS_COMMENT"
+
+    - name: Apply the gate
+      shell: bash
+      env:
+        RLENS_STATUS: ${{ steps.diff.outputs.exit-code }}
+      run: exit "$RLENS_STATUS"

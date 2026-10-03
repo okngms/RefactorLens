@@ -373,3 +373,9 @@ def diff_reports(before: dict, after: dict) -> ProjectDelta:
         violations=_set_delta(_violation_keys(before), _violation_keys(after)),
         smells=_set_delta(_smell_keys(before), _smell_keys(after)),
     )
+
+
+#: `rlens diff`'in ratchet'i aynı kimlikleri kullanır; ikinci bir tanım iki
+#: komutun aynı ihlali farklı adlandırması demek olurdu.
+violation_keys = _violation_keys
+smell_keys = _smell_keys
