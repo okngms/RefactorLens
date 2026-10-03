@@ -56,6 +56,30 @@ class TestSuccess:
         assert branch_file.strip() == IMPROVED_SHOP.strip()
         assert result.predictions["hits"] == 1
 
+    def test_the_refactoring_kind_is_reported(self, repo):
+        """`price`'ın dalları bir sözlüğe döndü: kataloğun beş türünden biri değil."""
+        result = run(repo, FakeProvider(reply(diff_for(IMPROVED_SHOP))))
+        assert [(r["kind"], r["source"]) for r in result.refactorings] == [
+            ("unknown", "Pricing.price")
+        ]
+
+    def test_an_extracted_method_is_named(self, repo):
+        extracted = SHOP.replace(
+            """    def label(self):
+        return "pricing"
+""",
+            """    def label(self):
+        return self._name()
+
+    def _name(self):
+        return "pricing"
+""",
+        )
+        result = run(repo, FakeProvider(reply(diff_for(extracted))))
+        assert [(r["kind"], r["target"]) for r in result.refactorings] == [
+            ("extract_method", "Pricing._name")
+        ]
+
     def test_the_commit_holds_only_the_patched_files(self, repo):
         """Testlerin worktree'de ürettiği artıklar (`__pycache__`) commit'e girmez.
 

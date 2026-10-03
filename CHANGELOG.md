@@ -24,6 +24,10 @@ regenerate any `before` report with the new version.
   `reports/chartests-*.py`. This runs model-written test code in an isolated
   worktree; `--dry-run` shows the request.
 - `examples/untested_project`: a fixture with no tests, for the above.
+- Refactoring kind detection in `apply` and `loop` reports: `extract_method`,
+  `move_method`, `extract_class`, `inline`, `rename` or `unknown`, each with a
+  confidence, from an `ast` comparison of the touched files. An Extract Class
+  or Move Method that leaves a delegating wrapper behind lists those wrappers.
 - `rlens loop`: `advise` → `apply` → measure, repeated with a feedback block
   that tells the model which of its predictions held, whether the tests passed
   and whether public members were deleted. Each iteration starts from HEAD.

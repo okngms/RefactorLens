@@ -307,6 +307,16 @@ Outcomes are `verify`'s (`improved`, `regressed`, `mixed`, `unchanged`,
 `suspicious`) plus `broken` (tests failed), `rejected` (no applicable patch)
 and `no_gate` (see below). Reports go to `reports/apply-*.json` and `.md`.
 
+The report also names what the patch did: `extract_method`, `move_method`,
+`extract_class`, `inline`, `rename`, or `unknown`, each with a confidence,
+found by comparing the code before and after with `ast`. When a member moved
+but a thin method delegating to it stayed behind, the report says so —
+those wrappers are why NOM and LCOM4 often stay put after an Extract Class:
+
+```
+extract_class OrderService → PricingService (0.95; delegating wrappers left: apply_tax, ...)
+```
+
 **A project without tests.** If `tests.command` is not set and
 `chartests.enabled_when_no_tests` is true (the default), `apply` first asks the
 model for *characterization tests*: pytest tests that record what the target

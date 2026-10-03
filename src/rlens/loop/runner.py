@@ -90,6 +90,8 @@ class Iteration:
     tokens_out: int = 0
     feedback: str | None = None
     """Bu iterasyonun öneri istemine eklenen blok (ilk iterasyonda yok)."""
+    refactorings: list[str] = field(default_factory=list)
+    """Tespit edilen türler (H4: tür bazında doğruluk)."""
     apply: dict | None = None
     predictions: dict | None = field(default=None, repr=False)
 
@@ -118,6 +120,7 @@ class Iteration:
             "tokens_in": self.tokens_in,
             "tokens_out": self.tokens_out,
             "feedback": self.feedback,
+            "refactorings": list(self.refactorings),
             "apply": self.apply,
         }
 
@@ -229,6 +232,7 @@ def run_loop(
         item.gate_passed = None if applied.gate is None else applied.gate.passed
         item.predictions = applied.predictions
         item.apply = applied.to_dict()
+        item.refactorings = [r["kind"] for r in applied.refactorings or []]
         for suggestion in (applied.predictions or {}).get("suggestions", []):
             for check in suggestion.get("checks", []):
                 outcome = check.get("outcome")

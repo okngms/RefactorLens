@@ -21,7 +21,7 @@ def _gate(value) -> str:
 def render_loop(result: LoopResult, console: Console) -> None:
     payload = result.to_dict()
     table = Table(title=f"loop {escape(result.target)}", title_justify="left", header_style="bold")
-    for column in ("#", "Suggestion", "Outcome", "Tests", "Predictions", "Brier", "Calls"):
+    for column in ("#", "Suggestion", "Kind", "Outcome", "Tests", "Predictions", "Brier", "Calls"):
         table.add_column(column, justify="right" if column in ("#", "Brier", "Calls") else "left")
     for item in result.iterations:
         verifiable = item.hits + item.misses
@@ -31,6 +31,7 @@ def render_loop(result: LoopResult, console: Console) -> None:
         table.add_row(
             str(item.number),
             escape(item.title or "—"),
+            ", ".join(sorted(set(item.refactorings))) or "—",
             item.outcome or "—",
             _gate(item.gate_passed),
             predictions,
@@ -65,12 +66,14 @@ def loop_markdown(result: LoopResult, *, root: str, generated_at: str) -> str:
         "",
         "Each iteration starts from HEAD; changes do not build on each other.",
         "",
-        "| # | Suggestion | Outcome | Tests | Hits | Misses | Unverifiable | Brier | Calls |",
-        "|---:|---|---|---|---:|---:|---:|---:|---:|",
+        "| # | Suggestion | Kind | Outcome | Tests | Hits | Misses | Unverifiable "
+        "| Brier | Calls |",
+        "|---:|---|---|---|---|---:|---:|---:|---:|---:|",
     ]
     for item in result.iterations:
         lines.append(
-            f"| {item.number} | {item.title or '—'} | {item.outcome or '—'} | "
+            f"| {item.number} | {item.title or '—'} | "
+            f"{', '.join(sorted(set(item.refactorings))) or '—'} | {item.outcome or '—'} | "
             f"{_gate(item.gate_passed)} | {item.hits} | {item.misses} | {item.unverifiable} | "
             f"{_fmt(item.brier, '{:.3f}')} | {item.calls} |"
         )

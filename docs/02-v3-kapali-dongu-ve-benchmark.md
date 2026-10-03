@@ -217,6 +217,24 @@ Geri besleme bloğu, durma koşulları, `confidence` alanı, Brier hesabı.
 **Bitti ⇔** 3 iterasyonluk koşu kaydediliyor; iterasyon başına metrikler raporda; Brier altın değerle test ediliyor.
 
 ### Aşama 4 — Refactoring türü tespiti ve tip çıkarımı
+
+> **Durum (2026-10-03): tür tespiti yapıldı; tip çıkarımı kullanıcı kararını
+> bekliyor.** `src/rlens/analysis/refactoring_types.py`; `apply` raporunda
+> `refactorings`, `loop` iterasyonunda tür. Beş tür elle yazılmış önce/sonra
+> çiftleriyle doğru sınıflandırılıyor (`test_refactoring_types.py`). Plana ek:
+> taşınan üyenin yerinde kalan **delege eden sarmalayıcı** listelenir
+> (`delegating_wrappers`). Gerçek veri: Aşama 3'ün `loop` koşusunun iki
+> branch'i — dört Extract Class, 26 sarmalayıcı; NOM'un geri beslemeye
+> rağmen yerinde kalmasının nedeni. Gerçek veride bulunup düzeltilen iki
+> kural boşluğu: yeniden yazılan gövdeli taşınmış üye (`rewritten`) ve
+> kurucunun çıkarılan sınıfları örneklemesi. Tek satırlık gövde çıkarımı
+> çağıranı küçültmez; Extract Method/Inline kuralı kaybedilen/kazanılan
+> deyimlere de bakar.
+>
+> **Açık:** tip çıkarımı (`[typed]`, jedi/pyright) kilitli "yalnızca `ast`"
+> kararıyla çelişir; opsiyonel extra olarak yapılıp yapılmayacağı kullanıcı
+> kararı. `verify` tür tespiti yapmaz: yalnızca rapor karşılaştırır, kaynak
+> görmez (git ref'ten okuma Aşama 5 `diff` ile gelir).
 `refactoring_types.py` (fikstürde bilinen refactoring'lerle altın test); `[typed]` extra ile DCC/CAM `typed` çözümleme, `inferred` ile karşılaştırma raporu.
 **Bitti ⇔** 5 tür fikstürde doğru sınıflandırılıyor; typed modda CAM `null` oranı düşüyor (ölçülüp belgeleniyor).
 

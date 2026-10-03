@@ -25,6 +25,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from rlens.advise.advisor import _generate
+from rlens.analysis.refactoring_types import detect as detect_refactorings
 from rlens.analysis.scanner import scan_project
 from rlens.apply.gate import GateResult, run_gate
 from rlens.apply.patch import apply_patch, touched_paths, validate_paths
@@ -97,6 +98,8 @@ class ApplyResult:
     goodhart: dict | None = None
     chartests: dict | None = None
     """Seviye 2: üretilen, tutulan, atılan testler ve geçme oranı."""
+    refactorings: list[dict] | None = None
+    """Patch'in yaptığı refactoring türleri (Aşama 4); kapı geçtiyse."""
 
     def to_dict(self) -> dict:
         return {
@@ -117,6 +120,7 @@ class ApplyResult:
             "predictions": self.predictions,
             "goodhart": self.goodhart,
             "chartests": self.chartests,
+            "refactorings": self.refactorings,
         }
 
 
@@ -303,6 +307,15 @@ def run_apply(
         )
         after = scan_project(scan_root, config).to_dict()
         _measure(result, advice, before, after)
+        old_sources = {name: text for name, text in files.items() if text is not None}
+        new_sources = {
+            name: text
+            for name in touched_paths(result.patch)
+            if (text := _read(work.path, name)) is not None
+        }
+        result.refactorings = [
+            d.to_dict() for d in detect_refactorings(old_sources, {**old_sources, **new_sources})
+        ]
         result.branch = work.branch
         release(work)
         return result

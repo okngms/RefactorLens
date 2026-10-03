@@ -49,6 +49,20 @@ def chartests_line(chartests: dict) -> str:
     return line
 
 
+def refactoring_lines(refactorings: list[dict] | None) -> list[str]:
+    """`extract_class Shop → AuditLog (0.80; delegating wrappers left: record, trail)`."""
+    lines = []
+    for item in refactorings or []:
+        line = f"{item['kind']} {item['source']} → {item['target']} ({item['confidence']:.2f}"
+        wrappers = item.get("details", {}).get("delegating_wrappers")
+        if wrappers:
+            line += f"; delegating wrappers left: {', '.join(wrappers)}"
+        elif item.get("details", {}).get("delegates"):
+            line += "; a delegating wrapper was left"
+        lines.append(line + ")")
+    return lines
+
+
 def render_apply(result: ApplyResult, console: Console) -> None:
     console.print(
         f"[bold]apply[/bold] {escape(result.target)}  suggestion {result.suggestion_index}: "
@@ -72,6 +86,8 @@ def render_apply(result: ApplyResult, console: Console) -> None:
             console.print(tail, markup=False, highlight=False)
 
     console.print(f"[bold]outcome: {result.outcome}[/bold]")
+    for line in refactoring_lines(result.refactorings):
+        console.print(f"  {escape(line)}")
     changes = _changes(result)
     if changes:
         console.print(f"  {escape(', '.join(changes))}")
@@ -133,6 +149,9 @@ def apply_markdown(result: ApplyResult, *, root: str, generated_at: str) -> str:
         lines += ["## Behaviour gate", "", f"Level {gate.level}: {state} ({detail}).", ""]
         if gate.output_tail:
             lines += ["```", gate.output_tail, "```", ""]
+    detected = refactoring_lines(result.refactorings)
+    if detected:
+        lines += ["## Refactorings detected", "", *(f"- {line}" for line in detected), ""]
     changes = _changes(result)
     if changes:
         lines += ["## Metric changes", "", *(f"- {change}" for change in changes), ""]

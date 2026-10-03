@@ -7,6 +7,21 @@ derlemeden önce karşılaştırıyor. İçerik: `CHANGELOG.md` 2.3.0. Önceki: 
 (2026-09-23), v2.1.0 (2026-09-22), v2.0.0 (2026-09-10).
 
 ## Bitenler
+- **v2.4 Aşama 4 — refactoring türü tespiti** (tip çıkarımı hariç; kararlar
+  `docs/02` Aşama 4 durum notunda).
+  - Yeni: `analysis/refactoring_types.py` (rename, extract class, move method,
+    extract method, inline, unknown; her biri `confidence` ile; taşınan
+    üyenin arkasındaki delege eden sarmalayıcılar listelenir). `apply`
+    raporunda `refactorings`, terminal/markdown satırı; `loop` tablosunda
+    "Kind" sütunu.
+  - Testler: `test_refactoring_types.py` 12 (beş tür, sarmalayıcı, yeniden
+    yazılmış üye, kenarlar), `test_apply_runner.py` +2.
+  - Gerçek veri (`loop` branch'leri): dört Extract Class, 26 sarmalayıcı;
+    ilk sürüm iki birimi `unknown` bıraktı (yeniden yazılmış `discount_for`,
+    kurucu bağlaması), kural düzeltildi, testli.
+  - **Kullanıcı kararı bekleyen:** tip çıkarımı (`[typed]` extra, jedi/pyright)
+    "yalnızca `ast`" kilitli kararıyla çelişiyor.
+  - Durum: 1811 paket testi (10 atlandı), 91 fikstür testi, ruff temiz.
 - **v2.4 Aşama 3 — `loop` ve kalibrasyon** (kararlar `docs/02` Aşama 3 durum
   notunda).
   - Yeni: `src/rlens/loop/feedback.py` (yön, kapı, arayüz; eşik yok),
@@ -804,16 +819,15 @@ framework deyiminden geliyor.**
   orkestrasyon modülleri.
 
 ## Sıradaki iş
-**v2.4 sürüyor** (planlanan v3; `docs/02`). Aşama 0-3 bitti. Sıradaki:
-**Aşama 4 — refactoring türü tespiti ve tip çıkarımı** (`docs/02` §5):
-`analysis/refactoring_types.py`, AST/imza diff'inden kural tabanlı
-sınıflandırma (Extract Method, Move Method, Extract Class, Inline, Rename,
-Unknown), her tespit `confidence` ile; `verify`/`apply` raporuna tür;
-fikstürde bilinen refactoring'lerle altın test. Tip çıkarımı (`[typed]`
-extra, jedi/pyright) kilitli "yalnızca `ast`" kararıyla çelişir; opsiyonel
-extra olarak mı yapılacağı kullanıcıya sorulmalı. **Bitti ⇔** 5 tür
-fikstürde doğru sınıflandırılıyor; typed modda CAM `null` oranı ölçülüp
-belgeleniyor. Sonra Aşama 5 (`diff`/Action), 6 (LensBench, FINDINGS-3).
+**v2.4 sürüyor** (planlanan v3; `docs/02`). Aşama 0-3 ve 4'ün tür tespiti
+bitti; tip çıkarımı kullanıcı kararı bekliyor. Sıradaki: **Aşama 5 —
+`rlens diff`, baseline/ratchet, GitHub Action** (`docs/02` §8): iki git ref'i
+arasında metrik/ihlal/koku deltası, `--format=pr-comment`, `.rlens-baseline.json`
+ile yalnızca yeni ihlallerin CI'ı kırması (`rlens baseline update`), Action
+girdileri `path`, `fail-on`, `comment`. LLM gerektirmez. **Bitti ⇔** örnek
+PR'da yorum üretiliyor; ratchet mevcut ihlalleri geçirip yeni ihlali kırıyor
+(test); Action marketplace'te yayınlandı (son adım kullanıcının). Sonra
+Aşama 6 (LensBench, FINDINGS-3).
 
 Bu arada açık kalan, küçük ve bağımsız işler: `report.terminal`'deki eşik
 mantığını taşımak ve `analysis`'in `importlinter` çağrısını sınıra çekmek

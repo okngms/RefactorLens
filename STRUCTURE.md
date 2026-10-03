@@ -61,6 +61,7 @@ src/rlens/
 │   ├── architecture.py     Layer assignment and violations → ArchReport
 │   ├── interface.py        Public interface of a class (Goodhart check input)
 │   ├── smells.py           god_class, data_class, feature_envy, long_method, …
+│   ├── refactoring_types.py  v2.4: extract/move/inline/rename from a before/after ast diff
 │   └── scanner.py          Orchestration: sources → ProjectReport
 │
 ├── advise/                 Deciding what to ask and understanding the answer
@@ -227,6 +228,7 @@ tests/
 ├── test_apply_cli.py       rlens apply: report, dry run, target choice, preconditions
 ├── test_chartests.py       Characterization tests: prompt, pruning, rerun, gate level 2
 ├── test_loop.py            loop: stop rules, feedback without thresholds, Brier gold value
+├── test_refactoring_types.py  Five kinds on hand-written pairs, delegating wrappers, unknown
 ├── test_apply_chartests.py apply on examples/untested_project: gate level 2, no_gate, rlens chartests
 ├── apply_support.py        Shared project and helpers for the apply tests
 ├── test_metric_edges.py    Real-world idioms: decorators, @overload, except*, string annotations
