@@ -91,6 +91,9 @@ DEFAULTS: dict[str, Any] = {
     # kapısı olmadan uygulanan hiçbir öneri bir delta sayılamaz.
     "tests": {"command": None, "timeout": 300},
     "apply": {"allow_files": [], "keep_failed": False, "max_output_tokens": 16384},
+    # Testsiz projede kapı seviye 2 (`docs/02` §3). `python`: projenin ortamı,
+    # rlens'inki değil; pytest kurulu olmalı.
+    "chartests": {"enabled_when_no_tests": True, "per_method_cases": 3, "python": "python"},
     "thresholds": {
         # Katman bazlı geçersiz kılma: `by_layer.<katman>.<metrik>.<warn|critical>`
         "by_layer": {},
@@ -267,6 +270,13 @@ class ApplyConfig:
 
 
 @dataclass(frozen=True)
+class ChartestsConfig:
+    enabled_when_no_tests: bool
+    per_method_cases: int
+    python: str
+
+
+@dataclass(frozen=True)
 class Config:
     provider: ProviderConfig
     scan: ScanConfig
@@ -281,6 +291,7 @@ class Config:
     verify: VerifyConfig | None = None
     tests: TestsConfig | None = None
     apply: ApplyConfig | None = None
+    chartests: ChartestsConfig | None = None
     source_path: Path | None = None
 
     def threshold_for(self, metric: str, layer: str | None = None) -> Threshold | None:
@@ -473,6 +484,7 @@ def _reject_unknown_keys(raw: dict[str, Any]) -> None:
         "verify",
         "tests",
         "apply",
+        "chartests",
     ):
         value = raw.get(section)
         if isinstance(value, dict):
@@ -708,6 +720,21 @@ def _build(data: dict[str, Any], source: Path | None) -> Config:
         max_output_tokens=_as_int(apply_raw["max_output_tokens"], "apply.max_output_tokens"),
     )
 
+    chartests_raw = data["chartests"]
+    _require(
+        isinstance(chartests_raw["enabled_when_no_tests"], bool),
+        "`chartests.enabled_when_no_tests` must be true or false",
+    )
+    _require(
+        isinstance(chartests_raw["python"], str) and chartests_raw["python"].strip(),
+        "`chartests.python` must be a Python executable, e.g. 'python' or a path",
+    )
+    chartests = ChartestsConfig(
+        enabled_when_no_tests=chartests_raw["enabled_when_no_tests"],
+        per_method_cases=_as_int(chartests_raw["per_method_cases"], "chartests.per_method_cases"),
+        python=chartests_raw["python"].strip(),
+    )
+
     return Config(
         provider=provider,
         scan=scan,
@@ -722,6 +749,7 @@ def _build(data: dict[str, Any], source: Path | None) -> Config:
         verify=verify,
         tests=tests,
         apply=apply,
+        chartests=chartests,
         source_path=source,
     )
 

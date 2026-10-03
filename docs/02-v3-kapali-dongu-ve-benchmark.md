@@ -173,6 +173,25 @@ Patch prompt şeması, onarım denemesi, kapı entegrasyonu, verify çağrısı,
 **Bitti ⇔** `layered_project`'te bir öneri uçtan uca uygulanıp `improved|regressed|mixed|suspicious` sonucu alınıyor; kapı geçmeyen vaka temizleniyor.
 
 ### Aşama 2 — `chartests` ve kapı 2.0
+
+> **Durum (2026-10-03): yapıldı (seviye 3 hariç).** `src/rlens/chartests/generator.py`,
+> `rlens chartests`, config `chartests` (`python` anahtarı eklendi: testler
+> projenin yorumlayıcısıyla koşar, pipx'teki rlens'inkiyle değil). Fikstür
+> `examples/untested_project` (WMC 18, elle hesaplandı). Kabul: fikstürün git
+> kopyasında gerçek Groq koşusu — 15 testin 15'i mevcut kodda geçti, patch
+> kapı 2'den geçti (`mixed`: WMC 18→15, LCOM4 1→2, DCC 0→1; tahmin 2/2).
+> İkinci öneri (kavrayışlar WMC'yi düşürür) kapıyı geçti ama WMC 18→19,
+> `regressed`, tahmin 0/1 (tek koşu). `rlens chartests` aynı sınıfta 17
+> testten 16'sını tuttu. Kararlar:
+> - Seviye 2 yalnızca `tests.command` yokken devreye girer; ikisi birlikte
+>   (`tests.command` + chartests) henüz yok.
+> - Ön doğrulama iki koşu: geçmeyen atılır, kalanlar ikinci koşuda da geçmeli
+>   (kararsız test kapı olamaz); üçüncü koşu da yeşil değilse kapı yok.
+> - Hiç test geçmezse patch istenmez (`no_gate`), çağrı harcanmaz.
+> - Testler worktree'de `.rlens-chartests/`'te: tarayıcı atlar, patch
+>   dokunamaz, commit'e girmez.
+> - **Seviye 3 (hypothesis eşdeğerlik) yapılmadı**; plan onu opsiyonel
+>   sayıyor. Açık iş.
 Karakterizasyon üretimi, ön-doğrulama (mevcut kodda geçmeli), seviye 3 opsiyonu.
 **Bitti ⇔** testsiz bir fikstürde (`examples/untested_project`) `apply` kapı 2 ile çalışıyor; üretilen testlerin mevcut kodda geçme oranı raporlanıyor.
 

@@ -15,6 +15,15 @@ regenerate any `before` report with the new version.
   test run deletes the worktree and the branch (`broken`). The patch may
   touch only the target's file and `apply.allow_files`, and the commit holds
   only the files it touched. Every reply is kept in `reports/apply-*.json`.
+- Characterization tests for projects without tests (`chartests` config
+  section). `apply` asks the model for tests that record what the target does
+  today, runs them on the unchanged code, drops every test that fails or does
+  not pass a second run, reports the pass rate, and uses the survivors as the
+  behaviour gate. No surviving test means no patch is requested (`no_gate`).
+  `rlens chartests` produces the tests alone and writes them to
+  `reports/chartests-*.py`. This runs model-written test code in an isolated
+  worktree; `--dry-run` shows the request.
+- `examples/untested_project`: a fixture with no tests, for the above.
 - `provider.max_output_tokens`: the per-reply output limit sent to the
   provider (by default the provider's own). `apply.max_output_tokens`
   (16384) is used for patch requests.

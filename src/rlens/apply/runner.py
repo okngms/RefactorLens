@@ -1,7 +1,11 @@
-"""`apply` akışı: öneriden branch'e (`docs/02` §2, Aşama 1).
+"""`apply` akışı: öneriden branch'e (`docs/02` §2-3, Aşama 1-2).
 
-1. Repo ve temiz ağaç denetimi; `tests.command` yoksa çağrı yapılmadan durulur.
-2. İzole worktree; "önce" taraması worktree'de (HEAD ile aynı).
+1. Repo ve temiz ağaç denetimi. Kapı yoksa çağrı yapılmadan durulur: ya
+   `tests.command` (seviye 1) ya da testsiz projede karakterizasyon testleri
+   (seviye 2, `chartests.enabled_when_no_tests`).
+2. İzole worktree; "önce" taraması worktree'de (HEAD ile aynı). Seviye 2'de
+   testler **patch'ten önce** üretilir ve değişmemiş kodda doğrulanır; hiçbiri
+   geçmezse patch istenmez (`no_gate`).
 3. Patch istenir, ayrıştırılır, dokunduğu dosyalar denetlenir, uygulanır.
    Herhangi bir adım reddederse model tek bir onarım şansı alır.
 4. Davranış kapısı. Geçmezse worktree ve branch silinir (`keep_failed` hariç):
@@ -33,12 +37,24 @@ from rlens.apply.prompts import (
 )
 from rlens.apply.worktree import (
     ApplyError,
+    Worktree,
     commit_paths,
     create_worktree,
     discard,
     ensure_clean,
     release,
     repository_root,
+)
+from rlens.chartests.generator import (
+    SYSTEM_INSTRUCTION as CHARTESTS_INSTRUCTION,
+)
+from rlens.chartests.generator import (
+    ChartestsFormatError,
+    ChartestsResult,
+    build_chartests_prompt,
+    parse_tests,
+    run_chartests,
+    validate,
 )
 from rlens.config import Config
 from rlens.providers.base import ProviderError, ProviderTruncated
@@ -55,6 +71,8 @@ BROKEN = "broken"
 """Kapı geçmedi; delta hesaplanmaz."""
 REJECTED = "rejected"
 """Patch iki denemede de kabul edilmedi; hiçbir şey uygulanmadı."""
+NO_GATE = "no_gate"
+"""Testsiz projede hiçbir karakterizasyon testi mevcut kodda geçmedi; patch istenmedi."""
 
 MAX_ATTEMPTS = 2
 
@@ -77,6 +95,8 @@ class ApplyResult:
     entity: dict | None = None
     predictions: dict | None = None
     goodhart: dict | None = None
+    chartests: dict | None = None
+    """Seviye 2: üretilen, tutulan, atılan testler ve geçme oranı."""
 
     def to_dict(self) -> dict:
         return {
@@ -96,6 +116,7 @@ class ApplyResult:
             "entity": self.entity,
             "predictions": self.predictions,
             "goodhart": self.goodhart,
+            "chartests": self.chartests,
         }
 
 
@@ -142,6 +163,62 @@ def _read(base: Path, relative: str) -> str | None:
     return path.read_text(encoding="utf-8") if path.is_file() else None
 
 
+def _gate_mode(config: Config) -> tuple[bool, bool]:
+    """(seviye 1, seviye 2). İkisi de yoksa `apply` çalışmaz."""
+    level1 = config.tests is not None and bool(config.tests.command)
+    chartests = config.chartests
+    level2 = not level1 and chartests is not None and chartests.enabled_when_no_tests
+    if not (level1 or level2):
+        raise ApplyError(
+            "Set `tests.command` in rlens.yaml (for example 'pytest -q'), or enable "
+            "`chartests.enabled_when_no_tests` for a project without tests. `apply` "
+            "never lands a change that has not passed a behaviour gate."
+        )
+    return level1, level2
+
+
+def _timeout(config: Config) -> int:
+    return config.tests.timeout if config.tests is not None else 300
+
+
+def chartests_request(target: str, target_file: str, base: Path, config: Config) -> str:
+    """Karakterizasyon testi istemi; `base` dosyaların okunduğu kök."""
+    source = _read(base, target_file) or ""
+    cases = config.chartests.per_method_cases if config.chartests else 3
+    return build_chartests_prompt(target, target_file, source, cases)
+
+
+def generate_chartests(
+    target: str,
+    target_file: str,
+    work: Worktree,
+    scan_root: Path,
+    config: Config,
+    provider,
+    cache,
+    budget,
+) -> ChartestsResult:
+    """Testleri ister ve değişmemiş kodda doğrular (seviye 2'nin ön koşulu)."""
+    prompt = chartests_request(target, target_file, work.path, config)
+    try:
+        reply, _, _ = _generate(
+            provider, CHARTESTS_INSTRUCTION, prompt, _patch_config(config), cache, budget, target
+        )
+    except ProviderTruncated as exc:
+        return ChartestsResult(
+            reason="The reply was cut off at the model's output limit; raise "
+            "`apply.max_output_tokens`.",
+            reply=exc.partial,
+        )
+    try:
+        code = parse_tests(reply)
+    except ChartestsFormatError as exc:
+        return ChartestsResult(reason=str(exc), reply=reply)
+    result = validate(code, scan_root, python=config.chartests.python, timeout=_timeout(config))
+    result.reply = reply
+    return result
+
+
 def preview_prompt(path: Path, advice: dict, target: str, index: int, config: Config) -> str:
     """`--dry-run`: modele gidecek istem, çalışma ağacından; çağrı ve worktree yok."""
     suggestion = _suggestion(advice, target, index)
@@ -167,11 +244,7 @@ def run_apply(
     run_id: str | None = None,
 ) -> ApplyResult:
     """Bir öneriyi izole bir branch'te uygular ve sonucu ölçer."""
-    if config.tests is None or not config.tests.command:
-        raise ApplyError(
-            "Set `tests.command` in rlens.yaml (for example 'pytest -q'). `apply` never "
-            "lands a change that has not passed your own tests."
-        )
+    level1, level2 = _gate_mode(config)
     suggestion = _suggestion(advice, target, index)
     root = repository_root(path)
     scan_prefix = Path(path).resolve().relative_to(root)
@@ -193,13 +266,28 @@ def run_apply(
         files = {name: _read(work.path, name) for name in sorted(allowed)}
         original = build_patch_prompt(target, suggestion, files)
 
+        if level2:
+            chartests = generate_chartests(
+                target, target_file, work, scan_root, config, provider, cache, budget
+            )
+            result.chartests = chartests.to_dict()
+            if not chartests.kept:
+                result.outcome = NO_GATE
+                discard(work)
+                return result
+
         if not _patch_until_applied(
             result, work, original, allowed, config, provider, cache, budget
         ):
             discard(work)
             return result
 
-        result.gate = run_gate(config.tests.command, work.path, timeout=config.tests.timeout)
+        if level1:
+            result.gate = run_gate(config.tests.command, work.path, timeout=_timeout(config))
+        else:
+            result.gate = run_chartests(
+                scan_root, python=config.chartests.python, timeout=_timeout(config)
+            )
         if not result.gate.passed:
             result.outcome = BROKEN
             if config.apply and config.apply.keep_failed:
@@ -294,3 +382,42 @@ def _measure(result: ApplyResult, advice: dict, before: dict, after: dict) -> No
     result.goodhart = suspicions.to_dict()
     applied = {result.target: [result.suggestion_index]}
     result.predictions = check_predictions(advice, delta, applied).to_dict()
+
+
+def run_chartests_only(
+    path: Path,
+    target: str,
+    config: Config,
+    provider,
+    *,
+    cache=None,
+    budget=None,
+) -> ChartestsResult:
+    """`rlens chartests`: testleri üretir ve HEAD'de doğrular; hiçbir şey commit'lenmez.
+
+    Doğrulama izole bir worktree'de yapılır: testler kullanıcının ağacında
+    koşsaydı `__pycache__` ve test artıkları bırakırdı. Sonuç rapora yazılır;
+    test dosyasını projeye eklemek kullanıcının kararıdır.
+    """
+    root = repository_root(path)
+    scan_prefix = Path(path).resolve().relative_to(root)
+    ensure_clean(root, ignore=_own_output(config, scan_prefix))
+    run_id = f"{datetime.now(UTC):%Y%m%d-%H%M%S}-{uuid.uuid4().hex[:4]}"
+    work = create_worktree(root, run_id, target)
+    try:
+        scan_root = work.path / scan_prefix
+        report = scan_project(scan_root, config).to_dict()
+        target_file = _target_file(report, target, scan_prefix)
+        return generate_chartests(
+            target, target_file, work, scan_root, config, provider, cache, budget
+        )
+    finally:
+        discard(work)
+
+
+def preview_chartests(path: Path, target: str, config: Config) -> str:
+    """`rlens chartests --dry-run`: istem, çalışma ağacından; çağrı ve worktree yok."""
+    root = repository_root(path)
+    scan_prefix = Path(path).resolve().relative_to(root)
+    report = scan_project(Path(path), config).to_dict()
+    return chartests_request(target, _target_file(report, target, scan_prefix), root, config)

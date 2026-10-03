@@ -118,11 +118,20 @@ class TestFailure:
 
 
 class TestPreconditions:
-    def test_no_test_command_refuses(self, repo):
-        (repo / "rlens.yaml").write_text("scan:\n  include: ['.']\n", encoding="utf-8")
+    def test_no_gate_at_all_refuses(self, repo):
+        """Ne `tests.command` ne karakterizasyon testi: hiçbir kapı yok, çağrı yapılmaz.
+
+        Komut yokken kapı 2 varsayılan olarak açıktır (Aşama 2); burada kapatılır.
+        """
+        (repo / "rlens.yaml").write_text(
+            "scan:\n  include: ['.']\nchartests:\n  enabled_when_no_tests: false\n",
+            encoding="utf-8",
+        )
         git(repo, "commit", "-qam", "no tests")
+        provider = FakeProvider()
         with pytest.raises(ApplyError, match="tests.command"):
-            run(repo, FakeProvider())
+            run(repo, provider)
+        assert provider.prompts == []
 
     def test_unknown_target_refuses(self, repo):
         config = load_config(search_from=repo)

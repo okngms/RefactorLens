@@ -24,6 +24,7 @@ ADVICE_PREFIX = "advice-"
 VERIFY_PREFIX = "verify-"
 ARCH_PREFIX = "arch-"
 APPLY_PREFIX = "apply-"
+CHARTESTS_PREFIX = "chartests-"
 EXPLAIN_PREFIX = "explain-"
 EXPLAIN_TEMPLATE_PREFIX = "explain-template-"
 TIMESTAMP_FORMAT = "%Y%m%d-%H%M%S"
@@ -287,6 +288,38 @@ def write_apply(result, output_dir: Path, *, root: str, generated_at: str) -> tu
     except OSError as exc:
         raise ReportError(f"Could not write apply report: {exc}") from exc
     return json_path, markdown_path
+
+
+def write_chartests(result, target: str, output_dir: Path) -> tuple[Path, Path]:
+    """Tutulan karakterizasyon testlerini `.py`, özetini `.json` olarak yazar.
+
+    Test dosyası projeye kendiliğinden eklenmez: onu `tests/` altına taşımak
+    kullanıcının kararıdır.
+
+    Returns:
+        (test_path, json_path)
+    """
+    from rlens import __version__
+
+    output_dir = Path(output_dir)
+    try:
+        output_dir.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise ReportError(f"Could not create report directory: {output_dir} ({exc})") from exc
+
+    stamp = datetime.now(UTC).strftime(TIMESTAMP_FORMAT)
+    test_path = output_dir / f"{CHARTESTS_PREFIX}{stamp}.py"
+    json_path = output_dir / f"{CHARTESTS_PREFIX}{stamp}.json"
+    payload = {"target": target, "rlens_version": __version__, **result.to_dict()}
+    try:
+        if result.code:
+            test_path.write_text(result.code, encoding="utf-8")
+        json_path.write_text(
+            json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        )
+    except OSError as exc:
+        raise ReportError(f"Could not write characterization tests: {exc}") from exc
+    return test_path, json_path
 
 
 def write_verify(

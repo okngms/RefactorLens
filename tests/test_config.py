@@ -204,6 +204,16 @@ class TestApplySettings:
             tmp_path, "provider:\n  max_output_tokens: 0\n"
         )
 
+    def test_chartests_defaults(self, tmp_path):
+        chartests = load_config(search_from=tmp_path).chartests
+        assert (chartests.enabled_when_no_tests, chartests.per_method_cases) == (True, 3)
+        assert chartests.python == "python"
+
+    def test_chartests_python_must_be_text(self, tmp_path):
+        assert "`chartests.python` must be a Python executable" in error_for(
+            tmp_path, "chartests:\n  python: ''\n"
+        )
+
     def test_command_must_be_text(self, tmp_path):
         assert error_for(tmp_path, "tests:\n  command: [pytest]\n") == (
             "`tests.command` must be a shell command as a string, e.g. 'pytest -q'"

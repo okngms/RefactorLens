@@ -37,6 +37,8 @@ Two things are easy to confuse:
 
 **Two `tests/` directories.** The root one tests RefactorLens. The one inside
 `examples/messy_project/` tests the *fixture* — see below for why that matters.
+`examples/untested_project/` deliberately has no tests: it is the fixture for
+`apply`'s characterization gate.
 
 ---
 
@@ -97,6 +99,9 @@ src/rlens/
 │   ├── gate.py             Behaviour gate level 1: the user's test command, with a timeout
 │   ├── prompts.py          Patch request (no predictions in it) and reply parser
 │   └── runner.py           The whole run: worktree, patch, one repair, gate, commit, measure
+│
+├── chartests/              v2.4: characterization tests for projects without tests
+│   └── generator.py        Request, parse, validate on unchanged code (prune, rerun), gate level 2
 │
 └── report/                 Everything the user sees or reads later
     ├── terminal.py         scan tables
@@ -215,6 +220,8 @@ tests/
 ├── test_apply_prompts.py   Patch request carries no prediction; reply parser; repair prompt
 ├── test_apply_runner.py    apply end to end with a fake provider: improved, broken, rejected
 ├── test_apply_cli.py       rlens apply: report, dry run, target choice, preconditions
+├── test_chartests.py       Characterization tests: prompt, pruning, rerun, gate level 2
+├── test_apply_chartests.py apply on examples/untested_project: gate level 2, no_gate, rlens chartests
 ├── apply_support.py        Shared project and helpers for the apply tests
 ├── test_metric_edges.py    Real-world idioms: decorators, @overload, except*, string annotations
 ├── test_properties.py      Metric relations on generated code (hypothesis, deterministic)

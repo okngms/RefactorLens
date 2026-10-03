@@ -7,6 +7,30 @@ derlemeden önce karşılaştırıyor. İçerik: `CHANGELOG.md` 2.3.0. Önceki: 
 (2026-09-23), v2.1.0 (2026-09-22), v2.0.0 (2026-09-10).
 
 ## Bitenler
+- **v2.4 Aşama 2 — `chartests` ve davranış kapısı 2.0** (kararlar `docs/02`
+  Aşama 2 durum notunda).
+  - Yeni: `src/rlens/chartests/generator.py` (istem, ayrıştırma, ön
+    doğrulama: geçmeyen test fonksiyonu atılır, kalanlar ikinci koşuda da
+    geçmeli; kapı seviye 2), `apply` testsiz projede kapı 2 ile çalışıyor
+    (`no_gate` sonucu), `rlens chartests` komutu (`reports/chartests-*.py`),
+    config `chartests` (`enabled_when_no_tests`, `per_method_cases`,
+    `python`), fikstür `examples/untested_project` (Stock: NOM 6, WMC 18,
+    LCOM4 1; elle hesaplandı, testle sabit).
+  - **Kabul (gerçek Groq):** 15/15 test mevcut kodda geçti, patch kapı 2'den
+    geçti; sonuç `mixed` (WMC 18→15, LCOM4 1→2, DCC 0→1), tahmin 2/2.
+    Kullanıcının deposu temiz, commit tek dosya.
+  - Test yazarken bulunan: kavrayışa çevirmek CC'yi düşürmez (`for`/`if`
+    sayılır); ilk test örneği bu yüzden `unchanged` çıktı ve örnek
+    düzeltildi. Gerçek koşuda model aynı hatayı yaptı (öneri 2: WMC 18→19).
+  - README: testsiz proje ve `rlens chartests`; "kodunu çalıştırmaz"
+    maddesine ikinci istisna (model yazımı test kodu, worktree'de).
+  - Açık: kapı seviye 3 (hypothesis eşdeğerlik, opsiyonel); `tests.command`
+    ile chartests'in birlikte kullanımı.
+  - Davranış değişikliği: `tests.command` yokken `apply` artık reddetmiyor,
+    kapı 2'ye geçiyor (`chartests.enabled_when_no_tests` varsayılan true);
+    eski reddetme testi buna göre güncellendi.
+  - Durum: 1786 paket testi (10 atlandı), 91 fikstür testi, ruff temiz; paket
+    test süresi ~105 sn.
 - **v2.4 Aşama 1 — `rlens apply`** (`docs/02` §11; kararlar `docs/02` Aşama 1
   durum notunda).
   - Yeni: `apply/prompts.py` (patch istemi `expected_effect` taşımaz; tek
@@ -765,15 +789,16 @@ framework deyiminden geliyor.**
   orkestrasyon modülleri.
 
 ## Sıradaki iş
-**v2.4 sürüyor** (planlanan v3; `docs/02`). Aşama 0 ve 1 bitti. Sıradaki:
-**Aşama 2 — `chartests` ve davranış kapısı 2.0**: testsiz hedefler için
-LLM'e karakterizasyon testleri yazdırmak; testler refactoring'den önce
-üretilir ve mevcut kodda geçmek zorundadır, geçmeyenler atılır; testsiz
-projede `apply` bu seviyeyi zorunlu tutar; seviye 3 (hypothesis eşdeğerlik)
-opsiyonel. **Bitti ⇔** testsiz bir fikstürde (`examples/untested_project`)
-`apply` kapı 2 ile çalışıyor; üretilen testlerin mevcut kodda geçme oranı
-raporlanıyor. Sonra Aşama 3 (`loop`), 4 (tür tespiti, typed), 5
-(`diff`/Action), 6 (LensBench, FINDINGS-3).
+**v2.4 sürüyor** (planlanan v3; `docs/02`). Aşama 0, 1 ve 2 bitti.
+Sıradaki: **Aşama 3 — `loop` ve kalibrasyon** (`docs/02` §4): `advise →
+apply → verify → geri besleme → advise` döngüsü, `--max-iter` (vars. 3);
+geri besleme bloğu yeni bir prompt modülünde (`advise/prompts.py` donmuş);
+durma koşulları (tüm tahminler doğru ve kapı geçti / max-iter / bütçe);
+iterasyon başına tahmin doğruluğu, kapı geçme oranı, `suspicious` oranı,
+maliyet. Kalibrasyon v2'de zaten var (Brier/ECE); iterasyon başına
+raporlanacak. **Bitti ⇔** 3 iterasyonluk koşu kaydediliyor; iterasyon
+başına metrikler raporda; Brier altın değerle test ediliyor. Sonra Aşama 4
+(tür tespiti, typed), 5 (`diff`/Action), 6 (LensBench, FINDINGS-3).
 
 Bu arada açık kalan, küçük ve bağımsız işler: `report.terminal`'deki eşik
 mantığını taşımak ve `analysis`'in `importlinter` çağrısını sınıra çekmek

@@ -31,8 +31,9 @@ from rlens.analysis.architecture import analyse_project
 from rlens.analysis.model import SCHEMA_VERSION
 from rlens.analysis.scanner import scan_project, scan_project_with_sources
 from rlens.apply.prompts import SYSTEM_INSTRUCTION as APPLY_SYSTEM_INSTRUCTION
-from rlens.apply.runner import preview_prompt, run_apply
+from rlens.apply.runner import preview_chartests, preview_prompt, run_apply, run_chartests_only
 from rlens.apply.worktree import ApplyError
+from rlens.chartests.generator import SYSTEM_INSTRUCTION as CHARTESTS_SYSTEM_INSTRUCTION
 from rlens.config import ConfigError, load_config
 from rlens.explain.explainer import request_explanation
 from rlens.explain.prompts import SYSTEM_INSTRUCTION as EXPLAIN_SYSTEM_INSTRUCTION
@@ -43,7 +44,7 @@ from rlens.llm.cache import ResponseCache, prompt_hash
 from rlens.providers import PROVIDERS, ProviderError, get_provider, load_env_file
 from rlens.providers.base import ProviderTruncated
 from rlens.report.advice import render_advice
-from rlens.report.apply import render_apply
+from rlens.report.apply import chartests_line, render_apply
 from rlens.report.architecture import render_architecture
 from rlens.report.explain import render_explanation, render_template
 from rlens.report.files import (
@@ -54,6 +55,7 @@ from rlens.report.files import (
     write_advice,
     write_apply,
     write_arch,
+    write_chartests,
     write_explain,
     write_explain_template,
     write_report,
@@ -930,6 +932,89 @@ def apply(
             raise _fail(str(exc)) from exc
         console.print(f"[dim]Report: {markdown_path}[/dim]")
         console.print(f"[dim]Machine-readable: {json_path}[/dim]")
+
+
+@app.command()
+def chartests(
+    path: Annotated[
+        Path,
+        typer.Argument(
+            exists=True,
+            file_okay=False,
+            dir_okay=True,
+            readable=True,
+            help="Project directory, inside a git repository.",
+        ),
+    ],
+    target: Annotated[
+        str, typer.Option("--target", "-t", help="Class to characterize (module:Name).")
+    ],
+    config: Annotated[
+        Path | None,
+        typer.Option("--config", "-c", exists=True, dir_okay=False, help="Path to rlens.yaml."),
+    ] = None,
+    provider: Annotated[
+        str | None, typer.Option("--provider", "-p", help="Override the configured provider.")
+    ] = None,
+    model: Annotated[
+        str | None, typer.Option("--model", "-m", help="Override the configured model name.")
+    ] = None,
+    output_dir: Annotated[
+        Path | None,
+        typer.Option("--output-dir", "-o", help="Report directory (overrides the config)."),
+    ] = None,
+    no_cache: Annotated[
+        bool, typer.Option("--no-cache", help="Ignore the response cache and always call.")
+    ] = False,
+    dry_run: Annotated[
+        bool, typer.Option("--dry-run", help="Print the request and stop. Needs no API key.")
+    ] = False,
+) -> None:
+    """Write tests that pin down what a class does today, kept only if they pass."""
+    try:
+        cfg = load_config(config, search_from=path)
+    except ConfigError as exc:
+        raise _fail(str(exc)) from exc
+    if provider is not None:
+        if provider not in PROVIDERS:
+            raise _fail(
+                f"Unknown provider '{provider}'. Available: {', '.join(sorted(PROVIDERS))}."
+            )
+        cfg = replace(cfg, provider=replace(cfg.provider, name=provider))
+    if model is not None:
+        cfg = replace(cfg, provider=replace(cfg.provider, model=model))
+
+    try:
+        if dry_run:
+            console.print("[dim]--- system ---[/dim]")
+            console.print(CHARTESTS_SYSTEM_INSTRUCTION, markup=False, highlight=False)
+            console.print("[dim]--- user ---[/dim]")
+            console.print(preview_chartests(path, target, cfg), markup=False, highlight=False)
+            return
+        load_env_file(path)
+        adapter = get_provider(cfg.provider)
+        result = run_chartests_only(
+            path,
+            target,
+            cfg,
+            adapter,
+            cache=_build_cache(cfg, path, disabled=no_cache),
+            budget=Budget(cfg.budget),
+        )
+    except ApplyError as exc:
+        raise _fail(str(exc)) from exc
+    except (ProviderError, BudgetExceeded) as exc:
+        raise _fail(str(exc)) from exc
+
+    console.print(chartests_line(result.to_dict()))
+    target_dir = Path(output_dir) if output_dir else path / cfg.scan.output_dir
+    try:
+        test_path, json_path = write_chartests(result, target, target_dir)
+    except ReportError as exc:
+        raise _fail(str(exc)) from exc
+    if result.code:
+        console.print(f"Tests: {test_path} — review them, then move them into your test suite.")
+    console.print(f"[dim]Machine-readable: {json_path}[/dim]")
 
 
 def _build_cache(cfg, path: Path, *, disabled: bool) -> ResponseCache:

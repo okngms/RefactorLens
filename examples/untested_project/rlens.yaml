@@ -1,0 +1,14 @@
+# Testsiz fikstür: `rlens apply` burada `tests.command` olmadan çalışır ve
+# davranış kapısı karakterizasyon testleridir (docs/02 §3, Aşama 2).
+scan:
+  include: ["."]
+  output_dir: reports/
+
+# Stock'un WMC'si 18; varsayılan eşik (50) onu `advise`'a seçtirmez. Fikstür
+# eşiği sabitler ki gösterim ve uçtan uca deneme aynı hedefi alsın.
+thresholds:
+  wmc: {warn: 15}
+
+chartests:
+  enabled_when_no_tests: true
+  per_method_cases: 3

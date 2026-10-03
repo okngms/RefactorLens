@@ -11,7 +11,7 @@ from rich.console import Console
 from rich.markup import escape
 
 from rlens import __version__
-from rlens.apply.runner import BROKEN, REJECTED, ApplyResult
+from rlens.apply.runner import BROKEN, NO_GATE, REJECTED, ApplyResult
 
 #: Terminalde gösterilen test çıktısı satırı; tamamı raporda.
 TAIL_SHOWN = 12
@@ -35,6 +35,20 @@ def _accuracy(result: ApplyResult) -> str | None:
     return f"{predictions['hits']}/{verifiable}"
 
 
+def chartests_line(chartests: dict) -> str:
+    """Seviye 2'nin özeti: kaç test üretildi, kaçı mevcut kodda geçti."""
+    generated, kept = chartests["generated"], chartests["kept"]
+    if not generated:
+        return f"characterization tests: none usable ({escape(chartests.get('reason') or '')})"
+    line = (
+        f"characterization tests: {kept} of {generated} tests pass on the current code "
+        f"({chartests['pass_rate']:.0%})"
+    )
+    if not kept and chartests.get("reason"):
+        line += f"; {escape(chartests['reason'])}"
+    return line
+
+
 def render_apply(result: ApplyResult, console: Console) -> None:
     console.print(
         f"[bold]apply[/bold] {escape(result.target)}  suggestion {result.suggestion_index}: "
@@ -47,6 +61,8 @@ def render_apply(result: ApplyResult, console: Console) -> None:
     else:
         console.print(f"patch accepted on attempt {result.attempts}")
 
+    if result.chartests is not None:
+        console.print(chartests_line(result.chartests))
     if result.gate is not None:
         state = "[green]passed[/]" if result.gate.passed else "[red]failed[/]"
         detail = "timed out" if result.gate.timed_out else f"exit {result.gate.exit_code}"
@@ -72,6 +88,11 @@ def render_apply(result: ApplyResult, console: Console) -> None:
         console.print(f"failed worktree kept for inspection on {escape(result.branch)}")
     else:
         console.print("[dim]no branch was kept; your working tree is untouched.[/dim]")
+    if result.outcome == NO_GATE:
+        console.print(
+            "[yellow]No characterization test passed on the current code, so the change "
+            "could not be gated and no patch was requested.[/]"
+        )
 
 
 def apply_markdown(result: ApplyResult, *, root: str, generated_at: str) -> str:
@@ -89,6 +110,18 @@ def apply_markdown(result: ApplyResult, *, root: str, generated_at: str) -> str:
         "> RefactorLens never merges. Review the branch and merge it yourself, or delete it.",
         "",
     ]
+    if result.chartests is not None:
+        chartests = result.chartests
+        lines += [
+            "## Characterization tests (gate level 2)",
+            "",
+            f"- Generated: {chartests['generated']}, kept: {chartests['kept']}, "
+            f"pass rate on the current code: {chartests['pass_rate']}",
+            f"- Dropped: {', '.join(chartests['dropped']) or 'none'}",
+            "",
+        ]
+        if chartests.get("code"):
+            lines += ["```python", chartests["code"].rstrip("\n"), "```", ""]
     if result.rejections:
         lines += ["## Rejected replies", "", *(f"- {reason}" for reason in result.rejections), ""]
     if result.patch:

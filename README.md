@@ -304,8 +304,35 @@ What it guarantees:
   predictions, so the patch cannot be written to make them come true.
 
 Outcomes are `verify`'s (`improved`, `regressed`, `mixed`, `unchanged`,
-`suspicious`) plus `broken` (tests failed) and `rejected` (no applicable
-patch). Reports go to `reports/apply-*.json` and `.md`.
+`suspicious`) plus `broken` (tests failed), `rejected` (no applicable patch)
+and `no_gate` (see below). Reports go to `reports/apply-*.json` and `.md`.
+
+**A project without tests.** If `tests.command` is not set and
+`chartests.enabled_when_no_tests` is true (the default), `apply` first asks the
+model for *characterization tests*: pytest tests that record what the target
+class does today. They run on the unchanged code; every test that fails is
+dropped, the rest must pass a second run too, and the pass rate is reported.
+Those tests then gate the patch. If none of them passes, no patch is requested
+(`no_gate`). The tests live only in the worktree and are never committed.
+
+```bash
+rlens chartests . --target inventory.stock:Stock   # just the tests, kept if they pass
+```
+
+`rlens chartests` writes the surviving tests to `reports/chartests-*.py`;
+moving them into your test suite is up to you. Characterization tests pin
+down current behaviour, bugs included; they do not claim it is correct.
+
+```yaml
+chartests:
+  enabled_when_no_tests: true
+  per_method_cases: 3
+  python: python    # your project's Python, with pytest installed
+```
+
+`chartests.python` is your project's interpreter, not RefactorLens's: when
+RefactorLens is installed with pipx, your dependencies are not in its
+environment.
 
 ### Reading the measurements back (experimental)
 
@@ -659,10 +686,12 @@ run, three targets: an example, not a finding. Details:
 
 ## What RefactorLens does not do
 
-- **It does not run your code**, with one deliberate exception. Files are
-  parsed with `ast`, never executed. `apply` runs the test command you put in
-  `rlens.yaml`, in an isolated worktree, with a timeout; it never runs your code
-  in any other way.
+- **It does not run your code**, with two deliberate exceptions, both in an
+  isolated worktree and with a timeout. Files are parsed with `ast`, never
+  executed. `apply` runs the test command you put in `rlens.yaml`. `apply` on a
+  project without tests, and `rlens chartests`, run **test code written by the
+  model** against your code — use `--dry-run` to see the request first, and do
+  not use them on code you would not run a stranger's tests against.
 - **It does not merge anything.** `advise` suggests and `verify` checks. `apply`
   writes a patch to a separate branch after your tests pass; reviewing and
   merging it is a human's job, on purpose.
