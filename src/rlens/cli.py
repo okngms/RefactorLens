@@ -33,6 +33,9 @@ from rlens.analysis.scanner import scan_project, scan_project_with_sources
 from rlens.apply.prompts import SYSTEM_INSTRUCTION as APPLY_SYSTEM_INSTRUCTION
 from rlens.apply.runner import preview_chartests, preview_prompt, run_apply, run_chartests_only
 from rlens.apply.worktree import ApplyError
+from rlens.bench.report import load_results, report_markdown
+from rlens.bench.runner import estimate_calls, plan, run_bench
+from rlens.bench.suite import BenchError, load_suite
 from rlens.chartests.generator import SYSTEM_INSTRUCTION as CHARTESTS_SYSTEM_INSTRUCTION
 from rlens.config import ConfigError, load_config
 from rlens.diff.baseline import BASELINE_FILE, findings, write_baseline
@@ -1230,6 +1233,89 @@ def baseline_update(
     accepted = findings(scan_project(path, cfg).to_dict(), cfg)
     written = write_baseline(path, accepted)
     console.print(f"{len(accepted)} finding(s) accepted in {written}. Commit it with your code.")
+
+
+bench_app = typer.Typer(help="LensBench: measure prediction accuracy across models.")
+app.add_typer(bench_app, name="bench")
+
+
+@bench_app.command("run")
+def bench_run(
+    suite: Annotated[
+        Path, typer.Option("--suite", exists=True, dir_okay=False, help="Suite file (YAML).")
+    ],
+    provider: Annotated[str | None, typer.Option("--provider", "-p", help="Provider.")] = None,
+    model: Annotated[str | None, typer.Option("--model", "-m", help="Model name.")] = None,
+    root: Annotated[
+        Path,
+        typer.Option("--root", exists=True, file_okay=False, help="Base for the suite's projects."),
+    ] = Path("."),
+    out: Annotated[Path | None, typer.Option("--out", "-o", help="Results directory.")] = None,
+    dry_run: Annotated[
+        bool, typer.Option("--dry-run", help="Print the plan and its call count, call nothing.")
+    ] = False,
+) -> None:
+    """Run every target x condition x repeat of a suite as an `rlens loop`."""
+    try:
+        loaded = load_suite(suite)
+    except BenchError as exc:
+        raise _fail(str(exc)) from exc
+    low, high = estimate_calls(loaded)
+    runs = len(plan(loaded))
+    console.print(
+        f"{loaded.name}: {len(loaded.targets)} targets x {len(loaded.conditions)} conditions x "
+        f"{loaded.repeats} repeats = {runs} runs, between {low} and {high} model calls. "
+        "No response cache: repeats are independent samples."
+    )
+    if dry_run:
+        return
+    if not provider or not model:
+        raise _fail("Give --provider and --model; a benchmark result is per model.")
+    if provider not in PROVIDERS:
+        raise _fail(f"Unknown provider '{provider}'. Available: {', '.join(sorted(PROVIDERS))}.")
+    from rlens.config import ProviderConfig
+
+    load_env_file(Path(root))
+    try:
+        adapter = get_provider(
+            ProviderConfig(
+                name=provider, model=model, base_url=None, timeout_seconds=120, max_retries=3
+            )
+        )
+    except ProviderError as exc:
+        raise _fail(str(exc)) from exc
+    slug = "".join(ch if ch.isalnum() or ch in "-." else "-" for ch in f"{provider}-{model}")
+    target_dir = out or Path(root) / "bench" / "results" / slug
+
+    def progress(done: int, total: int, unit: dict) -> None:
+        console.print(
+            f"[dim]{done}/{total} {unit['target']} {unit['condition']} #{unit['repeat']}[/dim]"
+        )
+
+    try:
+        path = run_bench(loaded, root, provider, model, adapter, target_dir, progress=progress)
+    except (BenchError, ApplyError, ProviderError) as exc:
+        raise _fail(f"{exc} Finished runs are kept; rerun the same command to resume.") from exc
+    console.print(f"Results: {path}")
+
+
+@bench_app.command("report")
+def bench_report(
+    results: Annotated[
+        list[Path], typer.Argument(exists=True, dir_okay=False, help="Result files.")
+    ],
+    output: Annotated[Path | None, typer.Option("--output", "-o", help="Markdown file.")] = None,
+) -> None:
+    """Tables and the pre-registered verdicts for one or more result files."""
+    try:
+        text = report_markdown(load_results(results))
+    except BenchError as exc:
+        raise _fail(str(exc)) from exc
+    if output:
+        output.write_text(text, encoding="utf-8")
+        console.print(f"Report: {output}")
+    else:
+        _emit(text)
 
 
 def _build_cache(cfg, path: Path, *, disabled: bool) -> ResponseCache:

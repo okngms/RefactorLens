@@ -259,6 +259,15 @@ Geri besleme bloğu, durma koşulları, `confidence` alanı, Brier hesabı.
 **Bitti ⇔** örnek PR'da yorum üretiliyor; ratchet mevcut ihlalleri geçirip yeni ihlali kırıyor (test); Action marketplace'te yayınlandı.
 
 ### Aşama 6 — LensBench ve FINDINGS-3
+
+> **Durum (2026-10-03): altyapı ve ön kayıt taslağı hazır; koşu yok.**
+> `src/rlens/bench/`, `rlens bench run|report`, suite `bench/lensbench-v1`
+> (4 hedef × 4 koşul × 3 tekrar = 48 birim; model başına 108-306 çağrı).
+> Ön kayıt: `docs/lensbench-v1-onkayit.md` (H1, H3, H4, yeni H5 kalıntı;
+> H2 ertelendi — iki kapıyı aynı patch'e uygulamayı ister). Karar kuralları
+> `bench/report.py`'de kodlu. Kullanıcı kararı: modeller ve bütçe; sonra ön
+> kayıt donar ve koşular başlar. Plandan sapma: açık kaynak hedefler v1'de
+> yok (testleri bağımlılık kurulumu ister).
 Hedef seti dondurma, prosedür, `bench run/report`, en az 4 model (≥3 ücretsiz/lokal + 1 pahalı kontrol), tüm koşullar.
 **H1:** Geri besleme yapısal tahmin doğruluğunu iterasyonlar boyunca artırır.
 **H2:** Karakterizasyon testleri davranış tutarsızlığı yakalama oranını artırır (kapı 1 vs kapı 2).

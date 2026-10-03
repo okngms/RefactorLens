@@ -32,6 +32,14 @@ regenerate any `before` report with the new version.
   `.rlens-baseline.json` (or by the base revision when there is none);
   `rlens baseline update` writes the file. `--fail-on regression` fails when a
   metric got worse.
+- `rlens bench run` / `rlens bench report` (LensBench): runs a suite's
+  targets × conditions × repeats as `rlens loop` runs on frozen copies of the
+  projects, without a response cache, journalling each run so an interrupted
+  benchmark resumes; the report gives per-model, per-metric and per-condition
+  accuracy and the pre-registered verdicts. Suite `bench/lensbench-v1`.
+  `--dry-run` states the call count. No results are included yet.
+- `rlens loop` takes the `advise` A/B conditions (architectural context,
+  metric rules) and records each applied suggestion's status.
 - A GitHub Action in `action/` that runs `rlens diff` on pull requests,
   comments with the result and applies the `fail-on` gate.
 - Refactoring kind detection in `apply` and `loop` reports: `extract_method`,

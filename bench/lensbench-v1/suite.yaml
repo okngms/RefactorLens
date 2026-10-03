@@ -1,0 +1,30 @@
+# LensBench v1 — hedef seti ve koşullar.
+# Ön kayıt: docs/lensbench-v1-onkayit.md. İlk gerçek çağrıdan sonra bu dosya
+# değişmez; değişirse suite adı (sürümü) artar ve önceki sonuçlarla
+# birleştirilmez (rapor, proje ve istem özetleri farklı sonuçları reddeder).
+name: lensbench-v1
+repeats: 3
+temperature: 0.2
+
+# Her koşul bir `rlens loop` koşusudur. `base`: v2'nin varsayılanı.
+conditions:
+  - {name: base, arch_context: true, metric_rules: false, max_iter: 1}
+  - {name: no-arch, arch_context: false, metric_rules: false, max_iter: 1}
+  - {name: metric-rules, arch_context: true, metric_rules: true, max_iter: 1}
+  - {name: loop3, arch_context: true, metric_rules: false, max_iter: 3}
+
+# `project`: depo köküne göre; geçici bir git deposuna kopyalanıp dondurulur.
+# `tests`: kopyanın kökünde koşar; `{python}` koşuyu yapan yorumlayıcıdır.
+# Testsiz proje `tests` vermez: kapı karakterizasyon testleridir.
+targets:
+  - project: examples/messy_project
+    target: god:OrderManager
+    tests: "{python} -m pytest tests -q -p no:cacheprovider"
+  - project: examples/messy_project
+    target: utils:classify_order
+    tests: "{python} -m pytest tests -q -p no:cacheprovider"
+  - project: examples/layered_project
+    target: src.services.order_service:OrderService
+    tests: "{python} -m pytest tests -q -p no:cacheprovider"
+  - project: examples/untested_project
+    target: inventory.stock:Stock

@@ -81,6 +81,8 @@ class Iteration:
     outcome: str | None = None
     branch: str | None = None
     gate_passed: bool | None = None
+    advice_status: str | None = None
+    """Uygulanan önerinin durumu (`linked`/`unlinked`/`rejected`); kısıt uyumu ölçüsü."""
     hits: int = 0
     misses: int = 0
     unverifiable: int = 0
@@ -111,6 +113,7 @@ class Iteration:
             "outcome": self.outcome,
             "branch": self.branch,
             "gate_passed": self.gate_passed,
+            "advice_status": self.advice_status,
             "hits": self.hits,
             "misses": self.misses,
             "unverifiable": self.unverifiable,
@@ -194,8 +197,15 @@ def run_loop(
     max_iter: int | None = None,
     cache=None,
     budget: Budget | None = None,
+    arch_context: bool = True,
+    metric_rules: bool = False,
 ) -> LoopResult:
-    """Döngüyü koşar. Kullanıcının çalışma ağacı hiçbir iterasyonda değişmez."""
+    """Döngüyü koşar. Kullanıcının çalışma ağacı hiçbir iterasyonda değişmez.
+
+    `arch_context` / `metric_rules`: `advise`'ın A/B eksenleri (`--no-arch-context`,
+    `--metric-rules`); LensBench koşulları bunları değiştirir.
+    """
+    scheme = config.arch.scheme if arch_context and config.arch is not None else None
     limit = max_iter or (config.loop.max_iter if config.loop else 3)
     budget = budget or Budget(config.budget)
     context = _context(path, target, config)
@@ -207,13 +217,21 @@ def run_loop(
         calls, tokens_in, tokens_out = budget.calls, budget.tokens_in, budget.tokens_out
         try:
             advice, _ = request_advice(
-                provider, context, config, cache=cache, budget=budget, feedback=feedback
+                provider,
+                context,
+                config,
+                cache=cache,
+                budget=budget,
+                scheme=scheme,
+                metric_rules=metric_rules,
+                feedback=feedback,
             )
             if not advice.is_structured or not advice.suggestions:
                 item.outcome = NO_SUGGESTION
                 result.iterations.append(item)
                 result.stop_reason = NO_SUGGESTION
                 break
+            item.advice_status = advice.suggestions[0].status
             document = {"advices": [advice.to_dict()]}
             applied = run_apply(
                 path, document, target, 1, config, provider, cache=cache, budget=budget

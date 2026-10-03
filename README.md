@@ -389,6 +389,24 @@ already has, but nothing new gets in. `--fail-on regression` fails when a
 metric got worse. A GitHub Action that comments on pull requests lives in
 [`action/`](https://github.com/okngms/RefactorLens/tree/main/action).
 
+### LensBench (new, v2.4; no results yet)
+
+```bash
+rlens bench run --suite bench/lensbench-v1/suite.yaml --dry-run       # plan and call count
+rlens bench run --suite bench/lensbench-v1/suite.yaml -p groq -m <model>
+rlens bench report bench/results/*/lensbench-v1-*.json
+```
+
+LensBench runs every target × condition × repeat of a suite as an
+`rlens loop` and measures prediction accuracy, calibration, constraint
+compliance, metric gaming and accuracy per refactoring kind — not refactoring
+success. Projects are copied into throwaway git repositories and frozen by a
+content hash; results carry suite, project and prompt hashes, and the report
+refuses to mix results that differ in any of them. The hypotheses and their
+decision rules were written before any run:
+[lensbench-v1-onkayit.md](https://github.com/okngms/RefactorLens/blob/main/docs/lensbench-v1-onkayit.md).
+No results have been collected yet.
+
 ### Reading the measurements back (experimental)
 
 ```bash

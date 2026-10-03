@@ -10,6 +10,8 @@ dist/
 .hypothesis/
 # mutation.py ara sonuçları (kesilen koşu kaldığı yerden sürer)
 experiments/hardening/.mutation-journal.jsonl
+# LensBench ara kaydı (kesilen koşu sürer); nihai sonuç JSON'u commit'lenir
+bench/results/**/journal.jsonl
 .env
 reports/
 

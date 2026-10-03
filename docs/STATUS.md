@@ -7,6 +7,23 @@ derlemeden önce karşılaştırıyor. İçerik: `CHANGELOG.md` 2.3.0. Önceki: 
 (2026-09-23), v2.1.0 (2026-09-22), v2.0.0 (2026-09-10).
 
 ## Bitenler
+- **v2.4 Aşama 6 — LensBench altyapısı ve ön kayıt taslağı** (koşu yok).
+  - Ön kayıt `docs/lensbench-v1-onkayit.md`: H1 (geri besleme), H3 (aşırı
+    güven), H4 (tür), **H5 yeni** (kalıntı: NOM/LCOM4 "down" sarmalayıcı
+    kalınca daha çok tutmaz — Aşama 4 bunu ölçülebilir yaptı); H2 ertelendi.
+    Eşikler `src/rlens/bench/report.py` sabitleriyle birebir.
+  - Yeni: `src/rlens/bench/{suite,runner,report}.py`, `rlens bench run`
+    (`--dry-run` çağrı sayısı), `rlens bench report`, suite
+    `bench/lensbench-v1/suite.yaml`. Projeler geçici git depolarına
+    kopyalanıp içerik özetiyle donar; önbellek yok; birim başına kayıt
+    (`journal.jsonl`, git dışı), kesilen koşu sürer; rapor özetleri farklı
+    sonuçları birleştirmez.
+  - `run_loop`: `arch_context`, `metric_rules` parametreleri; iterasyonda
+    `advice_status` (kısıt uyumu).
+  - Testler: `test_bench.py` 18 (gerçek suite şekli ve maliyeti, hedeflerin
+    varlığı, koşu/devam, kaynak projeye dokunulmaması, karar kuralları).
+  - **Kullanıcı kararı bekleyen:** model listesi (≥ 4) ve bütçe; ön kayıt §5.
+  - Durum: 1848 paket testi (10 atlandı), 91 fikstür testi, ruff temiz.
 - **v2.4 Aşama 5 — `rlens diff`, baseline/ratchet, GitHub Action** (kararlar
   `docs/02` Aşama 5 durum notunda).
   - Yeni: `src/rlens/diff/` (ref'ler depo dışında ayrık worktree'lerde;
@@ -840,15 +857,13 @@ framework deyiminden geliyor.**
 ## Sıradaki iş
 **v2.4 sürüyor** (planlanan v3; `docs/02`). Aşama 0-5 bitti (Aşama 4'ün
 tip çıkarımı ve Aşama 5'in Marketplace yayını kullanıcı kararı bekliyor).
-Sıradaki: **Aşama 6 — LensBench ve FINDINGS-3** (`docs/02` §7): hedef setini
-dondurma (layered + messy + seçilmiş açık kaynak projelerin dondurulmuş
-commit'leri), prompt sürümü hash'li, koşullar (arch-context on/off,
-metric-rules on/off, loop 1/3 iter), hedef başına ≥3 tekrar, `rlens bench
-run/report`, en az 4 model (≥3 ücretsiz/lokal + 1 pahalı kontrol), H1-H4.
-Bu aşama **ön kayıt** ister (protokol sonuçtan önce yazılır, AGENTS Faz 5
-kuralı) ve gerçek model koşuları/maliyet içerir: koşulara başlamadan önce
-ön kayıt belgesi ve bütçe kullanıcıyla netleştirilmeli. Yayın: Aşama 0-5
-2.4.0 olarak çıkabilir mi, yoksa LensBench ile mi — kullanıcı kararı.
+Sıradaki: **Aşama 6'nın koşuları** — kullanıcı modelleri ve bütçeyi
+seçince ön kayıt §5 doldurulur, belge donar (ilk çağrıdan sonra değişmez),
+`rlens bench run` her model için koşulur, `rlens bench report` ile
+FINDINGS-3 yazılır. Kullanıcı kararı bekleyenler: (1) LensBench modelleri ve
+bütçesi; (2) tip çıkarımı (`[typed]`, kilitli "yalnızca `ast`" ile çelişir);
+(3) Action'ın Marketplace yeri (kök/ayrı depo); (4) yayın: Aşama 0-5 + bench
+altyapısı 2.4.0 olarak şimdi mi, sonuçlarla mı.
 
 Bu arada açık kalan, küçük ve bağımsız işler: `report.terminal`'deki eşik
 mantığını taşımak ve `analysis`'in `importlinter` çağrısını sınıra çekmek
