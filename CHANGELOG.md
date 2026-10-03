@@ -24,6 +24,14 @@ regenerate any `before` report with the new version.
   `reports/chartests-*.py`. This runs model-written test code in an isolated
   worktree; `--dry-run` shows the request.
 - `examples/untested_project`: a fixture with no tests, for the above.
+- `rlens loop`: `advise` → `apply` → measure, repeated with a feedback block
+  that tells the model which of its predictions held, whether the tests passed
+  and whether public members were deleted. Each iteration starts from HEAD.
+  Stops when every prediction held and the tests passed, at `loop.max_iter`
+  (3), or when the budget runs out. Per-iteration accuracy, gate result,
+  suspicious rate, Brier score and calls go to `reports/loop-*.json`.
+  The feedback carries directions only, never threshold numbers, and without
+  feedback the advice request is unchanged.
 - `provider.max_output_tokens`: the per-reply output limit sent to the
   provider (by default the provider's own). `apply.max_output_tokens`
   (16384) is used for patch requests.

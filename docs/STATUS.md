@@ -7,6 +7,21 @@ derlemeden önce karşılaştırıyor. İçerik: `CHANGELOG.md` 2.3.0. Önceki: 
 (2026-09-23), v2.1.0 (2026-09-22), v2.0.0 (2026-09-10).
 
 ## Bitenler
+- **v2.4 Aşama 3 — `loop` ve kalibrasyon** (kararlar `docs/02` Aşama 3 durum
+  notunda).
+  - Yeni: `src/rlens/loop/feedback.py` (yön, kapı, arayüz; eşik yok),
+    `loop/runner.py` (HEAD'den bağımsız iterasyonlar, durma kuralları,
+    iterasyon başına ve toplam doğruluk/kapı/suspicious/Brier/ECE/çağrı),
+    `report/loop.py`, `files.write_loop`, CLI `rlens loop` (`--target`,
+    `--max-iter`, `--dry-run`), config `loop.max_iter` (3).
+    `request_advice(feedback=...)`: verilmezse istem değişmez.
+  - **Kabul (gerçek Groq, layered kopyası):** 3 iterasyon; 2/4, 2/4, broken
+    (kurucu imzası değişti, 43 test hata, kapı reddetti, branch silindi).
+    Brier 0.301 → 0.279. Geri besleme NOM/DCC tahminini değiştirmedi
+    (tek koşu). Kullanıcının deposu temiz.
+  - Plandan sapma: `confidence` zorunlu yapılmadı (AGENTS kilitli kararı).
+  - Durum: 1797 paket testi (10 atlandı), 91 fikstür testi, ruff temiz; paket
+    test süresi ~135 sn.
 - **v2.4 Aşama 2 — `chartests` ve davranış kapısı 2.0** (kararlar `docs/02`
   Aşama 2 durum notunda).
   - Yeni: `src/rlens/chartests/generator.py` (istem, ayrıştırma, ön
@@ -789,16 +804,16 @@ framework deyiminden geliyor.**
   orkestrasyon modülleri.
 
 ## Sıradaki iş
-**v2.4 sürüyor** (planlanan v3; `docs/02`). Aşama 0, 1 ve 2 bitti.
-Sıradaki: **Aşama 3 — `loop` ve kalibrasyon** (`docs/02` §4): `advise →
-apply → verify → geri besleme → advise` döngüsü, `--max-iter` (vars. 3);
-geri besleme bloğu yeni bir prompt modülünde (`advise/prompts.py` donmuş);
-durma koşulları (tüm tahminler doğru ve kapı geçti / max-iter / bütçe);
-iterasyon başına tahmin doğruluğu, kapı geçme oranı, `suspicious` oranı,
-maliyet. Kalibrasyon v2'de zaten var (Brier/ECE); iterasyon başına
-raporlanacak. **Bitti ⇔** 3 iterasyonluk koşu kaydediliyor; iterasyon
-başına metrikler raporda; Brier altın değerle test ediliyor. Sonra Aşama 4
-(tür tespiti, typed), 5 (`diff`/Action), 6 (LensBench, FINDINGS-3).
+**v2.4 sürüyor** (planlanan v3; `docs/02`). Aşama 0-3 bitti. Sıradaki:
+**Aşama 4 — refactoring türü tespiti ve tip çıkarımı** (`docs/02` §5):
+`analysis/refactoring_types.py`, AST/imza diff'inden kural tabanlı
+sınıflandırma (Extract Method, Move Method, Extract Class, Inline, Rename,
+Unknown), her tespit `confidence` ile; `verify`/`apply` raporuna tür;
+fikstürde bilinen refactoring'lerle altın test. Tip çıkarımı (`[typed]`
+extra, jedi/pyright) kilitli "yalnızca `ast`" kararıyla çelişir; opsiyonel
+extra olarak mı yapılacağı kullanıcıya sorulmalı. **Bitti ⇔** 5 tür
+fikstürde doğru sınıflandırılıyor; typed modda CAM `null` oranı ölçülüp
+belgeleniyor. Sonra Aşama 5 (`diff`/Action), 6 (LensBench, FINDINGS-3).
 
 Bu arada açık kalan, küçük ve bağımsız işler: `report.terminal`'deki eşik
 mantığını taşımak ve `analysis`'in `importlinter` çağrısını sınıra çekmek

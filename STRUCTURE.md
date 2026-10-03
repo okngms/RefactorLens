@@ -100,6 +100,10 @@ src/rlens/
 │   ├── prompts.py          Patch request (no predictions in it) and reply parser
 │   └── runner.py           The whole run: worktree, patch, one repair, gate, commit, measure
 │
+├── loop/                   v2.4: advise → apply → measure, with feedback
+│   ├── feedback.py         What the previous attempt did: directions, gate, interface
+│   └── runner.py           Iterations from HEAD, stop rules, per-iteration Brier
+│
 ├── chartests/              v2.4: characterization tests for projects without tests
 │   └── generator.py        Request, parse, validate on unchanged code (prune, rerun), gate level 2
 │
@@ -109,6 +113,7 @@ src/rlens/
     ├── advice.py           advise output, terminal and markdown
     ├── verify.py           verify output, terminal and markdown
     ├── apply.py            apply output, terminal and markdown
+    ├── loop.py             loop output, terminal and markdown
     ├── explain.py          explain output (model and template), terminal and markdown
     └── files.py            Writing and reading JSON/markdown reports
 ```
@@ -221,6 +226,7 @@ tests/
 ├── test_apply_runner.py    apply end to end with a fake provider: improved, broken, rejected
 ├── test_apply_cli.py       rlens apply: report, dry run, target choice, preconditions
 ├── test_chartests.py       Characterization tests: prompt, pruning, rerun, gate level 2
+├── test_loop.py            loop: stop rules, feedback without thresholds, Brier gold value
 ├── test_apply_chartests.py apply on examples/untested_project: gate level 2, no_gate, rlens chartests
 ├── apply_support.py        Shared project and helpers for the apply tests
 ├── test_metric_edges.py    Real-world idioms: decorators, @overload, except*, string annotations

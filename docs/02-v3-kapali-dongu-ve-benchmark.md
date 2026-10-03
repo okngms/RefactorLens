@@ -196,6 +196,23 @@ Karakterizasyon üretimi, ön-doğrulama (mevcut kodda geçmeli), seviye 3 opsiy
 **Bitti ⇔** testsiz bir fikstürde (`examples/untested_project`) `apply` kapı 2 ile çalışıyor; üretilen testlerin mevcut kodda geçme oranı raporlanıyor.
 
 ### Aşama 3 — `loop` ve kalibrasyon
+
+> **Durum (2026-10-03): yapıldı.** `src/rlens/loop/{feedback,runner}.py`,
+> `rlens loop`, config `loop.max_iter`. `request_advice`'a isteğe bağlı
+> `feedback` parametresi (verilmezse istem birebir aynı; `advise/prompts.py`
+> donmuş kaldı). Kabul: layered_project'in git kopyasında gerçek Groq koşusu,
+> 3 iterasyon kaydedildi; iterasyon başına doğruluk 2/4, 2/4, — (3. iterasyon
+> kurucu imzasını değiştirdi, 43 test hata, kapı reddetti); Brier 0.301 →
+> 0.279. Geri besleme "NOM down / DCC up" tahminini değiştirmedi: ikisi de
+> iki iterasyonda `same` (delege eden sarmalayıcılar kaldı). Tek koşu, bulgu
+> değil; H1'in sorusu LensBench'te (Aşama 6). Brier altın değerle test
+> ediliyor (`test_loop.py`). Kararlar:
+> - Her iterasyon HEAD'den bağımsız; değişiklikler üst üste binmez.
+> - Her iterasyonda 1. öneri uygulanır (Faz 5 "öneri 1 her zaman" kuralı).
+> - Geri besleme yalnızca yön taşır, ölçülen değer ve eşik taşımaz;
+>   doğrulanamayan tahmin "yanlış" diye değil "ölçülemedi" diye söylenir.
+> - Kalibrasyon için şemada `confidence` v2'deki gibi opsiyonel kaldı
+>   (AGENTS kilitli kararı; plan "zorunlu" diyordu).
 Geri besleme bloğu, durma koşulları, `confidence` alanı, Brier hesabı.
 **Bitti ⇔** 3 iterasyonluk koşu kaydediliyor; iterasyon başına metrikler raporda; Brier altın değerle test ediliyor.
 

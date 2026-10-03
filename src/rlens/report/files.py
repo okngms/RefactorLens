@@ -25,6 +25,7 @@ VERIFY_PREFIX = "verify-"
 ARCH_PREFIX = "arch-"
 APPLY_PREFIX = "apply-"
 CHARTESTS_PREFIX = "chartests-"
+LOOP_PREFIX = "loop-"
 EXPLAIN_PREFIX = "explain-"
 EXPLAIN_TEMPLATE_PREFIX = "explain-template-"
 TIMESTAMP_FORMAT = "%Y%m%d-%H%M%S"
@@ -320,6 +321,38 @@ def write_chartests(result, target: str, output_dir: Path) -> tuple[Path, Path]:
     except OSError as exc:
         raise ReportError(f"Could not write characterization tests: {exc}") from exc
     return test_path, json_path
+
+
+def write_loop(result, output_dir: Path, *, root: str, generated_at: str) -> tuple[Path, Path]:
+    """`loop` sonucunu JSON ve Markdown olarak yazar.
+
+    Returns:
+        (json_path, markdown_path)
+    """
+    from rlens import __version__
+    from rlens.report.loop import loop_markdown
+
+    output_dir = Path(output_dir)
+    try:
+        output_dir.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise ReportError(f"Could not create report directory: {output_dir} ({exc})") from exc
+
+    stamp = datetime.now(UTC).strftime(TIMESTAMP_FORMAT)
+    json_path = output_dir / f"{LOOP_PREFIX}{stamp}.json"
+    markdown_path = output_dir / f"{LOOP_PREFIX}{stamp}.md"
+    payload = {**result.to_dict(), "root": root, "generated_at": generated_at}
+    payload["rlens_version"] = __version__
+    try:
+        json_path.write_text(
+            json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        )
+        markdown_path.write_text(
+            loop_markdown(result, root=root, generated_at=generated_at), encoding="utf-8"
+        )
+    except OSError as exc:
+        raise ReportError(f"Could not write loop report: {exc}") from exc
+    return json_path, markdown_path
 
 
 def write_verify(

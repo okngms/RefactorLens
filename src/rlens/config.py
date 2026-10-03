@@ -94,6 +94,7 @@ DEFAULTS: dict[str, Any] = {
     # Testsiz projede kapı seviye 2 (`docs/02` §3). `python`: projenin ortamı,
     # rlens'inki değil; pytest kurulu olmalı.
     "chartests": {"enabled_when_no_tests": True, "per_method_cases": 3, "python": "python"},
+    "loop": {"max_iter": 3},
     "thresholds": {
         # Katman bazlı geçersiz kılma: `by_layer.<katman>.<metrik>.<warn|critical>`
         "by_layer": {},
@@ -277,6 +278,11 @@ class ChartestsConfig:
 
 
 @dataclass(frozen=True)
+class LoopConfig:
+    max_iter: int
+
+
+@dataclass(frozen=True)
 class Config:
     provider: ProviderConfig
     scan: ScanConfig
@@ -292,6 +298,7 @@ class Config:
     tests: TestsConfig | None = None
     apply: ApplyConfig | None = None
     chartests: ChartestsConfig | None = None
+    loop: LoopConfig | None = None
     source_path: Path | None = None
 
     def threshold_for(self, metric: str, layer: str | None = None) -> Threshold | None:
@@ -485,6 +492,7 @@ def _reject_unknown_keys(raw: dict[str, Any]) -> None:
         "tests",
         "apply",
         "chartests",
+        "loop",
     ):
         value = raw.get(section)
         if isinstance(value, dict):
@@ -735,6 +743,8 @@ def _build(data: dict[str, Any], source: Path | None) -> Config:
         python=chartests_raw["python"].strip(),
     )
 
+    loop = LoopConfig(max_iter=_as_int(data["loop"]["max_iter"], "loop.max_iter"))
+
     return Config(
         provider=provider,
         scan=scan,
@@ -750,6 +760,7 @@ def _build(data: dict[str, Any], source: Path | None) -> Config:
         tests=tests,
         apply=apply,
         chartests=chartests,
+        loop=loop,
         source_path=source,
     )
 

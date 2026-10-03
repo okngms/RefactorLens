@@ -532,8 +532,12 @@ def request_advice(
     scheme=None,
     metric_rules: bool = False,
     cache_salt: str = "",
+    feedback: str | None = None,
 ) -> tuple[Advice, list[str]]:
     """Bir hedef için modelden öneri ister ve yanıtı doğrular.
+
+    `feedback`: `loop`'un önceki denemenin sonucunu anlatan bloğu (v2.4). Verilmezse
+    istem birebir aynıdır; mevcut önbellek anahtarları ve deney istemleri etkilenmez.
 
     Ayrıştırma başarısız olursa **bir kez** onarım denenir. O da başarısız
     olursa ham metin `unstructured` etiketiyle döndürülür; asla sessizce
@@ -544,6 +548,8 @@ def request_advice(
     """
     target_name = context.target.qualified_name
     user_prompt = build_user_prompt(context, scheme=scheme, metric_rules=metric_rules)
+    if feedback:
+        user_prompt = user_prompt.rstrip("\n") + "\n\n" + feedback.rstrip("\n") + "\n"
 
     raw, key, cached = _generate(
         provider,

@@ -334,6 +334,28 @@ chartests:
 RefactorLens is installed with pipx, your dependencies are not in its
 environment.
 
+### Feeding the result back: `loop` (new, v2.4)
+
+```bash
+rlens loop . --target app.orders:Orders               # up to loop.max_iter (3) iterations
+rlens loop . --target app.orders:Orders --max-iter 5
+rlens loop . --target app.orders:Orders --dry-run     # print the first request, send nothing
+```
+
+`loop` runs `advise` → `apply` (suggestion 1, always) → measure, then asks
+again with a feedback block about the previous attempt: which predictions
+held and which missed (directions only — never threshold numbers), whether
+the tests passed, whether public members were deleted. Every iteration starts
+from HEAD; changes do not build on each other, so the question is whether
+feedback changes the predictions for the same code. It stops when every
+prediction held and the tests passed, at the iteration limit, or when the call
+budget runs out.
+
+The report (`reports/loop-*.json` and `.md`) gives, per iteration and overall:
+prediction accuracy, whether the tests passed, the suspicious rate, the Brier
+score of the stated confidences, and the number of calls. Each iteration that
+passes the tests leaves its own branch.
+
 ### Reading the measurements back (experimental)
 
 ```bash

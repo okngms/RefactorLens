@@ -41,6 +41,7 @@ from rlens.explain.prompts import build_user_prompt as build_explain_prompt
 from rlens.explain.template import translate
 from rlens.llm.budget import Budget, BudgetExceeded
 from rlens.llm.cache import ResponseCache, prompt_hash
+from rlens.loop.runner import preview_loop_prompt, run_loop
 from rlens.providers import PROVIDERS, ProviderError, get_provider, load_env_file
 from rlens.providers.base import ProviderTruncated
 from rlens.report.advice import render_advice
@@ -58,9 +59,11 @@ from rlens.report.files import (
     write_chartests,
     write_explain,
     write_explain_template,
+    write_loop,
     write_report,
     write_verify,
 )
+from rlens.report.loop import render_loop
 from rlens.report.terminal import render_report
 from rlens.report.verify import render_verify, verify_markdown
 from rlens.verify import goodhart as goodhart_module
@@ -1015,6 +1018,101 @@ def chartests(
     if result.code:
         console.print(f"Tests: {test_path} — review them, then move them into your test suite.")
     console.print(f"[dim]Machine-readable: {json_path}[/dim]")
+
+
+@app.command()
+def loop(
+    path: Annotated[
+        Path,
+        typer.Argument(
+            exists=True,
+            file_okay=False,
+            dir_okay=True,
+            readable=True,
+            help="Project directory, inside a git repository.",
+        ),
+    ],
+    target: Annotated[
+        str, typer.Option("--target", "-t", help="Class or function to work on (module:Name).")
+    ],
+    max_iter: Annotated[
+        int | None,
+        typer.Option("--max-iter", min=1, help="Most iterations (overrides loop.max_iter)."),
+    ] = None,
+    config: Annotated[
+        Path | None,
+        typer.Option("--config", "-c", exists=True, dir_okay=False, help="Path to rlens.yaml."),
+    ] = None,
+    provider: Annotated[
+        str | None, typer.Option("--provider", "-p", help="Override the configured provider.")
+    ] = None,
+    model: Annotated[
+        str | None, typer.Option("--model", "-m", help="Override the configured model name.")
+    ] = None,
+    output_dir: Annotated[
+        Path | None,
+        typer.Option("--output-dir", "-o", help="Report directory (overrides the config)."),
+    ] = None,
+    no_report: Annotated[bool, typer.Option("--no-report", help="Skip the report files.")] = False,
+    no_cache: Annotated[
+        bool, typer.Option("--no-cache", help="Ignore the response cache and always call.")
+    ] = False,
+    dry_run: Annotated[
+        bool,
+        typer.Option("--dry-run", help="Print the first advice request and stop. Needs no key."),
+    ] = False,
+) -> None:
+    """Advise, apply and verify in a loop, feeding each result back to the model."""
+    try:
+        cfg = load_config(config, search_from=path)
+    except ConfigError as exc:
+        raise _fail(str(exc)) from exc
+    if provider is not None:
+        if provider not in PROVIDERS:
+            raise _fail(
+                f"Unknown provider '{provider}'. Available: {', '.join(sorted(PROVIDERS))}."
+            )
+        cfg = replace(cfg, provider=replace(cfg.provider, name=provider))
+    if model is not None:
+        cfg = replace(cfg, provider=replace(cfg.provider, model=model))
+
+    try:
+        if dry_run:
+            console.print("[dim]--- system ---[/dim]")
+            console.print(SYSTEM_INSTRUCTION, markup=False, highlight=False)
+            console.print("[dim]--- user ---[/dim]")
+            console.print(preview_loop_prompt(path, target, cfg), markup=False, highlight=False)
+            return
+        load_env_file(path)
+        adapter = get_provider(cfg.provider)
+        result = run_loop(
+            path,
+            target,
+            cfg,
+            adapter,
+            max_iter=max_iter,
+            cache=_build_cache(cfg, path, disabled=no_cache),
+            budget=Budget(cfg.budget),
+        )
+    except ApplyError as exc:
+        raise _fail(str(exc)) from exc
+    except ProviderError as exc:
+        raise _fail(str(exc)) from exc
+
+    render_loop(result, console)
+    if not no_report:
+        target_dir = Path(output_dir) if output_dir else path / cfg.scan.output_dir
+        try:
+            json_path, markdown_path = write_loop(
+                result,
+                target_dir,
+                root=str(Path(path).resolve()),
+                generated_at=datetime.now(UTC).isoformat(timespec="seconds"),
+            )
+        except ReportError as exc:
+            raise _fail(str(exc)) from exc
+        console.print(f"[dim]Report: {markdown_path}[/dim]")
+        console.print(f"[dim]Machine-readable: {json_path}[/dim]")
 
 
 def _build_cache(cfg, path: Path, *, disabled: bool) -> ResponseCache:
