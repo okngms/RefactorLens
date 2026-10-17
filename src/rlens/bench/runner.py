@@ -31,6 +31,13 @@ from rlens.loop.runner import run_loop
 
 BENCH_SCHEMA_VERSION = 1
 MAX_CALLS_PER_UNIT = 40
+
+#: Bench'te sağlayıcı çağrısının zaman aşımı ve yeniden deneme sayısı (N5).
+#: Düşünen modeller 16 384 token'lık çıktıyı 60 saniyede bitiremeyebilir;
+#: ücretsiz katmanda dakikalık sınır kuraldır, sunucunun bekleme önerisine
+#: uyularak daha çok denenir.
+TIMEOUT_SECONDS = 300
+MAX_RETRIES = 6
 JOURNAL = "journal.jsonl"
 
 
@@ -87,6 +94,8 @@ def unit_config(project: Path, suite: Suite, target, provider: str, model: str, 
             name=provider,
             model=model,
             max_output_tokens=config.apply.max_output_tokens,
+            timeout_seconds=TIMEOUT_SECONDS,
+            max_retries=MAX_RETRIES,
         ),
         advise=replace(config.advise, temperature=suite.temperature),
         tests=replace(config.tests, command=command),

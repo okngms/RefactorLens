@@ -34,7 +34,14 @@ from rlens.apply.prompts import SYSTEM_INSTRUCTION as APPLY_SYSTEM_INSTRUCTION
 from rlens.apply.runner import preview_chartests, preview_prompt, run_apply, run_chartests_only
 from rlens.apply.worktree import ApplyError
 from rlens.bench.report import load_results, report_markdown
-from rlens.bench.runner import estimate_calls, plan, run_bench, run_rotation
+from rlens.bench.runner import (
+    MAX_RETRIES,
+    TIMEOUT_SECONDS,
+    estimate_calls,
+    plan,
+    run_bench,
+    run_rotation,
+)
 from rlens.bench.suite import BenchError, ModelEntry, load_models, load_suite
 from rlens.chartests.generator import SYSTEM_INSTRUCTION as CHARTESTS_SYSTEM_INSTRUCTION
 from rlens.config import ConfigError, load_config
@@ -1313,14 +1320,14 @@ def bench_run(
     load_env_file(Path(root))
 
     def run_one(entry):
-        # Ücretsiz katmanlarda dakikalık sınır kuraldır; sunucunun bildirdiği
-        # bekleme süresine uyularak daha çok denenir (`post_with_retry`).
+        # Yalnızca adaptörü seçer; çağrı ayarları birim config'inden gelir
+        # (`bench.runner.unit_config`).
         settings = ProviderConfig(
             name=entry.provider,
             model=entry.model,
             base_url=None,
-            timeout_seconds=180,
-            max_retries=6,
+            timeout_seconds=TIMEOUT_SECONDS,
+            max_retries=MAX_RETRIES,
         )
         adapter = get_provider(settings)
         slug = "".join(ch if ch.isalnum() or ch in "-." else "-" for ch in entry.label)

@@ -290,12 +290,12 @@ class TestReportAndCli:
 
 class TestModels:
     def test_the_primary_set(self):
-        # N4: qwen çıktı (ücretsiz katmanda çağrılamıyor); Gemini satırı
-        # GEMINI_API_KEY gelince eklenecek ve bu liste üçe çıkacak.
+        # N4: qwen çıktı (ücretsiz katmanda çağrılamıyor), yerine Gemini.
         models = load_models(MODELS)
         assert [(m.provider, m.model) for m in models if m.primary] == [
             ("groq", "openai/gpt-oss-120b"),
             ("groq", "openai/gpt-oss-20b"),
+            ("gemini", "gemini-3.8-flash"),
         ]
         assert models[0].label == "groq/openai/gpt-oss-120b"
 
@@ -334,8 +334,8 @@ class TestModels:
         )
         assert result.exit_code == 0, result.output
         output = " ".join(result.output.split())
-        assert "2 models" in output
-        assert "between 216 and 612 model calls in total" in output
+        assert "3 models" in output
+        assert "between 324 and 918 model calls in total" in output
 
 
 class TestRotation:
@@ -399,3 +399,26 @@ def test_bench_advice_calls_get_the_patch_output_limit(mini):
     repo, suite = mini
     config = unit_config(repo / "proj", suite, suite.targets[0], "groq", "m", "python")
     assert config.provider.max_output_tokens == config.apply.max_output_tokens == 16384
+
+
+def test_bench_calls_use_the_bench_timeout_and_retries(mini):
+    """N5: CLI'nin ayarı yalnızca adaptörü seçiyordu; çağrılar proje config'inin
+    60 saniye / 3 deneme varsayılanıyla gidiyordu."""
+    from rlens.bench.runner import MAX_RETRIES, TIMEOUT_SECONDS, unit_config
+
+    repo, suite = mini
+    config = unit_config(repo / "proj", suite, suite.targets[0], "gemini", "m", "python")
+    assert (
+        (config.provider.timeout_seconds, config.provider.max_retries)
+        == (
+            TIMEOUT_SECONDS,
+            MAX_RETRIES,
+        )
+        == (300, 6)
+    )
+
+
+def test_a_timeout_is_counted_with_the_provider_limits():
+    from rlens.bench.report import LIMITS
+
+    assert "timeout" in LIMITS

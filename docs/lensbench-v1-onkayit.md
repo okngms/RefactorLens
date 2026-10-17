@@ -118,7 +118,7 @@ ilk çağrıdan sonra değişmez:
 |---|---|---|
 | 1 | groq | `openai/gpt-oss-120b` |
 | 2 | groq | `openai/gpt-oss-20b` |
-| 3 | groq | `qwen/qwen3.8-27b` |
+| 3 | gemini | `gemini-3.8-flash` (N4: `qwen/qwen3.8-27b`'nin yerine) |
 
 **Sonradan eklenen modeller** `primary: false` ile eklenir: raporda tablolarda
 görünür, **hükmü değiştirmez**. Sonuçlar görüldükten sonra model eklemek, bir
@@ -147,6 +147,8 @@ hatasıyla kesilen koşu aynı komutla sürer.
 - Hedef seti üç küçük fikstür; açık kaynak projeler yok.
 - Üç model de ücretsiz katmandan; pahalı bir kontrol modeli yok. Model
   büyüklüğü ya da sağlayıcıyla ilgili genelleme yapılmaz.
+- Birincil set iki sağlayıcıdan (Groq ×2, Gemini ×1; N4); Gemini modelindeki
+  bir fark model farkından mı sağlayıcı farkından mı, ayrıştırılamaz.
 - Fikstürleri ve aracı tasarlayan aynı kişi/oturum; ön kayıt bu yanlılığa
   karşı tek savunma.
 - Metrikler Python'a uyarlanmıştır; metrik iyileşmesi tasarım iyileşmesi
@@ -230,8 +232,52 @@ oranı hesaplanmadı.
   modelden hiç sonuç yok ve değiştirme kararı diğer modellerin sonuçları
   görülmeden verildi. Değiştirilmeseydi iki birincil modelle H1 ve H3 kural
   gereği "yetersiz veri" çıkardı.
-- Eşikler, hedefler, koşullar ve prompt'lar değişmedi (`prompt_hash`,
-  `suite_hash` aynı). Değişen yalnızca `models.yaml`'ın birincil satırı;
-  yeni sha aşağıda.
-- Yeni sınırlılık (§7): birincil set artık iki sağlayıcıdan; sağlayıcı ile
-  model farkı ayrıştırılamaz.
+- Seçim kuralı, denemeden önce konuldu: Gemini kataloğunda preview
+  olmayan en yeni flash modeli, ücretsiz katmanda çağrı geçiyorsa. Deneme
+  istemi "Say ok." idi; bench içeriği gönderilmedi. `gemini-3.8-flash`
+  geçti (2026-10-17).
+- Eşikler, hedefler, koşullar ve prompt'lar değişmedi: `prompt_hash`
+  `b4e04b5ebd198adb`, `suite_hash` `05a5c58a0239ffc6` (yeniden hesaplandı).
+  Değişen yalnızca `models.yaml`'ın üçüncü birincil satırı; yeni sha256
+  `6497f5585a66fdca` (ilk 16 karakter).
+- Yeni sınırlılık §7'ye eklendi.
+
+**N5 — Uygulanmayan zaman aşımı ve onarımda yutulan sağlayıcı hataları
+(2026-10-17).** Gemini'nin 3. biriminde bir istek dört denemede de 60
+saniyede zaman aşımına uğradı ve koşu durdu. O ana kadar kayıtlarda:
+gpt-oss-120b 35, gpt-oss-20b 40, Gemini 2 birim.
+- Kod hatası: `rlens bench run` 180 saniye / 6 deneme ayarlıyordu, ama bu
+  yalnızca adaptörü seçiyordu; çağrılar proje config'inin varsayılanıyla
+  (60 saniye / 3 deneme) gidiyordu. Bench çağrıları artık birim config'inde
+  300 saniye / 6 deneme alır (`bench.runner.TIMEOUT_SECONDS`, `MAX_RETRIES`).
+  Düşünen bir model 16 384 token'lık çıktıyı 60 saniyede bitiremeyebilir.
+- Kural: bu ayarla da yeniden denemelerden sonra zaman aşımında kalan istek
+  N1 gibi **ölçüm boşluğudur**: birim `timeout` ile kaydedilir, yeniden
+  koşulmaz, raporda sağlayıcı sınırı sütununda sayılır. Neden: uzun süren
+  üretimi atıp yeniden örneklemek kısa yanıtları seçer. Durmaya yol açan
+  Gemini birimi kaydedilmedi ve yeniden koşulur: sınır bizim hatalı
+  ayarımızdı, kuralın kendisi değil. (`post_with_retry` istek düzeyinde
+  zaman aşımını v1'den beri yeniden dener; bu davranış değişmedi.)
+- İkinci açık, aynı denetimde bulundu: `apply`'ın ve `advise`'ın onarım
+  çağrıları N1'den beri yalnızca 413'ü yukarı iletiyordu; onarımda gelen
+  kota (429) ya da zaman aşımı modelin hanesine `rejected` / öneri yok
+  diye yazılırdı. Artık üçü de (`PROVIDER_SIDE_ERRORS`) yukarı gider: kota
+  birimi yeniden koşturur (N2), zaman aşımı `timeout` boşluğudur.
+- Biten birimler etkilenmedi: kayıtlarda onarım çağrısının başarısız
+  olduğunu gösteren hiçbir `rejected` gerekçesi yok, `no_suggestion` ile
+  biten birim yok. Bu denetim için model başına sonuç ve durma nedeni
+  sayıları açıldı; hiçbir hipotez oranı (isabet, Brier, tür, kalıntı)
+  hesaplanmadı.
+- `prompt_hash` `b4e04b5ebd198adb` aynı (yeniden hesaplandı).
+
+**N6 — Gemini'nin günlük istek sınırı (2026-10-17).** `gemini-3.8-flash`
+ücretsiz katmanında model başına günde 20 istekle sınırlı
+(`GenerateRequestsPerDayPerProjectPerModel-FreeTier`, değer 20; sunucunun
+bekleme önerisi 35 100 s). 6 birim (12 çağrı) bittikten sonra 429 geldi.
+- Kullanıcı kararı: beklenir; model ve ön kayıt değişmez. Kalan çağrı
+  dry-run tahminine göre 96–294, yani yaklaşık 5–15 gün.
+- N2'nin kuralı geçerli: 429 ile yarım kalan birim kaydedilmez ve baştan
+  koşulur. İlerleme garantili: bir birim en çok `loop3` × (4 + 1) = 15
+  çağrı ister (`estimate_calls`), günlük 20'nin altında. Kayıp, gün sonunda
+  yarım kalan birimin çağrılarıyla sınırlı.
+- 429 ile reddedilen isteklerin günlük sayaca girip girmediği incelenmedi.

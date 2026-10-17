@@ -31,8 +31,8 @@ H4_SPREAD_REFUTED = 0.10
 H5_GAP_SUPPORTED = 0.30
 H5_GAP_REFUTED = 0.10
 
-#: Ölçüm boşluğu sayılan durma nedenleri (ön kayıt N1, N3).
-LIMITS = ("provider_limit", "output_limit")
+#: Ölçüm boşluğu sayılan durma nedenleri (ön kayıt N1, N3, N5).
+LIMITS = ("provider_limit", "output_limit", "timeout")
 
 SUPPORTED, REFUTED, INCONCLUSIVE, INSUFFICIENT = (
     "supported",

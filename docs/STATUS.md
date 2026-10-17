@@ -1,4 +1,4 @@
-# STATUS — 2026-10-03
+# STATUS — 2026-10-17
 
 ## Sürüm
 **v2.3.0 PyPI'da** (doğrulandı 2026-10-02). `v2.3.0` tag'i ile GitHub Actions
@@ -7,6 +7,19 @@ derlemeden önce karşılaştırıyor. İçerik: `CHANGELOG.md` 2.3.0. Önceki: 
 (2026-09-23), v2.1.0 (2026-09-22), v2.0.0 (2026-09-10).
 
 ## Bitenler
+- **LensBench N6 — Gemini günde 20 istek (2026-10-17).** Ücretsiz katman
+  sınırı; kullanıcı kararı: beklenir (kalan ~5–15 gün). Birim en çok 15
+  çağrı ister, günlük sınıra sığar. Koşu ayrık süreçte sürüyor; durum için
+  `bench/results/run.log` ve kayıt satır sayıları.
+- **LensBench N5 — zaman aşımı ve onarımda yutulan sağlayıcı hataları
+  (2026-10-17).** Gemini'nin 3. biriminde 60 s zaman aşımıyla koşu durdu.
+  Bench'in 180 s / 6 deneme ayarı yalnızca adaptörü seçiyordu; çağrılar
+  proje varsayılanıyla gidiyordu → artık birim config'inde 300 s / 6
+  (`bench.runner.TIMEOUT_SECONDS`, `MAX_RETRIES`). Tükenen zaman aşımı
+  `ProviderTimeout`; döngüde `timeout` boşluğu (rapor sağlayıcı sınırı
+  sütunu). `apply`/`advise` onarım çağrıları artık kota ve zaman aşımını da
+  yutmuyor (`PROVIDER_SIDE_ERRORS`); biten birimlerin etkilenmediği
+  kayıtlardan doğrulandı. Testler +8 (1882 paket, 10 atlandı; 91 fikstür).
 - **LensBench N4 — qwen kullanılamıyor, yerine Gemini (2026-10-03).**
   - `qwen/qwen3.8-27b` Groq ücretsiz katmanında her isteği 429 "Request too
     large … OTPM Limit 1000" ile reddediyor (tek cümlelik istek dahil); hiç
@@ -17,10 +30,14 @@ derlemeden önce karşılaştırıyor. İçerik: `CHANGELOG.md` 2.3.0. Önceki: 
     Yeni `src/rlens/providers/gemini.py` (`generateContent`, anahtar başlıkta,
     düşünme parçaları atlanır, `MAX_TOKENS` → `ProviderTruncated`);
     `advised_wait` Gemini'nin "retry in Ns" ve `retryDelay` önerisini okur.
-  - Ön kayıt §9 N4 yazıldı. **Eksik:** `.env`'deki `GEMINI_API_KEY` boş;
-    model adı, `models.yaml` satırı ve yeni sha anahtar gelince.
-  - Bu arada iki gpt-oss modelinin koşusu geçici bir models dosyasıyla
-    sürüyor (sonuçlar aynı `bench/results/<model>/` kayıtlarına).
+  - Ön kayıt §9 N4 yazıldı. Seçim kuralı denemeden önce konuldu (preview
+    olmayan en yeni flash, ücretsiz katmanda çağrı geçiyorsa; deneme istemi
+    "Say ok."): **`gemini-3.8-flash`** (2026-10-17). `models.yaml` sha256
+    `6497f5585a66fdca`; `prompt_hash`/`suite_hash` yeniden hesaplandı, aynı.
+    §5 tablosu ve §7 sınırlılığı (iki sağlayıcı) güncellendi.
+  - Koşu ayrık süreç olarak sürüyor (oturumdan bağımsız; çıktı
+    `bench/results/run.log`, `.gitignore`'a eklendi). Başlarken kayıtlar:
+    gpt-oss-120b 18, gpt-oss-20b 17, Gemini 0 birim.
   - Testler: `test_providers.py` +11. Durum: 1874 paket testi (10 atlandı),
     91 fikstür testi, ruff temiz.
 - **Kullanıcı kararları (2026-10-03) ve ön kaydın dondurulması.**
@@ -38,6 +55,8 @@ derlemeden önce karşılaştırıyor. İçerik: `CHANGELOG.md` 2.3.0. Önceki: 
     Action Marketplace'te listelenmez, tag ile kullanılır (FUTURE.md).
   - Bench koşusunda sağlayıcı yeniden denemesi 6 (ücretsiz katmanda
     `Retry-After`'a uyulur); günlük kotaya takılan koşu aynı komutla sürer.
+    **Düzeltme (N5, 2026-10-17):** bu ayar uygulanmıyordu; çağrılar 60 s / 3
+    denemeyle gidiyordu. Artık 300 s / 6.
   - Durum: 1853 paket testi (10 atlandı), 91 fikstür testi, ruff temiz.
   - **LensBench v1 gerçek koşusu sürüyor** (üç model × 48 birim). Ön kayıt
     işletme notları (§9): N1 — istek başına sınır (HTTP 413) ölçüm boşluğu,
@@ -900,9 +919,9 @@ framework deyiminden geliyor.**
 ## Sıradaki iş
 **v2.4 sürüyor** (planlanan v3; `docs/02`). Aşama 0-5 bitti (Aşama 4'ün
 tip çıkarımı ve Aşama 5'in Marketplace yayını kullanıcı kararı bekliyor).
-Sıradaki: `GEMINI_API_KEY` ile Gemini modelini seçip `models.yaml`'a birincil
-satır olarak yazmak, yeni sha'yı ön kayıt N4'e eklemek (qwen satırı
-çıkar); sonra **LensBench v1 koşusunu tamamlamak** —
+Sıradaki: **LensBench v1 koşusunu tamamlamak** (ayrık süreçte sürüyor;
+durumu `bench/results/run.log` ve kayıt satır sayıları gösterir; süreç
+durmuşsa aynı komutla sürer) —
 `rlens bench run --suite bench/lensbench-v1/suite.yaml --models
 bench/lensbench-v1/models.yaml` (kesilirse aynı komut kaldığı yerden sürer;
 sonuçlar `bench/results/<model>/`). Bitince `rlens bench report ...

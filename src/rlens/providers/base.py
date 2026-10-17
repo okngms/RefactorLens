@@ -44,6 +44,14 @@ class ProviderRequestTooLarge(ProviderError):
     """
 
 
+class ProviderTimeout(ProviderError):
+    """Yeniden denemeler tükendi, istek hâlâ zaman aşımında.
+
+    Modelin hatası değildir; LensBench'te birim `timeout` boşluğu olarak
+    kaydedilir (ön kayıt N5).
+    """
+
+
 class ProviderTruncated(ProviderError):
     """Model yanıtı çıktı sınırında kesildi; kısmi metin `partial`'da.
 
@@ -55,6 +63,12 @@ class ProviderTruncated(ProviderError):
     def __init__(self, message: str, *, partial: str = "") -> None:
         super().__init__(message)
         self.partial = partial
+
+
+#: Sağlayıcı tarafında kalan, modelin yanıtı hakkında bir şey söylemeyen
+#: hatalar. Onarım çağrılarında yutulmaz: yutulsaydı `rejected` ya da
+#: `unstructured` diye modelin hanesine yazılırdı (ön kayıt N5).
+PROVIDER_SIDE_ERRORS = (ProviderRequestTooLarge, ProviderRateLimited, ProviderTimeout)
 
 
 @runtime_checkable
@@ -227,7 +241,7 @@ def post_with_retry(
             if attempt < config.max_retries:
                 sleep(backoff_delay(attempt))
                 continue
-            raise ProviderError(
+            raise ProviderTimeout(
                 f"Request timed out after {config.timeout_seconds}s "
                 f"({config.max_retries + 1} attempts)."
             ) from exc

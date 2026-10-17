@@ -12,6 +12,8 @@ dist/
 experiments/hardening/.mutation-journal.jsonl
 # LensBench ara kaydı (kesilen koşu sürer); nihai sonuç JSON'u commit'lenir
 bench/results/**/journal.jsonl
+# Ayrık koşunun terminal çıktısı
+bench/results/*.log
 .env
 reports/
 

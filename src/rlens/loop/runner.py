@@ -29,7 +29,7 @@ from rlens.apply.worktree import ApplyError
 from rlens.config import Config
 from rlens.llm.budget import Budget, BudgetExceeded
 from rlens.loop.feedback import build_feedback
-from rlens.providers.base import ProviderRequestTooLarge, ProviderTruncated
+from rlens.providers.base import ProviderRequestTooLarge, ProviderTimeout, ProviderTruncated
 from rlens.verify.calibration import CalibrationPoint, CalibrationReport, calibrate
 
 LOOP_SCHEMA_VERSION = 1
@@ -41,6 +41,8 @@ STOP_NO_GATE = "no_gate"
 NO_SUGGESTION = "no_suggestion"
 PROVIDER_LIMIT = "provider_limit"
 OUTPUT_LIMIT = "output_limit"
+TIMEOUT = "timeout"
+"""Bir istek yeniden denemelerden sonra da zaman aşımında; ölçüm boşluğu (N5)."""
 """Öneri yanıtı çıktı sınırında kesildi; ölçüm boşluğu, modelin hatası değil."""
 """Bir istek sağlayıcının istek başına sınırını aştı; ölçüm boşluğu, modelin hatası değil."""
 
@@ -52,6 +54,7 @@ STOP_TEXT = {
     NO_SUGGESTION: "the model returned no usable suggestion",
     PROVIDER_LIMIT: "a request exceeded the provider's per-request limit",
     OUTPUT_LIMIT: "an advice reply was cut off at the output limit",
+    TIMEOUT: "a request timed out after every retry",
 }
 
 
@@ -254,6 +257,11 @@ def run_loop(
             # Aynı mantık: kesilme bizim sınırımızdır, yeniden denemek kısa
             # yanıtları seçerdi (ön kayıt N3).
             result.stop_reason = OUTPUT_LIMIT
+            break
+        except ProviderTimeout:
+            # Yeniden koşulmaz: uzun süren üretimi atıp yeniden örneklemek
+            # kısa yanıtları seçerdi (N1 ile aynı mantık; ön kayıt N5).
+            result.stop_reason = TIMEOUT
             break
         finally:
             item.calls = budget.calls - calls

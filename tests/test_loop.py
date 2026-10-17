@@ -265,3 +265,57 @@ class TestProviderLimit:
         result = loop(repo, Cutting(advice_reply("up"), PATCH, advice_reply("down"), PATCH))
         assert result.stop_reason == OUTPUT_LIMIT
         assert [i.outcome for i in result.iterations] == ["improved"]
+
+
+class TestProviderSideErrorsInRepairs:
+    """N5: onarım çağrısındaki kota ya da zaman aşımı modelin hanesine
+    (`rejected`, `unstructured`) yazılmaz; çağırana gider."""
+
+    @staticmethod
+    def failing_on(call: int, error):
+        class Failing(FakeProvider):
+            def generate(self, system, user, config, temperature):
+                if len(self.prompts) == call:
+                    self.prompts.append(user)
+                    raise error
+                return super().generate(system, user, config, temperature)
+
+        return Failing
+
+    # Kota döngüden de çıkar (bench rotasyonu birimi yeniden koşar, N2); zaman
+    # aşımı döngüde `timeout` boşluğu olur. İkisi de `rejected`/`unstructured` değil.
+    #: (onarımın sıra numarası, ondan önceki yanıtlar): patch onarımı, öneri onarımı
+    REPAIRS = [(2, ("ADVICE", "no diff here")), (1, ("not json",))]
+
+    @staticmethod
+    def replies(before):
+        return [advice_reply("up") if r == "ADVICE" else r for r in before]
+
+    @pytest.mark.parametrize(("call", "before"), REPAIRS)
+    def test_a_rate_limited_repair_reaches_the_caller(self, repo, call, before):
+        from rlens.providers.base import ProviderRateLimited
+
+        provider = self.failing_on(call, ProviderRateLimited("HTTP 429"))(*self.replies(before))
+        with pytest.raises(ProviderRateLimited):
+            loop(repo, provider)
+
+    @pytest.mark.parametrize(("call", "before"), REPAIRS)
+    def test_a_timed_out_repair_is_a_gap(self, repo, call, before):
+        from rlens.loop.runner import TIMEOUT
+        from rlens.providers.base import ProviderTimeout
+
+        provider = self.failing_on(call, ProviderTimeout("slow"))(*self.replies(before))
+        result = loop(repo, provider)
+        assert result.stop_reason == TIMEOUT
+        assert result.iterations == []
+
+    def test_a_timeout_ends_the_unit_as_a_gap(self, repo):
+        from rlens.loop.runner import TIMEOUT
+        from rlens.providers.base import ProviderTimeout
+
+        provider = self.failing_on(2, ProviderTimeout("slow"))(
+            advice_reply("up"), PATCH, advice_reply("down"), PATCH
+        )
+        result = loop(repo, provider)
+        assert result.stop_reason == TIMEOUT
+        assert [i.outcome for i in result.iterations] == ["improved"]

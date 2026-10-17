@@ -549,3 +549,11 @@ class TestGemini:
         monkeypatch.delenv("GEMINI_API_KEY")
         with pytest.raises(ProviderConfigError, match="GEMINI_API_KEY"):
             self.generate(config, monkeypatch, FakeResponse(200, gemini_body()))
+
+
+def test_exhausted_timeouts_raise_provider_timeout(provider_config, monkeypatch):
+    from rlens.providers.base import ProviderTimeout
+
+    monkeypatch.setattr(httpx, "post", Recorder(*[httpx.TimeoutException("slow")] * 5))
+    with pytest.raises(ProviderTimeout, match="timed out"):
+        post_with_retry("u", {}, {}, provider_config, sleep=lambda _: None)
