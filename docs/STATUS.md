@@ -7,6 +7,14 @@ derlemeden önce karşılaştırıyor. İçerik: `CHANGELOG.md` 2.3.0. Önceki: 
 (2026-09-23), v2.1.0 (2026-09-22), v2.0.0 (2026-09-10).
 
 ## Bitenler
+- **Blok 3 açığı: eşik mantığı taşındı (2026-10-17).** `class_violations`,
+  `function_violations` `report.terminal`'den yeni
+  `src/rlens/analysis/thresholds.py`'ye; `advise.selector` artık sunum
+  katmanına geri çağırmıyor. Davranış aynı (testler değişmeden geçti, yalnız
+  import yolları). Kendi taraması: 13 → 12 ihlal, kalkan
+  `selector → terminal`, yeni yok (`docs/self-architecture.md` §2).
+  `importlinter` okumasını sınıra çekmek **ertelendi**: 14 çağrı yeri, biri
+  unutulursa beyan sessizce kaybolur; Blok 5 ile.
 - **LensBench N6 — Gemini günde 20 istek (2026-10-17).** Ücretsiz katman
   sınırı; kullanıcı kararı: beklenir (kalan ~5–15 gün). Birim en çok 15
   çağrı ister, günlük sınıra sığar. Koşu ayrık süreçte sürüyor; durum için
@@ -929,10 +937,10 @@ sonuçlar `bench/results/<model>/`). Bitince `rlens bench report ...
 (ön kayıt §6 sırasıyla; ön kayıtta olmayan her analiz "sonradan" başlığı
 altında) ve **2.4.0 yayını**. Donan dosyalar değişmez (ön kayıt §8).
 
-Bu arada açık kalan, küçük ve bağımsız işler: `report.terminal`'deki eşik
-mantığını taşımak ve `analysis`'in `importlinter` çağrısını sınıra çekmek
-(Blok 3'ün iki gerçek ihlali); `explain` prompt'undaki eski "başka bir dil"
-ifadesi (bir sonraki gerçek explain koşusuyla).
+Bu arada açık kalan, küçük ve bağımsız işler: `analysis`'in `importlinter`
+çağrısını sınıra çekmek (Blok 5 ile; 14 çağrı yeri, giriş noktalarını
+kapsayan bir testle); `explain` prompt'undaki eski "başka bir dil" ifadesi
+(bir sonraki gerçek explain koşusuyla).
 
 **Yayın:** 2.3.0 hazırlandı (2026-09-30, "Sürüm" bölümü). Önceki not: "Unreleased" büyüktü: `--no-llm`, `advise`'ın iki
 bütçe düzeltmesi (hedeflerin %42'si sorulmuyordu), fonksiyon hedefi katman
@@ -941,11 +949,9 @@ davranış değişikliği), önek çakışması hatası, `Certainty` sütunu. v3
 geçmeden önce **2.3.0** yayınlanması öneriliyor; kullanıcı onaylarsa
 hazırlanır.
 
-Blok 3'ten açık kalan iki mimari iş (döngünün hedef alamadığı modül
-yerleşimi): `class_violations`/`function_violations`'ı `report.terminal`'den
-eşik mantığının yanına taşımak; `analysis`'in `importlinter` çağrısını
-`cli`/`scanner` sınırına çekmek. Blok 5 (rapor ve kullanım) ile birlikte
-yapılması uygun.
+Blok 3'ten açık kalan mimari iş: `analysis`'in `importlinter` çağrısını
+sınıra çekmek (eşik mantığı 2026-10-17'de taşındı). Blok 5 (rapor ve
+kullanım) ile birlikte yapılması uygun.
 
 **Yayın:** kullanıcı şimdilik istemiyor (2026-09-24). "Unreleased"ta
 `--no-llm`, `advise`'ın iki bütçe düzeltmesi (hedeflerin %42'si

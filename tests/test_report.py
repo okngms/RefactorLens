@@ -9,6 +9,7 @@ from rich.console import Console
 
 from rlens.analysis.model import SCHEMA_VERSION, ClassReport, FunctionReport, ProjectReport
 from rlens.analysis.scanner import scan_project
+from rlens.analysis.thresholds import class_violations, function_violations
 from rlens.config import load_config
 from rlens.report.files import (
     ReportError,
@@ -18,12 +19,7 @@ from rlens.report.files import (
     report_filename,
     write_report,
 )
-from rlens.report.terminal import (
-    NULL_DISPLAY,
-    class_violations,
-    function_violations,
-    render_report,
-)
+from rlens.report.terminal import NULL_DISPLAY, render_report
 
 MESSY_PROJECT = Path(__file__).resolve().parent.parent / "examples" / "messy_project"
 

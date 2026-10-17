@@ -63,6 +63,7 @@ src/rlens/
 │   ├── architecture.py     Layer assignment and violations → ArchReport
 │   ├── interface.py        Public interface of a class (Goodhart check input)
 │   ├── smells.py           god_class, data_class, feature_envy, long_method, …
+│   ├── thresholds.py       Which metrics break which threshold level (table colours, target priority)
 │   ├── refactoring_types.py  v2.4: extract/move/inline/rename from a before/after ast diff
 │   └── scanner.py          Orchestration: sources → ProjectReport
 │

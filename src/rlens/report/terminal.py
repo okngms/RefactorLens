@@ -24,6 +24,7 @@ from rich.table import Table
 
 from rlens.analysis.model import ClassReport, FunctionReport, ProjectReport
 from rlens.analysis.scanner import count_classes, count_functions
+from rlens.analysis.thresholds import class_violations, function_violations
 from rlens.config import Config
 from rlens.report.architecture import common_prefix
 
@@ -32,21 +33,6 @@ NULL_DISPLAY = "—"
 
 #: Eşik seviyelerinin renkleri.
 _LEVEL_STYLES = {"warn": "yellow", "critical": "bold red"}
-
-#: Sınıf metriği adı → config'teki eşik anahtarı.
-_CLASS_THRESHOLD_KEYS = {
-    "nom": "nom",
-    "wmc": "wmc",
-    "lcom4": "lcom4",
-    "dcc": "dcc",
-}
-
-#: Fonksiyon metriği adı → config anahtarı.
-_FUNCTION_THRESHOLD_KEYS = {
-    "cyclomatic_complexity": "cyclomatic_complexity",
-    "param_count": "max_params",
-    "max_nesting": "max_nesting",
-}
 
 #: Koku etiketlerinin tabloya sığan kısa biçimleri. Tam adlar JSON raporunda.
 SMELL_SHORT = {
@@ -82,34 +68,6 @@ def _styled(value: float | int | None, level: str | None, *, decimals: int = 0) 
     text = _format(value, decimals=decimals)
     style = _LEVEL_STYLES.get(level or "")
     return f"[{style}]{text}[/{style}]" if style else text
-
-
-def class_violations(report: ClassReport, config: Config) -> dict[str, str]:
-    """Sınıfın hangi metriklerinin hangi seviyede eşiği aştığı."""
-    levels: dict[str, str] = {}
-    for metric, key in _CLASS_THRESHOLD_KEYS.items():
-        # Aynı DCC değeri application-service'te tasarım gereği, domain
-        # modelinde kokudur. Katman bilinmiyorsa genel eşiğe düşülür.
-        threshold = config.threshold_for(key, report.layer)
-        if threshold is None:
-            continue
-        level = threshold.level(getattr(report, metric))
-        if level:
-            levels[metric] = level
-    return levels
-
-
-def function_violations(report: FunctionReport, config: Config) -> dict[str, str]:
-    """Fonksiyonun hangi metriklerinin eşiği aştığı."""
-    levels: dict[str, str] = {}
-    for metric, key in _FUNCTION_THRESHOLD_KEYS.items():
-        threshold = config.thresholds.get(key)
-        if threshold is None:
-            continue
-        level = threshold.level(getattr(report, metric))
-        if level:
-            levels[metric] = level
-    return levels
 
 
 def _worst(levels: dict[str, str]) -> str | None:

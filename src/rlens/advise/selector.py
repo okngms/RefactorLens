@@ -16,8 +16,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from rlens.analysis.model import ClassReport, FunctionReport, ProjectReport
+from rlens.analysis.thresholds import class_violations, function_violations
 from rlens.config import Config
-from rlens.report.terminal import class_violations, function_violations
 
 #: İhlal seviyelerinin puan ağırlıkları.
 #: `critical` üç kat sayılır: bir metriği ciddi biçimde aşan sınıf, üç metriği

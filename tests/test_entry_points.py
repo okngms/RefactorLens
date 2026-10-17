@@ -220,7 +220,7 @@ class TestAdviceSelection:
 class TestTerminal:
     def test_metric_flag_is_kept_and_the_row_says_why(self, tmp_path):
         """Terminal metriği gizlemez; satır giriş noktası olduğunu söyler."""
-        from rlens.report.terminal import function_violations
+        from rlens.analysis.thresholds import function_violations
 
         config = load_config(search_from=tmp_path)
         assert "param_count" in function_violations(make_report(11, "cli"), config)

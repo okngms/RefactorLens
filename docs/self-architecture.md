@@ -52,10 +52,24 @@ hepsi "sunum kodu altyapı diye etiketlenmiş" demek.
   da `analysis`). Bu oturumda taşınmadı: `src/` ve `tests/`'te 22 satırda
   geçiyor ve Blok 3'ün döngüsü sınıf/fonksiyon hedefleriyle çalışır, modül yerleşimini hedef
   alamaz. Açık iş olarak STATUS'ta.
+  **Durum (2026-10-17): taşındı.** İki fonksiyon artık
+  `src/rlens/analysis/thresholds.py`'de; `advise.selector` ve
+  `report.terminal` oradan alıyor (ikisi de aşağı yönde). Ölçüm, kökten
+  `rlens arch . --format json`: HEAD'de 13 ihlal, sonra 12; kalkan tek ihlal
+  `advise.selector → report.terminal`, yeni ihlal yok. (Yukarıdaki 12, v2.4
+  sırasında bir LV-SKIP daha eklendiği için 13'e çıkmıştı; uygulama/sunum →
+  altyapı ihlali şimdi 10. Hangisinin sonradan eklendiği bu belgede
+  listelenmediği için ayırt edilemiyor.)
 - **`analysis → integrations.importlinter`.** Domain, başka bir aracın
   config dosyasını okuyan adaptörü doğrudan çağırıyor (iki yerde, fonksiyon
   içi import). Doğru biçim, beyanın `cli`/`scanner` sınırında okunup
   analize veri olarak geçmesi. Aynı gerekçeyle ertelendi.
+  **Durum (2026-10-17): yine ertelendi.** Beyanı sınırda okumak, iki giriş
+  noktasının (`scan_project*`, `analyse_project`) analysis dışındaki 14
+  çağrı yerini değiştirmek demek (`apply` 5, `cli` 6, `diff` 2, `loop` 1).
+  Birinin unutulması import-linter beyanını sessizce yok sayar; bu da
+  "çıkarım beyanı ezmez" kilitli kararını bozar. Blok 5 ile, her giriş
+  noktasını kapsayan bir testle yapılmalı.
 - **Dokuz uygulama/sunum → altyapı ihlali.** Varsayılan şema bağımlılığın
   tersine çevrildiği (port/adaptör) bir mimari varsayar: altyapı domain'e
   bağlanır, tersi değil. RefactorLens klasik katmanlıdır: `advisor`,
