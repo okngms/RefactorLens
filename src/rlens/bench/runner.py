@@ -203,13 +203,14 @@ def run_rotation(entries, run_one, *, wait_minutes: int = 0, sleep=time.sleep, l
 
     Bütün kalan modeller takıldıysa ve `wait_minutes` > 0 ise o kadar bekleyip
     takılanları yeniden dener: ücretsiz katmanın günlük sınırı kayan bir
-    pencere olduğu için her bekleme ilerleme getirir. Kota dışındaki
+    pencere olduğu için her bekleme ilerleme getirir. Geçici hizmet dışılık
+    (503, `ProviderUnavailable`) da aynı yoldan geçer (N7). Bunların dışındaki
     sağlayıcı hataları (yetki, model yok) koşuyu durdurur.
 
     Returns:
         (biten modeller {etiket: sonuç yolu}, takılı kalan modeller)
     """
-    from rlens.providers.base import ProviderRateLimited
+    from rlens.providers.base import ProviderRateLimited, ProviderUnavailable
 
     done = {}
     pending = list(entries)
@@ -219,7 +220,8 @@ def run_rotation(entries, run_one, *, wait_minutes: int = 0, sleep=time.sleep, l
             try:
                 done[entry.label] = run_one(entry)
             except ProviderRateLimited as exc:
-                log(f"{entry.label}: rate limited ({str(exc)[:160]}); moving on.")
+                kind = "unavailable" if isinstance(exc, ProviderUnavailable) else "rate limited"
+                log(f"{entry.label}: {kind} ({str(exc)[:160]}); moving on.")
                 blocked.append(entry)
         if not blocked or wait_minutes <= 0:
             return done, blocked

@@ -281,3 +281,15 @@ bekleme önerisi 35 100 s). 6 birim (12 çağrı) bittikten sonra 429 geldi.
   çağrı ister (`estimate_calls`), günlük 20'nin altında. Kayıp, gün sonunda
   yarım kalan birimin çağrılarıyla sınırlı.
 - 429 ile reddedilen isteklerin günlük sayaca girip girmediği incelenmedi.
+
+**N7 — Geçici hizmet dışılık (503) koşuyu durdurmaz (2026-10-21).**
+`gemini-3.8-flash` 2026-10-21'de, yeniden denemeler (6) tükendikten sonra
+da HTTP 503 döndürdü ("This model is currently experiencing high demand").
+Bu genel bir sağlayıcı hatası sayıldığı için tüm koşu durdu; yarım birim
+kaydedilmedi (kayıt 13 satırda kaldı).
+- Düzeltme: tükenen 503 artık `ProviderUnavailable`, `ProviderRateLimited`'in
+  alt türü. Sonuç 429 ile aynı: model bırakılır, sıradakine geçilir,
+  `--wait-minutes` sonra yeniden denenir; N2 gereği yarım birim kaydedilmez
+  ve baştan koşulur. Onarım çağrılarında yutulmaz (N5).
+- Ölçüme etkisi yok: hiçbir birimin sonucunu değiştirmez, yalnızca koşunun
+  durmasını önler. Donan dosyalara dokunulmadı.

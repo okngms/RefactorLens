@@ -557,3 +557,28 @@ def test_exhausted_timeouts_raise_provider_timeout(provider_config, monkeypatch)
     monkeypatch.setattr(httpx, "post", Recorder(*[httpx.TimeoutException("slow")] * 5))
     with pytest.raises(ProviderTimeout, match="timed out"):
         post_with_retry("u", {}, {}, provider_config, sleep=lambda _: None)
+
+
+class TestUnavailable:
+    """Gemini yoğunlukta 503 döndürür ("high demand"). Yeniden denemeler tükenince
+    koşu durmaz; oran sınırı gibi sıradaki modele geçilir (ön kayıt N7)."""
+
+    BODY = '{"error": {"code": 503, "message": "The model is experiencing high demand."}}'
+
+    def test_exhausted_503_is_unavailable_and_a_rate_limit(self, provider_config, monkeypatch):
+        from rlens.providers.base import ProviderRateLimited, ProviderUnavailable
+
+        monkeypatch.setattr(httpx, "post", Recorder(*[FakeResponse(503, text=self.BODY)] * 5))
+        with pytest.raises(ProviderUnavailable, match="503") as caught:
+            post_with_retry("u", {}, {}, provider_config, sleep=lambda _: None)
+        assert isinstance(caught.value, ProviderRateLimited)
+
+    def test_a_passing_503_is_still_retried(self, provider_config, monkeypatch):
+        recorder = Recorder(FakeResponse(503, text=self.BODY), FakeResponse(200, {"ok": 1}))
+        monkeypatch.setattr(httpx, "post", recorder)
+        assert post_with_retry("u", {}, {}, provider_config, sleep=lambda _: None) == {"ok": 1}
+
+    def test_is_not_swallowed_in_repairs(self):
+        from rlens.providers.base import PROVIDER_SIDE_ERRORS, ProviderUnavailable
+
+        assert issubclass(ProviderUnavailable, PROVIDER_SIDE_ERRORS)

@@ -1,4 +1,4 @@
-# STATUS — 2026-10-17
+# STATUS — 2026-10-21
 
 ## Sürüm
 **v2.3.0 PyPI'da** (doğrulandı 2026-10-02). `v2.3.0` tag'i ile GitHub Actions
@@ -7,6 +7,20 @@ derlemeden önce karşılaştırıyor. İçerik: `CHANGELOG.md` 2.3.0. Önceki: 
 (2026-09-23), v2.1.0 (2026-09-22), v2.0.0 (2026-09-10).
 
 ## Bitenler
+- **N7: 503 koşuyu durdurmuyor (2026-10-21).** Gemini yeniden denemelerden
+  sonra da 503 ("high demand") döndürünce tüm koşu duruyordu. Tükenen 503
+  artık `ProviderUnavailable` (`ProviderRateLimited` alt türü): rotasyon
+  sıradakine geçer, bekler, yeniden dener. Ön kayıt §9 N7. Koşu durumu
+  2026-10-21: gpt-oss-120b 48/48, gpt-oss-20b 48/48 (ikisi bitti), Gemini
+  13/48. Süreç 2026-10-18 akşamı durmuştu (bilgisayar kapanması/uyku ve 503);
+  yeniden başlatıldı.
+- **FINDINGS-3 literatür bağı taslağı (2026-10-18).** `docs/findings-3-literatur.md`:
+  SWE-Refactor (arXiv:2602.03712), EMSE 2026 (doi:10.1007/s10664-026-10925-0;
+  özet ön baskıdan, arXiv:2510.03914), SpecBench (arXiv:2605.30314), ayrıca
+  Liu ve diğ. (ASE 2025) ve Midolo ve diğ. (Python, arXiv:2601.13139). Her
+  kaynak birincil sayfasından, özet düzeyinde okundu; tam metin okunmadı.
+  Sonuçlardan bağımsız; FINDINGS-3'ün ilgili çalışmalar bölümüne taşınacak.
+  LensBench koşusu sürüyor (2026-10-18 00:06: 120b 38, 20b 45, Gemini 6).
 - **Blok 3 açığı: eşik mantığı taşındı (2026-10-17).** `class_violations`,
   `function_violations` `report.terminal`'den yeni
   `src/rlens/analysis/thresholds.py`'ye; `advise.selector` artık sunum

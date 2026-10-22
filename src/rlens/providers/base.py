@@ -34,6 +34,16 @@ class ProviderRateLimited(ProviderError):
     """
 
 
+class ProviderUnavailable(ProviderRateLimited):
+    """Yeniden denemeler tükendi, sağlayıcı hâlâ geçici olarak hizmet dışı
+    (HTTP 503, "high demand").
+
+    Oran sınırının alt türüdür çünkü çaresi aynıdır: daha sonra yeniden
+    denemek. LensBench bu hatada da sıradaki modele geçer ve yarım kalan birimi
+    kaydetmez (ön kayıt N7); modelin yanıtı hakkında bir şey söylemez.
+    """
+
+
 class ProviderRequestTooLarge(ProviderError):
     """İstek sağlayıcının istek başına sınırını aşıyor (HTTP 413, ya da gövdesi
     "Request too large" diyen 429).
@@ -265,6 +275,10 @@ def post_with_retry(
             raise ProviderError(
                 f"Endpoint or model not found ({url}). Check `provider.model` "
                 f"and `provider.base_url`."
+            )
+        if response.status_code == 503:
+            raise ProviderUnavailable(
+                f"Provider returned HTTP 503 (unavailable) after retries: {response.text[:300]}"
             )
         if response.status_code == 429:
             raise ProviderRateLimited(

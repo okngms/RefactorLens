@@ -380,6 +380,22 @@ class TestRotation:
         assert set(done) == {"groq/a", "groq/b"}
         assert slept == [600, 600]
 
+    def test_an_unavailable_model_does_not_stop_the_others(self):
+        from rlens.bench.runner import run_rotation
+        from rlens.providers.base import ProviderUnavailable
+
+        logged = []
+
+        def run_one(entry):
+            if entry.model == "a":
+                raise ProviderUnavailable("HTTP 503 high demand")
+            return Path(f"{entry.model}.json")
+
+        done, blocked = run_rotation(self.entries(), run_one, log=logged.append)
+        assert done == {"groq/b": Path("b.json")}
+        assert [e.label for e in blocked] == ["groq/a"]
+        assert "unavailable" in logged[0]
+
     def test_other_provider_errors_stop_the_run(self):
         from rlens.bench.runner import run_rotation
         from rlens.providers.base import ProviderError
