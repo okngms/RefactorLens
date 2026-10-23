@@ -293,3 +293,11 @@ kaydedilmedi (kayıt 13 satırda kaldı).
   ve baştan koşulur. Onarım çağrılarında yutulmaz (N5).
 - Ölçüme etkisi yok: hiçbir birimin sonucunu değiştirmez, yalnızca koşunun
   durmasını önler. Donan dosyalara dokunulmadı.
+- Ek (2026-10-22): N7'den sonraki ilk koşuda (2026-10-21) Gemini tek birim
+  bitiremedi. Üç 503 dalgası × 7 deneme (`MAX_RETRIES` 6) = 21 istek, sonra
+  günlük kota 429'u geldi. 503 ile reddedilen isteklerin günlük sayaca
+  girdiği **muhtemel, doğrulanmadı** (yarım birimlerin başarılı çağrıları da
+  sayılmış olabilir). Düzeltme: 503 en çok bir kez yeniden denenir
+  (`MAX_UNAVAILABLE_RETRIES`, `max_retries`'tan bağımsız); bir 503 dalgası
+  artık 2 istek. Rotasyonun 30 dakikalık beklemesi değişmedi. Ölçüme etkisi
+  yok.

@@ -191,11 +191,29 @@ def run_bench(
                 handle.write(json.dumps({"key": key, "unit": unit}, ensure_ascii=False) + "\n")
             if progress:
                 progress(len(units), len(plan(suite)), unit)
+    previous = _latest_result(out_dir, suite.name)
+    if previous and previous[1] == {**header, "units": units}:
+        # Yeniden başlatılan koşu bitmiş modeli baştan yazmasın: aynı içerikli
+        # kopyalar birikiyordu (2026-10-21'de model başına üç dosya).
+        return previous[0]
     stamp = datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
     path = out_dir / f"{suite.name}-{stamp}.json"
     payload = {**header, "generated_at": stamp, "units": units}
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return path
+
+
+def _latest_result(out_dir: Path, suite_name: str) -> tuple[Path, dict] | None:
+    """En yeni sonuç dosyası ve `generated_at` dışındaki içeriği; yoksa None."""
+    paths = sorted(out_dir.glob(f"{suite_name}-*.json"))
+    if not paths:
+        return None
+    try:
+        payload = json.loads(paths[-1].read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    payload.pop("generated_at", None)
+    return paths[-1], payload
 
 
 def run_rotation(entries, run_one, *, wait_minutes: int = 0, sleep=time.sleep, log=print):

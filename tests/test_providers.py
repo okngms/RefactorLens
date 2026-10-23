@@ -4,6 +4,8 @@ Gerçek ağ çağrısı yapılmaz: `httpx.post` sahte bir işlevle değiştirili
 Gecikme de sahtedir, testler geri çekilme süresini gerçekten beklemez.
 """
 
+import dataclasses
+
 import httpx
 import pytest
 
@@ -152,7 +154,7 @@ class TestRetry:
         assert delays == [1, 2]
 
     def test_retries_are_bounded(self, provider_config, monkeypatch):
-        recorder = Recorder(*[FakeResponse(503) for _ in range(10)])
+        recorder = Recorder(*[FakeResponse(500) for _ in range(10)])
         monkeypatch.setattr(httpx, "post", recorder)
         with pytest.raises(ProviderError):
             post_with_retry("http://x", {}, {}, provider_config, sleep=lambda _: None)
@@ -572,6 +574,16 @@ class TestUnavailable:
         with pytest.raises(ProviderUnavailable, match="503") as caught:
             post_with_retry("u", {}, {}, provider_config, sleep=lambda _: None)
         assert isinstance(caught.value, ProviderRateLimited)
+
+    def test_503_retries_are_capped_below_max_retries(self, provider_config, monkeypatch):
+        from rlens.providers.base import MAX_UNAVAILABLE_RETRIES, ProviderUnavailable
+
+        config = dataclasses.replace(provider_config, max_retries=6)
+        recorder = Recorder(*[FakeResponse(503, text=self.BODY)] * 7)
+        monkeypatch.setattr(httpx, "post", recorder)
+        with pytest.raises(ProviderUnavailable):
+            post_with_retry("u", {}, {}, config, sleep=lambda _: None)
+        assert len(recorder.calls) == MAX_UNAVAILABLE_RETRIES + 1
 
     def test_a_passing_503_is_still_retried(self, provider_config, monkeypatch):
         recorder = Recorder(FakeResponse(503, text=self.BODY), FakeResponse(200, {"ok": 1}))

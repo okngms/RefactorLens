@@ -152,6 +152,12 @@ def require_model(config: ProviderConfig, provider: str) -> str:
 #: Yeniden denemeye değer HTTP durum kodları: oran limiti ve sunucu hataları.
 RETRYABLE_STATUS = frozenset({408, 409, 425, 429, 500, 502, 503, 504})
 
+#: 503 ("high demand") için en çok bu kadar yeniden deneme; `max_retries`'tan
+#: bağımsız. Yoğunluk saniyeler içinde geçmiyor ve reddedilen istekler günlük
+#: kotadan düşüyor olabilir: 2026-10-21'de üç 503 dalgası × 7 deneme Gemini'nin
+#: günlük 20 isteğini tek birim bitmeden tüketti (ön kayıt N7).
+MAX_UNAVAILABLE_RETRIES = 1
+
 #: Sunucunun önerdiği bekleme süresine eklenen pay.
 #:
 #: "5.04 saniye sonra dene" denildiğinde tam 5.04 beklemek sınıra sıfır payla
@@ -237,6 +243,7 @@ def post_with_retry(
     diye.
     """
     last_error: Exception | None = None
+    unavailable = 0
 
     for attempt in range(config.max_retries + 1):
         try:
@@ -265,6 +272,12 @@ def post_with_retry(
                 f"Provider returned HTTP {response.status_code} (request too large): "
                 f"{response.text[:300]}"
             )
+        if response.status_code == 503:
+            unavailable += 1
+            if unavailable > MAX_UNAVAILABLE_RETRIES:
+                raise ProviderUnavailable(
+                    f"Provider returned HTTP 503 (unavailable) after retries: {response.text[:300]}"
+                )
         if response.status_code in RETRYABLE_STATUS and attempt < config.max_retries:
             sleep(backoff_delay(attempt, response))
             continue

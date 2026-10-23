@@ -1,4 +1,4 @@
-# STATUS — 2026-10-21
+# STATUS — 2026-10-22
 
 ## Sürüm
 **v2.3.0 PyPI'da** (doğrulandı 2026-10-02). `v2.3.0` tag'i ile GitHub Actions
@@ -7,6 +7,13 @@ derlemeden önce karşılaştırıyor. İçerik: `CHANGELOG.md` 2.3.0. Önceki: 
 (2026-09-23), v2.1.0 (2026-09-22), v2.0.0 (2026-09-10).
 
 ## Bitenler
+- **503 kotayı yakmıyor, kopya sonuç dosyası yazılmıyor (2026-10-22).**
+  2026-10-21'de Gemini'nin günlük 20 isteği üç 503 dalgasında (× 7 deneme)
+  bitti, tek birim tamamlanmadı. 503 artık en çok bir kez yeniden denenir
+  (`MAX_UNAVAILABLE_RETRIES`; ön kayıt N7 eki). Ayrıca yeniden başlatılan
+  koşu, içeriği en yeni sonuç dosyasıyla aynıysa yeni tarihli kopya yazmaz
+  (`bench/results/` altında model başına üç özdeş JSON birikmişti; eski
+  kopyalar koşu bitince silinecek). Koşu durumu: 120b 48, 20b 48, Gemini 13.
 - **N7: 503 koşuyu durdurmuyor (2026-10-21).** Gemini yeniden denemelerden
   sonra da 503 ("high demand") döndürünce tüm koşu duruyordu. Tükenen 503
   artık `ProviderUnavailable` (`ProviderRateLimited` alt türü): rotasyon

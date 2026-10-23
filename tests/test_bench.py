@@ -167,6 +167,13 @@ class TestRun:
         assert len(json.loads(path.read_text(encoding="utf-8"))["units"]) == 2
         assert (tmp_path / "out" / JOURNAL).exists()
 
+    def test_a_restarted_finished_run_does_not_write_a_copy(self, mini, tmp_path):
+        repo, suite = mini
+        first = run_bench(suite, repo, "fake", "m1", Scripted(), tmp_path / "out")
+        again = run_bench(suite, repo, "fake", "m1", Scripted(), tmp_path / "out")
+        assert again == first
+        assert len(list((tmp_path / "out").glob("mini-*.json"))) == 1
+
     def test_the_source_project_is_not_touched(self, mini, tmp_path):
         repo, suite = mini
         before = project_hash(repo / "proj")
