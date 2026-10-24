@@ -301,3 +301,10 @@ kaydedilmedi (kayıt 13 satırda kaldı).
   (`MAX_UNAVAILABLE_RETRIES`, `max_retries`'tan bağımsız); bir 503 dalgası
   artık 2 istek. Rotasyonun 30 dakikalık beklemesi değişmedi. Ölçüme etkisi
   yok.
+- Ek (2026-10-24): bağlantının sıfırlanması (`WinError 10054`, httpx
+  `ReadError`) yeniden denenmeden genel hata sayılıyor ve koşuyu
+  durduruyordu (Gemini 17/48'deyken). Kopan bağlantı (`httpx.NetworkError`,
+  `RemoteProtocolError`) artık 503 ile aynı yoldan geçer: en çok bir kez
+  yeniden denenir, sonra `ProviderUnavailable`; yarım birim kaydedilmez.
+  Diğer aktarım hataları (ör. desteklenmeyen protokol) koşuyu yine durdurur.
+  Ölçüme etkisi yok.

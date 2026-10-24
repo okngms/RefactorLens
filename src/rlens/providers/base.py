@@ -36,7 +36,7 @@ class ProviderRateLimited(ProviderError):
 
 class ProviderUnavailable(ProviderRateLimited):
     """Yeniden denemeler tükendi, sağlayıcı hâlâ geçici olarak hizmet dışı
-    (HTTP 503, "high demand").
+    (HTTP 503, "high demand") ya da bağlantı kopuyor.
 
     Oran sınırının alt türüdür çünkü çaresi aynıdır: daha sonra yeniden
     denemek. LensBench bu hatada da sıradaki modele geçer ve yarım kalan birimi
@@ -152,7 +152,7 @@ def require_model(config: ProviderConfig, provider: str) -> str:
 #: Yeniden denemeye değer HTTP durum kodları: oran limiti ve sunucu hataları.
 RETRYABLE_STATUS = frozenset({408, 409, 425, 429, 500, 502, 503, 504})
 
-#: 503 ("high demand") için en çok bu kadar yeniden deneme; `max_retries`'tan
+#: 503 ("high demand") ve kopan bağlantı için en çok bu kadar yeniden deneme; `max_retries`'tan
 #: bağımsız. Yoğunluk saniyeler içinde geçmiyor ve reddedilen istekler günlük
 #: kotadan düşüyor olabilir: 2026-10-21'de üç 503 dalgası × 7 deneme Gemini'nin
 #: günlük 20 isteğini tek birim bitmeden tüketti (ön kayıt N7).
@@ -262,6 +262,15 @@ def post_with_retry(
                 f"Request timed out after {config.timeout_seconds}s "
                 f"({config.max_retries + 1} attempts)."
             ) from exc
+        except (httpx.NetworkError, httpx.RemoteProtocolError) as exc:
+            # Bağlantı koptu ya da sıfırlandı (2026-10-24, WinError 10054): 503 gibi
+            # geçicidir ve modelin hatası değildir; aynı sınırla yeniden denenir.
+            last_error = exc
+            unavailable += 1
+            if unavailable > MAX_UNAVAILABLE_RETRIES:
+                raise ProviderUnavailable(f"Network error after retries: {exc}") from exc
+            sleep(backoff_delay(attempt))
+            continue
         except httpx.HTTPError as exc:
             raise ProviderError(f"Network error: {exc}") from exc
 

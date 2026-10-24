@@ -1,4 +1,4 @@
-# STATUS — 2026-10-22
+# STATUS — 2026-10-24
 
 ## Sürüm
 **v2.3.0 PyPI'da** (doğrulandı 2026-10-02). `v2.3.0` tag'i ile GitHub Actions
@@ -7,6 +7,9 @@ derlemeden önce karşılaştırıyor. İçerik: `CHANGELOG.md` 2.3.0. Önceki: 
 (2026-09-23), v2.1.0 (2026-09-22), v2.0.0 (2026-09-10).
 
 ## Bitenler
+- **Kopan bağlantı koşuyu durdurmuyor (2026-10-24).** `WinError 10054` ile
+  koşu durmuştu; kopan bağlantı artık 503 gibi `ProviderUnavailable`
+  (ön kayıt N7 eki). Koşu durumu: 120b 48, 20b 48, Gemini 17.
 - **503 kotayı yakmıyor, kopya sonuç dosyası yazılmıyor (2026-10-22).**
   2026-10-21'de Gemini'nin günlük 20 isteği üç 503 dalgasında (× 7 deneme)
   bitti, tek birim tamamlanmadı. 503 artık en çok bir kez yeniden denenir

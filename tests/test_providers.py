@@ -594,3 +594,29 @@ class TestUnavailable:
         from rlens.providers.base import PROVIDER_SIDE_ERRORS, ProviderUnavailable
 
         assert issubclass(ProviderUnavailable, PROVIDER_SIDE_ERRORS)
+
+
+class TestDroppedConnections:
+    """Bağlantı sıfırlanınca koşu durmaz; 503 gibi sıradaki modele geçilir (N7)."""
+
+    def test_a_reset_connection_is_retried(self, provider_config, monkeypatch):
+        recorder = Recorder(httpx.ReadError("connection reset"), FakeResponse(200, {"ok": 1}))
+        monkeypatch.setattr(httpx, "post", recorder)
+        assert post_with_retry("u", {}, {}, provider_config, sleep=lambda _: None) == {"ok": 1}
+
+    def test_a_connection_that_keeps_dropping_is_unavailable(self, provider_config, monkeypatch):
+        from rlens.providers.base import MAX_UNAVAILABLE_RETRIES, ProviderUnavailable
+
+        recorder = Recorder(*[httpx.ConnectError("refused")] * 5)
+        monkeypatch.setattr(httpx, "post", recorder)
+        with pytest.raises(ProviderUnavailable, match="Network error"):
+            post_with_retry("u", {}, {}, provider_config, sleep=lambda _: None)
+        assert len(recorder.calls) == MAX_UNAVAILABLE_RETRIES + 1
+
+    def test_other_transport_errors_still_stop(self, provider_config, monkeypatch):
+        from rlens.providers.base import ProviderUnavailable
+
+        monkeypatch.setattr(httpx, "post", Recorder(httpx.UnsupportedProtocol("ftp")))
+        with pytest.raises(ProviderError, match="Network error") as caught:
+            post_with_retry("u", {}, {}, provider_config, sleep=lambda _: None)
+        assert not isinstance(caught.value, ProviderUnavailable)
