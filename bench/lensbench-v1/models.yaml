@@ -9,5 +9,12 @@ models:
   - {provider: groq, model: openai/gpt-oss-120b, primary: true}
   - {provider: groq, model: openai/gpt-oss-20b, primary: true}
   # qwen/qwen3.8-27b çıkarıldı: Groq ücretsiz katmanında hiçbir istek geçmiyor;
-  # yerine Gemini (ön kayıt §9 N4).
-  - {provider: gemini, model: gemini-3.8-flash, primary: true}
+  # yerine Gemini (ön kayıt §9 N4). Gemini de 34/48'de çıkarıldı (N8); yerine
+  # NVIDIA NIM, 48 birimi baştan koşar.
+  - {provider: nvidia, model: nvidia/nemotron-3-ultra-550b-a55b, primary: true}
+
+# Koşu sırasında birincil setten çıkarılan modeller: koşulmaz, sonuç klasörü
+# silinmez. Rapor kayıtlarını "removed from the primary set, incomplete" diye
+# ayrı gösterir ve hükme katmaz. Birincil sete geri alınmaz (ön kayıt N8).
+removed:
+  - {provider: gemini, model: gemini-3.8-flash}

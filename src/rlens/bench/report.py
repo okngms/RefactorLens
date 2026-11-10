@@ -110,11 +110,13 @@ def predictions(results: list[dict]) -> list[Prediction]:
     return found
 
 
-def verdict_items(items: list[Prediction], primary: set[str] | None) -> list[Prediction]:
-    """Hükme giren tahminler: yalnızca birincil set (verilmişse)."""
-    if primary is None:
-        return items
-    return [p for p in items if p.model in primary]
+def verdict_items(
+    items: list[Prediction], primary: set[str] | None, removed: set[str] | None = None
+) -> list[Prediction]:
+    """Hükme giren tahminler: yalnızca birincil set (verilmişse); birincil setten
+    çıkarılan modeller (N8) hiçbir durumda girmez."""
+    removed = removed or set()
+    return [p for p in items if p.model not in removed and (primary is None or p.model in primary)]
 
 
 def _accuracy(items: list[Prediction]) -> tuple[float | None, int]:
@@ -214,10 +216,17 @@ def _fmt(value) -> str:
     return f"{value:.0%}" if isinstance(value, float) else str(value)
 
 
-def report_markdown(results: list[dict], primary: set[str] | None = None) -> str:
-    """`primary`: ön kayıtlı modeller; hükümler yalnızca onlarla verilir."""
+def report_markdown(
+    results: list[dict], primary: set[str] | None = None, removed: set[str] | None = None
+) -> str:
+    """`primary`: ön kayıtlı modeller; hükümler yalnızca onlarla verilir.
+
+    `removed`: koşu sırasında birincil setten çıkarılan modeller (ön kayıt N8).
+    Kayıtları eksiktir; tablolarda işaretli görünür, hükme hiç girmez.
+    """
+    removed = removed or set()
     items = predictions(results)
-    judged = verdict_items(items, primary)
+    judged = verdict_items(items, primary, removed)
     first = results[0]
     lines = [
         f"# LensBench report — {first['suite']}",
@@ -248,12 +257,26 @@ def report_markdown(results: list[dict], primary: set[str] | None = None) -> str
         )
         statuses = [it.get("advice_status") for it in iterations if it.get("advice_status")]
         rejected = statuses.count("rejected") / len(statuses) if statuses else None
+        units = str(len(result["units"]))
+        if result.get("removed") or model in removed:
+            units += f"/{result.get('planned_units', '?')} (removed)"
         lines.append(
-            f"| {model} | {len(result['units'])} | {n} | {_fmt(accuracy)} | "
+            f"| {model} | {units} | {n} | {_fmt(accuracy)} | "
             f"{sum(p.outcome not in ('hit', 'miss') for p in mine)} | {_fmt(passed)} | "
             f"{_fmt(suspicious)} | {_fmt(rejected)} | "
             f"{sum(u['loop']['stop_reason'] in LIMITS for u in result['units'])} |"
         )
+
+    gone = [r for r in results if r.get("removed") or f"{r['provider']}/{r['model']}" in removed]
+    if gone:
+        lines += ["", "## Removed from the primary set", ""]
+        for result in gone:
+            lines.append(
+                f"- {result['provider']}/{result['model']}: removed from the primary set during "
+                f"the run, incomplete ({len(result['units'])} of "
+                f"{result.get('planned_units', '?')} units). Its rows are in the tables; "
+                "it is in no verdict, and its missing units were not run by another model."
+            )
 
     metrics = sorted({p.metric for p in items})
     models = sorted({p.model for p in items})
@@ -279,10 +302,16 @@ def report_markdown(results: list[dict], primary: set[str] | None = None) -> str
 
     lines += ["", "## Pre-registered hypotheses", ""]
     if primary is not None:
-        later = sorted({p.model for p in items} - primary)
+        later = sorted({p.model for p in items} - primary - removed)
+        dropped = sorted({f"{r['provider']}/{r['model']}" for r in gone})
         lines += [
             f"Verdicts use the pre-registered models only: {', '.join(sorted(primary))}."
-            + (f" Added later (tables only): {', '.join(later)}." if later else ""),
+            + (f" Added later (tables only): {', '.join(later)}." if later else "")
+            + (
+                f" Removed from the primary set (incomplete, tables only): {', '.join(dropped)}."
+                if dropped
+                else ""
+            ),
             "",
         ]
     else:

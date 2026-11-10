@@ -15,14 +15,17 @@ from rlens.providers.base import (
 )
 from rlens.providers.gemini import GeminiProvider
 from rlens.providers.groq import GroqProvider
+from rlens.providers.nvidia import NvidiaProvider
 from rlens.providers.ollama import OllamaProvider
 
-#: Çekirdek sağlayıcılar Groq ve Ollama; Gemini opsiyoneldir (LensBench v1, N4).
+#: Çekirdek sağlayıcılar Groq ve Ollama; Gemini (LensBench v1, N4) ve NVIDIA
+#: (N8) opsiyoneldir.
 #: Anthropic henüz eklenmedi.
 PROVIDERS = {
     GroqProvider.name: GroqProvider,
     OllamaProvider.name: OllamaProvider,
     GeminiProvider.name: GeminiProvider,
+    NvidiaProvider.name: NvidiaProvider,
 }
 
 __all__ = [

@@ -88,6 +88,31 @@ def load_models(path: Path) -> list[ModelEntry]:
     return models
 
 
+def load_removed(path: Path) -> list[ModelEntry]:
+    """Koşu sırasında birincil setten çıkarılan modeller (`removed`; ön kayıt N8).
+
+    Koşulmazlar; rapor kayıtlarını eksik ve hükümsüz diye ayrı gösterir. Bir
+    model hem koşu listesinde hem burada olamaz: çıkarılan model geri alınmaz.
+    """
+    try:
+        raw = yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {}
+    except (OSError, yaml.YAMLError) as exc:
+        raise BenchError(f"Could not read the models file {path}: {exc}") from exc
+    entries = (raw.get("removed") if isinstance(raw, dict) else None) or []
+    _require(isinstance(entries, list), f"{path}: `removed` must be a list")
+    removed = []
+    for item in entries:
+        _require(
+            isinstance(item, dict) and {"provider", "model"} <= set(item),
+            f"{path}: every removed model needs provider and model: {item!r}",
+        )
+        removed.append(ModelEntry(str(item["provider"]), str(item["model"]), False))
+    running = {m.label for m in load_models(path)}
+    both = sorted({m.label for m in removed} & running)
+    _require(not both, f"{path}: a removed model is also in `models`: {', '.join(both)}")
+    return removed
+
+
 def _require(condition: bool, message: str) -> None:
     if not condition:
         raise BenchError(message)

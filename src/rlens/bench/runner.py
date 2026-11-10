@@ -123,6 +123,42 @@ def _load_journal(path: Path) -> dict[str, dict]:
     return done
 
 
+def result_dir(label: str, root: Path, out: Path | None = None) -> Path:
+    """Bir modelin sonuç klasörü: `<out>/<slug>` ya da `<root>/bench/results/<slug>`."""
+    slug = "".join(ch if ch.isalnum() or ch in "-." else "-" for ch in label)
+    return (Path(out) / slug) if out else Path(root) / "bench" / "results" / slug
+
+
+def partial_result(template: dict, provider: str, model: str, out_dir: Path) -> dict | None:
+    """Bitmemiş bir modelin kaydından sonuç sözlüğü (birincil setten çıkarılan; N8).
+
+    Yalnızca `template` ile aynı suite, istem ve proje özetleriyle koşulmuş
+    birimler alınır; başka bir şeyle ölçülmüş birim tabloya karışmaz. Kayıt
+    yoksa ya da eşleşen birim yoksa None.
+    """
+    journal = Path(out_dir) / JOURNAL
+    if not journal.exists():
+        return None
+    prefix = [template["suite_hash"], template["prompt_hash"], template["project_hashes"]]
+    units = []
+    for line in journal.read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            record = json.loads(line)
+            if json.loads(record["key"])[:3] == prefix:
+                units.append(record["unit"])
+    if not units:
+        return None
+    header = {k: v for k, v in template.items() if k not in ("units", "generated_at")}
+    return {
+        **header,
+        "provider": provider,
+        "model": model,
+        "units": units,
+        "removed": True,
+        "planned_units": len(template["units"]),
+    }
+
+
 def run_bench(
     suite: Suite,
     repo_root: Path,

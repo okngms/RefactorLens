@@ -38,11 +38,13 @@ from rlens.bench.runner import (
     MAX_RETRIES,
     TIMEOUT_SECONDS,
     estimate_calls,
+    partial_result,
     plan,
+    result_dir,
     run_bench,
     run_rotation,
 )
-from rlens.bench.suite import BenchError, ModelEntry, load_models, load_suite
+from rlens.bench.suite import BenchError, ModelEntry, load_models, load_removed, load_suite
 from rlens.chartests.generator import SYSTEM_INSTRUCTION as CHARTESTS_SYSTEM_INSTRUCTION
 from rlens.config import ConfigError, load_config
 from rlens.diff.baseline import BASELINE_FILE, findings, write_baseline
@@ -1330,8 +1332,7 @@ def bench_run(
             max_retries=MAX_RETRIES,
         )
         adapter = get_provider(settings)
-        slug = "".join(ch if ch.isalnum() or ch in "-." else "-" for ch in entry.label)
-        target_dir = (out / slug) if out else Path(root) / "bench" / "results" / slug
+        target_dir = result_dir(entry.label, root, out)
         console.print(f"[bold]{entry.label}[/bold]")
 
         def progress(done: int, total: int, unit: dict) -> None:
@@ -1373,11 +1374,33 @@ def bench_report(
             help="Models file; verdicts use its pre-registered (primary) models only.",
         ),
     ] = None,
+    root: Annotated[
+        Path,
+        typer.Option(
+            "--root",
+            exists=True,
+            file_okay=False,
+            help="Base of bench/results/, where removed models' journals are read.",
+        ),
+    ] = Path("."),
 ) -> None:
     """Tables and the pre-registered verdicts for one or more result files."""
     try:
         primary = {m.label for m in load_models(models) if m.primary} if models else None
-        text = report_markdown(load_results(results), primary)
+        loaded = load_results(results)
+        # Birincil setten çıkarılan modeller (N8): bitmemiş, sonuç dosyaları yok;
+        # kayıtları okunur, tablolarda ayrı işaretlenir, hükme girmez.
+        removed = load_removed(models) if models else []
+        given = {f"{r['provider']}/{r['model']}" for r in loaded}
+        for entry in removed:
+            if entry.label in given:
+                continue
+            partial = partial_result(
+                loaded[0], entry.provider, entry.model, result_dir(entry.label, root)
+            )
+            if partial is not None:
+                loaded.append(partial)
+        text = report_markdown(loaded, primary, {m.label for m in removed})
     except BenchError as exc:
         raise _fail(str(exc)) from exc
     if output:

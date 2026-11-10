@@ -620,3 +620,96 @@ class TestDroppedConnections:
         with pytest.raises(ProviderError, match="Network error") as caught:
             post_with_retry("u", {}, {}, provider_config, sleep=lambda _: None)
         assert not isinstance(caught.value, ProviderUnavailable)
+
+
+def chat_body(content="hello", finish="stop"):
+    return {"choices": [{"message": {"content": content}, "finish_reason": finish}]}
+
+
+class TestNvidia:
+    """NVIDIA NIM, Groq ile aynı OpenAI uyumlu gövdeyi kullanır (ön kayıt N8)."""
+
+    @pytest.fixture
+    def config(self, tmp_path, monkeypatch):
+        monkeypatch.setenv("NVIDIA_API_KEY", "secret")
+        (tmp_path / "rlens.yaml").write_text(
+            "provider:\n  name: nvidia\n  model: vendor/model-x\n  max_retries: 2\n"
+            "  max_output_tokens: 700\n",
+            encoding="utf-8",
+        )
+        return load_config(search_from=tmp_path).provider
+
+    def generate(self, config, monkeypatch, *responses):
+        from rlens.providers.nvidia import NvidiaProvider
+
+        recorder = Recorder(*responses)
+        monkeypatch.setattr(httpx, "post", recorder)
+        reply = NvidiaProvider().generate("sys", "usr", config, 0.2, sleep=lambda _: None)
+        return reply, recorder
+
+    def test_is_registered_and_known_to_config(self, config):
+        from rlens.providers.nvidia import NvidiaProvider
+
+        assert isinstance(get_provider(config), NvidiaProvider)
+
+    def test_reuses_the_groq_request_logic(self):
+        from rlens.providers.nvidia import NvidiaProvider
+        from rlens.providers.openai_compat import OpenAICompatibleProvider
+
+        assert NvidiaProvider.generate is OpenAICompatibleProvider.generate
+        assert GroqProvider.generate is OpenAICompatibleProvider.generate
+
+    def test_request_shape(self, config, monkeypatch):
+        reply, recorder = self.generate(config, monkeypatch, FakeResponse(200, chat_body()))
+        assert reply == "hello"
+        call = recorder.calls[0]
+        assert call["url"] == "https://integrate.api.nvidia.com/v1/chat/completions"
+        assert call["headers"]["Authorization"] == "Bearer secret"
+        assert call["json"]["model"] == "vendor/model-x"
+        assert [m["role"] for m in call["json"]["messages"]] == ["system", "user"]
+        assert call["json"]["max_tokens"] == 700
+        assert "max_completion_tokens" not in call["json"]
+
+    def test_base_url_from_config_wins(self, config, monkeypatch):
+        config = dataclasses.replace(config, base_url="http://proxy/v1/")
+        _, recorder = self.generate(config, monkeypatch, FakeResponse(200, chat_body()))
+        assert recorder.calls[0]["url"] == "http://proxy/v1/chat/completions"
+
+    def test_missing_key_names_the_variable(self, config, monkeypatch):
+        monkeypatch.delenv("NVIDIA_API_KEY")
+        with pytest.raises(ProviderConfigError, match="NVIDIA_API_KEY"):
+            self.generate(config, monkeypatch)
+
+    def test_truncation_names_nvidia(self, config, monkeypatch):
+        with pytest.raises(ProviderTruncated, match="NVIDIA") as caught:
+            self.generate(config, monkeypatch, FakeResponse(200, chat_body("half", "length")))
+        assert caught.value.partial == "half"
+
+    def test_unexpected_shape_names_nvidia(self, config, monkeypatch):
+        with pytest.raises(ProviderError, match="from NVIDIA"):
+            self.generate(config, monkeypatch, FakeResponse(200, {"weird": True}))
+
+    def test_429_after_retries_is_a_rate_limit(self, config, monkeypatch):
+        from rlens.providers.base import ProviderRateLimited
+
+        with pytest.raises(ProviderRateLimited):
+            self.generate(config, monkeypatch, *[FakeResponse(429, text="slow down")] * 3)
+
+    def test_503_is_unavailable(self, config, monkeypatch):
+        from rlens.providers.base import ProviderUnavailable
+
+        with pytest.raises(ProviderUnavailable):
+            self.generate(config, monkeypatch, *[FakeResponse(503, text="busy")] * 3)
+
+    def test_413_is_too_large_and_not_retried(self, config, monkeypatch):
+        from rlens.providers.base import ProviderRequestTooLarge
+
+        with pytest.raises(ProviderRequestTooLarge):
+            self.generate(config, monkeypatch, FakeResponse(413, text="too big"))
+
+    def test_dropped_connection_is_unavailable(self, config, monkeypatch):
+        from rlens.providers.base import ProviderUnavailable
+
+        dropped = httpx.ReadError("connection reset")
+        with pytest.raises(ProviderUnavailable):
+            self.generate(config, monkeypatch, dropped, dropped)

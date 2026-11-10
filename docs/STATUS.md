@@ -1,4 +1,4 @@
-# STATUS — 2026-10-24
+# STATUS — 2026-11-10
 
 ## Sürüm
 **v2.3.0 PyPI'da** (doğrulandı 2026-10-02). `v2.3.0` tag'i ile GitHub Actions
@@ -7,6 +7,32 @@ derlemeden önce karşılaştırıyor. İçerik: `CHANGELOG.md` 2.3.0. Önceki: 
 (2026-09-23), v2.1.0 (2026-09-22), v2.0.0 (2026-09-10).
 
 ## Bitenler
+- **N8: Gemini birincil setten çıktı, yerine NVIDIA NIM (2026-11-10).**
+  Kullanıcı kararı, hiçbir oran hesaplanmadan (`rlens bench report`
+  çalıştırılmadı, sonuç dosyası açılmadı, `bench/results/` altında hiçbir
+  dosya silinmedi).
+  - Sağlayıcı `nvidia` (`providers/nvidia.py`, `NVIDIA_API_KEY`). Groq'un
+    istek mantığı `providers/openai_compat.py`'deki ortak sınıfa taşındı;
+    Groq ve NVIDIA ondan türüyor (çıktı sınırı alanı: Groq
+    `max_completion_tokens`, NVIDIA `max_tokens`). 429/503/413/kopan bağlantı
+    `base.post_with_retry`'dan geliyor. `config.KNOWN_PROVIDERS`,
+    `env.example` güncellendi.
+  - Seçim kuralı denemeden önce ön kayda yazıldı (N8). Denemeler:
+    `nvidia/nemotron-3-ultra-550b-a55b` (a) 1,4 s, (b) 117,5 s → geçti,
+    `primary: true`; `deepseek-ai/deepseek-v4.1-flash` (a) 300 s'de zaman
+    aşımı → geçmedi, eklenmedi.
+  - `models.yaml`: üçüncü birincil satır NVIDIA; Gemini yeni `removed`
+    listesinde (koşulmaz). `rlens bench report --models` çıkarılan modelin
+    kaydını (`journal.jsonl`) okur (`bench.runner.partial_result`; yalnızca
+    aynı suite/istem/proje özetli birimler), tabloda "34/48 (removed)" ve
+    ayrı "Removed from the primary set" bölümüyle gösterir, hükme katmaz
+    (`verdict_items(..., removed)`). Yeni `--root` seçeneği kayıtların
+    yerini verir.
+  - Ön kayıt: §9 N8, §5 tablosu, §7 sınırlılık. `prompt_hash`
+    `b4e04b5ebd198adb`, `suite_hash` `05a5c58a0239ffc6` aynı; `models.yaml`
+    sha256 `ad83722beb5ce112`.
+  - Testler: `test_providers.py` +11, `test_bench.py` +7. Durum: 1909 paket
+    testi (10 atlandı), 91 fikstür testi, ruff temiz.
 - **Kopan bağlantı koşuyu durdurmuyor (2026-10-24).** `WinError 10054` ile
   koşu durmuştu; kopan bağlantı artık 503 gibi `ProviderUnavailable`
   (ön kayıt N7 eki). Koşu durumu: 120b 48, 20b 48, Gemini 17.
@@ -951,12 +977,16 @@ framework deyiminden geliyor.**
 ## Sıradaki iş
 **v2.4 sürüyor** (planlanan v3; `docs/02`). Aşama 0-5 bitti (Aşama 4'ün
 tip çıkarımı ve Aşama 5'in Marketplace yayını kullanıcı kararı bekliyor).
-Sıradaki: **LensBench v1 koşusunu tamamlamak** (ayrık süreçte sürüyor;
-durumu `bench/results/run.log` ve kayıt satır sayıları gösterir; süreç
-durmuşsa aynı komutla sürer) —
+Sıradaki: **LensBench v1 koşusunu tamamlamak.** gpt-oss-120b ve
+gpt-oss-20b 48/48; NVIDIA modeli 48 birimi baştan koşacak (N8). Kullanıcı
+koşuyu aynı komutla yeniden başlatır —
 `rlens bench run --suite bench/lensbench-v1/suite.yaml --models
-bench/lensbench-v1/models.yaml` (kesilirse aynı komut kaldığı yerden sürer;
-sonuçlar `bench/results/<model>/`). Bitince `rlens bench report ...
+bench/lensbench-v1/models.yaml --wait-minutes 30` (Groq modelleri bitmiş
+sayılır; kesilirse aynı komut kaldığı yerden sürer; sonuçlar
+`bench/results/<model>/`; durum `bench/results/run.log` ve kayıt satır
+sayılarında). NVIDIA 48/48 olunca rapor (`rlens bench report <üç sonuç
+dosyası> --models bench/lensbench-v1/models.yaml`; Gemini'nin 34 birimi
+kendiliğinden "removed" olarak eklenir). Bitince `rlens bench report ...
 --models bench/lensbench-v1/models.yaml` ile rapor, sonra **FINDINGS-3**
 (ön kayıt §6 sırasıyla; ön kayıtta olmayan her analiz "sonradan" başlığı
 altında) ve **2.4.0 yayını**. Donan dosyalar değişmez (ön kayıt §8).
@@ -1022,6 +1052,12 @@ Deney protokolü: docs/v2-duzeltme-asama5.md. Metrik sınıfları:
 docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.
 
 ## Açık kararlar / bilinen sorunlar
+- **Eski Gemini koşusu hâlâ çalışıyor olabilir (2026-11-10).** N8'den hemen
+  önce eski `models.yaml` ile başlatılan süreç (pid 25360, alt süreçleri
+  3344 ve 20332) otomatik modda durdurulamadı. `models.yaml`'ı başlarken
+  okuduğu için Gemini'yi denemeye devam eder; kapatılmazsa N8'den sonra
+  Gemini kaydına birim ekleyebilir. Yeni koşudan önce kapatılmalı. Bu not
+  yazılırken kayıt 34 satırdı.
 - **Raporda bugün bir kimlik çakışması var** (K15 yan bulgusu): awscli
   `plugin.py`'de iki `_` fonksiyonu (`@...register`). `verify` fonksiyonları
   ada göre eşleştirdiği için ikisini aynı birim sayar. Korpusta tek örnek;

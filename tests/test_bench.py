@@ -27,8 +27,15 @@ from rlens.bench.report import (
     load_results,
     report_markdown,
 )
-from rlens.bench.runner import JOURNAL, estimate_calls, plan, run_bench
-from rlens.bench.suite import BenchError, load_models, load_suite, project_hash
+from rlens.bench.runner import (
+    JOURNAL,
+    estimate_calls,
+    partial_result,
+    plan,
+    result_dir,
+    run_bench,
+)
+from rlens.bench.suite import BenchError, load_models, load_removed, load_suite, project_hash
 from rlens.cli import app
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -298,13 +305,49 @@ class TestReportAndCli:
 class TestModels:
     def test_the_primary_set(self):
         # N4: qwen çıktı (ücretsiz katmanda çağrılamıyor), yerine Gemini.
+        # N8: Gemini 34/48'de çıktı, yerine NVIDIA NIM.
         models = load_models(MODELS)
         assert [(m.provider, m.model) for m in models if m.primary] == [
             ("groq", "openai/gpt-oss-120b"),
             ("groq", "openai/gpt-oss-20b"),
-            ("gemini", "gemini-3.8-flash"),
+            ("nvidia", "nvidia/nemotron-3-ultra-550b-a55b"),
         ]
         assert models[0].label == "groq/openai/gpt-oss-120b"
+
+    def test_gemini_is_removed_not_deleted(self):
+        removed = load_removed(MODELS)
+        assert [(m.provider, m.model, m.primary) for m in removed] == [
+            ("gemini", "gemini-3.8-flash", False)
+        ]
+        assert "gemini/gemini-3.8-flash" not in {m.label for m in load_models(MODELS)}
+
+    def test_a_removed_model_cannot_also_run(self, tmp_path):
+        (tmp_path / "m.yaml").write_text(
+            "models:\n  - {provider: groq, model: x, primary: true}\n"
+            "removed:\n  - {provider: groq, model: x}\n",
+            encoding="utf-8",
+        )
+        with pytest.raises(BenchError, match="removed model is also"):
+            load_removed(tmp_path / "m.yaml")
+
+    def test_no_removed_list_is_empty(self, tmp_path):
+        (tmp_path / "m.yaml").write_text(
+            "models:\n  - {provider: groq, model: x, primary: true}\n", encoding="utf-8"
+        )
+        assert load_removed(tmp_path / "m.yaml") == []
+
+    def test_removed_models_never_change_a_verdict(self):
+        """Çıkarılan model tablolarda görünür; `primary` verilmese de hükme girmez."""
+        items = []
+        for model in ("a", "b", "c"):
+            items += many(10, model=model, outcome="hit", confidence=0.6)
+        gone = many(10, model="gone", outcome="miss", confidence=0.99)
+        from rlens.bench.report import verdict_items
+
+        for primary in (None, {"a", "b", "c", "gone"}):
+            judged = verdict_items(items + gone, primary, {"gone"})
+            assert {p.model for p in judged} == {"a", "b", "c"}
+            assert h3(judged)[0] == REFUTED
 
     def test_a_model_without_primary_is_refused(self, tmp_path):
         (tmp_path / "m.yaml").write_text(
@@ -445,3 +488,60 @@ def test_a_timeout_is_counted_with_the_provider_limits():
     from rlens.bench.report import LIMITS
 
     assert "timeout" in LIMITS
+
+
+@needs_git
+class TestRemovedModel:
+    """Birincil setten çıkarılan model (N8): sonuç dosyası yok, kaydı var."""
+
+    def prepare(self, mini, tmp_path):
+        repo, suite = mini
+        full = run_bench(suite, repo, "fake", "m1", Scripted(), tmp_path / "out")
+        gone_dir = result_dir("fake/m2", repo)
+        run_bench(suite, repo, "fake", "m2", Scripted(), gone_dir)
+        for path in gone_dir.glob("mini-*.json"):
+            path.unlink()
+        # Yarım kalmış koşu: iki birimden yalnızca biri kayıtta.
+        journal = gone_dir / JOURNAL
+        first = journal.read_text(encoding="utf-8").splitlines()[0]
+        journal.write_text(first + "\n", encoding="utf-8")
+        return repo, full, gone_dir
+
+    def test_partial_result_reads_the_journal(self, mini, tmp_path):
+        _, full, gone_dir = self.prepare(mini, tmp_path)
+        template = json.loads(full.read_text(encoding="utf-8"))
+        partial = partial_result(template, "fake", "m2", gone_dir)
+        assert partial["model"] == "m2"
+        assert len(partial["units"]) == 1
+        assert partial["planned_units"] == 2
+        assert partial["removed"] is True
+        assert partial["prompt_hash"] == template["prompt_hash"]
+
+    def test_units_measured_with_other_hashes_are_left_out(self, mini, tmp_path):
+        _, full, gone_dir = self.prepare(mini, tmp_path)
+        template = json.loads(full.read_text(encoding="utf-8"))
+        template["prompt_hash"] = "different"
+        assert partial_result(template, "fake", "m2", gone_dir) is None
+        assert partial_result(template, "fake", "m2", tmp_path / "nowhere") is None
+
+    def test_cli_report_shows_it_apart(self, mini, tmp_path):
+        repo, full, _ = self.prepare(mini, tmp_path)
+        models = tmp_path / "m.yaml"
+        models.write_text(
+            "models:\n  - {provider: fake, model: m1, primary: true}\n"
+            "removed:\n  - {provider: fake, model: m2}\n",
+            encoding="utf-8",
+        )
+        out = tmp_path / "report.md"
+        result = CliRunner().invoke(
+            app,
+            ["bench", "report", str(full), "--models", str(models), "--root", str(repo)]
+            + ["-o", str(out)],
+        )
+        assert result.exit_code == 0, result.output
+        text = out.read_text(encoding="utf-8")
+        assert "| fake/m2 | 1/2 (removed) |" in text
+        assert "## Removed from the primary set" in text
+        assert "incomplete (1 of 2 units)" in text
+        assert "Verdicts use the pre-registered models only: fake/m1." in text
+        assert "Removed from the primary set (incomplete, tables only)" in text

@@ -28,7 +28,7 @@ CONFIG_FILENAME = "rlens.yaml"
 _THRESHOLD_KEYS = ("warn", "critical")
 
 #: M1 çekirdek sağlayıcıları + opsiyonel olanlar (bkz. Bölüm 3).
-KNOWN_PROVIDERS = ("groq", "ollama", "gemini", "anthropic")
+KNOWN_PROVIDERS = ("groq", "ollama", "gemini", "nvidia", "anthropic")
 CORE_PROVIDERS = ("groq", "ollama")
 
 

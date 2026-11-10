@@ -118,7 +118,7 @@ ilk çağrıdan sonra değişmez:
 |---|---|---|
 | 1 | groq | `openai/gpt-oss-120b` |
 | 2 | groq | `openai/gpt-oss-20b` |
-| 3 | gemini | `gemini-3.8-flash` (N4: `qwen/qwen3.8-27b`'nin yerine) |
+| 3 | nvidia | `nvidia/nemotron-3-ultra-550b-a55b` (N8: `gemini-3.8-flash`'in yerine; o da N4'te `qwen/qwen3.8-27b`'nin yerine girmişti) |
 
 **Sonradan eklenen modeller** `primary: false` ile eklenir: raporda tablolarda
 görünür, **hükmü değiştirmez**. Sonuçlar görüldükten sonra model eklemek, bir
@@ -149,6 +149,11 @@ hatasıyla kesilen koşu aynı komutla sürer.
   büyüklüğü ya da sağlayıcıyla ilgili genelleme yapılmaz.
 - Birincil set iki sağlayıcıdan (Groq ×2, Gemini ×1; N4); Gemini modelindeki
   bir fark model farkından mı sağlayıcı farkından mı, ayrıştırılamaz.
+- Birincil set koşu sırasında **ikinci kez** değişti (N4, N8): üçüncü
+  birincil model (NVIDIA NIM) farklı bir sağlayıcıda ve gpt-oss modellerinden
+  haftalar sonra, farklı tarihlerde koştu. Model farkı sağlayıcı ve zaman
+  farkından ayrıştırılamaz. Gemini'nin 34 birimi eksik ve hükümsüz olarak
+  raporlanır.
 - Fikstürleri ve aracı tasarlayan aynı kişi/oturum; ön kayıt bu yanlılığa
   karşı tek savunma.
 - Metrikler Python'a uyarlanmıştır; metrik iyileşmesi tasarım iyileşmesi
@@ -308,3 +313,43 @@ kaydedilmedi (kayıt 13 satırda kaldı).
   yeniden denenir, sonra `ProviderUnavailable`; yarım birim kaydedilmez.
   Diğer aktarım hataları (ör. desteklenmeyen protokol) koşuyu yine durdurur.
   Ölçüme etkisi yok.
+
+**N8 — Sapma: Gemini birincil setten çıkar, yerine NVIDIA NIM modeli
+(2026-11-10).** Kullanıcı kararı. Gemini ücretsiz katmanı model başına günde
+20 istek veriyor (N6); koşu 34/48 birimde günlerdir ilerlemiyor. Son biten
+birimin `run_id`'leri `20261101-110544-8b0e` ve `20261101-110942-7fc1`
+(2026-11-01). `bench/results/run.log`'un son satırları (2026-11-10) sebebi
+söylüyor: "HTTP 503 (unavailable) … This model is currently experiencing high
+demand"; önceki günlerde 503'lerden sonra günlük kotanın 429'u geldi. Karar
+**hiçbir model için oran hesaplanmadan** ve sonuçlar görülmeden verildi; bu
+not yazılırken de hiçbir sonuç dosyası açılmadı, `rlens bench report`
+çalıştırılmadı.
+- N4'ten farkı: N4'te çıkan modelden hiç birim yoktu. Gemini'nin 34 birimi
+  var; silinmez, **birincil olmayan, eksik model** olarak raporlanır
+  (`models.yaml` → `removed`; rapor ayrı bir bölümde "removed from the
+  primary set, incomplete" der ve hükme katmaz). Gemini birincil sete geri
+  alınmaz.
+- Yeni birincil model 48 birimin **hepsini baştan** koşar; Gemini'nin eksik
+  birimleri başka bir modelle tamamlanmaz. gpt-oss modelleri yeniden
+  koşulmaz.
+- Seçim kuralı, **denemeden önce** yazıldı: NVIDIA NIM'in ücretsiz
+  uçlarından, gpt-oss ve Gemini dışı bir aileden, şu sırayla:
+  `nvidia/nemotron-3-ultra-550b-a55b`, `deepseek-ai/deepseek-v4.1-flash`.
+  Her aday için bench içeriği olmayan iki deneme: (a) "Say ok." yanıt
+  veriyor mu; (b) "Write about 1500 words on the history of bridges."
+  süresi. (b) 180 saniyeyi aşarsa ya da hata verirse sıradakine geçilir.
+  Geçen ilk aday `primary: true`, ikincisi de geçerse `primary: false`.
+  İkisi de geçmezse `models.yaml` değişmez ve bu not yalnızca deneme
+  sonuçlarıyla kalır.
+- Denemeler (2026-11-10, yeni `nvidia` adaptörüyle, bench ayarlarıyla:
+  çıktı sınırı 16 384 token, zaman aşımı 300 s, yeniden deneme yok):
+  - `nvidia/nemotron-3-ultra-550b-a55b`: (a) yanıt "Ok.", 1,4 s; (b) 117,5 s,
+    2646 kelime. **Geçti** → `primary: true`.
+  - `deepseek-ai/deepseek-v4.1-flash`: (a) 300 s'de zaman aşımı ("Request
+    timed out after 300s (1 attempts)"); (b) denenmedi. **Geçmedi**,
+    eklenmedi.
+- Eşikler, hedefler, koşullar ve prompt'lar değişmedi: `prompt_hash`
+  `b4e04b5ebd198adb`, `suite_hash` `05a5c58a0239ffc6` (yeniden hesaplandı).
+  Değişen yalnızca `models.yaml`: üçüncü birincil satır ve yeni `removed`
+  listesi; yeni sha256 `ad83722beb5ce112` (ilk 16 karakter).
+- Yeni sınırlılık §7'ye eklendi.
