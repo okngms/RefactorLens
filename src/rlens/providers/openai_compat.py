@@ -76,4 +76,14 @@ class OpenAICompatibleProvider:
                 "(finish_reason: length). Raise `provider.max_output_tokens` in rlens.yaml.",
                 partial=content or "",
             )
+        if not isinstance(content, str):
+            # NVIDIA bir yanıtta `content: null` döndürdü (2026-11-11); boş değer
+            # `advise`'da TypeError ile çöküyordu. Yanıtın şekli hataya yazılır.
+            message = choice.get("message") or {}
+            raise ProviderError(
+                f"{self.label} returned no message content "
+                f"(finish_reason: {choice.get('finish_reason')}; "
+                f"message fields: {', '.join(sorted(message)) or 'none'}; "
+                f"usage: {data.get('usage')})."
+            )
         return content

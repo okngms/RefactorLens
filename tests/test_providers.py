@@ -689,6 +689,25 @@ class TestNvidia:
         with pytest.raises(ProviderError, match="from NVIDIA"):
             self.generate(config, monkeypatch, FakeResponse(200, {"weird": True}))
 
+    def test_null_content_is_an_error_with_the_reply_shape(self, config, monkeypatch):
+        # 2026-11-11: `content: null` sessizce geçip advise'da TypeError ile çöktü.
+        body = {
+            "choices": [
+                {"message": {"content": None, "reasoning_content": "hm"}, "finish_reason": "stop"}
+            ],
+            "usage": {"completion_tokens": 12},
+        }
+        with pytest.raises(ProviderError, match="no message content") as caught:
+            self.generate(config, monkeypatch, FakeResponse(200, body))
+        text = str(caught.value)
+        assert "finish_reason: stop" in text
+        assert "reasoning_content" in text
+        assert "completion_tokens" in text
+
+    def test_empty_string_content_is_returned(self, config, monkeypatch):
+        reply, _ = self.generate(config, monkeypatch, FakeResponse(200, chat_body("")))
+        assert reply == ""
+
     def test_429_after_retries_is_a_rate_limit(self, config, monkeypatch):
         from rlens.providers.base import ProviderRateLimited
 

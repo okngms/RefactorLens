@@ -1,4 +1,4 @@
-# STATUS — 2026-11-10
+# STATUS — 2026-11-11
 
 ## Sürüm
 **v2.3.0 PyPI'da** (doğrulandı 2026-10-02). `v2.3.0` tag'i ile GitHub Actions
@@ -7,6 +7,44 @@ derlemeden önce karşılaştırıyor. İçerik: `CHANGELOG.md` 2.3.0. Önceki: 
 (2026-09-23), v2.1.0 (2026-09-22), v2.0.0 (2026-09-10).
 
 ## Bitenler
+- **LensBench v1 pilot olarak kapatıldı (2026-11-11, kullanıcı kararı).**
+  Ürün kilometre taşına ulaşınca, ürünün son haliyle yeni ön kayıtlı bir
+  deney (LensBench v2) yapılacak. Boş yanıtı yakalayan adaptör düzeltmesi
+  kaldı (aşağıdaki madde).
+  - Ön kayıt: §9 **N9** (nemotron'un uzun girdide boş/anlamsız çıktısı,
+    teşhis tablosu, sıfır birim, pilot kararı) ve yeni **§10 Pilot
+    dersleri** (uzun girdi seçim testi; ücretsiz kota süreleri ve bütçe
+    planı; her birincil model için önceden yazılmış yedek; bench'in
+    dondurulmuş ayrı kopyadan koşulması).
+  - Kayıtlar korunur, pilot olarak raporlanır: gpt-oss-120b 48,
+    gpt-oss-20b 48, Gemini 34 birim. `bench/results/` altında hiçbir şey
+    silinmedi, `models.yaml` değişmedi, `rlens bench report`
+    çalıştırılmadı, hiçbir oran hesaplanmadı.
+  - `FUTURE.md` → "Deneyler: LensBench v2" (tetikleyici: 2.5.0
+    yayımlandığında). `docs/03`'ün "LensBench ve FINDINGS-3 tamamlanmış"
+    önkoşulu kullanıcı kararıyla kaldırıldı, gerekçesi orada.
+- **Nemotron bench istemlerinde kullanılamıyor; koşu durdu (2026-11-11).**
+  Eski Gemini süreci kapanmıştı (kayıt 34'te kaldı). Koşu yeni
+  `models.yaml` ile başladı, Groq modelleri bitmiş sayıldı;
+  `nvidia/nemotron-3-ultra-550b-a55b`'nin ilk öneri çağrısı (istem 2362
+  token) `content: null`, `finish_reason: stop`, 6 token (hepsi
+  `reasoning_tokens`) döndürdü. İki denemede aynı. **NVIDIA için hiç birim
+  kaydedilmedi.**
+  - Kod hatası düzeltildi: `openai_compat` boş içeriği sessizce geçiriyordu,
+    `advise` `TypeError` ile çöktü. Artık yanıtın şeklini (finish_reason,
+    mesaj alanları, usage) yazan `ProviderError`; koşu durur.
+    `test_providers.py` +2.
+  - Teşhis denemeleri (bench içeriği yok; `textwrap.py`'nin ilk N
+    karakteri, "What does this code do?"): "Say ok." ve kısa JSON isteği
+    düzgün; 513, 1071, 2044 (2247 token üretip) ve 2933 token'lık
+    istemlerde `content` boş. Üretilen metin anlamsız: varsayılanla
+    `reasoning_content` "\ufffd的那些\ufffd那些";
+    `chat_template_kwargs.enable_thinking=false` ile `content` "."; `thinking=false` ile
+    ")I)),))-…"; `/no_think` ile boş. Seçim denemesi (b) kısa istemle 2646
+    kelime üretmişti; sorun uzun girdide. Sebep (sağlayıcı tarafı mı, geçici
+    mi) incelenmedi.
+  - Dört kontrol yeşil: 1911 paket testi (10 atlandı), 91 fikstür testi,
+    ruff temiz.
 - **N8: Gemini birincil setten çıktı, yerine NVIDIA NIM (2026-11-10).**
   Kullanıcı kararı, hiçbir oran hesaplanmadan (`rlens bench report`
   çalıştırılmadı, sonuç dosyası açılmadı, `bench/results/` altında hiçbir
@@ -976,20 +1014,14 @@ framework deyiminden geliyor.**
 
 ## Sıradaki iş
 **v2.4 sürüyor** (planlanan v3; `docs/02`). Aşama 0-5 bitti (Aşama 4'ün
-tip çıkarımı ve Aşama 5'in Marketplace yayını kullanıcı kararı bekliyor).
-Sıradaki: **LensBench v1 koşusunu tamamlamak.** gpt-oss-120b ve
-gpt-oss-20b 48/48; NVIDIA modeli 48 birimi baştan koşacak (N8). Kullanıcı
-koşuyu aynı komutla yeniden başlatır —
-`rlens bench run --suite bench/lensbench-v1/suite.yaml --models
-bench/lensbench-v1/models.yaml --wait-minutes 30` (Groq modelleri bitmiş
-sayılır; kesilirse aynı komut kaldığı yerden sürer; sonuçlar
-`bench/results/<model>/`; durum `bench/results/run.log` ve kayıt satır
-sayılarında). NVIDIA 48/48 olunca rapor (`rlens bench report <üç sonuç
-dosyası> --models bench/lensbench-v1/models.yaml`; Gemini'nin 34 birimi
-kendiliğinden "removed" olarak eklenir). Bitince `rlens bench report ...
---models bench/lensbench-v1/models.yaml` ile rapor, sonra **FINDINGS-3**
-(ön kayıt §6 sırasıyla; ön kayıtta olmayan her analiz "sonradan" başlığı
-altında) ve **2.4.0 yayını**. Donan dosyalar değişmez (ön kayıt §8).
+tip çıkarımı ve Aşama 5'in Marketplace yayını kullanıcı kararıyla atlandı,
+`FUTURE.md`). LensBench v1 pilot olarak kapandı (ön kayıt N9).
+
+Sıradaki: **2.4.0 yayını**, sonra **v2.5 ürün işleri** (`docs/03`; önkoşul
+güncellendi). Yayından önce kullanıcı kararı gereken tek nokta: `docs/02`
+Aşama 6'nın "Bitti ⇔ FINDINGS-3.md + benchmark tablosu README'de" ölçütü
+hâlâ yazılı (aşağıda, "Açık kararlar"). LensBench v2 2.5.0
+yayımlandığında, yeni ön kayıtla (`FUTURE.md`).
 
 Bu arada açık kalan, küçük ve bağımsız işler: `analysis`'in `importlinter`
 çağrısını sınıra çekmek (Blok 5 ile; 14 çağrı yeri, giriş noktalarını
@@ -1044,7 +1076,7 @@ experiments/hardening/stateless-gate.md → experiments/hardening/density-gate.m
 → docs/v2-tanim-kararlari.md (K4, K7, K9, K10)
 Etiketleme: experiments/hardening/god-class-labeling.md (etiketleyen için;
 kapı çıktılarını okumadan).
-Sonraki faz: docs/02 (v2.4, planlanan v3). Sertleştirme sonuçları: docs/self-architecture.md,
+LensBench v1 pilot kapanışı: docs/lensbench-v1-onkayit.md (N9, §10). Sonraki faz: docs/03 (v2.5, planlanan v4). Sertleştirme sonuçları: docs/self-architecture.md,
 experiments/hardening/robustness.md, experiments/hardening/mutation.md,
 docs/v2-tanim-kararlari.md K18. Blok 3 sonucu: docs/self-architecture.md;
 Blok 2 sonucu: experiments/hardening/robustness.md.
@@ -1052,12 +1084,12 @@ Deney protokolü: docs/v2-duzeltme-asama5.md. Metrik sınıfları:
 docs/SPEC-duzeltme-2.5.md ve SPEC-duzeltme-2.5-v2.md.
 
 ## Açık kararlar / bilinen sorunlar
-- **Eski Gemini koşusu hâlâ çalışıyor olabilir (2026-11-10).** N8'den hemen
-  önce eski `models.yaml` ile başlatılan süreç (pid 25360, alt süreçleri
-  3344 ve 20332) otomatik modda durdurulamadı. `models.yaml`'ı başlarken
-  okuduğu için Gemini'yi denemeye devam eder; kapatılmazsa N8'den sonra
-  Gemini kaydına birim ekleyebilir. Yeni koşudan önce kapatılmalı. Bu not
-  yazılırken kayıt 34 satırdı.
+- **`docs/02` Aşama 6'nın bitiş ölçütü pilot kararıyla çelişiyor
+  (2026-11-11).** Ölçüt "`FINDINGS-3.md` + benchmark tablosu README'de; ham
+  veri `experiments/v3/`; v3.0.0 PyPI'da" diyor. v1 pilot olarak kapandı ve
+  FINDINGS-3 LensBench v2'ye kaldı; 2.4.0 bu ölçüt değişmeden yayımlanırsa
+  belge yayınla çelişir. Ölçütün nasıl değişeceği kullanıcı kararı;
+  değiştirilmedi.
 - **Raporda bugün bir kimlik çakışması var** (K15 yan bulgusu): awscli
   `plugin.py`'de iki `_` fonksiyonu (`@...register`). `verify` fonksiyonları
   ada göre eşleştirdiği için ikisini aynı birim sayar. Korpusta tek örnek;

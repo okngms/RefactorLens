@@ -353,3 +353,75 @@ not yazılırken de hiçbir sonuç dosyası açılmadı, `rlens bench report`
   Değişen yalnızca `models.yaml`: üçüncü birincil satır ve yeni `removed`
   listesi; yeni sha256 `ad83722beb5ce112` (ilk 16 karakter).
 - Yeni sınırlılık §7'ye eklendi.
+
+**N9 — v1 pilot olarak kapatıldı (2026-11-11).** Kullanıcı kararı.
+`nvidia/nemotron-3-ultra-550b-a55b` (N8'in seçtiği birincil model) ilk
+öneri çağrısında (istem 2362 token) `content: null`, `finish_reason: stop`
+ve 6 token (hepsi `reasoning_tokens`) döndürdü; iki denemede aynı.
+**Hiçbir birim kaydedilmedi.**
+- Teşhis denemeleri (bench içeriği gönderilmedi; Python standart
+  kütüphanesindeki `textwrap.py`'nin ilk N karakteri + "What does this code
+  do?"):
+
+  | İstem | Sonuç |
+  |---|---|
+  | "Say ok.", kısa JSON isteği | düzgün yanıt |
+  | 513, 1071, 2933 token | `content` boş |
+  | 2044 token | 2247 token üretildi, `content` yine boş |
+  | ~1070 token, varsayılan | `reasoning_content` anlamsız ("\ufffd的那些\ufffd那些") |
+  | aynı, `chat_template_kwargs.enable_thinking=false` | `content` yalnızca "." |
+  | aynı, `chat_template_kwargs.thinking=false` | `content` anlamsız (")I)),))-…") |
+  | aynı, sistem talimatı `/no_think` ile | `content` boş |
+
+  N8'in (b) denemesi kısa istemle 2646 kelime üretmişti: bozulma uzun
+  girdide. Sağlayıcı tarafında geçici bir arıza mı, kalıcı mı, incelenmedi.
+- Kod: `providers/openai_compat` boş içeriği sessizce geçiriyordu ve
+  `advise` `TypeError` ile çöktü. Artık yanıtın şeklini yazan bir
+  `ProviderError`; koşu durur. Ölçüme etkisi yok (birim kaydedilmedi).
+- Karar: LensBench v1 **pilot** olarak kapanır. Birincil set
+  tamamlanamadı (eksiksiz iki model; §5'in üç model eşiği karşılanmıyor).
+  Ürün kilometre taşına ulaşınca ürünün son haliyle yeni ön kayıtlı bir
+  deney (LensBench v2) yapılır (`FUTURE.md`).
+- Mevcut kayıtlar korunur ve pilot olarak raporlanır: gpt-oss-120b 48,
+  gpt-oss-20b 48, Gemini 34 birim. `bench/results/` altında hiçbir şey
+  silinmedi; `models.yaml` değişmedi (nemotron satırı sıfır birimle
+  duruyor). Bu not yazılırken `rlens bench report` çalıştırılmadı ve hiçbir
+  oran hesaplanmadı. Pilot raporu yazılırsa §2'nin hükümleri hipotez testi
+  olarak sunulmaz: birincil set eksik.
+- `prompt_hash` `b4e04b5ebd198adb`, `suite_hash` `05a5c58a0239ffc6`
+  değişmedi; donan dosyalara dokunulmadı.
+
+## 10. Pilot dersleri (LensBench v2 için)
+
+v1 iki kez birincil model değiştirdi (N4, N8) ve bitmeden kapandı (N9).
+Aşağıdakiler v2'nin ön kaydına girecek maddelerdir; v1'e uygulanmaz.
+
+1. **Uzun girdi seçim testi.** N4 ve N8'in seçim denemeleri kısa istemdi
+   ("Say ok.", tek cümlelik görev). nemotron ikisini de geçti ve bench
+   uzunluğundaki girdide bozuldu (denenen en kısa bozuk istem 513 token;
+   N9). v2'de her aday, bench içeriği olmayan ama bench istemi uzunluğunda
+   (en uzun istemin
+   üst sınırı kadar) bir girdiyle ve bench'in çıktı biçimiyle (JSON)
+   denenir; boş ya da ayrıştırılamayan yanıt adayı eler.
+2. **Ücretsiz kota süreleri ve bütçe planı.** Groq'un iki modeli ilk
+   çağrıdan (2026-10-03) iki hafta sonra bitti (sonuç dosyaları
+   2026-10-18; günlük token sınırı, N2). Gemini günde 20 istekle (N6)
+   2026-10-17'den 2026-11-01'e 34 birim tamamladı, sonra 503 dalgaları ve
+   kota yüzünden ilerlemedi; 503 alan isteklerin kotaya sayıldığı
+   muhtemel, doğrulanmadı (N7 eki). v2'de her model için ön kayıtta
+   yazılır: çağrı tahmini (`--dry-run`), sağlayıcının günlük sınırı, bundan
+   çıkan en kısa ve en uzun süre, bir bitiş tarihi ve o tarihte bitmeyen
+   modelin ne olacağı.
+3. **Her birincil model için önceden yazılmış yedek.** v1'de yedek, sorun
+   çıktıktan sonra seçildi (N4, N8); seçim kuralı sonuç görülmeden yazıldı
+   ama her seferinde koşu sırasında. v2'de her birincil modelin yedeği (ve
+   yedeğin seçim denemeleri) ilk çağrıdan önce ön kayıtta durur; geçiş
+   koşulu da (ör. N gün ilerleme yok) önceden yazılır.
+4. **Bench'in dondurulmuş ayrı kopyadan koşulması.** v1 geliştirme
+   deposundan koşuldu: koşu sürerken sağlayıcı ve koşucu kodu değişti
+   (N5, N7, N8, N9) ve her yeniden başlatma o anki kodu yükledi; eski
+   `models.yaml` ile başlamış bir süreç, dosya değiştikten sonra da eski
+   listeyle çalışmayı sürdürdü (2026-11-10). `prompt_hash` istemleri
+   korudu ama koşucu ve adaptörleri korumadı. v2 ayrı bir kopyadan (ör.
+   etiketli sürümün kurulu paketi ya da ayrı bir worktree) koşulur;
+   düzeltme gerekirse o kopyaya, notuyla birlikte uygulanır.

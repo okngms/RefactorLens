@@ -5,7 +5,8 @@
 > geçen "v3" v2.4'ü, "v4" v2.5'i; "v3.0.0" 2.4.0'ı, FINDINGS-3/4 aynı
 > adlarıyla kalır.
 
-> **Önkoşul:** v3.0.0 yayında; LensBench ve FINDINGS-3 tamamlanmış; GitHub Action'ın gerçek kullanıcıları var. `00` ve `04` okunmuş.
+> **Önkoşul:** v3.0.0 yayında; GitHub Action'ın gerçek kullanıcıları var. `00` ve `04` okunmuş.
+> **Önkoşul değişikliği (2026-11-11, kullanıcı kararı).** "LensBench ve FINDINGS-3 tamamlanmış" önkoşulu kaldırıldı. LensBench v1, birincil set iki kez değiştikten sonra da tamamlanamadı (Gemini'nin ücretsiz kotası, N8; yerine geçen modelin uzun girdide boş yanıt vermesi, N9) ve pilot olarak kapatıldı (`docs/lensbench-v1-onkayit.md` N9, §10). Kullanıcının gerekçesi: deney ürünün ara bir haliyle değil, belirlenen kilometre taşındaki son haliyle yapılmalı; bu yüzden v4 deneyi beklemez. Yeni ön kayıtlı deney (LensBench v2) 2.5.0 yayımlandığında yapılır (`FUTURE.md`); FINDINGS-3 o deneyle yazılır.
 > **Tez:** v1-v3 kodun *anlık* fotoğrafını ölçer. Mimari borç ise zaman içinde birikir ve her sınıf eşit önemde değildir: sürekli değişen ve kötüleşen sınıf, hiç dokunulmayan kötü sınıftan daha önemlidir. v4 zaman eksenini ekler, çekirdeği dilden bağımsızlaştırır ve ekip kullanımına uygun raporlama/politika katmanı getirir.
 > **Uyarı:** v4'ün üçüncü bloğu (ekip katmanı) yalnızca v3'ün kullanıcı verisi "talep var" diyorsa yapılır. Talep yoksa v4 = zaman ekseni + eklenti protokolü.
 
